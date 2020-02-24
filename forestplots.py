@@ -17,7 +17,7 @@ library(schoRsch)
 library(DescTools)
 
 %%html
-First each column is binned. Not yet ported to python.
+First each column is binned
 
 %%R
 dat <- NULL
@@ -38,6 +38,32 @@ for(i in names(dat2[,c( 8:33)] )){
   dat2 <- merge( dat2,  x[,c(f,i)], by = f, all = T)
   }
 
+%%R
+dat2_copy <- cbind(dat2)
+dat2_copy$SurvObj <- NULL
+
+dat2_R = %Rget dat2_copy
+dat2_R
+
+import pandas as pd
+
+# https://rdrr.io/cran/schoRsch/src/R/ntiles.R
+ntiles = lambda xs: pd.cut(pd.Series(xs).rank(), 2, right=False, labels=False) + 1
+
+dat2_py = pd.read_csv("./made-up-data.csv")
+dat2_py = dat2_py[ dat2_py['PreOp_treatment_yesno'] == 'No' ]
+dat2_py = dat2_py[ dat2_py['cohort'] == 'Colon' ]
+types = dat2_py.columns[7:]
+for i in types:
+    x = dat2_py[i]
+    dat2_py[i + '.y'] = ntiles(dat2_py[i])
+dat2_py
+
+for i in types:
+    py = dat2_py[i + '.y'].reset_index()
+    R = dat2_R[i + '.y'].reset_index()
+    if not all(py == R):
+        print(f'Incorrect binning of {i}')
 
 %%R
 data<- dat2
@@ -79,15 +105,10 @@ Cox_R
 
 # !pip install --user lifelines
 from lifelines import CoxPHFitter
-import pandas as pd
 
-%%R
-# write to csv because cannot convert the Surv object from dat2
-write.csv(dat2, './dichotomized.csv')
-
-dd = pd.read_csv('./dichotomized.csv')
+dd = dat2_py
 dd['T'] = dd['Time_Diagnosis_Last_followup']
-dd['E'] = dd['status'] == 'Dead'
+dd['E'] = dd['Event_last_followup'] == 'Dead'
 covariates = [ c for c in dd.columns if c.endswith('.y') ]
 TE = ['T', 'E']
 
@@ -116,7 +137,9 @@ Cox_both[['coef', 'beta', 'exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 9
 The rest of their R code is a meta-analysis. I think this is done to get the summary estimate written at the end of the forest plot.
 I think this also sets weight sizes of the squares in the forest plot.
 
-%%R
+'z'
+
+%%R -w 12 -h 12 --units in
 library(metafor)
 ###########################
 #### remove 'y' from names
