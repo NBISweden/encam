@@ -140,7 +140,7 @@ result = {
 
 result_json = json.dumps(result, indent=2)
 
-with open('./db.json', 'w') as fp:
+with open('./frontend/db.json', 'w') as fp:
     fp.write(result_json)
 
 import gzip
