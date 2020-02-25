@@ -1,3 +1,6 @@
+'''
+This script tests the port of the schoRsch ntiles function to python using pandas.
+'''
 
 from rpy2.robjects.packages import importr
 import rpy2.robjects as ro
