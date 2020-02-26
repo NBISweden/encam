@@ -7,6 +7,7 @@
   "author": "NBIS",
   "license": "GPL-3.0",
   "devDependencies": {
+    "@types/d3": "^5.7.2",
     "parcel": "^1.12.4",
     "typescript": "^3.8.2"
   },
@@ -14,5 +15,8 @@
     "start": "parcel index.html",
     "build": "rm dist/* -rf; parcel build index.html --no-source-maps --public-url .",
     "deploy": "yarn run build && echo deploy script TODO"
+  },
+  "dependencies": {
+    "d3": "^5.15.0"
   }
 }
