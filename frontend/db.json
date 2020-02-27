@@ -1,1314 +1,860 @@
-{
-  "by_tumor": {
-    "Colon": {
-      "CD4": {
-        "TUMOR": {
-          "expression": 89.02,
-          "coef": 0.6703,
-          "lower": 0.4474,
-          "upper": 1.004,
-          "p": 0.05242
-        },
-        "STROMA": {
-          "expression": 115.8,
-          "coef": 0.6789,
-          "lower": 0.4429,
-          "upper": 1.041,
-          "p": 0.07548
-        }
-      },
-      "CD4_Treg": {
-        "TUMOR": {
-          "expression": 3.248,
-          "coef": 0.8724,
-          "lower": 0.5743,
-          "upper": 1.325,
-          "p": 0.5222
-        },
-        "STROMA": {
-          "expression": 6.725,
-          "coef": 0.6232,
-          "lower": 0.3933,
-          "upper": 0.9876,
-          "p": 0.0441
-        }
-      },
-      "CD8": {
-        "TUMOR": {
-          "expression": 132.5,
-          "coef": 0.777,
-          "lower": 0.5229,
-          "upper": 1.155,
-          "p": 0.2118
-        },
-        "STROMA": {
-          "expression": 144.7,
-          "coef": 0.7635,
-          "lower": 0.5005,
-          "upper": 1.165,
-          "p": 0.2106
-        }
-      },
-      "CD8_Treg": {
-        "TUMOR": {
-          "expression": 0.7643,
-          "coef": 0.8761,
-          "lower": 0.5746,
-          "upper": 1.336,
-          "p": 0.5388
-        },
-        "STROMA": {
-          "expression": 1.262,
-          "coef": 0.9152,
-          "lower": 0.5934,
-          "upper": 1.411,
-          "p": 0.6883
-        }
-      },
-      "B_cells": {
-        "TUMOR": {
-          "expression": 28.43,
-          "coef": 1.067,
-          "lower": 0.7142,
-          "upper": 1.594,
-          "p": 0.7511
-        },
-        "STROMA": {
-          "expression": 47.61,
-          "coef": 0.9005,
-          "lower": 0.5893,
-          "upper": 1.376,
-          "p": 0.6278
-        }
-      },
-      "NK": {
-        "TUMOR": {
-          "expression": 27.33,
-          "coef": 0.8393,
-          "lower": 0.5552,
-          "upper": 1.269,
-          "p": 0.4063
-        },
-        "STROMA": {
-          "expression": 63.62,
-          "coef": 0.8206,
-          "lower": 0.5249,
-          "upper": 1.283,
-          "p": 0.3859
-        }
-      },
-      "NKT": {
-        "TUMOR": {
-          "expression": 5.516,
-          "coef": 0.9064,
-          "lower": 0.5959,
-          "upper": 1.379,
-          "p": 0.6459
-        },
-        "STROMA": {
-          "expression": 6.846,
-          "coef": 0.8925,
-          "lower": 0.5687,
-          "upper": 1.401,
-          "p": 0.6207
-        }
-      },
-      "M1": {
-        "TUMOR": {
-          "expression": 76.98,
-          "coef": 1.369,
-          "lower": 0.9185,
-          "upper": 2.041,
-          "p": 0.1229
-        }
-      },
-      "CD163_single": {
-        "TUMOR": {
-          "expression": 286.2,
-          "coef": 1.412,
-          "lower": 0.9472,
-          "upper": 2.106,
-          "p": 0.09031
-        },
-        "STROMA": {
-          "expression": 246.8,
-          "coef": 1.563,
-          "lower": 1.015,
-          "upper": 2.407,
-          "p": 0.04262
-        }
-      },
-      "M2": {
-        "TUMOR": {
-          "expression": 5.424,
-          "coef": 2.355,
-          "lower": 1.581,
-          "upper": 3.508,
-          "p": 2.526e-05
-        },
-        "STROMA": {
-          "expression": 10.92,
-          "coef": 1.987,
-          "lower": 1.294,
-          "upper": 3.05,
-          "p": 0.0017
-        }
-      },
-      "M1_single": {
-        "STROMA": {
-          "expression": 93.85,
-          "coef": 0.8133,
-          "lower": 0.5296,
-          "upper": 1.249,
-          "p": 0.3452
-        }
-      },
-      "iDC_single": {
-        "TUMOR": {
-          "expression": 32.9,
-          "coef": 1.058,
-          "lower": 0.6928,
-          "upper": 1.617,
-          "p": 0.7926
-        }
-      },
-      "mDC": {
-        "TUMOR": {
-          "expression": 0.4333,
-          "coef": 0.939,
-          "lower": 0.5452,
-          "upper": 1.617,
-          "p": 0.8206
-        },
-        "STROMA": {
-          "expression": 0.4428,
-          "coef": 0.9644,
-          "lower": 0.5941,
-          "upper": 1.565,
-          "p": 0.8834
-        }
-      },
-      "pDC": {
-        "TUMOR": {
-          "expression": 147.7,
-          "coef": 0.6623,
-          "lower": 0.4292,
-          "upper": 1.022,
-          "p": 0.06279
-        },
-        "STROMA": {
-          "expression": 114.1,
-          "coef": 0.8055,
-          "lower": 0.5174,
-          "upper": 1.254,
-          "p": 0.3385
-        }
-      },
-      "iDC": {
-        "STROMA": {
-          "expression": 20.15,
-          "coef": 1.414,
-          "lower": 0.9107,
-          "upper": 2.195,
-          "p": 0.1228
-        }
-      }
-    },
-    "lung": {
-      "CD4": {
-        "TUMOR": {
-          "expression": 135.9,
-          "coef": 0.9517,
-          "lower": 0.5945,
-          "upper": 1.523,
-          "p": 0.8366
-        },
-        "STROMA": {
-          "expression": 110.2,
-          "coef": 1.257,
-          "lower": 0.7133,
-          "upper": 2.216,
-          "p": 0.4284
-        }
-      },
-      "CD4_Treg": {
-        "TUMOR": {
-          "expression": 4.696,
-          "coef": 0.9658,
-          "lower": 0.5889,
-          "upper": 1.584,
-          "p": 0.8904
-        },
-        "STROMA": {
-          "expression": 2.396,
-          "coef": 0.9522,
-          "lower": 0.5267,
-          "upper": 1.721,
-          "p": 0.8712
-        }
-      },
-      "CD8": {
-        "TUMOR": {
-          "expression": 78.42,
-          "coef": 0.7335,
-          "lower": 0.4578,
-          "upper": 1.175,
-          "p": 0.1975
-        },
-        "STROMA": {
-          "expression": 86.6,
-          "coef": 0.6955,
-          "lower": 0.3929,
-          "upper": 1.231,
-          "p": 0.2128
-        }
-      },
-      "CD8_Treg": {
-        "TUMOR": {
-          "expression": 0.646,
-          "coef": 0.6706,
-          "lower": 0.3952,
-          "upper": 1.138,
-          "p": 0.1385
-        },
-        "STROMA": {
-          "expression": 0.6174,
-          "coef": 0.4304,
-          "lower": 0.2192,
-          "upper": 0.8451,
-          "p": 0.01433
-        }
-      },
-      "B_cells": {
-        "TUMOR": {
-          "expression": 41.35,
-          "coef": 0.8494,
-          "lower": 0.5247,
-          "upper": 1.375,
-          "p": 0.5066
-        },
-        "STROMA": {
-          "expression": 42.13,
-          "coef": 0.7325,
-          "lower": 0.4077,
-          "upper": 1.316,
-          "p": 0.2977
-        }
-      },
-      "NK": {
-        "TUMOR": {
-          "expression": 11.53,
-          "coef": 0.7709,
-          "lower": 0.4608,
-          "upper": 1.29,
-          "p": 0.3217
-        },
-        "STROMA": {
-          "expression": 2.235,
-          "coef": 0.6335,
-          "lower": 0.3321,
-          "upper": 1.208,
-          "p": 0.1659
-        }
-      },
-      "NKT": {
-        "TUMOR": {
-          "expression": 11.1,
-          "coef": 0.8926,
-          "lower": 0.5337,
-          "upper": 1.493,
-          "p": 0.6649
-        },
-        "STROMA": {
-          "expression": 2.023,
-          "coef": 1.118,
-          "lower": 0.6066,
-          "upper": 2.06,
-          "p": 0.7208
-        }
-      },
-      "M1": {
-        "TUMOR": {
-          "expression": 71.44,
-          "coef": 0.7721,
-          "lower": 0.4731,
-          "upper": 1.26,
-          "p": 0.3005
-        }
-      },
-      "CD163_single": {
-        "TUMOR": {
-          "expression": 261.6,
-          "coef": 0.7335,
-          "lower": 0.4484,
-          "upper": 1.2,
-          "p": 0.2173
-        },
-        "STROMA": {
-          "expression": 204.9,
-          "coef": 1.221,
-          "lower": 0.68,
-          "upper": 2.193,
-          "p": 0.5036
-        }
-      },
-      "M2": {
-        "TUMOR": {
-          "expression": 4.375,
-          "coef": 1.137,
-          "lower": 0.6799,
-          "upper": 1.903,
-          "p": 0.6239
-        },
-        "STROMA": {
-          "expression": 12.46,
-          "coef": 2.002,
-          "lower": 1.108,
-          "upper": 3.616,
-          "p": 0.02148
-        }
-      },
-      "M1_single": {
-        "STROMA": {
-          "expression": 82.79,
-          "coef": 1.221,
-          "lower": 0.6778,
-          "upper": 2.198,
-          "p": 0.5066
-        }
-      },
-      "iDC_single": {
-        "TUMOR": {
-          "expression": 25.88,
-          "coef": 0.7808,
-          "lower": 0.4789,
-          "upper": 1.273,
-          "p": 0.3212
-        }
-      },
-      "mDC": {
-        "TUMOR": {
-          "expression": 1.142,
-          "coef": 0.8041,
-          "lower": 0.4447,
-          "upper": 1.454,
-          "p": 0.4705
-        },
-        "STROMA": {
-          "expression": 0.3319,
-          "coef": 1.599,
-          "lower": 0.8554,
-          "upper": 2.99,
-          "p": 0.1413
-        }
-      },
-      "pDC": {
-        "TUMOR": {
-          "expression": 125.7,
-          "coef": 1.403,
-          "lower": 0.8602,
-          "upper": 2.288,
-          "p": 0.1749
-        },
-        "STROMA": {
-          "expression": 98.71,
-          "coef": 0.6742,
-          "lower": 0.3692,
-          "upper": 1.231,
-          "p": 0.1995
-        }
-      },
-      "iDC": {
-        "STROMA": {
-          "expression": 21.54,
-          "coef": 1.176,
-          "lower": 0.6498,
-          "upper": 2.127,
-          "p": 0.5928
-        }
-      }
-    },
-    "Rectum": {
-      "CD4": {
-        "TUMOR": {
-          "expression": 86.76,
-          "coef": 1.583,
-          "lower": 0.5736,
-          "upper": 4.368,
-          "p": 0.3752
-        },
-        "STROMA": {
-          "expression": 40.08,
-          "coef": 1.415,
-          "lower": 0.3794,
-          "upper": 5.275,
-          "p": 0.6054
-        }
-      },
-      "CD4_Treg": {
-        "TUMOR": {
-          "expression": 7.915,
-          "coef": 1.632,
-          "lower": 0.5912,
-          "upper": 4.508,
-          "p": 0.3443
-        },
-        "STROMA": {
-          "expression": 2.485,
-          "coef": 3.643,
-          "lower": 0.9682,
-          "upper": 13.7,
-          "p": 0.05585
-        }
-      },
-      "CD8": {
-        "TUMOR": {
-          "expression": 84.52,
-          "coef": 0.9373,
-          "lower": 0.3395,
-          "upper": 2.588,
-          "p": 0.9005
-        },
-        "STROMA": {
-          "expression": 106.5,
-          "coef": 0.8777,
-          "lower": 0.2349,
-          "upper": 3.279,
-          "p": 0.8462
-        }
-      },
-      "CD8_Treg": {
-        "TUMOR": {
-          "expression": 1.74,
-          "coef": 1.155,
-          "lower": 0.4102,
-          "upper": 3.251,
-          "p": 0.7852
-        },
-        "STROMA": {
-          "expression": 1.851,
-          "coef": 3.259,
-          "lower": 0.8141,
-          "upper": 13.04,
-          "p": 0.09506
-        }
-      },
-      "B_cells": {
-        "TUMOR": {
-          "expression": 10.08,
-          "coef": 2.093,
-          "lower": 0.7564,
-          "upper": 5.793,
-          "p": 0.1549
-        },
-        "STROMA": {
-          "expression": 34.95,
-          "coef": 0.6423,
-          "lower": 0.1603,
-          "upper": 2.574,
-          "p": 0.532
-        }
-      },
-      "NK": {
-        "TUMOR": {
-          "expression": 32.79,
-          "coef": 3.259,
-          "lower": 1.201,
-          "upper": 8.841,
-          "p": 0.02033
-        },
-        "STROMA": {
-          "expression": 10.06,
-          "coef": 3.351,
-          "lower": 0.7956,
-          "upper": 14.11,
-          "p": 0.09928
-        }
-      },
-      "NKT": {
-        "TUMOR": {
-          "expression": 13.59,
-          "coef": 1.08,
-          "lower": 0.3915,
-          "upper": 2.978,
-          "p": 0.8823
-        },
-        "STROMA": {
-          "expression": 7.422,
-          "coef": 9.382,
-          "lower": 1.854,
-          "upper": 47.49,
-          "p": 0.006813
-        }
-      },
-      "M1": {
-        "TUMOR": {
-          "expression": 77.33,
-          "coef": 0.5976,
-          "lower": 0.2219,
-          "upper": 1.609,
-          "p": 0.3083
-        }
-      },
-      "CD163_single": {
-        "TUMOR": {
-          "expression": 52.64,
-          "coef": 0.8508,
-          "lower": 0.3167,
-          "upper": 2.286,
-          "p": 0.7487
-        },
-        "STROMA": {
-          "expression": 46.81,
-          "coef": 3.88,
-          "lower": 0.7821,
-          "upper": 19.25,
-          "p": 0.09706
-        }
-      },
-      "M2": {
-        "TUMOR": {
-          "expression": 1.627,
-          "coef": 1.181,
-          "lower": 0.4393,
-          "upper": 3.174,
-          "p": 0.7418
-        },
-        "STROMA": {
-          "expression": 10.42,
-          "coef": 1.341,
-          "lower": 0.3352,
-          "upper": 5.369,
-          "p": 0.678
-        }
-      },
-      "M1_single": {
-        "STROMA": {
-          "expression": 126.4,
-          "coef": 0.4858,
-          "lower": 0.1159,
-          "upper": 2.036,
-          "p": 0.3234
-        }
-      },
-      "iDC_single": {
-        "TUMOR": {
-          "expression": 28.65,
-          "coef": 0.9833,
-          "lower": 0.379,
-          "upper": 2.551,
-          "p": 0.9724
-        }
-      },
-      "mDC": {
-        "TUMOR": {
-          "expression": 1.185,
-          "coef": 0.8173,
-          "lower": 0.2875,
-          "upper": 2.324,
-          "p": 0.7051
-        },
-        "STROMA": {
-          "expression": 0.5104,
-          "coef": 1.087,
-          "lower": 0.2592,
-          "upper": 4.555,
-          "p": 0.9096
-        }
-      },
-      "pDC": {
-        "TUMOR": {
-          "expression": 166.3,
-          "coef": 1.515,
-          "lower": 0.5752,
-          "upper": 3.99,
-          "p": 0.4006
-        },
-        "STROMA": {
-          "expression": 162.1,
-          "coef": 1.674,
-          "lower": 0.3997,
-          "upper": 7.009,
-          "p": 0.4809
-        }
-      },
-      "iDC": {
-        "STROMA": {
-          "expression": 8.702,
-          "coef": 2.502,
-          "lower": 0.596,
-          "upper": 10.51,
-          "p": 0.2102
-        }
-      }
-    }
+[
+  {
+    "tumor":"Colon",
+    "cell":"CD4",
+    "location":"TUMOR",
+    "cell_full":"CD4_TUMOR",
+    "expression":89.02,
+    "coef":0.6703,
+    "lower":0.4474,
+    "upper":1.004,
+    "p":0.05242
   },
-  "by_cell": {
-    "CD4": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 89.02,
-          "coef": 0.6703,
-          "lower": 0.4474,
-          "upper": 1.004,
-          "p": 0.05242
-        },
-        "STROMA": {
-          "expression": 115.8,
-          "coef": 0.6789,
-          "lower": 0.4429,
-          "upper": 1.041,
-          "p": 0.07548
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 135.9,
-          "coef": 0.9517,
-          "lower": 0.5945,
-          "upper": 1.523,
-          "p": 0.8366
-        },
-        "STROMA": {
-          "expression": 110.2,
-          "coef": 1.257,
-          "lower": 0.7133,
-          "upper": 2.216,
-          "p": 0.4284
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 86.76,
-          "coef": 1.583,
-          "lower": 0.5736,
-          "upper": 4.368,
-          "p": 0.3752
-        },
-        "STROMA": {
-          "expression": 40.08,
-          "coef": 1.415,
-          "lower": 0.3794,
-          "upper": 5.275,
-          "p": 0.6054
-        }
-      }
-    },
-    "CD4_Treg": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 3.248,
-          "coef": 0.8724,
-          "lower": 0.5743,
-          "upper": 1.325,
-          "p": 0.5222
-        },
-        "STROMA": {
-          "expression": 6.725,
-          "coef": 0.6232,
-          "lower": 0.3933,
-          "upper": 0.9876,
-          "p": 0.0441
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 4.696,
-          "coef": 0.9658,
-          "lower": 0.5889,
-          "upper": 1.584,
-          "p": 0.8904
-        },
-        "STROMA": {
-          "expression": 2.396,
-          "coef": 0.9522,
-          "lower": 0.5267,
-          "upper": 1.721,
-          "p": 0.8712
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 7.915,
-          "coef": 1.632,
-          "lower": 0.5912,
-          "upper": 4.508,
-          "p": 0.3443
-        },
-        "STROMA": {
-          "expression": 2.485,
-          "coef": 3.643,
-          "lower": 0.9682,
-          "upper": 13.7,
-          "p": 0.05585
-        }
-      }
-    },
-    "CD8": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 132.5,
-          "coef": 0.777,
-          "lower": 0.5229,
-          "upper": 1.155,
-          "p": 0.2118
-        },
-        "STROMA": {
-          "expression": 144.7,
-          "coef": 0.7635,
-          "lower": 0.5005,
-          "upper": 1.165,
-          "p": 0.2106
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 78.42,
-          "coef": 0.7335,
-          "lower": 0.4578,
-          "upper": 1.175,
-          "p": 0.1975
-        },
-        "STROMA": {
-          "expression": 86.6,
-          "coef": 0.6955,
-          "lower": 0.3929,
-          "upper": 1.231,
-          "p": 0.2128
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 84.52,
-          "coef": 0.9373,
-          "lower": 0.3395,
-          "upper": 2.588,
-          "p": 0.9005
-        },
-        "STROMA": {
-          "expression": 106.5,
-          "coef": 0.8777,
-          "lower": 0.2349,
-          "upper": 3.279,
-          "p": 0.8462
-        }
-      }
-    },
-    "CD8_Treg": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 0.7643,
-          "coef": 0.8761,
-          "lower": 0.5746,
-          "upper": 1.336,
-          "p": 0.5388
-        },
-        "STROMA": {
-          "expression": 1.262,
-          "coef": 0.9152,
-          "lower": 0.5934,
-          "upper": 1.411,
-          "p": 0.6883
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 0.646,
-          "coef": 0.6706,
-          "lower": 0.3952,
-          "upper": 1.138,
-          "p": 0.1385
-        },
-        "STROMA": {
-          "expression": 0.6174,
-          "coef": 0.4304,
-          "lower": 0.2192,
-          "upper": 0.8451,
-          "p": 0.01433
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 1.74,
-          "coef": 1.155,
-          "lower": 0.4102,
-          "upper": 3.251,
-          "p": 0.7852
-        },
-        "STROMA": {
-          "expression": 1.851,
-          "coef": 3.259,
-          "lower": 0.8141,
-          "upper": 13.04,
-          "p": 0.09506
-        }
-      }
-    },
-    "B_cells": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 28.43,
-          "coef": 1.067,
-          "lower": 0.7142,
-          "upper": 1.594,
-          "p": 0.7511
-        },
-        "STROMA": {
-          "expression": 47.61,
-          "coef": 0.9005,
-          "lower": 0.5893,
-          "upper": 1.376,
-          "p": 0.6278
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 41.35,
-          "coef": 0.8494,
-          "lower": 0.5247,
-          "upper": 1.375,
-          "p": 0.5066
-        },
-        "STROMA": {
-          "expression": 42.13,
-          "coef": 0.7325,
-          "lower": 0.4077,
-          "upper": 1.316,
-          "p": 0.2977
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 10.08,
-          "coef": 2.093,
-          "lower": 0.7564,
-          "upper": 5.793,
-          "p": 0.1549
-        },
-        "STROMA": {
-          "expression": 34.95,
-          "coef": 0.6423,
-          "lower": 0.1603,
-          "upper": 2.574,
-          "p": 0.532
-        }
-      }
-    },
-    "NK": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 27.33,
-          "coef": 0.8393,
-          "lower": 0.5552,
-          "upper": 1.269,
-          "p": 0.4063
-        },
-        "STROMA": {
-          "expression": 63.62,
-          "coef": 0.8206,
-          "lower": 0.5249,
-          "upper": 1.283,
-          "p": 0.3859
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 11.53,
-          "coef": 0.7709,
-          "lower": 0.4608,
-          "upper": 1.29,
-          "p": 0.3217
-        },
-        "STROMA": {
-          "expression": 2.235,
-          "coef": 0.6335,
-          "lower": 0.3321,
-          "upper": 1.208,
-          "p": 0.1659
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 32.79,
-          "coef": 3.259,
-          "lower": 1.201,
-          "upper": 8.841,
-          "p": 0.02033
-        },
-        "STROMA": {
-          "expression": 10.06,
-          "coef": 3.351,
-          "lower": 0.7956,
-          "upper": 14.11,
-          "p": 0.09928
-        }
-      }
-    },
-    "NKT": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 5.516,
-          "coef": 0.9064,
-          "lower": 0.5959,
-          "upper": 1.379,
-          "p": 0.6459
-        },
-        "STROMA": {
-          "expression": 6.846,
-          "coef": 0.8925,
-          "lower": 0.5687,
-          "upper": 1.401,
-          "p": 0.6207
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 11.1,
-          "coef": 0.8926,
-          "lower": 0.5337,
-          "upper": 1.493,
-          "p": 0.6649
-        },
-        "STROMA": {
-          "expression": 2.023,
-          "coef": 1.118,
-          "lower": 0.6066,
-          "upper": 2.06,
-          "p": 0.7208
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 13.59,
-          "coef": 1.08,
-          "lower": 0.3915,
-          "upper": 2.978,
-          "p": 0.8823
-        },
-        "STROMA": {
-          "expression": 7.422,
-          "coef": 9.382,
-          "lower": 1.854,
-          "upper": 47.49,
-          "p": 0.006813
-        }
-      }
-    },
-    "M1": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 76.98,
-          "coef": 1.369,
-          "lower": 0.9185,
-          "upper": 2.041,
-          "p": 0.1229
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 71.44,
-          "coef": 0.7721,
-          "lower": 0.4731,
-          "upper": 1.26,
-          "p": 0.3005
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 77.33,
-          "coef": 0.5976,
-          "lower": 0.2219,
-          "upper": 1.609,
-          "p": 0.3083
-        }
-      }
-    },
-    "CD163_single": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 286.2,
-          "coef": 1.412,
-          "lower": 0.9472,
-          "upper": 2.106,
-          "p": 0.09031
-        },
-        "STROMA": {
-          "expression": 246.8,
-          "coef": 1.563,
-          "lower": 1.015,
-          "upper": 2.407,
-          "p": 0.04262
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 261.6,
-          "coef": 0.7335,
-          "lower": 0.4484,
-          "upper": 1.2,
-          "p": 0.2173
-        },
-        "STROMA": {
-          "expression": 204.9,
-          "coef": 1.221,
-          "lower": 0.68,
-          "upper": 2.193,
-          "p": 0.5036
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 52.64,
-          "coef": 0.8508,
-          "lower": 0.3167,
-          "upper": 2.286,
-          "p": 0.7487
-        },
-        "STROMA": {
-          "expression": 46.81,
-          "coef": 3.88,
-          "lower": 0.7821,
-          "upper": 19.25,
-          "p": 0.09706
-        }
-      }
-    },
-    "M2": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 5.424,
-          "coef": 2.355,
-          "lower": 1.581,
-          "upper": 3.508,
-          "p": 2.526e-05
-        },
-        "STROMA": {
-          "expression": 10.92,
-          "coef": 1.987,
-          "lower": 1.294,
-          "upper": 3.05,
-          "p": 0.0017
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 4.375,
-          "coef": 1.137,
-          "lower": 0.6799,
-          "upper": 1.903,
-          "p": 0.6239
-        },
-        "STROMA": {
-          "expression": 12.46,
-          "coef": 2.002,
-          "lower": 1.108,
-          "upper": 3.616,
-          "p": 0.02148
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 1.627,
-          "coef": 1.181,
-          "lower": 0.4393,
-          "upper": 3.174,
-          "p": 0.7418
-        },
-        "STROMA": {
-          "expression": 10.42,
-          "coef": 1.341,
-          "lower": 0.3352,
-          "upper": 5.369,
-          "p": 0.678
-        }
-      }
-    },
-    "M1_single": {
-      "Colon": {
-        "STROMA": {
-          "expression": 93.85,
-          "coef": 0.8133,
-          "lower": 0.5296,
-          "upper": 1.249,
-          "p": 0.3452
-        }
-      },
-      "lung": {
-        "STROMA": {
-          "expression": 82.79,
-          "coef": 1.221,
-          "lower": 0.6778,
-          "upper": 2.198,
-          "p": 0.5066
-        }
-      },
-      "Rectum": {
-        "STROMA": {
-          "expression": 126.4,
-          "coef": 0.4858,
-          "lower": 0.1159,
-          "upper": 2.036,
-          "p": 0.3234
-        }
-      }
-    },
-    "iDC_single": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 32.9,
-          "coef": 1.058,
-          "lower": 0.6928,
-          "upper": 1.617,
-          "p": 0.7926
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 25.88,
-          "coef": 0.7808,
-          "lower": 0.4789,
-          "upper": 1.273,
-          "p": 0.3212
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 28.65,
-          "coef": 0.9833,
-          "lower": 0.379,
-          "upper": 2.551,
-          "p": 0.9724
-        }
-      }
-    },
-    "mDC": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 0.4333,
-          "coef": 0.939,
-          "lower": 0.5452,
-          "upper": 1.617,
-          "p": 0.8206
-        },
-        "STROMA": {
-          "expression": 0.4428,
-          "coef": 0.9644,
-          "lower": 0.5941,
-          "upper": 1.565,
-          "p": 0.8834
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 1.142,
-          "coef": 0.8041,
-          "lower": 0.4447,
-          "upper": 1.454,
-          "p": 0.4705
-        },
-        "STROMA": {
-          "expression": 0.3319,
-          "coef": 1.599,
-          "lower": 0.8554,
-          "upper": 2.99,
-          "p": 0.1413
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 1.185,
-          "coef": 0.8173,
-          "lower": 0.2875,
-          "upper": 2.324,
-          "p": 0.7051
-        },
-        "STROMA": {
-          "expression": 0.5104,
-          "coef": 1.087,
-          "lower": 0.2592,
-          "upper": 4.555,
-          "p": 0.9096
-        }
-      }
-    },
-    "pDC": {
-      "Colon": {
-        "TUMOR": {
-          "expression": 147.7,
-          "coef": 0.6623,
-          "lower": 0.4292,
-          "upper": 1.022,
-          "p": 0.06279
-        },
-        "STROMA": {
-          "expression": 114.1,
-          "coef": 0.8055,
-          "lower": 0.5174,
-          "upper": 1.254,
-          "p": 0.3385
-        }
-      },
-      "lung": {
-        "TUMOR": {
-          "expression": 125.7,
-          "coef": 1.403,
-          "lower": 0.8602,
-          "upper": 2.288,
-          "p": 0.1749
-        },
-        "STROMA": {
-          "expression": 98.71,
-          "coef": 0.6742,
-          "lower": 0.3692,
-          "upper": 1.231,
-          "p": 0.1995
-        }
-      },
-      "Rectum": {
-        "TUMOR": {
-          "expression": 166.3,
-          "coef": 1.515,
-          "lower": 0.5752,
-          "upper": 3.99,
-          "p": 0.4006
-        },
-        "STROMA": {
-          "expression": 162.1,
-          "coef": 1.674,
-          "lower": 0.3997,
-          "upper": 7.009,
-          "p": 0.4809
-        }
-      }
-    },
-    "iDC": {
-      "Colon": {
-        "STROMA": {
-          "expression": 20.15,
-          "coef": 1.414,
-          "lower": 0.9107,
-          "upper": 2.195,
-          "p": 0.1228
-        }
-      },
-      "lung": {
-        "STROMA": {
-          "expression": 21.54,
-          "coef": 1.176,
-          "lower": 0.6498,
-          "upper": 2.127,
-          "p": 0.5928
-        }
-      },
-      "Rectum": {
-        "STROMA": {
-          "expression": 8.702,
-          "coef": 2.502,
-          "lower": 0.596,
-          "upper": 10.51,
-          "p": 0.2102
-        }
-      }
-    }
+  {
+    "tumor":"Colon",
+    "cell":"CD4_Treg",
+    "location":"TUMOR",
+    "cell_full":"CD4_Treg_TUMOR",
+    "expression":3.248,
+    "coef":0.8724,
+    "lower":0.5743,
+    "upper":1.325,
+    "p":0.5222
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD8",
+    "location":"TUMOR",
+    "cell_full":"CD8_TUMOR",
+    "expression":132.5,
+    "coef":0.777,
+    "lower":0.5229,
+    "upper":1.155,
+    "p":0.2118
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD8_Treg",
+    "location":"TUMOR",
+    "cell_full":"CD8_Treg_TUMOR",
+    "expression":0.7643,
+    "coef":0.8761,
+    "lower":0.5746,
+    "upper":1.336,
+    "p":0.5388
+  },
+  {
+    "tumor":"Colon",
+    "cell":"B_cells",
+    "location":"TUMOR",
+    "cell_full":"B_cells_TUMOR",
+    "expression":28.43,
+    "coef":1.067,
+    "lower":0.7142,
+    "upper":1.594,
+    "p":0.7511
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD4",
+    "location":"STROMA",
+    "cell_full":"CD4_STROMA",
+    "expression":115.8,
+    "coef":0.6789,
+    "lower":0.4429,
+    "upper":1.041,
+    "p":0.07548
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD4_Treg",
+    "location":"STROMA",
+    "cell_full":"CD4_Treg_STROMA",
+    "expression":6.725,
+    "coef":0.6232,
+    "lower":0.3933,
+    "upper":0.9876,
+    "p":0.0441
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD8",
+    "location":"STROMA",
+    "cell_full":"CD8_STROMA",
+    "expression":144.7,
+    "coef":0.7635,
+    "lower":0.5005,
+    "upper":1.165,
+    "p":0.2106
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD8_Treg",
+    "location":"STROMA",
+    "cell_full":"CD8_Treg_STROMA",
+    "expression":1.262,
+    "coef":0.9152,
+    "lower":0.5934,
+    "upper":1.411,
+    "p":0.6883
+  },
+  {
+    "tumor":"Colon",
+    "cell":"B_cells",
+    "location":"STROMA",
+    "cell_full":"B_cells_STROMA",
+    "expression":47.61,
+    "coef":0.9005,
+    "lower":0.5893,
+    "upper":1.376,
+    "p":0.6278
+  },
+  {
+    "tumor":"Colon",
+    "cell":"NK",
+    "location":"TUMOR",
+    "cell_full":"NK_TUMOR",
+    "expression":27.33,
+    "coef":0.8393,
+    "lower":0.5552,
+    "upper":1.269,
+    "p":0.4063
+  },
+  {
+    "tumor":"Colon",
+    "cell":"NKT",
+    "location":"TUMOR",
+    "cell_full":"NKT_TUMOR",
+    "expression":5.516,
+    "coef":0.9064,
+    "lower":0.5959,
+    "upper":1.379,
+    "p":0.6459
+  },
+  {
+    "tumor":"Colon",
+    "cell":"M1",
+    "location":"TUMOR",
+    "cell_full":"M1_TUMOR",
+    "expression":76.98,
+    "coef":1.369,
+    "lower":0.9185,
+    "upper":2.041,
+    "p":0.1229
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD163_single",
+    "location":"TUMOR",
+    "cell_full":"CD163_single_TUMOR",
+    "expression":286.2,
+    "coef":1.412,
+    "lower":0.9472,
+    "upper":2.106,
+    "p":0.09031
+  },
+  {
+    "tumor":"Colon",
+    "cell":"M2",
+    "location":"TUMOR",
+    "cell_full":"M2_TUMOR",
+    "expression":5.424,
+    "coef":2.355,
+    "lower":1.581,
+    "upper":3.508,
+    "p":0.00002526
+  },
+  {
+    "tumor":"Colon",
+    "cell":"NK",
+    "location":"STROMA",
+    "cell_full":"NK_STROMA",
+    "expression":63.62,
+    "coef":0.8206,
+    "lower":0.5249,
+    "upper":1.283,
+    "p":0.3859
+  },
+  {
+    "tumor":"Colon",
+    "cell":"NKT",
+    "location":"STROMA",
+    "cell_full":"NKT_STROMA",
+    "expression":6.846,
+    "coef":0.8925,
+    "lower":0.5687,
+    "upper":1.401,
+    "p":0.6207
+  },
+  {
+    "tumor":"Colon",
+    "cell":"M1_single",
+    "location":"STROMA",
+    "cell_full":"M1_single_STROMA",
+    "expression":93.85,
+    "coef":0.8133,
+    "lower":0.5296,
+    "upper":1.249,
+    "p":0.3452
+  },
+  {
+    "tumor":"Colon",
+    "cell":"CD163_single",
+    "location":"STROMA",
+    "cell_full":"CD163_single_STROMA",
+    "expression":246.8,
+    "coef":1.563,
+    "lower":1.015,
+    "upper":2.407,
+    "p":0.04262
+  },
+  {
+    "tumor":"Colon",
+    "cell":"M2",
+    "location":"STROMA",
+    "cell_full":"M2_STROMA",
+    "expression":10.92,
+    "coef":1.987,
+    "lower":1.294,
+    "upper":3.05,
+    "p":0.0017
+  },
+  {
+    "tumor":"Colon",
+    "cell":"iDC_single",
+    "location":"TUMOR",
+    "cell_full":"iDC_single_TUMOR",
+    "expression":32.9,
+    "coef":1.058,
+    "lower":0.6928,
+    "upper":1.617,
+    "p":0.7926
+  },
+  {
+    "tumor":"Colon",
+    "cell":"mDC",
+    "location":"TUMOR",
+    "cell_full":"mDC_TUMOR",
+    "expression":0.4333,
+    "coef":0.939,
+    "lower":0.5452,
+    "upper":1.617,
+    "p":0.8206
+  },
+  {
+    "tumor":"Colon",
+    "cell":"pDC",
+    "location":"TUMOR",
+    "cell_full":"pDC_TUMOR",
+    "expression":147.7,
+    "coef":0.6623,
+    "lower":0.4292,
+    "upper":1.022,
+    "p":0.06279
+  },
+  {
+    "tumor":"Colon",
+    "cell":"iDC",
+    "location":"STROMA",
+    "cell_full":"iDC_STROMA",
+    "expression":20.15,
+    "coef":1.414,
+    "lower":0.9107,
+    "upper":2.195,
+    "p":0.1228
+  },
+  {
+    "tumor":"Colon",
+    "cell":"mDC",
+    "location":"STROMA",
+    "cell_full":"mDC_STROMA",
+    "expression":0.4428,
+    "coef":0.9644,
+    "lower":0.5941,
+    "upper":1.565,
+    "p":0.8834
+  },
+  {
+    "tumor":"Colon",
+    "cell":"pDC",
+    "location":"STROMA",
+    "cell_full":"pDC_STROMA",
+    "expression":114.1,
+    "coef":0.8055,
+    "lower":0.5174,
+    "upper":1.254,
+    "p":0.3385
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD4",
+    "location":"TUMOR",
+    "cell_full":"CD4_TUMOR",
+    "expression":135.9,
+    "coef":0.9517,
+    "lower":0.5945,
+    "upper":1.523,
+    "p":0.8366
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD4_Treg",
+    "location":"TUMOR",
+    "cell_full":"CD4_Treg_TUMOR",
+    "expression":4.696,
+    "coef":0.9658,
+    "lower":0.5889,
+    "upper":1.584,
+    "p":0.8904
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD8",
+    "location":"TUMOR",
+    "cell_full":"CD8_TUMOR",
+    "expression":78.42,
+    "coef":0.7335,
+    "lower":0.4578,
+    "upper":1.175,
+    "p":0.1975
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD8_Treg",
+    "location":"TUMOR",
+    "cell_full":"CD8_Treg_TUMOR",
+    "expression":0.646,
+    "coef":0.6706,
+    "lower":0.3952,
+    "upper":1.138,
+    "p":0.1385
+  },
+  {
+    "tumor":"lung",
+    "cell":"B_cells",
+    "location":"TUMOR",
+    "cell_full":"B_cells_TUMOR",
+    "expression":41.35,
+    "coef":0.8494,
+    "lower":0.5247,
+    "upper":1.375,
+    "p":0.5066
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD4",
+    "location":"STROMA",
+    "cell_full":"CD4_STROMA",
+    "expression":110.2,
+    "coef":1.257,
+    "lower":0.7133,
+    "upper":2.216,
+    "p":0.4284
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD4_Treg",
+    "location":"STROMA",
+    "cell_full":"CD4_Treg_STROMA",
+    "expression":2.396,
+    "coef":0.9522,
+    "lower":0.5267,
+    "upper":1.721,
+    "p":0.8712
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD8",
+    "location":"STROMA",
+    "cell_full":"CD8_STROMA",
+    "expression":86.6,
+    "coef":0.6955,
+    "lower":0.3929,
+    "upper":1.231,
+    "p":0.2128
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD8_Treg",
+    "location":"STROMA",
+    "cell_full":"CD8_Treg_STROMA",
+    "expression":0.6174,
+    "coef":0.4304,
+    "lower":0.2192,
+    "upper":0.8451,
+    "p":0.01433
+  },
+  {
+    "tumor":"lung",
+    "cell":"B_cells",
+    "location":"STROMA",
+    "cell_full":"B_cells_STROMA",
+    "expression":42.13,
+    "coef":0.7325,
+    "lower":0.4077,
+    "upper":1.316,
+    "p":0.2977
+  },
+  {
+    "tumor":"lung",
+    "cell":"NK",
+    "location":"TUMOR",
+    "cell_full":"NK_TUMOR",
+    "expression":11.53,
+    "coef":0.7709,
+    "lower":0.4608,
+    "upper":1.29,
+    "p":0.3217
+  },
+  {
+    "tumor":"lung",
+    "cell":"NKT",
+    "location":"TUMOR",
+    "cell_full":"NKT_TUMOR",
+    "expression":11.1,
+    "coef":0.8926,
+    "lower":0.5337,
+    "upper":1.493,
+    "p":0.6649
+  },
+  {
+    "tumor":"lung",
+    "cell":"M1",
+    "location":"TUMOR",
+    "cell_full":"M1_TUMOR",
+    "expression":71.44,
+    "coef":0.7721,
+    "lower":0.4731,
+    "upper":1.26,
+    "p":0.3005
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD163_single",
+    "location":"TUMOR",
+    "cell_full":"CD163_single_TUMOR",
+    "expression":261.6,
+    "coef":0.7335,
+    "lower":0.4484,
+    "upper":1.2,
+    "p":0.2173
+  },
+  {
+    "tumor":"lung",
+    "cell":"M2",
+    "location":"TUMOR",
+    "cell_full":"M2_TUMOR",
+    "expression":4.375,
+    "coef":1.137,
+    "lower":0.6799,
+    "upper":1.903,
+    "p":0.6239
+  },
+  {
+    "tumor":"lung",
+    "cell":"NK",
+    "location":"STROMA",
+    "cell_full":"NK_STROMA",
+    "expression":2.235,
+    "coef":0.6335,
+    "lower":0.3321,
+    "upper":1.208,
+    "p":0.1659
+  },
+  {
+    "tumor":"lung",
+    "cell":"NKT",
+    "location":"STROMA",
+    "cell_full":"NKT_STROMA",
+    "expression":2.023,
+    "coef":1.118,
+    "lower":0.6066,
+    "upper":2.06,
+    "p":0.7208
+  },
+  {
+    "tumor":"lung",
+    "cell":"M1_single",
+    "location":"STROMA",
+    "cell_full":"M1_single_STROMA",
+    "expression":82.79,
+    "coef":1.221,
+    "lower":0.6778,
+    "upper":2.198,
+    "p":0.5066
+  },
+  {
+    "tumor":"lung",
+    "cell":"CD163_single",
+    "location":"STROMA",
+    "cell_full":"CD163_single_STROMA",
+    "expression":204.9,
+    "coef":1.221,
+    "lower":0.68,
+    "upper":2.193,
+    "p":0.5036
+  },
+  {
+    "tumor":"lung",
+    "cell":"M2",
+    "location":"STROMA",
+    "cell_full":"M2_STROMA",
+    "expression":12.46,
+    "coef":2.002,
+    "lower":1.108,
+    "upper":3.616,
+    "p":0.02148
+  },
+  {
+    "tumor":"lung",
+    "cell":"iDC_single",
+    "location":"TUMOR",
+    "cell_full":"iDC_single_TUMOR",
+    "expression":25.88,
+    "coef":0.7808,
+    "lower":0.4789,
+    "upper":1.273,
+    "p":0.3212
+  },
+  {
+    "tumor":"lung",
+    "cell":"mDC",
+    "location":"TUMOR",
+    "cell_full":"mDC_TUMOR",
+    "expression":1.142,
+    "coef":0.8041,
+    "lower":0.4447,
+    "upper":1.454,
+    "p":0.4705
+  },
+  {
+    "tumor":"lung",
+    "cell":"pDC",
+    "location":"TUMOR",
+    "cell_full":"pDC_TUMOR",
+    "expression":125.7,
+    "coef":1.403,
+    "lower":0.8602,
+    "upper":2.288,
+    "p":0.1749
+  },
+  {
+    "tumor":"lung",
+    "cell":"iDC",
+    "location":"STROMA",
+    "cell_full":"iDC_STROMA",
+    "expression":21.54,
+    "coef":1.176,
+    "lower":0.6498,
+    "upper":2.127,
+    "p":0.5928
+  },
+  {
+    "tumor":"lung",
+    "cell":"mDC",
+    "location":"STROMA",
+    "cell_full":"mDC_STROMA",
+    "expression":0.3319,
+    "coef":1.599,
+    "lower":0.8554,
+    "upper":2.99,
+    "p":0.1413
+  },
+  {
+    "tumor":"lung",
+    "cell":"pDC",
+    "location":"STROMA",
+    "cell_full":"pDC_STROMA",
+    "expression":98.71,
+    "coef":0.6742,
+    "lower":0.3692,
+    "upper":1.231,
+    "p":0.1995
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD4",
+    "location":"TUMOR",
+    "cell_full":"CD4_TUMOR",
+    "expression":86.76,
+    "coef":1.583,
+    "lower":0.5736,
+    "upper":4.368,
+    "p":0.3752
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD4_Treg",
+    "location":"TUMOR",
+    "cell_full":"CD4_Treg_TUMOR",
+    "expression":7.915,
+    "coef":1.632,
+    "lower":0.5912,
+    "upper":4.508,
+    "p":0.3443
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD8",
+    "location":"TUMOR",
+    "cell_full":"CD8_TUMOR",
+    "expression":84.52,
+    "coef":0.9373,
+    "lower":0.3395,
+    "upper":2.588,
+    "p":0.9005
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD8_Treg",
+    "location":"TUMOR",
+    "cell_full":"CD8_Treg_TUMOR",
+    "expression":1.74,
+    "coef":1.155,
+    "lower":0.4102,
+    "upper":3.251,
+    "p":0.7852
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"B_cells",
+    "location":"TUMOR",
+    "cell_full":"B_cells_TUMOR",
+    "expression":10.08,
+    "coef":2.093,
+    "lower":0.7564,
+    "upper":5.793,
+    "p":0.1549
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD4",
+    "location":"STROMA",
+    "cell_full":"CD4_STROMA",
+    "expression":40.08,
+    "coef":1.415,
+    "lower":0.3794,
+    "upper":5.275,
+    "p":0.6054
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD4_Treg",
+    "location":"STROMA",
+    "cell_full":"CD4_Treg_STROMA",
+    "expression":2.485,
+    "coef":3.643,
+    "lower":0.9682,
+    "upper":13.7,
+    "p":0.05585
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD8",
+    "location":"STROMA",
+    "cell_full":"CD8_STROMA",
+    "expression":106.5,
+    "coef":0.8777,
+    "lower":0.2349,
+    "upper":3.279,
+    "p":0.8462
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD8_Treg",
+    "location":"STROMA",
+    "cell_full":"CD8_Treg_STROMA",
+    "expression":1.851,
+    "coef":3.259,
+    "lower":0.8141,
+    "upper":13.04,
+    "p":0.09506
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"B_cells",
+    "location":"STROMA",
+    "cell_full":"B_cells_STROMA",
+    "expression":34.95,
+    "coef":0.6423,
+    "lower":0.1603,
+    "upper":2.574,
+    "p":0.532
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"NK",
+    "location":"TUMOR",
+    "cell_full":"NK_TUMOR",
+    "expression":32.79,
+    "coef":3.259,
+    "lower":1.201,
+    "upper":8.841,
+    "p":0.02033
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"NKT",
+    "location":"TUMOR",
+    "cell_full":"NKT_TUMOR",
+    "expression":13.59,
+    "coef":1.08,
+    "lower":0.3915,
+    "upper":2.978,
+    "p":0.8823
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"M1",
+    "location":"TUMOR",
+    "cell_full":"M1_TUMOR",
+    "expression":77.33,
+    "coef":0.5976,
+    "lower":0.2219,
+    "upper":1.609,
+    "p":0.3083
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD163_single",
+    "location":"TUMOR",
+    "cell_full":"CD163_single_TUMOR",
+    "expression":52.64,
+    "coef":0.8508,
+    "lower":0.3167,
+    "upper":2.286,
+    "p":0.7487
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"M2",
+    "location":"TUMOR",
+    "cell_full":"M2_TUMOR",
+    "expression":1.627,
+    "coef":1.181,
+    "lower":0.4393,
+    "upper":3.174,
+    "p":0.7418
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"NK",
+    "location":"STROMA",
+    "cell_full":"NK_STROMA",
+    "expression":10.06,
+    "coef":3.351,
+    "lower":0.7956,
+    "upper":14.11,
+    "p":0.09928
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"NKT",
+    "location":"STROMA",
+    "cell_full":"NKT_STROMA",
+    "expression":7.422,
+    "coef":9.382,
+    "lower":1.854,
+    "upper":47.49,
+    "p":0.006813
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"M1_single",
+    "location":"STROMA",
+    "cell_full":"M1_single_STROMA",
+    "expression":126.4,
+    "coef":0.4858,
+    "lower":0.1159,
+    "upper":2.036,
+    "p":0.3234
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"CD163_single",
+    "location":"STROMA",
+    "cell_full":"CD163_single_STROMA",
+    "expression":46.81,
+    "coef":3.88,
+    "lower":0.7821,
+    "upper":19.25,
+    "p":0.09706
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"M2",
+    "location":"STROMA",
+    "cell_full":"M2_STROMA",
+    "expression":10.42,
+    "coef":1.341,
+    "lower":0.3352,
+    "upper":5.369,
+    "p":0.678
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"iDC_single",
+    "location":"TUMOR",
+    "cell_full":"iDC_single_TUMOR",
+    "expression":28.65,
+    "coef":0.9833,
+    "lower":0.379,
+    "upper":2.551,
+    "p":0.9724
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"mDC",
+    "location":"TUMOR",
+    "cell_full":"mDC_TUMOR",
+    "expression":1.185,
+    "coef":0.8173,
+    "lower":0.2875,
+    "upper":2.324,
+    "p":0.7051
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"pDC",
+    "location":"TUMOR",
+    "cell_full":"pDC_TUMOR",
+    "expression":166.3,
+    "coef":1.515,
+    "lower":0.5752,
+    "upper":3.99,
+    "p":0.4006
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"iDC",
+    "location":"STROMA",
+    "cell_full":"iDC_STROMA",
+    "expression":8.702,
+    "coef":2.502,
+    "lower":0.596,
+    "upper":10.51,
+    "p":0.2102
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"mDC",
+    "location":"STROMA",
+    "cell_full":"mDC_STROMA",
+    "expression":0.5104,
+    "coef":1.087,
+    "lower":0.2592,
+    "upper":4.555,
+    "p":0.9096
+  },
+  {
+    "tumor":"Rectum",
+    "cell":"pDC",
+    "location":"STROMA",
+    "cell_full":"pDC_STROMA",
+    "expression":162.1,
+    "coef":1.674,
+    "lower":0.3997,
+    "upper":7.009,
+    "p":0.4809
   }
-}
+]
