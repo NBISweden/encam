@@ -89,13 +89,6 @@ document.body.innerHTML = `
       display: block;
     }
   </style>
-  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id='bar'>
-    <defs>${pattern}</defs>
-  </svg>
-  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id='forest'>
-    <defs>${pattern}</defs>
-  </svg>
-  <pre>${JSON.stringify({range, flat}, undefined, 2)}</pre>
 `
 function bar() {
 
@@ -104,12 +97,14 @@ function bar() {
   const width = 900
   const height = 500
 
-  const svg = d3.select('svg#bar')
+  const svg = d3.select('body').append('svg')
     .attr("viewBox", `0 0 ${width} ${height}`)
     .attr("width", width)
     .attr("height", height)
 
-  const margin = ({top: 20, right: 0, bottom: 30, left: 40})
+  svg.append('defs').html(pattern)
+
+  const margin = {top: 20, right: 0, bottom: 30, left: 40}
 
   type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
 
@@ -172,7 +167,7 @@ function forest() {
   const width = 500
   const height = 500
 
-  const svg = d3.select('svg#forest')
+  const svg = d3.select('body').append('svg')
     .attr("viewBox", `0 0 ${width} ${height}`)
     .attr("width", width)
     .attr("height", height)
@@ -248,5 +243,10 @@ function forest() {
 
 }
 
-window.requestAnimationFrame(() => { const svg = bar(); forest() })
+bar()
+forest()
+
+document.body.innerHTML += `
+  <pre>${JSON.stringify({range, flat}, undefined, 2)}</pre>
+`
 
