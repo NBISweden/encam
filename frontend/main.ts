@@ -69,7 +69,7 @@ type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
 type SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>
 
 interface Graph {
-  caption(text: string): void
+  caption(text: string): Graph
   svg: SVG
   size: Size
 }
@@ -99,13 +99,18 @@ function graph(svg: SVG, size: Size): Graph {
         .attr('font-size', font_size)
         .attr('font-family', 'sans-serif')
         .text(text)
+      return this
     }
   }
 }
 
 function pretty(s: string) {
   const s2 = s.replace('_', ' ')
-  return s2[0].toUpperCase() + s2.slice(1)
+  if (s2.toLowerCase() == s2) {
+    return s2[0].toUpperCase() + s2.slice(1)
+  } else {
+    return s2
+  }
 }
 
 function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
@@ -139,6 +144,7 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
   const xAxis = (g: G) => g
       .attr('transform', `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
+      .selectAll('.tick>line').remove()
 
   const y = d3.scaleLinear()
       .domain([0, d3.max(rows, row => row.expression) || 0]).nice()
@@ -174,9 +180,105 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
 
 }
 
+type CT = 'cell' | 'tumor'
+
+function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): Graph {
+
+  const margin = {top: 25, right: 80, bottom: 30, left: 30}
+
+  const group_range = uniq(rows.map(row => row[group_by]))
+  const color_range = uniq(rows.map(row => row[color_by]))
+
+  const width = 45 * group_range.length * color_range.length + margin.left + margin.right
+  const height = 200
+
+  const svg = d3.select('body').append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('width', width)
+    .attr('height', height)
+
+  svg.append('defs').html(pattern)
+
+  const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
+    .domain(range[color_by])
+
+  const legend = svg.append('g')
+    .selectAll('g')
+    .data(color_range)
+    .join('g')
+    .attr('transform', (_, i) => `translate(${width - margin.right},${margin.top + 23 * i})`)
+
+  legend.append('text')
+    .text(pretty)
+    .attr('x', 20)
+    .attr('y', 9)
+    .attr('font-size', 10)
+    .attr('font-family', 'sans-serif')
+
+  legend.append('rect')
+    .attr('width', 10)
+    .attr('height', 10)
+    .attr('fill', z)
+
+  const x = d3.scaleBand()
+      .domain(group_range)
+      .range([margin.left, width - margin.right])
+      .padding(0.0)
+
+  const x_by = d3.scaleBand()
+      .domain(color_range)
+      .range([0, x.bandwidth()])
+      .paddingInner(0.0)
+      .paddingOuter(1.0)
+
+  const x_subgroup = d3.scaleBand()
+      .domain(range.location)
+      .range([0, x_by.bandwidth()])
+      .paddingInner(0.0)
+      .paddingOuter(0.15)
+
+  const xAxis = (g: G) => g
+      .attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
+      .selectAll('.tick>line').remove()
+
+  const y = d3.scaleLinear()
+      .domain([0, d3.max(rows, row => row.expression) || 0]).nice()
+      .range([height - margin.bottom, margin.top])
+
+  const yAxis = (g: G) => g
+      .attr('transform', `translate(${margin.left},0)`)
+      .call(d3.axisLeft(y).ticks(8))
+      .call(g => g.select('.domain').remove())
+
+  const round = Math.round
+
+  svg.append('g')
+    .selectAll('rect')
+    .data(rows)
+    .join('rect')
+      .attr('x', row => round(x(row[group_by]) + x_by(row[color_by]) + x_subgroup(row.location)))
+      .attr('y', row => round(y(row.expression)))
+      .attr('height', row => round(y(0) - y(row.expression)))
+      .attr('width', round(x_subgroup.bandwidth()))
+      .attr('fill', row => z(row[color_by]))
+      .filter(row => row.location == 'TUMOR')
+      .clone()
+      .attr('fill', 'url(#stripe)')
+
+  svg.append('g')
+      .call(xAxis)
+
+  svg.append('g')
+      .call(yAxis)
+
+  return graph(svg, {width, height, ...margin})
+
+}
+
 function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
 
-  const margin = {top: 25, right: 0, bottom: 30, left: 80}
+  const margin = {top: 25, right: 10, bottom: 30, left: 80}
 
   const width = 500
   const height = 35 * range[group_by].length + margin.top + margin.bottom
@@ -262,6 +364,18 @@ function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
 }
 
 const filter = (by: 'cell' | 'tumor', value: string) => db.filter(row => row[by] == value)
+
+const pick_cells = (s: string) => db.filter(row => s.split(' ').some(name => name == row.cell))
+
+multibar(pick_cells('CD4'))
+multibar(pick_cells('CD4 CD8'))
+multibar(pick_cells('CD4 CD8 B_cells'))
+multibar(pick_cells('CD4 CD8 B_cells pDC'))
+multibar(pick_cells('CD4 CD8 B_cells pDC NKT'))
+multibar(pick_cells('CD4 CD8 B_cells pDC NKT'), 'tumor', 'cell')
+
+multibar(pick_cells('CD4'), 'tumor', 'cell')
+multibar(filter('tumor', 'lung'), 'cell', 'tumor')
 
 range.cell.forEach(c => {
   bar   (filter('cell', c), 'tumor').caption(pretty(c))
