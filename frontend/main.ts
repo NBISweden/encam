@@ -1,7 +1,7 @@
 declare const module: {hot?: {accept: Function}}
 module.hot && module.hot.accept()
 
-import * as d3 from "d3"
+import * as d3 from 'd3'
 
 interface Row {
   tumor: string
@@ -45,7 +45,7 @@ const stripe_size = 6
 const stripe_width = 2
 
 const pattern = `
-  <pattern id="stripe" patternUnits="userSpaceOnUse" width="${stripe_size}" height="${stripe_size}">
+  <pattern id='stripe' patternUnits='userSpaceOnUse' width='${stripe_size}' height='${stripe_size}'>
     <path d='M-1,1 l2,-2
        M0,${stripe_size} l${stripe_size},-${stripe_size}
        M${stripe_size-1},${stripe_size+1} l2,-2' stroke='white' stroke-width='${stripe_width}'/>
@@ -116,9 +116,9 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
   const height = 200
 
   const svg = d3.select('body').append('svg')
-    .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("width", width)
-    .attr("height", height)
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('width', width)
+    .attr('height', height)
 
   svg.append('defs').html(pattern)
 
@@ -137,7 +137,7 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .padding(0.0)
 
   const xAxis = (g: G) => g
-      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .attr('transform', `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
 
   const y = d3.scaleLinear()
@@ -145,29 +145,29 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .range([height - margin.bottom, margin.top])
 
   const yAxis = (g: G) => g
-      .attr("transform", `translate(${margin.left},0)`)
+      .attr('transform', `translate(${margin.left},0)`)
       .call(d3.axisLeft(y).ticks(8))
-      .call(g => g.select(".domain").remove())
+      .call(g => g.select('.domain').remove())
 
   const round = Math.round
 
-  svg.append("g")
-    .selectAll("rect")
+  svg.append('g')
+    .selectAll('rect')
     .data(rows)
-    .join("rect")
-      .attr("x", row => round(x(row[group_by]) + x_subgroup(row.location)))
-      .attr("y", row => round(y(row.expression)))
-      .attr("height", row => round(y(0) - y(row.expression)))
-      .attr("width", round(x_subgroup.bandwidth()))
-      .attr("fill", row => z(row[group_by]))
+    .join('rect')
+      .attr('x', row => round(x(row[group_by]) + x_subgroup(row.location)))
+      .attr('y', row => round(y(row.expression)))
+      .attr('height', row => round(y(0) - y(row.expression)))
+      .attr('width', round(x_subgroup.bandwidth()))
+      .attr('fill', row => z(row[group_by]))
       .filter(row => row.location == 'TUMOR')
       .clone()
-      .attr("fill", 'url(#stripe)')
+      .attr('fill', 'url(#stripe)')
 
-  svg.append("g")
+  svg.append('g')
       .call(xAxis)
 
-  svg.append("g")
+  svg.append('g')
       .call(yAxis)
 
   return graph(svg, {width, height, ...margin})
@@ -182,9 +182,9 @@ function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
   const height = 35 * range[group_by].length + margin.top + margin.bottom
 
   const svg = d3.select('body').append('svg')
-    .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("width", width)
-    .attr("height", height)
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('width', width)
+    .attr('height', height)
 
   svg.append('defs').html(pattern)
 
@@ -203,16 +203,16 @@ function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .padding(0.2)
 
   const yAxis = (g: G) => g
-      .attr("transform", `translate(${margin.left},0)`)
+      .attr('transform', `translate(${margin.left},0)`)
       .call(d3.axisLeft(y).tickFormat(pretty).tickSizeOuter(0))
-      .call(g => g.select(".domain").remove())
+      .call(g => g.select('.domain').remove())
 
   const x = d3.scaleLinear()
       .domain([0, d3.max(rows, row => row.upper) || 0]).nice()
       .range([margin.left, width - margin.right])
 
   const xAxis = (g: G) => g
-      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .attr('transform', `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(x))
 
   svg.append('rect')
@@ -222,40 +222,40 @@ function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .attr('height', height - margin.bottom - margin.top)
       .attr('fill', '#aaa')
 
-  const g = svg.append("g")
-    .selectAll("g")
+  const g = svg.append('g')
+    .selectAll('g')
     .data(rows)
-    .join("g")
+    .join('g')
 
   const round = (i: number, snap=1) => Math.round(i / snap) * snap
 
   g.append('rect')
-     .attr("y", row => round(y(row[group_by]) + y_subgroup(row.location), 2) + round(y_subgroup.bandwidth() / 2.0) - 1)
-     .attr("x", row => round(x(row.lower)))
-     .attr("width", row => round(x(row.upper) - x(row.lower)))
-     .attr("height", 2)
-     .attr("fill", row => z(row[group_by]))
+     .attr('y', row => round(y(row[group_by]) + y_subgroup(row.location), 2) + round(y_subgroup.bandwidth() / 2.0) - 1)
+     .attr('x', row => round(x(row.lower)))
+     .attr('width', row => round(x(row.upper) - x(row.lower)))
+     .attr('height', 2)
+     .attr('fill', row => z(row[group_by]))
      .filter(row => row.location == 'TUMOR')
      .clone()
-     .attr("fill", 'url(#stripe)')
+     .attr('fill', 'url(#stripe)')
 
   g.append('rect')
-     .attr("y", row => round(y(row[group_by]) + y_subgroup(row.location), 2))
-     .attr("x", row => round(x(row.coef)))
-     .attr("width", 2)
-     .attr("height", round(y_subgroup.bandwidth(), 2))
-     .attr("fill", row => z(row[group_by]))
+     .attr('y', row => round(y(row[group_by]) + y_subgroup(row.location), 2))
+     .attr('x', row => round(x(row.coef)))
+     .attr('width', 2)
+     .attr('height', round(y_subgroup.bandwidth(), 2))
+     .attr('fill', row => z(row[group_by]))
      .clone()
-     .attr("height", round(y_subgroup.bandwidth(), 2) - 4)
+     .attr('height', round(y_subgroup.bandwidth(), 2) - 4)
      .attr('transform', 'translate(0, 2)')
      .attr('x', row => round(x(row.lower)))
      .clone()
      .attr('x', row => round(x(row.upper) - 1))
 
-  svg.append("g")
+  svg.append('g')
       .call(xAxis)
 
-  svg.append("g")
+  svg.append('g')
       .call(yAxis)
 
   return graph(svg, {width, height, ...margin})
