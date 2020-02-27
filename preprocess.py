@@ -63,8 +63,7 @@ cell_types = uniq(c for c in data.columns if 'TUMOR' in c or 'STROMA' in c)
 locations = ['TUMOR', 'STROMA']
 cell_types_no_loc = uniq([c.replace('_TUMOR', '').replace('_STROMA', '') for c in cell_types])
 
-
-def coxph_per_type(dd, cell_types=cell_types):
+def coxph_per_type(dd):
     dd = dd.copy()
 
     for i in cell_types:
@@ -90,9 +89,9 @@ def coxph_per_type(dd, cell_types=cell_types):
     return cox
 
 
-def data_per_type(dd, cell_types=cell_types):
+def data_per_type(dd):
     expression = pd.DataFrame({'expression': dd[cell_types].mean()})
-    cox = coxph_per_type(dd, cell_types=cell_types)
+    cox = coxph_per_type(dd)
     return pd.concat((expression, cox), axis=1)
 
 
