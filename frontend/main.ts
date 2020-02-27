@@ -67,6 +67,7 @@ document.body.innerHTML = `
     }
   </style>
 `
+
 function bar() {
 
   const rows = db.filter(row => row.tumor == 'Colon')
@@ -85,8 +86,8 @@ function bar() {
 
   type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
 
-  const z: d3.ScaleOrdinal<string, string> = d3.scaleOrdinal((d3 as any).schemeTableau10)
-    .domain(range.cell) as any
+  const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
+    .domain(range.cell)
 
   const x = d3.scaleBand()
       .domain(range.cell)
@@ -153,7 +154,7 @@ function forest() {
 
   type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
 
-  const z: d3.ScaleOrdinal<string, string> = d3.scaleOrdinal((d3 as any).schemeTableau10)
+  const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range.cell)
 
   const y = d3.scaleBand()
