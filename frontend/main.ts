@@ -3,7 +3,10 @@ module.hot && module.hot.accept()
 
 import * as d3 from "d3"
 
-interface Innermost {
+interface Row {
+  tumor: string
+  cell: string
+  location: string
   expression: number
   coef: number
   lower: number
@@ -11,38 +14,12 @@ interface Innermost {
   p: number
 }
 
-const missing = {
-  expression: 0,
-  coef: 0,
-  lower: 0,
-  upper: 0,
-  p: 0,
-  missing: true,
-} as any as Innermost
-
-type Loc = 'STROMA' | 'TUMOR'
-
-type DB = Record<string, Record<string, Record<Loc, Innermost>>>
-
-interface DBs {
-  by_tumor: DB,
-  by_cell: DB
-}
+type DB = Row[]
 
 declare const require: Function
-const db: DBs = require('./db.json')
+const db: DB = require('./db.json')
 
-type Row = Innermost & { loc: Loc, cell: string, tumor: string }
-
-const flat: Row[] = []
-
-for (const [cell, i] of Object.entries(db.by_cell))  {
-  for (const [tumor, j] of Object.entries(i)) {
-    for (const [loc, inner] of Object.entries(j)) {
-      flat.push({tumor, cell, loc: loc as Loc, ...inner})
-    }
-  }
-}
+window.db = db
 
 /** Returns a copy of the array with duplicates removed, via reference equality */
 export function uniq<A>(xs: A[]): A[] {
@@ -54,7 +31,7 @@ export function uniq<A>(xs: A[]): A[] {
   })
 }
 
-function flatRange<A extends Record<string, any>>(d: A[]): {[K in keyof A]: A[K][]} {
+function row_range<A extends Record<string, any>>(d: A[]): {[K in keyof A]: A[K][]} {
   const out = {} as any
   for (const k of Object.keys(d[0])) {
     out[k] = uniq(d.map(x => x[k]))
@@ -62,10 +39,10 @@ function flatRange<A extends Record<string, any>>(d: A[]): {[K in keyof A]: A[K]
   return out
 }
 
-const range = flatRange(flat)
+const range = row_range(db)
 
 console.log(range)
-console.log(flat)
+console.log(db)
 
 const stripe_size = 6
 const stripe_width = 2
@@ -92,7 +69,7 @@ document.body.innerHTML = `
 `
 function bar() {
 
-  const rows = flat.filter(row => row.tumor == 'Colon')
+  const rows = db.filter(row => row.tumor == 'Colon')
 
   const width = 900
   const height = 500
@@ -118,7 +95,7 @@ function bar() {
 
   // https://www.d3-graph-gallery.com/graph/barplot_grouped_basicWide.html
   const x_subgroup = d3.scaleBand()
-      .domain(range.loc)
+      .domain(range.location)
       .range([0, x.bandwidth()])
       .padding(0.0)
 
@@ -142,13 +119,13 @@ function bar() {
     .selectAll("rect")
     .data(rows)
     .join("rect")
-      .attr("x", row => round(x(row.cell) + x_subgroup(row.loc)))
+      .attr("x", row => round(x(row.cell) + x_subgroup(row.location)))
       .attr("y", row => round(y(row.expression)))
       .attr("height", row => round(y(0) - y(row.expression)))
       .attr("width", round(x_subgroup.bandwidth()))
       .attr("fill", row => z(row.cell))
       .clone()
-      .attr("fill", row => row.loc == 'TUMOR' ? 'url(#stripe)' : 'none')
+      .attr("fill", row => row.location == 'TUMOR' ? 'url(#stripe)' : 'none')
 
   svg.append("g")
       .call(xAxis)
@@ -162,7 +139,7 @@ function bar() {
 
 function forest() {
 
-  const rows = flat.filter(row => row.tumor == 'Colon')
+  const rows = db.filter(row => row.tumor == 'Colon')
 
   const width = 500
   const height = 500
@@ -186,7 +163,7 @@ function forest() {
 
   // https://www.d3-graph-gallery.com/graph/barplot_grouped_basicWide.html
   const y_subgroup = d3.scaleBand()
-      .domain(range.loc)
+      .domain(range.location)
       .range([0, y.bandwidth()])
       .padding(0.2)
 
@@ -218,22 +195,22 @@ function forest() {
   const round = Math.round
 
   g.append('rect')
-     .attr("y", row => round(y(row.cell) + y_subgroup(row.loc) + y_subgroup.bandwidth() / 2 - 1))
+     .attr("y", row => round(y(row.cell) + y_subgroup(row.location) + y_subgroup.bandwidth() / 2 - 1))
      .attr("x", row => round(x(row.lower)))
      .attr("width", row => round(x(row.upper) - x(row.lower)))
      .attr("height", 2)
      .attr("fill", row => z(row.cell))
      .clone()
-     .attr("fill", row => row.loc == 'TUMOR' ? 'url(#stripe)' : 'none')
+     .attr("fill", row => row.location == 'TUMOR' ? 'url(#stripe)' : 'none')
 
   g.append('rect')
-     .attr("y", row => round(y(row.cell) + y_subgroup(row.loc)))
+     .attr("y", row => round(y(row.cell) + y_subgroup(row.location)))
      .attr("x", row => round(x(row.coef)))
      .attr("width", row => round(y_subgroup.bandwidth()))
      .attr("height", round(y_subgroup.bandwidth()))
      .attr("fill", row => z(row.cell))
      // .clone()
-     // .attr("fill", row => row.loc == 'TUMOR' ? 'url(#stripe)' : 'none')
+     // .attr("fill", row => row.location == 'TUMOR' ? 'url(#stripe)' : 'none')
 
   svg.append("g")
       .call(xAxis)
@@ -247,6 +224,6 @@ bar()
 forest()
 
 document.body.innerHTML += `
-  <pre>${JSON.stringify({range, flat}, undefined, 2)}</pre>
+  <pre>${JSON.stringify({range, db}, undefined, 2)}</pre>
 `
 
