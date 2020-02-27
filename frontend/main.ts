@@ -41,9 +41,6 @@ function row_range<A extends Record<string, any>>(d: A[]): {[K in keyof A]: A[K]
 
 const range = row_range(db)
 
-console.log(range)
-console.log(db)
-
 const stripe_size = 6
 const stripe_width = 2
 
@@ -68,12 +65,55 @@ document.body.innerHTML = `
   </style>
 `
 
-function bar() {
+type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
+type SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>
 
-  const rows = db.filter(row => row.tumor == 'Colon')
+interface Graph {
+  caption(text: string): void
+  svg: SVG
+  size: Size
+}
 
-  const width = 900
-  const height = 500
+interface Margin {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+
+interface Size extends Margin {
+  width: number
+  height: number
+}
+
+function graph(svg: SVG, size: Size): Graph {
+  return {
+    svg,
+    size,
+    caption(text) {
+      const font_size = 13
+      svg.append('text')
+        .attr('x', size.width / 2)
+        .attr('y', size.top - font_size)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', font_size)
+        .attr('font-family', 'sans-serif')
+        .text(text)
+    }
+  }
+}
+
+function pretty(s: string) {
+  const s2 = s.replace('_', ' ')
+  return s2[0].toUpperCase() + s2.slice(1)
+}
+
+function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
+
+  const margin = {top: 25, right: 0, bottom: 30, left: 30}
+
+  const width = 50 * range[group_by].length + margin.left + margin.right
+  const height = 200
 
   const svg = d3.select('body').append('svg')
     .attr("viewBox", `0 0 ${width} ${height}`)
@@ -82,15 +122,11 @@ function bar() {
 
   svg.append('defs').html(pattern)
 
-  const margin = {top: 20, right: 0, bottom: 30, left: 40}
-
-  type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
-
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
-    .domain(range.cell)
+    .domain(range[group_by])
 
   const x = d3.scaleBand()
-      .domain(range.cell)
+      .domain(range[group_by])
       .range([margin.left, width - margin.right])
       .padding(0.5)
 
@@ -102,7 +138,7 @@ function bar() {
 
   const xAxis = (g: G) => g
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x).tickFormat(i => i.replace('_', ' ')).tickSizeOuter(0))
+      .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
 
   const y = d3.scaleLinear()
       .domain([0, d3.max(rows, row => row.expression) || 0]).nice()
@@ -110,23 +146,23 @@ function bar() {
 
   const yAxis = (g: G) => g
       .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(y).ticks(8))
       .call(g => g.select(".domain").remove())
 
   const round = Math.round
 
   svg.append("g")
-      .attr("fill", "steelblue")
     .selectAll("rect")
     .data(rows)
     .join("rect")
-      .attr("x", row => round(x(row.cell) + x_subgroup(row.location)))
+      .attr("x", row => round(x(row[group_by]) + x_subgroup(row.location)))
       .attr("y", row => round(y(row.expression)))
       .attr("height", row => round(y(0) - y(row.expression)))
       .attr("width", round(x_subgroup.bandwidth()))
-      .attr("fill", row => z(row.cell))
+      .attr("fill", row => z(row[group_by]))
+      .filter(row => row.location == 'TUMOR')
       .clone()
-      .attr("fill", row => row.location == 'TUMOR' ? 'url(#stripe)' : 'none')
+      .attr("fill", 'url(#stripe)')
 
   svg.append("g")
       .call(xAxis)
@@ -134,31 +170,29 @@ function bar() {
   svg.append("g")
       .call(yAxis)
 
-  return svg
+  return graph(svg, {width, height, ...margin})
 
 }
 
-function forest() {
+function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
 
-  const rows = db.filter(row => row.tumor == 'Colon')
+  const margin = {top: 25, right: 0, bottom: 30, left: 80}
 
   const width = 500
-  const height = 500
+  const height = 35 * range[group_by].length + margin.top + margin.bottom
 
   const svg = d3.select('body').append('svg')
     .attr("viewBox", `0 0 ${width} ${height}`)
     .attr("width", width)
     .attr("height", height)
 
-  const margin = ({top: 20, right: 0, bottom: 30, left: 100})
-
-  type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
+  svg.append('defs').html(pattern)
 
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
-    .domain(range.cell)
+    .domain(range[group_by])
 
   const y = d3.scaleBand()
-      .domain(range.cell)
+      .domain(range[group_by])
       .range([margin.top, height - margin.bottom])
       .padding(0.2)
 
@@ -170,7 +204,7 @@ function forest() {
 
   const yAxis = (g: G) => g
       .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y).tickFormat(i => i.replace('_', ' ')).tickSizeOuter(0))
+      .call(d3.axisLeft(y).tickFormat(pretty).tickSizeOuter(0))
       .call(g => g.select(".domain").remove())
 
   const x = d3.scaleLinear()
@@ -193,25 +227,30 @@ function forest() {
     .data(rows)
     .join("g")
 
-  const round = Math.round
+  const round = (i: number, snap=1) => Math.round(i / snap) * snap
 
   g.append('rect')
-     .attr("y", row => round(y(row.cell) + y_subgroup(row.location) + y_subgroup.bandwidth() / 2 - 1))
+     .attr("y", row => round(y(row[group_by]) + y_subgroup(row.location), 2) + round(y_subgroup.bandwidth() / 2.0) - 1)
      .attr("x", row => round(x(row.lower)))
      .attr("width", row => round(x(row.upper) - x(row.lower)))
      .attr("height", 2)
-     .attr("fill", row => z(row.cell))
+     .attr("fill", row => z(row[group_by]))
+     .filter(row => row.location == 'TUMOR')
      .clone()
-     .attr("fill", row => row.location == 'TUMOR' ? 'url(#stripe)' : 'none')
+     .attr("fill", 'url(#stripe)')
 
   g.append('rect')
-     .attr("y", row => round(y(row.cell) + y_subgroup(row.location)))
+     .attr("y", row => round(y(row[group_by]) + y_subgroup(row.location), 2))
      .attr("x", row => round(x(row.coef)))
-     .attr("width", row => round(y_subgroup.bandwidth()))
-     .attr("height", round(y_subgroup.bandwidth()))
-     .attr("fill", row => z(row.cell))
-     // .clone()
-     // .attr("fill", row => row.location == 'TUMOR' ? 'url(#stripe)' : 'none')
+     .attr("width", 2)
+     .attr("height", round(y_subgroup.bandwidth(), 2))
+     .attr("fill", row => z(row[group_by]))
+     .clone()
+     .attr("height", round(y_subgroup.bandwidth(), 2) - 4)
+     .attr('transform', 'translate(0, 2)')
+     .attr('x', row => round(x(row.lower)))
+     .clone()
+     .attr('x', row => round(x(row.upper) - 1))
 
   svg.append("g")
       .call(xAxis)
@@ -219,12 +258,18 @@ function forest() {
   svg.append("g")
       .call(yAxis)
 
+  return graph(svg, {width, height, ...margin})
 }
 
-bar()
-forest()
+const filter = (by: 'cell' | 'tumor', value: string) => db.filter(row => row[by] == value)
 
-document.body.innerHTML += `
-  <pre>${JSON.stringify({range, db}, undefined, 2)}</pre>
-`
+range.cell.forEach(c => {
+  bar   (filter('cell', c), 'tumor').caption(pretty(c))
+  forest(filter('cell', c), 'tumor').caption(pretty(c))
+})
+
+range.tumor.forEach(t => {
+  bar   (filter('tumor', t), 'cell').caption(pretty(t))
+  forest(filter('tumor', t), 'cell').caption(pretty(t))
+})
 
