@@ -68,12 +68,6 @@ document.body.innerHTML = `
 type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
 type SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>
 
-interface Graph {
-  caption(text: string): Graph
-  svg: SVG
-  size: Size
-}
-
 interface Margin {
   top: number
   right: number
@@ -84,6 +78,25 @@ interface Margin {
 interface Size extends Margin {
   width: number
   height: number
+}
+
+function init_svg(width: number, height: number): SVG {
+
+  const svg = d3.select('body').append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('width', width)
+    .attr('height', height)
+
+  svg.append('defs').html(pattern)
+
+  return svg
+
+}
+
+interface Graph {
+  caption(text: string): Graph
+  svg: SVG
+  size: Size
 }
 
 function graph(svg: SVG, size: Size): Graph {
@@ -113,19 +126,25 @@ function pretty(s: string) {
   }
 }
 
-function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
+function translate(dx: number, dy: number) {
+  return `translate(${dx}, ${dy})`
+}
+
+function round(i: number, snap=1) {
+  return Math.round(i / snap) * snap
+}
+
+
+type CT = 'cell' | 'tumor'
+
+function bar(rows: Row[], group_by: CT): Graph {
 
   const margin = {top: 25, right: 0, bottom: 30, left: 30}
 
   const width = 50 * range[group_by].length + margin.left + margin.right
   const height = 200
 
-  const svg = d3.select('body').append('svg')
-    .attr('viewBox', `0 0 ${width} ${height}`)
-    .attr('width', width)
-    .attr('height', height)
-
-  svg.append('defs').html(pattern)
+  const svg = init_svg(width, height)
 
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range[group_by])
@@ -141,8 +160,8 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .range([0, x.bandwidth()])
       .padding(0.0)
 
-  const xAxis = (g: G) => g
-      .attr('transform', `translate(0,${height - margin.bottom})`)
+  svg.append('g')
+      .attr('transform', translate(0, height - margin.bottom))
       .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
       .selectAll('.tick>line').remove()
 
@@ -150,12 +169,10 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .domain([0, d3.max(rows, row => row.expression) || 0]).nice()
       .range([height - margin.bottom, margin.top])
 
-  const yAxis = (g: G) => g
-      .attr('transform', `translate(${margin.left},0)`)
+  svg.append('g')
+      .attr('transform', translate(margin.left, 0))
       .call(d3.axisLeft(y).ticks(8))
-      .call(g => g.select('.domain').remove())
-
-  const round = Math.round
+      .select('.domain').remove()
 
   svg.append('g')
     .selectAll('rect')
@@ -170,17 +187,8 @@ function bar(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .clone()
       .attr('fill', 'url(#stripe)')
 
-  svg.append('g')
-      .call(xAxis)
-
-  svg.append('g')
-      .call(yAxis)
-
   return graph(svg, {width, height, ...margin})
-
 }
-
-type CT = 'cell' | 'tumor'
 
 function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): Graph {
 
@@ -192,12 +200,7 @@ function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): G
   const width = 45 * group_range.length * color_range.length + margin.left + margin.right
   const height = 200
 
-  const svg = d3.select('body').append('svg')
-    .attr('viewBox', `0 0 ${width} ${height}`)
-    .attr('width', width)
-    .attr('height', height)
-
-  svg.append('defs').html(pattern)
+  const svg = init_svg(width, height)
 
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range[color_by])
@@ -206,7 +209,7 @@ function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): G
     .selectAll('g')
     .data(color_range)
     .join('g')
-    .attr('transform', (_, i) => `translate(${width - margin.right},${margin.top + 23 * i})`)
+    .attr('transform', (_, i) => translate(width - margin.right, margin.top + 23 * i))
 
   legend.append('text')
     .text(pretty)
@@ -237,8 +240,8 @@ function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): G
       .paddingInner(0.0)
       .paddingOuter(0.15)
 
-  const xAxis = (g: G) => g
-      .attr('transform', `translate(0,${height - margin.bottom})`)
+  svg.append('g')
+      .attr('transform', translate(0, height - margin.bottom))
       .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
       .selectAll('.tick>line').remove()
 
@@ -246,12 +249,10 @@ function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): G
       .domain([0, d3.max(rows, row => row.expression) || 0]).nice()
       .range([height - margin.bottom, margin.top])
 
-  const yAxis = (g: G) => g
-      .attr('transform', `translate(${margin.left},0)`)
+  svg.append('g')
+      .attr('transform', translate(margin.left, 0))
       .call(d3.axisLeft(y).ticks(8))
-      .call(g => g.select('.domain').remove())
-
-  const round = Math.round
+      .select('.domain').remove()
 
   svg.append('g')
     .selectAll('rect')
@@ -266,29 +267,18 @@ function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): G
       .clone()
       .attr('fill', 'url(#stripe)')
 
-  svg.append('g')
-      .call(xAxis)
-
-  svg.append('g')
-      .call(yAxis)
-
   return graph(svg, {width, height, ...margin})
 
 }
 
-function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
+function forest(rows: Row[], group_by: CT): Graph {
 
   const margin = {top: 25, right: 10, bottom: 30, left: 80}
 
   const width = 500
   const height = 35 * range[group_by].length + margin.top + margin.bottom
 
-  const svg = d3.select('body').append('svg')
-    .attr('viewBox', `0 0 ${width} ${height}`)
-    .attr('width', width)
-    .attr('height', height)
-
-  svg.append('defs').html(pattern)
+  const svg = init_svg(width, height)
 
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range[group_by])
@@ -298,23 +288,22 @@ function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
       .range([margin.top, height - margin.bottom])
       .padding(0.2)
 
-  // https://www.d3-graph-gallery.com/graph/barplot_grouped_basicWide.html
   const y_subgroup = d3.scaleBand()
       .domain(range.location)
       .range([0, y.bandwidth()])
       .padding(0.2)
 
-  const yAxis = (g: G) => g
-      .attr('transform', `translate(${margin.left},0)`)
+  svg.append('g')
+      .attr('transform', translate(margin.left, 0))
       .call(d3.axisLeft(y).tickFormat(pretty).tickSizeOuter(0))
-      .call(g => g.select('.domain').remove())
+      .select('.domain').remove()
 
   const x = d3.scaleLinear()
       .domain([0, d3.max(rows, row => row.upper) || 0]).nice()
       .range([margin.left, width - margin.right])
 
-  const xAxis = (g: G) => g
-      .attr('transform', `translate(0,${height - margin.bottom})`)
+  svg.append('g')
+      .attr('transform', translate(0, height - margin.bottom))
       .call(d3.axisBottom(x))
 
   svg.append('rect')
@@ -328,8 +317,6 @@ function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
     .selectAll('g')
     .data(rows)
     .join('g')
-
-  const round = (i: number, snap=1) => Math.round(i / snap) * snap
 
   g.append('rect')
      .attr('y', row => round(y(row[group_by]) + y_subgroup(row.location), 2) + round(y_subgroup.bandwidth() / 2.0) - 1)
@@ -353,12 +340,6 @@ function forest(rows: Row[], group_by: 'cell' | 'tumor'): Graph {
      .attr('x', row => round(x(row.lower)))
      .clone()
      .attr('x', row => round(x(row.upper) - 1))
-
-  svg.append('g')
-      .call(xAxis)
-
-  svg.append('g')
-      .call(yAxis)
 
   return graph(svg, {width, height, ...margin})
 }
