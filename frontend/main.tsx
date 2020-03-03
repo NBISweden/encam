@@ -229,7 +229,7 @@ function bar(rows: Row[], options?: Partial<typeof default_options>): Graph {
 
 }
 
-function forest(rows: Row[], group_by: CT): Graph {
+function forest(rows: Row[], group_by: CT, color_by = 'cell' as CT): Graph {
 
   const margin = {top: 25, right: 10, bottom: 30, left: 80}
 
@@ -239,7 +239,7 @@ function forest(rows: Row[], group_by: CT): Graph {
   const svg = init_svg(width, height)
 
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
-    .domain(range[group_by])
+    .domain(range[color_by])
 
   const y = d3.scaleBand()
       .domain(range[group_by])
@@ -281,7 +281,7 @@ function forest(rows: Row[], group_by: CT): Graph {
      .attr('x', row => round(x(row.lower)))
      .attr('width', row => round(x(row.upper) - x(row.lower)))
      .attr('height', 2)
-     .attr('fill', row => z(row[group_by]))
+     .attr('fill', row => z(row[color_by]))
      .filter(row => row.location == 'TUMOR')
      .clone()
      .attr('fill', 'url(#stripe)')
@@ -291,7 +291,7 @@ function forest(rows: Row[], group_by: CT): Graph {
      .attr('x', row => round(x(row.coef)))
      .attr('width', 2)
      .attr('height', round(y_subgroup.bandwidth(), 2))
-     .attr('fill', row => z(row[group_by]))
+     .attr('fill', row => z(row[color_by]))
      .clone()
      .attr('height', round(y_subgroup.bandwidth(), 2) - 4)
      .attr('transform', 'translate(0, 2)')
@@ -377,9 +377,9 @@ function Check(range: string[], store: Store<Record<string, boolean>>, on: () =>
 function Sidebar() {
   return (
     <div className="col">
-      <h2>Cohorts</h2>
+      <h2>Tumor type</h2>
       {Check(range.tumor, store.at('tumor'), () => store.at('cell').set({}))}
-      <h2>Cells</h2>
+      <h2>Cell type</h2>
       {Check(range.cell, store.at('cell'), () => store.at('tumor').set({}))}
     </div>)
 }
