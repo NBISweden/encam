@@ -137,67 +137,27 @@ function round(i: number, snap=1) {
 
 type CT = 'cell' | 'tumor'
 
-function bar(rows: Row[], group_by: CT): Graph {
-
-  const margin = {top: 25, right: 0, bottom: 30, left: 30}
-
-  const width = 50 * range[group_by].length + margin.left + margin.right
-  const height = 200
-
-  const svg = init_svg(width, height)
-
-  const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
-    .domain(range[group_by])
-
-  const x = d3.scaleBand()
-      .domain(range[group_by])
-      .range([margin.left, width - margin.right])
-      .padding(0.5)
-
-  // https://www.d3-graph-gallery.com/graph/barplot_grouped_basicWide.html
-  const x_subgroup = d3.scaleBand()
-      .domain(range.location)
-      .range([0, x.bandwidth()])
-      .padding(0.0)
-
-  svg.append('g')
-      .attr('transform', translate(0, height - margin.bottom))
-      .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
-      .selectAll('.tick>line').remove()
-
-  const y = d3.scaleLinear()
-      .domain([0, d3.max(rows, row => row.expression) || 0]).nice()
-      .range([height - margin.bottom, margin.top])
-
-  svg.append('g')
-      .attr('transform', translate(margin.left, 0))
-      .call(d3.axisLeft(y).ticks(8))
-      .select('.domain').remove()
-
-  svg.append('g')
-    .selectAll('rect')
-    .data(rows)
-    .join('rect')
-      .attr('x', row => round(x(row[group_by]) + x_subgroup(row.location)))
-      .attr('y', row => round(y(row.expression)))
-      .attr('height', row => round(y(0) - y(row.expression)))
-      .attr('width', round(x_subgroup.bandwidth()))
-      .attr('fill', row => z(row[group_by]))
-      .filter(row => row.location == 'TUMOR')
-      .clone()
-      .attr('fill', 'url(#stripe)')
-
-  return graph(svg, {width, height, ...margin})
+const default_options = {
+  inner_facet: 'cell' as CT,
+  outer_facet: 'tumor' as CT,
+  color_by: 'cell' as CT,
+  legend: true,
 }
 
-function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): Graph {
+function bar(rows: Row[], options?: Partial<typeof default_options>): Graph {
 
-  const margin = {top: 25, right: 80, bottom: 30, left: 30}
+  const {inner_facet, outer_facet, color_by, legend} = {...default_options, ...options}
 
-  const group_range = uniq(rows.map(row => row[group_by]))
+  const margin = {top: 25, right: legend ? 80 : 0, bottom: 30, left: 30}
+
+  const outer_range = uniq(rows.map(row => row[outer_facet]))
+  const inner_range = uniq(rows.map(row => row[inner_facet]))
   const color_range = uniq(rows.map(row => row[color_by]))
 
-  const width = 45 * group_range.length * color_range.length + margin.left + margin.right
+  // TODO: figure out the relationship between these constants to the padding constants
+  const width =
+    50 * outer_range.length +
+    30 * outer_range.length * inner_range.length + margin.left + margin.right
   const height = 200
 
   const svg = init_svg(width, height)
@@ -205,44 +165,46 @@ function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): G
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range[color_by])
 
-  const legend = svg.append('g')
-    .selectAll('g')
-    .data(color_range)
-    .join('g')
-    .attr('transform', (_, i) => translate(width - margin.right, margin.top + 23 * i))
+  if (legend) {
+    const legend = svg.append('g')
+      .selectAll('g')
+      .data(color_range)
+      .join('g')
+      .attr('transform', (_, i) => translate(width - margin.right, margin.top + 23 * i))
 
-  legend.append('text')
-    .text(pretty)
-    .attr('x', 20)
-    .attr('y', 9)
-    .attr('font-size', 10)
-    .attr('font-family', 'sans-serif')
+    legend.append('text')
+      .text(pretty)
+      .attr('x', 20)
+      .attr('y', 9)
+      .attr('font-size', 10)
+      .attr('font-family', 'sans-serif')
 
-  legend.append('rect')
-    .attr('width', 10)
-    .attr('height', 10)
-    .attr('fill', z)
+    legend.append('rect')
+      .attr('width', 10)
+      .attr('height', 10)
+      .attr('fill', z)
+  }
 
-  const x = d3.scaleBand()
-      .domain(group_range)
+  const x_outer = d3.scaleBand()
+      .domain(outer_range)
       .range([margin.left, width - margin.right])
       .padding(0.0)
 
-  const x_by = d3.scaleBand()
-      .domain(color_range)
-      .range([0, x.bandwidth()])
+  const x_inner = d3.scaleBand()
+      .domain(inner_range)
+      .range([0, x_outer.bandwidth()])
       .paddingInner(0.0)
       .paddingOuter(1.0)
 
-  const x_subgroup = d3.scaleBand()
+  const x = d3.scaleBand()
       .domain(range.location)
-      .range([0, x_by.bandwidth()])
+      .range([0, x_inner.bandwidth()])
       .paddingInner(0.0)
       .paddingOuter(0.15)
 
   svg.append('g')
       .attr('transform', translate(0, height - margin.bottom))
-      .call(d3.axisBottom(x).tickFormat(pretty).tickSizeOuter(0))
+      .call(d3.axisBottom(x_outer).tickFormat(pretty).tickSizeOuter(0))
       .selectAll('.tick>line').remove()
 
   const y = d3.scaleLinear()
@@ -258,10 +220,10 @@ function multibar(rows: Row[], color_by='cell' as CT, group_by='tumor' as CT): G
     .selectAll('rect')
     .data(rows)
     .join('rect')
-      .attr('x', row => round(x(row[group_by]) + x_by(row[color_by]) + x_subgroup(row.location)))
+      .attr('x', row => round(x_outer(row[outer_facet]) + x_inner(row[inner_facet])) + round(x(row.location)))
       .attr('y', row => round(y(row.expression)))
       .attr('height', row => round(y(0) - y(row.expression)))
-      .attr('width', round(x_subgroup.bandwidth()))
+      .attr('width', round(x.bandwidth()))
       .attr('fill', row => z(row[color_by]))
       .filter(row => row.location == 'TUMOR')
       .clone()
@@ -348,23 +310,30 @@ const filter = (by: 'cell' | 'tumor', value: string) => db.filter(row => row[by]
 
 const pick_cells = (s: string) => db.filter(row => s.split(' ').some(name => name == row.cell))
 
-multibar(pick_cells('CD4'))
-multibar(pick_cells('CD4 CD8'))
-multibar(pick_cells('CD4 CD8 B_cells'))
-multibar(pick_cells('CD4 CD8 B_cells pDC'))
-multibar(pick_cells('CD4 CD8 B_cells pDC NKT'))
-multibar(pick_cells('CD4 CD8 B_cells pDC NKT'), 'tumor', 'cell')
+bar(pick_cells('CD4'), {color_by: 'tumor', legend: false}).caption('CD4')
 
-multibar(pick_cells('CD4'), 'tumor', 'cell')
-multibar(filter('tumor', 'lung'), 'cell', 'tumor')
+bar(pick_cells('CD4 CD8'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+bar(pick_cells('CD4 CD8 B_cells'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+bar(pick_cells('CD4 CD8 B_cells pDC'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+bar(pick_cells('CD4 CD8 B_cells pDC NKT'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+
+bar(pick_cells('CD4 CD8'))
+bar(pick_cells('CD4 CD8 B_cells'))
+bar(pick_cells('CD4 CD8 B_cells pDC'))
+bar(pick_cells('CD4 CD8 B_cells pDC NKT'))
+bar(pick_cells('CD4 CD8 B_cells pDC NKT'), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'})
+
+bar(pick_cells('CD4'), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'})
+bar(pick_cells('CD4'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'tumor'})
+
+bar(pick_cells('CD4'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+bar(pick_cells('CD4 CD8'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+bar(filter('tumor', 'lung'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
 
 range.cell.forEach(c => {
-  bar   (filter('cell', c), 'tumor').caption(pretty(c))
   forest(filter('cell', c), 'tumor').caption(pretty(c))
 })
 
 range.tumor.forEach(t => {
-  bar   (filter('tumor', t), 'cell').caption(pretty(t))
   forest(filter('tumor', t), 'cell').caption(pretty(t))
 })
-
