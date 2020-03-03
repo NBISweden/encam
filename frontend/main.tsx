@@ -368,17 +368,32 @@ const store: Store<State> = Store.init(window.store ? window.store.get() : state
 
 window.store = store
 
-function Check(range: string[], store: Store<Record<string, boolean>>, on: () => void) {
+function Check(range: string[], store: Store<Record<string, boolean>>, on: () => void, color: (s: string) => string = () => 'black') {
   return range.map(x =>
     <label key={x}>
-      <input type="checkbox" checked={store.get()[x] || false} onChange={e => {
+      <input style={{display:'none'}} type="checkbox" checked={store.get()[x] || false} onChange={e => {
         store.transaction(() => {
           store.set({...store.get(), [x]: e.target.checked})
           on()
-        })}}/>{pretty(x)}
+        })}}/>
+      <span style={
+          {
+            borderRadius: '100px',
+            border: `2px ${color(x)} solid`,
+            background: store.get()[x] ? color(x) : 'none',
+            width: '0.5em',
+            height: '0.6em',
+            marginRight: '0.4em',
+            display: 'inline-block',
+          }
+        }></span>
+      {pretty(x)}
     </label>
   )
 }
+
+const cell_color = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
+    .domain(range.cell)
 
 function Sidebar() {
   return (
@@ -386,7 +401,7 @@ function Sidebar() {
       <h2>Tumor type</h2>
       {Check(range.tumor, store.at('tumor'), () => store.at('cell').set({}))}
       <h2>Cell type</h2>
-      {Check(range.cell, store.at('cell'), () => store.at('tumor').set({}))}
+      {Check(range.cell, store.at('cell'), () => store.at('tumor').set({}), cell_color)}
     </div>)
 }
 
