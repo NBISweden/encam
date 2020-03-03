@@ -13,6 +13,7 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+    "jsx": "react",
 
     "downlevelIteration": true,
 

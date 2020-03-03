@@ -1,7 +1,12 @@
 declare const module: {hot?: {accept: Function}}
 module.hot && module.hot.accept()
 
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+
 import * as d3 from 'd3'
+
+// declare const d3: typeof import('d3')
 
 interface Row {
   tumor: string
@@ -52,19 +57,6 @@ const pattern = `
   </pattern>
 `
 
-document.body.innerHTML = `
-  <style>
-    pre {
-      background: #e8e8e8;
-      border-left: 2px #59f solid;
-      padding: 4px;
-    }
-    svg {
-      display: block;
-    }
-  </style>
-`
-
 type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
 type SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>
 
@@ -82,7 +74,9 @@ interface Size extends Margin {
 
 function init_svg(width: number, height: number): SVG {
 
-  const svg = d3.select('body').append('svg')
+  const target = document.querySelector('#target') ? d3.select('#target') : d3.select('body')
+
+  const svg = target.append('svg')
     .attr('viewBox', `0 0 ${width} ${height}`)
     .attr('width', width)
     .attr('height', height)
@@ -142,11 +136,13 @@ const default_options = {
   outer_facet: 'tumor' as CT,
   color_by: 'cell' as CT,
   legend: true,
+  p: 0.5,
+  w: 40,
 }
 
 function bar(rows: Row[], options?: Partial<typeof default_options>): Graph {
 
-  const {inner_facet, outer_facet, color_by, legend} = {...default_options, ...options}
+  const {inner_facet, outer_facet, color_by, legend, p, w} = {...default_options, ...options}
 
   const margin = {top: 25, right: legend ? 80 : 0, bottom: 30, left: 30}
 
@@ -156,8 +152,8 @@ function bar(rows: Row[], options?: Partial<typeof default_options>): Graph {
 
   // TODO: figure out the relationship between these constants to the padding constants
   const width =
-    50 * outer_range.length +
-    30 * outer_range.length * inner_range.length + margin.left + margin.right
+    p * w * outer_range.length +
+    w * outer_range.length * inner_range.length + margin.left + margin.right
   const height = 200
 
   const svg = init_svg(width, height)
@@ -194,7 +190,7 @@ function bar(rows: Row[], options?: Partial<typeof default_options>): Graph {
       .domain(inner_range)
       .range([0, x_outer.bandwidth()])
       .paddingInner(0.0)
-      .paddingOuter(1.0)
+      .paddingOuter(p)
 
   const x = d3.scaleBand()
       .domain(range.location)
@@ -310,30 +306,172 @@ const filter = (by: 'cell' | 'tumor', value: string) => db.filter(row => row[by]
 
 const pick_cells = (s: string) => db.filter(row => s.split(' ').some(name => name == row.cell))
 
-bar(pick_cells('CD4'), {color_by: 'tumor', legend: false}).caption('CD4')
+document.body.innerHTML = `
+  <style>
+    pre {
+      background: #e8e8e8;
+      border-left: 2px #59f solid;
+      padding: 4px;
+    }
+    svg {
+      display: block;
+    }
+    * {
+      user-select: none;
+    }
+    .col {
+      display: flex;
+      flex-direction: column;
+    }
+    body {
+      display: flex;
+      flex-direction: row;
+      font-family: sans-serif, sans;
+    }
+    h2 {
+      margin-top: 1em;
+      margin-bottom: 0.2em;
+      margin-left: 0.2em;
+      font-size: 1.1em;
+    }
+    #sidebar {
+      margin-left: 1em;
+      margin-right: 3em;
+    }
+  </style>
+  <div id='sidebar'></div>
+  <div id='target'></div>
+`
 
-bar(pick_cells('CD4 CD8'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
-bar(pick_cells('CD4 CD8 B_cells'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
-bar(pick_cells('CD4 CD8 B_cells pDC'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
-bar(pick_cells('CD4 CD8 B_cells pDC NKT'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+import {Store, Lens} from 'reactive-lens'
 
-bar(pick_cells('CD4 CD8'))
-bar(pick_cells('CD4 CD8 B_cells'))
-bar(pick_cells('CD4 CD8 B_cells pDC'))
-bar(pick_cells('CD4 CD8 B_cells pDC NKT'))
-bar(pick_cells('CD4 CD8 B_cells pDC NKT'), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'})
+const state0 = {
+  tumor: {} as Record<string, boolean>,
+  cell: {} as Record<string, boolean>,
+}
 
-bar(pick_cells('CD4'), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'})
-bar(pick_cells('CD4'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'tumor'})
+type State = typeof state0
 
-bar(pick_cells('CD4'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
-bar(pick_cells('CD4 CD8'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
-bar(filter('tumor', 'lung'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+declare global {
+  interface Window {
+    store: Store<State> | undefined
+  }
+}
 
-range.cell.forEach(c => {
-  forest(filter('cell', c), 'tumor').caption(pretty(c))
-})
+const store: Store<State> = Store.init(window.store ? window.store.get() : state0)
 
-range.tumor.forEach(t => {
-  forest(filter('tumor', t), 'cell').caption(pretty(t))
-})
+window.store = store
+
+function Check(range: string[], store: Store<Record<string, boolean>>, on: () => void) {
+  return range.map(x =>
+    <label key={x}>
+      <input type="checkbox" checked={store.get()[x] || false} onChange={e => {
+        store.transaction(() => {
+          store.set({...store.get(), [x]: e.target.checked})
+          on()
+        })}}/>{pretty(x)}
+    </label>
+  )
+}
+
+function Sidebar() {
+  return (
+    <div className="col">
+      <h2>Cohorts</h2>
+      {Check(range.tumor, store.at('tumor'), () => store.at('cell').set({}))}
+      <h2>Cells</h2>
+      {Check(range.cell, store.at('cell'), () => store.at('tumor').set({}))}
+    </div>)
+}
+
+function redraw() {
+  ReactDOM.render(<Sidebar/>, document.querySelector('#sidebar'))
+}
+
+window.requestAnimationFrame(redraw)
+
+function clear(e: Element) {
+  while (e.lastElementChild) {
+    e.removeChild(e.lastElementChild)
+  }
+}
+
+store.ondiff(redraw)
+store.on(x => console.log(JSON.stringify(x)))
+store.on(x => refresh())
+
+function refresh() {
+  const target = document.querySelector('#target')
+  target && clear(target)
+  const {tumor, cell} = store.get()
+  const tumors = Object.entries(tumor).filter(([k, v]) => v).map(([k, v]) => k)
+  const cells  = Object.entries(cell).filter(([k, v]) => v).map(([k, v]) => k)
+  if (tumors.length) {
+    const rows = db.filter(row => tumor[row.tumor])
+    const cap = tumors.map(pretty).join(', ')
+
+    if (tumors.length >= 2) {
+      // bar(rows, {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'cell', legend: false, p: 0.10, w: 40}).caption(cap)
+      // bar(rows, {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell', legend: true}).caption(cap)
+    }
+
+    tumors.forEach(t => {
+      bar(filter('tumor', t), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'cell', legend: false, p: 0.10, w: 40}).caption(pretty(t))
+      // bar(filter('tumor', t), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell', legend: true}).caption(pretty(t))
+      forest(filter('tumor', t), 'cell').caption(pretty(t))
+    })
+  }
+  if (cells.length) {
+    const rows = db.filter(row => cell[row.cell])
+    const cap = cells.map(pretty).join(', ')
+
+    // if (cells.length >= 2) {
+      bar(rows, {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'}).caption(cap)
+      // bar(rows, {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'}).caption(cap)
+    // }
+
+    cells.forEach(c => {
+      // bar(pick_cells(c), {color_by: 'tumor', color_by: 'cell', legend: false, p: 0.2}).caption(pretty(c))
+      forest(filter('cell', c), 'tumor').caption(pretty(c))
+    })
+  }
+}
+
+refresh()
+
+
+function demo() {
+  // bar(pick_cells('CD4'), {color_by: 'tumor', legend: false}).caption('CD4')
+  // bar(pick_cells('CD4 CD8'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+  // bar(pick_cells('CD4 CD8 B_cells'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+  // bar(pick_cells('CD4 CD8 B_cells pDC'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+  // bar(pick_cells('CD4 CD8 B_cells pDC NKT'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+  // bar(pick_cells('CD4 CD8'))
+  // bar(pick_cells('CD4 CD8 B_cells'))
+  // bar(pick_cells('CD4 CD8 B_cells pDC'))
+  // bar(pick_cells('CD4 CD8 B_cells pDC NKT'))
+
+  // tranposed views when picking many cells:
+  bar(pick_cells('CD4 CD8 B_cells pDC NKT'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'})
+  bar(pick_cells('CD4 CD8 B_cells pDC NKT'), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'})
+
+  // checking inner/outer facets of only one cell type:
+  bar(pick_cells('CD4'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'tumor', legend: false, p: 0.1}).caption('CD4')
+  bar(pick_cells('CD4'), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'tumor', legend: false}).caption('CD4')
+  bar(pick_cells('CD4'), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'})
+
+  // one cell selected
+  range.cell.forEach(c => {
+    bar(pick_cells(c), {color_by: 'tumor', legend: false, p: 0.2}).caption(pretty(c))
+    forest(filter('cell', c), 'tumor').caption(pretty(c))
+  })
+
+  // one tumor selected
+  range.tumor.forEach(t => {
+    bar(filter('tumor', t), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'cell', legend: false, p: 0.10, w: 40}).caption(pretty(t))
+    bar(filter('tumor', t), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell', legend: true}).caption(pretty(t))
+    forest(filter('tumor', t), 'cell').caption(pretty(t))
+  })
+}
+
+// demo()
