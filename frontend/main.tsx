@@ -101,23 +101,19 @@ interface Size extends Margin {
   height: number
 }
 
-function init_svg(width: number, height: number, margin: Margin): SVG {
-
-  const width_ = width + margin.left + margin.right
-  const height_ = height + margin.top + margin.bottom
+function init_svg(width: number, height: number): SVG {
 
   const target = document.querySelector('#target') ? d3.select('#target') : d3.select('body')
 
   const svg = target.append('svg')
-    .attr('viewBox', `0 0 ${width_} ${height_}`)
-    .attr('width', width_)
-    .attr('height', height_)
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('width', width)
+    .attr('height', height)
 
   svg.append('defs').html(pattern)
 
   return svg
-    .append('g')
-    .attr('transform', translate(margin.left, margin.top)) as any as SVG
+
 }
 
 interface Graph {
@@ -134,7 +130,7 @@ function graph(svg: SVG, size: Size): Graph {
       const font_size = 13
       svg.append('text')
         .attr('x', size.width / 2)
-        .attr('y', - font_size)
+        .attr('y', size.top - font_size)
         .attr('text-anchor', 'middle')
         .attr('font-size', font_size)
         .attr('font-family', 'sans-serif')
@@ -161,6 +157,7 @@ function round(i: number, snap=1) {
   return Math.round(i / snap) * snap
 }
 
+
 type CT = 'cell' | 'tumor'
 
 const default_options = {
@@ -185,40 +182,37 @@ function bar(rows: Row[], options?: Partial<typeof default_options>): Graph {
   // TODO: figure out the relationship between these constants to the padding constants
   const width =
     p * w * outer_range.length +
-    w * outer_range.length * inner_range.length
-  const height = 170
+    w * outer_range.length * inner_range.length + margin.left + margin.right
+  const height = 200
 
-  const svg = init_svg(width, height, margin)
+  const svg = init_svg(width, height)
 
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range[color_by])
 
   if (legend) {
-    const box_size = 10
-
     const legend = svg.append('g')
       .selectAll('g')
       .data(color_range)
       .join('g')
-      .attr('transform', (_, i) => translate(width + margin.right - box_size, 2.3 * box_size * i))
+      .attr('transform', (_, i) => translate(width - margin.right, margin.top + 23 * i))
 
     legend.append('text')
       .text(pretty)
-      .attr('x', -box_size / 2)
-      .attr('y', box_size - 1)
-      .attr('font-size', box_size)
+      .attr('x', 20)
+      .attr('y', 9)
+      .attr('font-size', 10)
       .attr('font-family', 'sans-serif')
-      .attr('text-anchor', 'end')
 
     legend.append('rect')
-      .attr('width', box_size)
-      .attr('height', box_size)
+      .attr('width', 10)
+      .attr('height', 10)
       .attr('fill', z)
   }
 
   const x_outer = d3.scaleBand()
       .domain(outer_range)
-      .range([0, width])
+      .range([margin.left, width - margin.right])
       .padding(0.0)
 
   const x_inner = d3.scaleBand()
@@ -234,16 +228,16 @@ function bar(rows: Row[], options?: Partial<typeof default_options>): Graph {
       .paddingOuter(0.15)
 
   svg.append('g')
-      .attr('transform', translate(0, height))
+      .attr('transform', translate(0, height - margin.bottom))
       .call(d3.axisBottom(x_outer).tickFormat(pretty).tickSizeOuter(0))
       .selectAll('.tick>line').remove()
 
   const y = d3.scaleLinear()
       .domain([0, d3.max(rows, row => row.expression) || 0]).nice()
-      .range([height, 0])
+      .range([height - margin.bottom, margin.top])
 
   svg.append('g')
-      // .attr('transform', translate(margin.left, 0))
+      .attr('transform', translate(margin.left, 0))
       .call(d3.axisLeft(y).ticks(8))
       .select('.domain').remove()
 
@@ -268,17 +262,17 @@ function forest(rows: Row[], group_by: CT, color_by = 'cell' as CT): Graph {
 
   const margin = {top: 25, right: 10, bottom: 30, left: 80}
 
-  const width = 460
-  const height = 35 * range[group_by].length
+  const width = 500
+  const height = 35 * range[group_by].length + margin.top + margin.bottom
 
-  const svg = init_svg(width, height, margin)
+  const svg = init_svg(width, height)
 
   const z = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range[color_by])
 
   const y = d3.scaleBand()
       .domain(range[group_by])
-      .range([0, height])
+      .range([margin.top, height - margin.bottom])
       .padding(0.2)
 
   const y_subgroup = d3.scaleBand()
@@ -287,23 +281,23 @@ function forest(rows: Row[], group_by: CT, color_by = 'cell' as CT): Graph {
       .padding(0.2)
 
   svg.append('g')
+      .attr('transform', translate(margin.left, 0))
       .call(d3.axisLeft(y).tickFormat(pretty).tickSizeOuter(0))
       .select('.domain').remove()
 
   const x = d3.scaleLinear()
-      .domain([0, d3.max(rows, row => Math.min(row.upper, 3)) || 0]).nice()
-                                                       // ^ temporary hack to crop high numbers
-      .range([0, width])
+      .domain([0, d3.max(rows, row => row.upper) || 0]).nice()
+      .range([margin.left, width - margin.right])
 
   svg.append('g')
-      .attr('transform', translate(0, height))
+      .attr('transform', translate(0, height - margin.bottom))
       .call(d3.axisBottom(x))
 
   svg.append('rect')
-      .attr('y', 0)
+      .attr('y', margin.bottom)
       .attr('x', x(1))
       .attr('width', 1)
-      .attr('height', height)
+      .attr('height', height - margin.bottom - margin.top)
       .attr('fill', '#aaa')
 
   const g = svg.append('g')
@@ -366,7 +360,7 @@ document.body.innerHTML = `
     h2 {
       margin-top: 1em;
       margin-bottom: 0.2em;
-      margin-left: 1em;
+      margin-left: 0.2em;
       font-size: 1.1em;
     }
     #sidebar {
