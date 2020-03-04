@@ -87,7 +87,7 @@ const pattern = `
 `
 
 type G = d3.Selection<SVGGElement, unknown, HTMLElement, any>
-type SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>
+type SVG = d3.Selection<SVGSVGElement, undefined, null, undefined>
 
 interface Margin {
   top: number
@@ -103,14 +103,16 @@ interface Size extends Margin {
 
 function init_svg(width: number, height: number): SVG {
 
-  const target = document.querySelector('#target') ? d3.select('#target') : d3.select('body')
+  // const target = document.querySelector('#target') ? d3.select('#target') : d3.select('body')
 
-  const svg = target.append('svg')
+  const svg = d3.create('svg')
     .attr('viewBox', `0 0 ${width} ${height}`)
     .attr('width', width)
     .attr('height', height)
 
   svg.append('defs').html(pattern)
+
+  // target.append(svg)
 
   return svg
 
@@ -367,16 +369,19 @@ document.body.innerHTML = `
       margin-left: 1em;
       margin-right: 3em;
     }
+    #root {
+      display: flex;
+      flex-direction: row;
+    }
   </style>
-  <div id='sidebar'></div>
-  <div id='target'></div>
+  <div id='root'></div>
 `
 
 import {Store, Lens} from 'reactive-lens'
 
 const state0 = {
   tumor: {} as Record<string, boolean>,
-  cell: {} as Record<string, boolean>,
+  cell: {CD4: true} as Record<string, boolean>,
 }
 
 type State = typeof state0
@@ -394,7 +399,7 @@ window.store = store
 function Check(range: string[], store: Store<Record<string, boolean>>, on: () => void, color: (s: string) => string = () => 'black') {
   return range.map(x =>
     <label key={x}>
-      <input style={{display:'none'}} type="checkbox" checked={store.get()[x] || false} onChange={e => {
+      <input style={{display:'none'}} type="checkbox" checked={!!store.get()[x]} onChange={e => {
         store.transaction(() => {
           store.set({...store.get(), [x]: e.target.checked})
           on()
@@ -415,21 +420,36 @@ function Check(range: string[], store: Store<Record<string, boolean>>, on: () =>
   )
 }
 
+
 const cell_color = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
     .domain(range.cell)
 
-function Sidebar() {
-  return (
-    <div className="col">
-      <h2>Tumor type</h2>
-      {Check(range.tumor, store.at('tumor'), () => store.at('cell').set({}))}
-      <h2>Cell type</h2>
-      {Check(range.cell, store.at('cell'), () => store.at('tumor').set({}), cell_color)}
-    </div>)
+function Root() {
+  return <React.Fragment>
+      <div key="a" className="col">
+        <h2>Tumor type</h2>
+        {Check(range.tumor, store.at('tumor'), () => store.at('cell').set({}))}
+        <h2>Cell type</h2>
+        {Check(range.cell, store.at('cell'), () => store.at('tumor').set({}), cell_color)}
+      </div>
+      <Graph graph={refresh()}/>
+    </React.Fragment>
+}
+
+function Graph(props: {graph: Graph | undefined}) {
+  const [el, set_el] = React.useState(null as null | Element)
+  if (el) {
+    clear(el)
+    if (props.graph) {
+      const node = props.graph.svg.node()
+      node && el.append(node)
+    }
+  }
+  return <div ref={set_el}></div>
 }
 
 function redraw() {
-  ReactDOM.render(<Sidebar/>, document.querySelector('#sidebar'))
+  ReactDOM.render(<Root/>, document.querySelector('#root'))
 }
 
 window.requestAnimationFrame(redraw)
@@ -442,11 +462,11 @@ function clear(e: Element) {
 
 store.ondiff(redraw)
 store.on(x => console.log(JSON.stringify(x)))
-store.on(x => refresh())
+// store.on(x => refresh())
 
-function refresh() {
-  const target = document.querySelector('#target')
-  target && clear(target)
+function refresh(): Graph | undefined {
+  // const target = document.querySelector('#target')
+  // target && clear(target)
   const {tumor, cell} = store.get()
   const tumors = Object.entries(tumor).filter(([k, v]) => v).map(([k, v]) => k)
   const cells  = Object.entries(cell).filter(([k, v]) => v).map(([k, v]) => k)
@@ -459,18 +479,18 @@ function refresh() {
       // bar(rows, {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell', legend: true}).caption(cap)
     }
 
-    tumors.forEach(t => {
-      bar(filter('tumor', t), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'cell', legend: false, p: 0.10, w: 40}).caption(pretty(t))
+    for (const t of tumors) {
+      return bar(filter('tumor', t), {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'cell', legend: false, p: 0.10, w: 40}).caption(pretty(t))
       // bar(filter('tumor', t), {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell', legend: true}).caption(pretty(t))
       forest(filter('tumor', t), 'cell').caption(pretty(t))
-    })
+    }
   }
   if (cells.length) {
     const rows = db.filter(row => cell[row.cell])
     const cap = cells.map(pretty).join(', ')
 
     // if (cells.length >= 2) {
-      bar(rows, {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'}).caption(cap)
+      return bar(rows, {inner_facet: 'cell', outer_facet: 'tumor', color_by: 'cell'}).caption(cap)
       // bar(rows, {inner_facet: 'tumor', outer_facet: 'cell', color_by: 'tumor'}).caption(cap)
     // }
 
@@ -480,9 +500,6 @@ function refresh() {
     })
   }
 }
-
-refresh()
-
 
 function demo() {
   // bar(pick_cells('CD4'), {color_by: 'tumor', legend: false}).caption('CD4')
@@ -519,3 +536,4 @@ function demo() {
 }
 
 // demo()
+
