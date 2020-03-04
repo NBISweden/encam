@@ -21,11 +21,6 @@ interface Row {
 
 type DB = Row[]
 
-declare const require: Function
-const db: DB = require('./db.json')
-
-window.db = db
-
 /** Returns a copy of the array with duplicates removed, via reference equality */
 export function uniq<A>(xs: A[]): A[] {
   const seen = new Set()
@@ -43,6 +38,40 @@ function row_range<A extends Record<string, any>>(d: A[]): {[K in keyof A]: A[K]
   }
   return out
 }
+
+import * as random_js from 'random-js'
+
+const make_gen = () => random_js.MersenneTwister19937.seed(84000)
+
+function expand(rows: DB) {
+  const gen = make_gen()
+  const range = row_range(rows)
+  const out = rows.slice()
+  for (let i = 0; i < 8; ++i) {
+    range.cell.forEach(cell => {
+      range.location.forEach(location => {
+        const proto = {...random_js.pick(gen, rows)}
+        while (proto.upper > 2 && gen.next() % 10 != 0) {
+          proto.coef *= 0.2
+          proto.lower *= 0.2
+          proto.upper *= 0.2
+        }
+        out.push({
+          ...proto,
+          tumor: 'type' + '₁₂₃₄₅₆₇₈₉'[i],
+          cell,
+          location,
+        })
+      })
+    })
+  }
+  return out
+}
+
+declare const require: Function
+const db: DB = expand(require('./db.json'))
+
+window.db = db
 
 const range = row_range(db)
 
