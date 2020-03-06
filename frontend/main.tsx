@@ -57,8 +57,13 @@ css(`
   *, *:before, *:after {
     box-sizing: inherit;
   }
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+  }
   body {
     margin: 0;
+    font-family: sans-serif, sans;
   }
   div {
     // border: 1px blue solid;
@@ -74,7 +79,6 @@ css(`
     flex-direction: column;
   }
   #root {
-    width: 100%;
     background: #eee;
   }
   #top {
@@ -92,11 +96,6 @@ css(`
   }
   #right-sidebar {
     width: 200px;
-  }
-  body {
-    display: flex;
-    flex-direction: row;
-    font-family: sans-serif, sans;
   }
   h2 {
     margin-top: 1em;
@@ -183,7 +182,10 @@ function Root() {
             cell_color)}
       </div>
       <div id="center">
-        <div style={{position: 'relative'}}>
+        <div style={{
+            position: 'relative',
+            minHeight: d3.max(Object.values(offsets), off => off.y + 220)
+          }}>
           {Checkboxes(range.tumor, store.at('tumor'), () => store.at('cell').set({}), () => '#444')
             .map(
               (label, i) => {
