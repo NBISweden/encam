@@ -7,7 +7,7 @@ import {CT, Row, range, pretty, uniq} from './db'
 const stripe_size = 6
 const stripe_width = 2
 
-const pattern = `
+export const pattern = `
   <pattern id='stripe' patternUnits='userSpaceOnUse' width='${stripe_size}' height='${stripe_size}'>
     <path d='M-1,1 l2,-2
        M0,${stripe_size} l${stripe_size},-${stripe_size}
