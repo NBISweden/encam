@@ -8,7 +8,7 @@ import * as d3 from 'd3'
 
 import {css, Div, div, clear as clear_css} from './css'
 
-import {Graph, forest, bar} from './plots'
+import * as plots from './plots'
 
 import {CT, Row, range, pretty, db, filter, pick_cells} from './db'
 
@@ -255,108 +255,18 @@ function right_sidebar(): React.ReactNode[] {
   return graphs.map((g, i) => <Graph key={i} graph={g}/>)
 }
 
-import * as V from 'vega-lite'
-
-const barchart: V.TopLevelSpec = {
-  $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-  data: {values: db},
-  transform: [
-    {filter: "datum.tumor == 'lung'"},
-  ],
-  width: {step: 12},
-  height: {step: 12},
-  mark: "bar",
-  encoding: {
-    row: {
-      field: "cell",
-      type: "ordinal",
-      spacing: 5,
-      header: {
-        labelAngle: 0,
-        labelAlign: "left",
-        title: null
-      },
-    },
-    x: {
-      aggregate: "sum", field: "expression", type: "quantitative",
-      axis: {title: "expression", grid: false}
-    },
-    y: {
-      field: "location", type: "nominal",
-      axis: null,
-    },
-    color: {
-      field: "cell", type: "nominal",
-      scale: {scheme: "tableau20"},
-      legend: null,
-    }
-  },
-  config: {
-    view: {stroke: "transparent"},
-    axis: {domainWidth: 1}
-  }
-}
-
-import vegaEmbed, * as VE from 'vega-embed'
-import * as plots from './plots'
-
-function Embed({spec}: {spec: VE.VisualizationSpec}) {
-  const [el, set_el] = React.useState(null as HTMLElement | null)
-  if (el) {
-    vegaEmbed(el, spec, {renderer: 'svg'})
-      .then(() => {
-        // example of changing the created svg:
-        const svg = el.querySelector('svg')
-        if (!svg) return
-        svg.innerHTML += `<defs>${plots.pattern}</defs>`
-        const second: SVGPathElement[] = el.querySelectorAll('.mark-rect.role-mark > path:nth-child(1)') as any
-        console.log(second)
-        second.forEach(path => {
-          const p2 = path.cloneNode() as SVGPathElement
-          const par = path.parentNode
-          par && par.append(p2)
-          p2.style = 'fill: url(#stripe)'
-          console.log(p2)
-        })
-      })
-  }
-  return <div ref={set_el}/>
-}
-
-function embed(spec: VE.VisualizationSpec) {
-  return <Embed spec={spec}/>
-}
-
-const Barchart = embed(barchart)
-
 function Demo() {
   const t = 'type₈'
   return div({id: 'top'}, css`width: 800;`,
-    Barchart,
-    0 && <Graph graph={
-      bar(filter('tumor', t), {
-        inner_facet: 'tumor',
-        outer_facet: 'cell',
-        color_by: 'cell',
-        legend: false,
-        p: 0.10,
-        w: 40,
-        horizontal: false,
-        height: 400,
-      }).caption(pretty(t) + ', horizontal: false')
-    }/>,
-    0 && <Graph graph={
-      bar(filter('tumor', t), {
-        inner_facet: 'tumor',
-        outer_facet: 'cell',
-        color_by: 'cell',
-        legend: false,
-        p: 0.10,
-        w: 20,
-        horizontal: true,
-        height: 400,
-      }).caption(pretty(t) + ', horizontal: true')
-    }/>)
+    plots.barchart(filter('tumor', 'lung')),
+    plots.forest(filter('tumor', 'lung')),
+    plots.barchart(filter('cell', 'CD8'), {facet: 'tumor'}),
+    plots.forest(filter('cell', 'CD8'), {facet: 'tumor'}),
+    plots.barchart(filter('tumor', 'lung'), {horizontal: false}),
+    plots.forest(filter('tumor', 'lung'), {horizontal: false}),
+    plots.barchart(filter('cell', 'CD8'), {facet: 'tumor', horizontal: false}),
+    plots.forest(filter('cell', 'CD8'), {facet: 'tumor', horizontal: false}),
+  )
 }
 
 function redraw() {
