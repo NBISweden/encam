@@ -201,19 +201,12 @@ function Root() {
                     css`position: absolute; bottom: 0; left: 0; width: 100%;`,
                     div(
                       Object.values(store.get().cell).filter(Boolean).length == 0 ? null :
-                        <Graph graph={
-                          bar(
-                            db.filter(row => store.get().cell[row.cell] && row.tumor == tumor),
-                            {
-                              inner_facet: 'tumor',
-                              outer_facet: 'cell',
-                              color_by: 'cell',
-                              legend: false,
-                              p: 0.10,
-                              w: 40,
-                              height: 180,
-                            })
-                          }/>),
+                        plots.barchart(
+                          db.filter(row => store.get().cell[row.cell] && row.tumor == tumor),
+                          {
+                            facet: 'cell',
+                            horizontal: false
+                          })),
                     div(
                       css`& > label { border: 2px #444 solid; padding: 3px 8px; }`,
                       label)))})}
@@ -230,29 +223,20 @@ function selected(d: Record<string, boolean>): string[] {
 }
 
 function right_sidebar(): React.ReactNode[] {
-  const graphs: Graph[] = []
+  const out: React.ReactNode[] = []
 
   const {tumor, cell} = store.get()
   const tumors = selected(tumor)
   const cells  = selected(cell)
   for (const t of tumors) {
-    graphs.push(bar(filter('tumor', t), {
-      inner_facet: 'tumor',
-      outer_facet: 'cell',
-      color_by: 'cell',
-      legend: false,
-      p: 0.10,
-      w: 7,
-      horizontal: true,
-      height: 400,
-    }).caption(pretty(t)))
-    graphs.push(forest(filter('tumor', t), 'cell').caption(pretty(t)))
+    out.push(plots.barchart(filter('tumor', t)))
+    out.push(plots.forest(filter('tumor', t)))
   }
   for (const c of cells) {
     // bar(pick_cells(c), {color_by: 'tumor', color_by: 'cell', legend: false, p: 0.2}).caption(pretty(c))
-    graphs.push(forest(filter('cell', c), 'tumor').caption(pretty(c)))
+    out.push(plots.forest(filter('cell', c), {facet: 'tumor'}))
   }
-  return graphs.map((g, i) => <Graph key={i} graph={g}/>)
+  return out
 }
 
 function Demo() {
@@ -270,8 +254,8 @@ function Demo() {
 }
 
 function redraw() {
-  // ReactDOM.render(<Root/>, document.querySelector('#root'))
-  ReactDOM.render(<Demo/>, document.querySelector('#root'))
+  ReactDOM.render(<Root/>, document.querySelector('#root'))
+  // ReactDOM.render(<Demo/>, document.querySelector('#root'))
 }
 
 // window.requestAnimationFrame(redraw)

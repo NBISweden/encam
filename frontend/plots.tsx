@@ -1,7 +1,6 @@
-import {CT, Row, range, pretty, uniq} from './db'
-
 import * as React from 'react'
-import vegaEmbed, * as VegaEmbed from 'vega-embed'
+import * as VL from 'vega-lite'
+import * as V from 'vega'
 
 const stripe_size = 6
 const stripe_width = 2
@@ -10,25 +9,44 @@ const pattern = `
   <pattern id='stripe' patternUnits='userSpaceOnUse' width='${stripe_size}' height='${stripe_size}'>
     <path d='M-1,1 l2,-2
        M0,${stripe_size} l${stripe_size},-${stripe_size}
-       M${stripe_size-1},${stripe_size+1} l2,-2' stroke='white' stroke-width='${stripe_width}'/>
+       M${stripe_size - 1},${stripe_size + 1} l2,-2' stroke='white' stroke-width='${stripe_width}'/>
   </pattern>
 `
 
-function Embed({spec}: {spec: VegaEmbed.VisualizationSpec}) {
-  const [el, set_el] = React.useState(null as HTMLElement | null)
-  if (el) {
-    vegaEmbed(el, spec, {renderer: 'svg'})
-      .then(() => {
-        const svg = el.querySelector('svg')
-        if (!svg) return
-        svg.innerHTML += `<defs>${pattern}</defs>`
-      })
+function Memoizer<K, V>() {
+  const mems = {} as Record<string, V>
+  return function memo(k: K, calc: () => V): V {
+    const ks = JSON.stringify(k)
+    if (!(ks in mems)) {
+      mems[ks] = calc()
+    }
+    return mems[ks]
   }
-  return <div ref={set_el}/>
 }
 
-function embed(spec: VegaEmbed.VisualizationSpec): React.ReactNode {
-  return <Embed spec={spec}/>
+const memo = Memoizer<VL.TopLevelSpec, V.Runtime>()
+
+function Embed({ spec, data }: { spec: VL.TopLevelSpec, data: any[] }) {
+  const [el, set_el] = React.useState(null as HTMLElement | null)
+  if (el) {
+    const runtime = memo(spec, () => V.parse(VL.compile(spec).spec))
+    const view = new V.View(runtime)
+      .data('data', data)
+      .logLevel(V.Warn)
+      .renderer('svg')
+      .initialize(el)
+      // .hover()
+    view.runAsync().then(_ => {
+      const svg = el.querySelector('svg')
+      if (!svg) return
+      svg.innerHTML += `<defs>${pattern}</defs>`
+    })
+  }
+  return <div ref={set_el} />
+}
+
+function embed(spec: VL.TopLevelSpec, data: any[]): React.ReactNode {
+  return <Embed spec={spec} data={data}/>
 }
 
 const default_options = {
@@ -65,14 +83,17 @@ function orient(options: Options) {
   }
 }
 
-
 // horizontal barchart
 export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode {
-  const options = {...default_options, ...opts}
-  const {row, height, x, y} = orient(options)
-  return embed({
+  const options = { ...default_options, ...opts }
+  const { row, height, x, y } = orient(options)
+  const spec: VL.TopLevelSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    data: {values: data},
+    autosize: {
+      resize: true
+    },
+    // data: { values: data },
+    data: { name: 'data' },
     facet: {
       [row]: {
         field: options.facet,
@@ -86,11 +107,11 @@ export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode 
       },
     },
     spec: {
-      [height]: {step: 12},
+      [height]: { step: 12 },
       encoding: {
         [x]: {
-          aggregate: "sum", field: "expression", type: "quantitative",
-          axis: {title: "expression", grid: false}
+          field: "expression", type: "quantitative",
+          axis: { title: "expression", grid: false }
         },
         [y]: {
           field: "location", type: "nominal",
@@ -103,7 +124,7 @@ export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode 
           encoding: {
             color: {
               field: "cell", type: "nominal",
-              scale: {scheme: "tableau20"},
+              scale: { scheme: "tableau20" },
               legend: options.legend ? undefined : null,
             }
           },
@@ -113,7 +134,7 @@ export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode 
           encoding: {
             fill: {
               field: "location", type: "nominal",
-              scale: {range: ["#fff0", "url(#stripe)"]},
+              scale: { range: ["#fff0", "url(#stripe)"] },
               legend: options.legend ? undefined : null,
             }
           },
@@ -121,19 +142,20 @@ export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode 
       ],
     },
     config: {
-      view: {stroke: "transparent"},
-      axis: {domainWidth: 1},
-      facet: {spacing: 5},
+      view: { stroke: "transparent" },
+      axis: { domainWidth: 1 },
+      facet: { spacing: 5 },
     }
-  })
+  }
+  return embed(spec, data)
 }
 
 export function forest(data: any[], opts?: Partial<Options>): React.ReactNode {
-  const options = {...default_options, ...opts}
-  const {row, height, x, x2, y} = orient(options)
-  return embed({
+  const options = { ...default_options, ...opts }
+  const { row, height, x, x2, y } = orient(options)
+  const spec: VL.TopLevelSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    data: {values: data},
+    data: { name: 'data' },
     facet: {
       [row]: {
         field: options.facet,
@@ -147,7 +169,7 @@ export function forest(data: any[], opts?: Partial<Options>): React.ReactNode {
       },
     },
     spec: {
-      [height]: {step: 12},
+      [height]: { step: 12 },
       encoding: {
         [y]: {
           field: "location", type: "nominal",
@@ -155,14 +177,14 @@ export function forest(data: any[], opts?: Partial<Options>): React.ReactNode {
         },
         [x]: {
           field: "lower", type: "quantitative",
-          axis: {title: "HR", grid: false}
+          axis: { title: "HR", grid: false }
         },
         [x2]: {
-          aggregate: "sum", field: "upper",
+          field: "upper",
         },
         color: {
           field: "cell", type: "nominal",
-          scale: {scheme: "tableau20"},
+          scale: { scheme: "tableau20" },
           legend: options.legend ? undefined : null,
         }
       },
@@ -184,7 +206,7 @@ export function forest(data: any[], opts?: Partial<Options>): React.ReactNode {
           encoding: {
             fill: {
               field: "location", type: "nominal",
-              scale: {range: ["#fff0", "url(#stripe)"]},
+              scale: { range: ["#fff0", "url(#stripe)"] },
               legend: options.legend ? undefined : null,
             }
           },
@@ -227,10 +249,11 @@ export function forest(data: any[], opts?: Partial<Options>): React.ReactNode {
       ],
     },
     config: {
-      view: {stroke: "transparent"},
-      axis: {domainWidth: 1},
-      facet: {spacing: 5},
+      view: { stroke: "transparent" },
+      axis: { domainWidth: 1 },
+      facet: { spacing: 5 },
     }
-  })
+  }
+  return embed(spec, data)
 }
 

@@ -23,8 +23,8 @@ export function make_class_cache(class_prefix='c') {
       } else {
         lines.push(code.replace(/&/g, _ => `.${name}`))
       }
+      update()
     }
-    update()
     return {'className': generated.get(key)}
   }
 
