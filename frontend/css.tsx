@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+
 export function make_class_cache(class_prefix='c') {
   const generated = new Map()
   const lines = [] as string[]
