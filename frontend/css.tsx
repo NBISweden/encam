@@ -73,7 +73,7 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
   }
   for (const arg of args) {
     if (arg && typeof arg === 'object') {
-      if (arg['$$typeof']) {
+      if ('$$typeof' in arg) {
         props.children.push(arg)
       } else {
         Object.entries(arg).forEach(([k, v]) => {
@@ -96,4 +96,18 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
     }
   }
   return React.createElement('div', props)
+}
+
+interface PushableElement extends React.ReactElement {
+  push(...children: React.ReactNode[]): PushableElement
+}
+
+export function container(...args: (DivProps | React.ReactNode)[]): PushableElement {
+  return {
+    ...div(...args),
+    push(...children: React.ReactNode[]) {
+      this.props.children.push(children)
+      return this
+    }
+  }
 }

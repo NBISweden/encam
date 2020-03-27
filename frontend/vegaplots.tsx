@@ -2,24 +2,7 @@ import * as React from 'react'
 import * as VL from 'vega-lite'
 import * as V from 'vega'
 
-const stripe_size = 4
-const stripe_width = 1.2
-
-export const pattern = `
-  <pattern id='stripe' patternUnits='userSpaceOnUse' width='${stripe_size}' height='${stripe_size}'>
-    <path d='M-1,1 l2,-2
-       M0,${stripe_size} l${stripe_size},-${stripe_size}
-       M${stripe_size - 1},${stripe_size + 1} l2,-2' stroke='white' stroke-width='${stripe_width}'/>
-  </pattern>
-`
-
-export const patternSVG = `
-  <svg xmlns='http://www.w3.org/2000/svg' width='${stripe_size}' height='${stripe_size}'>
-    <path d='M-1,1 l2,-2
-             M0,${stripe_size} l${stripe_size},-${stripe_size}
-             M${stripe_size-1},${stripe_size+1} l2,-2' stroke='white' stroke-width='${stripe_width}'/>
-  </svg>
-`
+import * as stripes from './stripes'
 
 function Memoizer<K, V>() {
   const mems = {} as Record<string, V>
@@ -47,7 +30,7 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data: any[] }) {
     view.runAsync().then(_ => {
       const svg = el.querySelector('svg')
       if (!svg) return
-      svg.innerHTML += `<defs>${pattern}</defs>`
+      svg.innerHTML += `<defs>${stripes.pattern}</defs>`
     })
   }
   return <div ref={set_el} />
