@@ -30,10 +30,10 @@ export function make_class_cache(class_prefix='c') {
   }
 
   function css(xs: TemplateStringsArray | string, ...more: string[]) {
-    let code: string = ''
+    let code: string
     if (typeof xs == 'string') {
       code = xs
-    } else if (typeof xs != 'string') {
+    } else {
       code = xs.map((s, i) => s + (more[i] === undefined ? '' : more[i])).join('')
     }
     return generate_class(code)
@@ -52,7 +52,7 @@ export function make_class_cache(class_prefix='c') {
 
 export const {css, clear} = make_class_cache()
 
-type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement>
+type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
 
 export function Div(props: DivProps) {
   let className = props.className
@@ -81,7 +81,15 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
             props.children.push(...v)
             return
           }
-          if (typeof v == 'object') {
+          if (typeof v == 'function') {
+            const prev = props[k]
+            props[k] = (...args) => {
+              if (prev) {
+                prev(...args)
+              }
+              v(...args)
+            }
+          } else if (typeof v == 'object') {
             props[k] = {...props[k], ...v}
           } else {
             if (props[k]) {
