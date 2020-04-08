@@ -4,18 +4,16 @@ module.hot && module.hot.accept()
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-import {css, Div, div, clear as clear_css, container} from './css'
-clear_css()
-
-// import * as plots from './plots'
-
-import * as stripes from './stripes'
-
 import {CT, Row, range, pretty, db, filter, pick_cells, make_gen} from './db'
 
 import {Store} from 'reactive-lens'
 
+import {css, Div, div, clear as clear_css, container} from './css'
+clear_css()
+
 import {plot, cell_color} from './domplots'
+import * as domplots from './domplots'
+domplots.setup_css()
 
 const state0 = {
   tumor: {} as Record<string, boolean>,
@@ -107,7 +105,7 @@ css`
     display: flex
     flex-direction: row
   }
-`)
+`
 
 function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: () => void, color: (s: string) => string = () => 'black') {
   return range.map(x =>
