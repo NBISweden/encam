@@ -9,8 +9,17 @@ import {css, Div, div, clear as clear_css} from './css'
 
 import {CT, Row, range, pretty, db, filter, pick_cells} from './db'
 
-export const cell_color = d3.scaleOrdinal((d3 as any).schemeTableau10 as string[])
-    .domain(range.cell)
+export function setup_css() {
+  css`
+    .striped {
+      background-image: url('data:image/svg+xml;base64,${btoa(stripes.patternSVG)}')
+    }
+  `
+}
+
+export const cell_color = d3
+  .scaleOrdinal((d3 as any).schemeTableau10 as string[])
+  .domain(range.cell)
 
 interface Rect {
   width: number

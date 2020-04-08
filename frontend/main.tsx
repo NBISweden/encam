@@ -5,6 +5,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
 import {css, Div, div, clear as clear_css, container} from './css'
+clear_css()
 
 // import * as plots from './plots'
 
@@ -39,76 +40,72 @@ if (!document.querySelector('#root')) {
   document.body.appendChild(root)
 }
 
-clear_css()
-css(`
+css`
   label {
-    cursor: pointer;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    cursor: pointer
+    padding-top: 5px
+    padding-bottom: 5px
   }
   svg {
-    display: block;
+    display: block
   }
   * {
-    user-select: none;
+    user-select: none
   }
   html {
-    box-sizing: border-box;
-    overflow-y: scroll;
+    box-sizing: border-box
+    overflow-y: scroll
   }
   *, *:before, *:after {
-    box-sizing: inherit;
+    box-sizing: inherit
   }
   html, body, #root {
-    min-height: 100%;
-    width: min-content;
-    min-width: 100%;
+    min-height: 100%
+    width: min-content
+    min-width: 100%
   }
   body {
-    margin: 0;
-    font-family: sans-serif, sans;
+    margin: 0
+    font-family: sans-serif, sans
   }
   .row {
-    display: flex;
-    flex-direction: row;
+    display: flex
+    flex-direction: row
   }
   .column {
-    display: flex;
-    flex-direction: column;
+    display: flex
+    flex-direction: column
   }
   #root {
-    background: #eee;
+    background: #eee
   }
   #top {
-    margin: 8 auto;
-    background: #fff;
+    margin: 8 auto
+    background: #fff
   }
   #left-sidebar {
-    width: 200px;
-    padding: 0 1em;
+    width: 200px
+    padding: 0 1em
   }
   #center {
-    width: 750px;
-    border-right: 8px #eee solid;
-    border-left: 8px #eee solid;
+    width: 750px
+    border-right: 8px #eee solid
+    border-left: 8px #eee solid
   }
   #right-sidebar {
-    width: 200px;
+    width: 200px
   }
   h2 {
-    margin-top: 1em;
-    margin-bottom: 0.8em;
-    margin-left: 0.2em;
-    font-size: 1.1em;
+    margin-top: 1em
+    margin-bottom: 0.8em
+    margin-left: 0.2em
+    font-size: 1.1em
   }
   #sidebar {
   }
   #root {
-    display: flex;
-    flex-direction: row;
-  }
-  .striped {
-    background-image: url('data:image/svg+xml;base64,${btoa(stripes.patternSVG)}');
+    display: flex
+    flex-direction: row
   }
 `)
 
@@ -136,20 +133,6 @@ function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: 
     </label>
   )
 }
-
-function toggle(kind: CT, what: string) {
-  const opp: CT = kind == 'cell' ? 'tumor' : 'cell'
-  store.transaction(() => {
-    store.at(kind).modify(now => ({...now, [what]: !now[what]}))
-    store.at(opp).set({})
-  })
-}
-
-interface Position {
-  x: number
-  y: number
-}
-
 
 declare const require: (s: string) => string
 
@@ -220,12 +203,12 @@ function Center() {
            div(
              css`position: relative`,
              div(css`
-               border-bottom: 1px #666 solid;
-               position: absolute;
-               width: 100%;
-               bottom: 0;
-               left: 0;
-               z-index: 3;
+               border-bottom: 1px #666 solid
+               position: absolute
+               width: 100%
+               bottom: 0
+               left: 0
+               z-index: 3
              `),
              {style: plot_style},
              Object.values(store.get().cell).filter(Boolean).length == 0 ? null :
@@ -268,7 +251,7 @@ function Center() {
           const body = anchors.body
           let next = ''
           const g = make_gen()
-          Object.entries(anchors).forEach(([k, v], i) => {
+          Object.entries(anchors).forEach(([k, v]) => {
             if (k != 'body') {
               const dest = {...body}
               dest.x += 85
@@ -311,8 +294,8 @@ function Center() {
 }
 
 function Root() {
-
-  return <div id="top" className="row">
+  return (
+    <div id="top" className="row">
       <div id="left-sidebar" className="column">
         <h2>Cell type</h2>
         {Checkboxes(
@@ -329,16 +312,15 @@ function Root() {
             },
             cell_color
           ).map((x, i) => {
-              // CellSVG what={range.cell[i]}/>
               const cell_png = cell_pngs[range.cell[i]]
               const img = cell_png && <img src={cell_png}/>
               return <label>{div(
                 css`
-                  display: flex;
-                  flex-direction: row;
-                  // justify-content: space-between;
-                  border: 1.5px #ddd solid;
-                  border-radius: 2px;
+                  display: flex
+                  flex-direction: row
+                  // justify-content: space-between
+                  border: 1.5px #ddd solid
+                  border-radius: 2px
                 `,
                 css`& > * {
                   margin: auto 0;
@@ -361,13 +343,16 @@ function Root() {
             }</label>})}
       </div>
       <Center/>
-      <Div
-        id="right-sidebar"
-        className="column"
-        css="& > div { margin: 10px auto; }">
-        {right_sidebar()}
-      </Div>
+      {div(
+        {
+          id: 'right-sidebar',
+          className: 'column',
+        },
+        css`& > div { margin: 10px auto }`,
+        right_sidebar()
+      )}
     </div>
+  )
 }
 
 function selected(d: Record<string, boolean>): string[] {

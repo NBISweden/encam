@@ -16,7 +16,15 @@ export function make_class_cache(class_prefix='c') {
   function generate_class(raw_code: string) {
     const key = raw_code
     if (!generated.has(key)) {
-      const code = raw_code.trim().replace(/\n\s*/g, '\n').replace(/[:{;]\s*/g, g => g[0])
+      const code = raw_code
+        .trim()
+        .replace(/\/\/.*/g, '')
+        .replace(/\S*:/g, g => ';' + g)
+        .replace(/^\s*;+/, '')
+        .replace(/\s*;+/g, ';')
+        .replace(/\n\s*/g, '\n')
+        .replace(/\n}/g, '}')
+        .replace(/[:{;][;]?\s*/g, g => g[0])
       const name = class_prefix + generated.size
       generated.set(key, name)
       if (-1 == code.search('{')) {
@@ -69,12 +77,27 @@ export function Div(props: DivProps) {
 
 export function div(...args: (DivProps | React.ReactNode)[]) {
   const props: DivProps = {
-    children: []
+    children: [],
   }
-  for (const arg of args) {
-    if (arg && typeof arg === 'object') {
+  const prim = {
+    string: true,
+    boolean: true,
+    number: true,
+  }
+  args.forEach(function add(arg) {
+    const T = typeof arg
+    if (T == 'string' || T == 'number') {
+      props.children.push(arg)
+    } else if (arg && T == 'object') {
       if ('$$typeof' in arg) {
-        props.children.push(arg)
+        // automatically add keys if they are missing to make React shut up ':D
+        let ch = arg
+        if (!arg.key) {
+          ch = React.createElement(ch.type, {key: ':' + props.children.length, ...ch.props})
+        }
+        props.children.push(ch)
+      } else if (Array.isArray(arg)) {
+        arg.forEach(add)
       } else {
         Object.entries(arg).forEach(([k, v]) => {
           if (k == 'children') {
@@ -83,11 +106,13 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
           }
           if (typeof v == 'function') {
             const prev = props[k]
-            props[k] = (...args) => {
-              if (prev) {
+            if (prev) {
+              props[k] = (...args) => {
                 prev(...args)
+                v(...args)
               }
-              v(...args)
+            } else {
+              props[k] = v
             }
           } else if (typeof v == 'object') {
             props[k] = {...props[k], ...v}
@@ -102,7 +127,7 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
         })
       }
     }
-  }
+  })
   return React.createElement('div', props)
 }
 
