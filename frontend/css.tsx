@@ -1,6 +1,5 @@
 import * as React from 'react'
 
-
 export function make_class_cache(class_prefix='c') {
   const generated = new Map()
   const lines = [] as string[]
@@ -62,37 +61,18 @@ export const {css, clear} = make_class_cache()
 
 type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
 
-export function Div(props: DivProps) {
-  let className = props.className
-  if (props.css) {
-    console.log(''.split(' '))
-    console.log({a: className || '', b: ''.split(' ')})
-    const prev = className ? className.split(' ') : []
-    console.log(props.className, prev)
-    className = [css(props.css).className, ...prev].join(' ')
-  }
-  const {css: _, ...props2} = {...props, className}
-  return <div {...props2}>{props.children}</div>
-}
-
 export function div(...args: (DivProps | React.ReactNode)[]) {
-  const props: DivProps = {
+  const props: Record<string, any> = {
     children: [],
   }
-  const prim = {
-    string: true,
-    boolean: true,
-    number: true,
-  }
   args.forEach(function add(arg) {
-    const T = typeof arg
-    if (T == 'string' || T == 'number') {
+    if (typeof arg == 'string' || typeof arg == 'number') {
       props.children.push(arg)
-    } else if (arg && T == 'object') {
+    } else if (arg && typeof arg == 'object') {
       if ('$$typeof' in arg) {
         // automatically add keys if they are missing to make React shut up ':D
-        let ch = arg
-        if (!arg.key) {
+        let ch = arg as any
+        if (!ch.key) {
           ch = React.createElement(ch.type, {key: ':' + props.children.length, ...ch.props})
         }
         props.children.push(ch)
@@ -107,7 +87,7 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
           if (typeof v == 'function') {
             const prev = props[k]
             if (prev) {
-              props[k] = (...args) => {
+              props[k] = (...args: any[]) => {
                 prev(...args)
                 v(...args)
               }
@@ -131,16 +111,3 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
   return React.createElement('div', props)
 }
 
-interface PushableElement extends React.ReactElement {
-  push(...children: React.ReactNode[]): PushableElement
-}
-
-export function container(...args: (DivProps | React.ReactNode)[]): PushableElement {
-  return {
-    ...div(...args),
-    push(...children: React.ReactNode[]) {
-      this.props.children.push(children)
-      return this
-    }
-  }
-}

@@ -8,7 +8,7 @@ import {CT, Row, range, pretty, db, filter, pick_cells, make_gen} from './db'
 
 import {Store} from 'reactive-lens'
 
-import {css, Div, div, clear as clear_css, container} from './css'
+import {css, div, clear as clear_css} from './css'
 clear_css()
 
 import {plot, cell_color} from './domplots'
