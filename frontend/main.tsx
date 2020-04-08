@@ -142,21 +142,16 @@ const cell_pngs: Record<string, string> = {
   CD4_Treg:     require('./small_CD4_Treg.png'),
   CD8:          require('./small_CD8.png'),
   CD8_Treg:     require('./small_CD8_Treg.png'),
+  M1:           require('./small_M1.png'),
   M2:           require('./small_M2.png'),
-  mDC:          require('./small_mDC.png'),
   NK:           require('./small_NK.png'),
   NKT:          require('./small_NKT.png'),
+  mDC:          require('./small_mDC.png'),
   pDC:          require('./small_pDC.png'),
-
-  // single or not?
-  M1:           require('./small_M1.png'),
   iDC:          require('./small_iDC.png'),
 
-  CD163_single: require('./small_CD163.png'),
-  // ^ myeloid cells
-
-  Granulocytes: require('./small_Granulocytes.png'),
-  // ^ unused right now
+  'Myeloid cell': require('./small_CD163.png'),
+  Granulocyte: require('./small_Granulocytes.png'),
 }
 
 
@@ -168,7 +163,7 @@ function Center() {
      .map(
        (label, i) => {
          const tumor = range.tumor[i]
-         const T = 5
+         const T = 6
          const left_side = i <= T
          const plot_height = 70
          const plot_sep = 130

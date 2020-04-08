@@ -61,7 +61,7 @@ export function expand(rows: DB) {
 }
 
 declare const require: Function
-export const db: DB = expand(require('./db.json'))
+export const db: DB = require('./db.json')
 
 declare global {
   interface Window {

@@ -32,7 +32,6 @@ This code preprocesses made-up-data.csv into a json "database" db.json. The json
         "coef":0.777,...
 It uses code from python port of forestplots.R, see forestplots.py and forestplots.ipynb.
 '''
-
 # !pip install --user lifelines
 
 from lifelines import CoxPHFitter
@@ -56,7 +55,7 @@ data = data[ data['PreOp_treatment_yesno'] == 'No' ]
 data['T'] = data['Time_Diagnosis_Last_followup']
 data['E'] = data['Event_last_followup'] == 'Dead'
 
-tumor_types = uniq(data.cohort)
+tumor_types = uniq(data.Tumor_type_code)
 
 cell_types = uniq(c for c in data.columns if 'TUMOR' in c or 'STROMA' in c)
 
@@ -94,7 +93,7 @@ def data_per_type(dd):
 
 dfs = []
 for t in tumor_types:
-    df = data_per_type(data[data.cohort == t])
+    df = data_per_type(data[data.Tumor_type_code == t])
     # df = df.astype('float16')
     df = df.applymap(lambda x: float(f'{x:.3e}'))
     cell_full = df.index
