@@ -121,6 +121,7 @@ function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: 
             borderRadius: '100px',
             border: `2px ${color(x)} solid`,
             background: store.get()[x] ? color(x) : 'none',
+            // background: color(x),
             width: '12px',
             height: '12px',
             // marginRight: '8px',
@@ -134,24 +135,24 @@ function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: 
 
 declare const require: (s: string) => string
 
-const body = require('./body.svg')
+const body = require('./img/bodies.png')
 
 const cell_pngs: Record<string, string> = {
-  B_cells:      require('./small_B.png'),
-  CD4:          require('./small_CD4.png'),
-  CD4_Treg:     require('./small_CD4_Treg.png'),
-  CD8:          require('./small_CD8.png'),
-  CD8_Treg:     require('./small_CD8_Treg.png'),
-  M1:           require('./small_M1.png'),
-  M2:           require('./small_M2.png'),
-  NK:           require('./small_NK.png'),
-  NKT:          require('./small_NKT.png'),
-  mDC:          require('./small_mDC.png'),
-  pDC:          require('./small_pDC.png'),
-  iDC:          require('./small_iDC.png'),
+  B_cells:      require('./img/B_cells.png'),
+  CD4:          require('./img/CD4.png'),
+  CD4_Treg:     require('./img/CD4_Treg.png'),
+  CD8:          require('./img/CD8.png'),
+  CD8_Treg:     require('./img/CD8_Treg.png'),
+  M1:           require('./img/M1.png'),
+  M2:           require('./img/M2.png'),
+  NK:           require('./img/NK.png'),
+  NKT:          require('./img/NKT.png'),
+  mDC:          require('./img/mDC.png'),
+  pDC:          require('./img/pDC.png'),
+  iDC:          require('./img/iDC.png'),
 
-  'Myeloid cell': require('./small_CD163.png'),
-  Granulocyte: require('./small_Granulocytes.png'),
+  'Myeloid cell': require('./img/Myeloid.png'),
+  Granulocyte: require('./img/Granulocytes.png'),
 }
 
 
@@ -189,6 +190,9 @@ function Center() {
            left_side || css`justify-content: flex-end`,
            css`& > label { padding: 0 8; }`,
            label,
+           tumor == 'BLCA' && <img src={require('./img/bladder.png')}/>,
+           tumor == 'BRCA' && <img src={require('./img/breast.png')}/>,
+           tumor == 'MEL' && <img src={require('./img/skin.png')}/>,
            div(
              {'data-anchor': tumor},
              {style: anchor_style},
@@ -286,6 +290,13 @@ function Center() {
   )
 }
 
+import ColorThief from 'colorthief'
+const colorThief = new ColorThief()
+
+const i = range.cell.findIndex(c => c == 'iDC_single')
+i == -1 || range.cell.splice(i, 1)
+
+
 function Root() {
   return (
     <div id="top" className="row">
@@ -305,8 +316,24 @@ function Root() {
             },
             cell_color
           ).map((x, i) => {
+              const cell = range.cell[i]
               const cell_png = cell_pngs[range.cell[i]]
-              const img = cell_png && <img src={cell_png}/>
+              const thief = (e: HTMLImageElement) => {
+                if (e && e.complete) {
+                  const nice = (rgb: [number, number, number], i: number) => {
+                    const [r,g,b] = rgb
+                    const dist = Math.max(...rgb) - Math.min(...rgb)
+                    const avg = (r+g+b) / 3
+                    console.log(`%c  %c ${cell} ${dist} ${avg} ${rgb.join(', ')}`, `background:rgb(${rgb.join(',')})`, `background: unset`)
+                    return dist > 20 && avg < 210 && (cell != 'iDC' || i > 2) && (cell != 'CD4' || i > 0)
+                  }
+                  const p = colorThief.getPalette(e).filter(nice)
+                  if (domplots.set_cell_color(cell, `rgb(${p[0].join(',')})`)) {
+                    store.set(store.get())
+                  }
+                }
+              }
+              const img = cell_png && <img src={cell_png} onLoad={e => thief(e.target as any)} ref={thief}/>
               return <label>{div(
                 css`
                   display: flex
@@ -372,13 +399,15 @@ function right_sidebar(): React.ReactNode[] {
 }
 
 function redraw() {
-  ReactDOM.render(Root(), document.querySelector('#root'))
-  // ReactDOM.render(<Demo/>, document.querySelector('#root'))
+  store.transaction(() => {
+    ReactDOM.render(Root(), document.querySelector('#root'))
+    // ReactDOM.render(<Demo/>, document.querySelector('#root'))
+  })
 }
 
 // window.requestAnimationFrame(redraw)
 redraw()
 
-store.ondiff(redraw)
+store.on(redraw)
 store.on(x => console.log(JSON.stringify(x)))
 

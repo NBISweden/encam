@@ -19,6 +19,7 @@
     "deploy": "yarn run build && echo deploy script TODO"
   },
   "dependencies": {
+    "colorthief": "^2.3.0",
     "d3": "^5.15.0",
     "random-js": "^2.1.0",
     "react": "^16.13.0",

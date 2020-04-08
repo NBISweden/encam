@@ -17,9 +17,24 @@ export function setup_css() {
   `
 }
 
-export const cell_color = d3
+const colors = {} as Record<string, string>
+
+export const set_cell_color = (cell: string, color: string) => {
+  const prev = colors[cell]
+  colors[cell] = color
+  return color !== prev
+}
+
+const cell_color_d3 = d3
   .scaleOrdinal((d3 as any).schemeTableau10 as string[])
   .domain(range.cell)
+
+export const cell_color = (cell: string) => {
+  if (!(cell in colors)) {
+    set_cell_color(cell, cell_color_d3(cell))
+  }
+  return colors[cell]
+}
 
 interface Rect {
   width: number

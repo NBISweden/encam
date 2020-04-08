@@ -71,11 +71,13 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
     } else if (arg && typeof arg == 'object') {
       if ('$$typeof' in arg) {
         // automatically add keys if they are missing to make React shut up ':D
-        let ch = arg as any
-        if (!ch.key) {
-          ch = React.createElement(ch.type, {key: ':' + props.children.length, ...ch.props})
+        let child = arg as any
+        if (!child.key) {
+          const key = ':' + props.children.length
+          const ref = child.ref
+          child = React.createElement(child.type, {key, ref, ...child.props})
         }
-        props.children.push(ch)
+        props.children.push(child)
       } else if (Array.isArray(arg)) {
         arg.forEach(add)
       } else {
