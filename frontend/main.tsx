@@ -108,16 +108,24 @@ css`
 `
 
 function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: () => void, color: (s: string) => string = () => 'black') {
-  return range.map(x =>
-    <label key={x}>
-      <input style={{display:'none'}} type="checkbox" checked={!!store.get()[x]} onChange={e => {
-        store.transaction(() => {
-          const next = selected({...store.get(), [x]: e.target.checked})
-          store.set(Object.fromEntries(next.map(k => [k, true])))
-          on()
-        })}}/>
-      <span className={"checkbox " + css`display: inline-block`.className} style={
-          {
+  return range.map(x => {
+    const checked = store.get()[x]
+    const onClick = () => {
+      store.transaction(() => {
+        const next = selected({...store.get(), [x]: !checked})
+        store.set(Object.fromEntries(next.map(k => [k, true])))
+        on()
+      })
+    }
+    return {
+      text: x,
+      onClick,
+      label: <span className={"text " + css`margin-left: 8`.className}>{pretty(x)}</span>,
+      checkbox:
+        <span
+          className={"checkbox " + css`display: inline-block`.className}
+          onClick={onClick}
+          style={{
             borderRadius: '100px',
             border: `2px ${color(x)} solid`,
             background: store.get()[x] ? color(x) : 'none',
@@ -126,11 +134,10 @@ function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: 
             height: '12px',
             // marginRight: '8px',
             // display: 'inline-block',
-          }
-        }></span>
-      <span className={"text " + css`margin-left: 8`.className}>{pretty(x)}</span>
-    </label>
-  )
+          }}
+          />,
+    }
+  })
 }
 
 declare const require: (s: string) => string
@@ -155,70 +162,87 @@ const cell_pngs: Record<string, string> = {
   Granulocyte: require('./img/Granulocytes.png'),
 }
 
+const codes = require('./codes.json') as Record<string, string>
+
+const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
+const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
+const both = [...left, ...right]
+both.forEach(b => b in codes || console.error(b, 'not in', codes))
 
 function Center() {
-  const [paths, set_paths] = React.useState('')
-
+  const [hover, set_hover] = React.useState('hover')
   const tumor_labels =
-    Checkboxes(range.tumor, store.at('tumor'), () => store.at('cell').set({}), () => '#444')
-     .map(
-       (label, i) => {
-         const tumor = range.tumor[i]
-         const T = 6
-         const left_side = i <= T
-         const plot_height = 70
-         const plot_sep = 130
-         const margin = 110
-         const style: React.CSSProperties = {position: 'absolute'}
-         if (left_side) {
-           style.left = margin
-           style.top = (i + 0.5) * plot_sep
-         } else {
-           style.right = margin
-           style.top = (i - T) * plot_sep
-         }
-         const plot_style: React.CSSProperties = {position: 'absolute', bottom: -1}
-         plot_style[left_side ? 'right' : 'left'] = '100%'
-         const anchor_style: React.CSSProperties = {position: 'absolute', bottom: 0, width: 0, height: 0}
-         anchor_style[left_side ? 'right' : 'left'] = 0
-         return div(
-           {key: i},
-           {style},
-           {style: {width: 140}},
-           css`border-bottom: 1px #666 solid`,
-           css`display: flex`,
-           left_side || css`justify-content: flex-end`,
-           css`& > label { padding: 0 8; }`,
-           label,
-           tumor == 'BLCA' && <img src={require('./img/bladder.png')}/>,
-           tumor == 'BRCA' && <img src={require('./img/breast.png')}/>,
-           tumor == 'MEL' && <img src={require('./img/skin.png')}/>,
-           div(
-             {'data-anchor': tumor},
-             {style: anchor_style},
-           ),
-           div(
-             css`position: relative`,
-             div(css`
-               border-bottom: 1px #666 solid
-               position: absolute
-               width: 100%
-               bottom: 0
-               left: 0
-               z-index: 3
-             `),
-             {style: plot_style},
-             Object.values(store.get().cell).filter(Boolean).length == 0 ? null :
-               plot(
-                 db.filter(row => store.get().cell[row.cell] && row.tumor == tumor),
-                 'bar',
-                 {
-                   axis_right: !left_side,
-                   height: plot_height,
-                   hulled: false,
-                 }
-               )))
-         })
+    Checkboxes(both, store.at('tumor'), () => store.at('cell').set({}), () => '#444')
+    .map(
+      (x, i) => {
+        const tumor = x.text // range.tumor[i]
+        const T = 8
+        const left_side = i < T
+        const plot_height = 66
+        const plot_sep = 77
+        const margin = 90
+        const top_off = 60
+        const style: React.CSSProperties = {position: 'absolute'}
+        if (left_side) {
+          style.left = margin
+          style.top = top_off + (i) * plot_sep
+        } else {
+          style.right = margin
+          style.top = top_off + (i - T) * plot_sep
+        }
+        const plot_style: React.CSSProperties = {position: 'absolute', bottom: -1}
+        plot_style[left_side ? 'right' : 'left'] = '100%'
+        if (!left_side) {
+          plot_style
+        }
+        const anchor_style: React.CSSProperties = {position: 'absolute', bottom: 0, width: 0, height: 0}
+        anchor_style[left_side ? 'right' : 'left'] = 0
+        return div(
+          {key: i},
+          {style},
+          {style: {width: 50}},
+          css`border-bottom: 1px #666 solid`,
+          css`display: flex`,
+          left_side || css`padding-right: 15px`,
+          left_side || css`justify-content: flex-end`,
+          // css`& > label { padding: 0 8; }`,
+          div(
+            css`position: absolute; top: 100%`,
+            x.label,
+          ),
+          div(
+            css`margin-bottom: 2px`,
+            css`margin-left: 8px`,
+            x.checkbox
+          ),
+          {
+            onClick: x.onClick,
+            onMouseOver: () => set_hover(pretty(codes[x.text])),
+            onMouseOut: () => hover === pretty(codes[x.text]) && set_hover(''),
+          },
+          div(
+            css`position: relative`,
+            div(css`
+              border-bottom: 1px #666 solid
+              position: absolute
+              width: 100%
+              bottom: 0
+              left: 0
+              z-index: 3
+            `),
+            {style: plot_style},
+            Object.values(store.get().cell).filter(Boolean).length == 0 ? null :
+              plot(
+                db.filter(row => store.get().cell[row.cell] && row.tumor == tumor),
+                'bar',
+                {
+                  axis_right: !left_side,
+                  height: plot_height,
+                  hulled: false,
+                  x_axis: (i + 1) % T == 0,
+                }
+              )))
+        })
 
   return div(
     {
@@ -226,67 +250,29 @@ function Center() {
       style: {
         position: 'relative',
       },
-      ref(e: HTMLElement | null) {
-        if (e) {
-          const center_rect = {
-            x: e.getBoundingClientRect().left + e.clientLeft,
-            y: e.getBoundingClientRect().top + e.clientTop,
-          }
-          const anchors = {} as Record<string, {x: number, y: number}>
-          e.querySelectorAll('[data-anchor]').forEach(a => {
-            if (a instanceof HTMLElement) {
-              const k = a.dataset.anchor
-              if (k) {
-                const rect = a.getBoundingClientRect()
-                anchors[k] = {
-                  x: rect.x - center_rect.x,
-                  y: rect.y - center_rect.y,
-                }
-              }
-            }
-          })
-          const body = anchors.body
-          let next = ''
-          const g = make_gen()
-          Object.entries(anchors).forEach(([k, v]) => {
-            if (k != 'body') {
-              const dest = {...body}
-              dest.x += 85
-              dest.y += 200
-              dest.x -= (v.x - dest.x) * -0.11
-              dest.y -= (v.y - dest.y) * -0.21
-              dest.x += g.next() % 10
-              dest.y += g.next() % 3
-              const c1 = {...v}
-              const c2 = {...dest}
-              let d = 50
-              if (v.x > dest.x) {
-                d *= -1
-              }
-              c1.x += d
-              c2.x -= d
-              // next += `M${v.x} ${v.y} L${dest.x} ${dest.y} `
-              next += `M${v.x} ${v.y + 0.6} C${c1.x} ${c1.y} ${c2.x} ${c2.y} ${dest.x} ${dest.y} `
-            }
-          })
-          if (next != paths) {
-            set_paths(next)
-          }
-        }
-      }
     },
-    <img src={body} data-anchor="body" style={{
-      width: '24%',
+    <img src={require('./img/center-trimmed.svg')} style={{
+      // width: '24%',
       position: 'absolute',
-      left: '39%',
-      top: '40px',
+      width: '64%',
+      left: '50%',
+      top: 50,
+      transform: 'translate(-50%, 0)',
     }}/>,
     ...tumor_labels,
-    <svg width="100%"
-         height="100%"
-         style={{position: 'absolute', pointerEvents: 'none'}}>
-      <path d={paths} stroke="black" fill="none"/>
-    </svg>
+    div(
+      {
+        style: {
+          position: 'absolute',
+          top: 660,
+          left: '49%',
+          width: '100%',
+          textAlign: 'center',
+          transform: 'translate(-50%, 0)',
+        }
+      },
+      hover
+    ),
   )
 }
 
@@ -315,31 +301,31 @@ function Left() {
             const cell_png = cell_pngs[range.cell[i]]
             const img_props: React.ImgHTMLAttributes<HTMLImageElement> = thief ? {onLoad: e => thief(cell, e.target as any)} : {}
             const img = cell_png && <img src={cell_png} {...img_props}/>
-            return <label>{div(
+            return <label onClick={x.onClick}>{div(
               css`
                 display: flex
                 flex-direction: row
                 // justify-content: space-between
                 border: 1.5px #ddd solid
                 border-radius: 2px
+                font-size: 0.8em
               `,
               css`& > * {
                 margin: auto 0;
                 padding: 5px;
                 flex: 1;
               }`,
-              div(x, css`& .text { display: none }`, css`flex: 0`),
+              div(
+                {style: {flex: 0}},
+                x.checkbox
+              ),
               div(
                 // {style: {flex: 0.7}},
                 css`display: flex;`,
                 css`& > * { margin: auto; flex-grow: 0; }`,
                 img
               ),
-              div(
-                x,
-                css`& .checkbox { display: none; }`,
-                css`& .text { margin-left: 0 }`,
-                css`font-size: 0.8em`),
+              x.label
             )
           }</label>})}
     </div>

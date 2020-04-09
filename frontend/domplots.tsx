@@ -140,6 +140,7 @@ const default_options = {
   height: 100,
   axis_right: false,
   orientation: 'landscape' as 'landscape' | 'portrait',
+  x_axis: true,
 
   hulled: true,
 
@@ -277,8 +278,9 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
           arrow: 8,
         })
       } else {
-        mark({
-          height: p(row.expression / max),
+        const height = row.expression / max
+        height >= (1 / opts.height) && mark({
+          height: p(height),
           width: p(full_width),
           striped,
         })
@@ -297,7 +299,7 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
           position: 'relative',
         }}>
         {marks}
-        <div style={{
+        {opts.x_axis && <div style={{
             position: 'absolute',
             [o.top]: landscape ? p(1) : p(1.05),
             [o.left]: landscape ? `calc(${p(0.5)} - 3px)` : undefined,
@@ -306,7 +308,7 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
             whiteSpace: 'nowrap',
           }}>
           {pretty(facet_x)}
-        </div>
+        </div>}
       </div>
     )
   })
