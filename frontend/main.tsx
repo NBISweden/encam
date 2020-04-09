@@ -41,8 +41,8 @@ if (!document.querySelector('#root')) {
 css`
   label {
     cursor: pointer
-    padding-top: 5px
-    padding-bottom: 5px
+    padding-top: 2px
+    padding-bottom: 2px
   }
   svg {
     display: block
@@ -118,12 +118,12 @@ function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: 
       })
     }
     return {
+      checked,
       text: x,
       onClick,
-      label: <span className={"text " + css`margin-left: 8`.className}>{pretty(x)}</span>,
+      label: <span>{pretty(x)}</span>,
       checkbox:
         <span
-          className={"checkbox " + css`display: inline-block`.className}
           onClick={onClick}
           style={{
             borderRadius: '100px',
@@ -132,8 +132,7 @@ function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: 
             // background: color(x),
             width: '12px',
             height: '12px',
-            // marginRight: '8px',
-            // display: 'inline-block',
+            display: 'inline-block',
           }}
           />,
     }
@@ -180,7 +179,7 @@ function by<A, B>(f: (a: A) => B) {
 db.sort(by(row => both.indexOf(row.tumor)))
 
 function Center() {
-  const [hover, set_hover] = React.useState('hover')
+  const [hover, set_hover] = React.useState('')
   const tumor_labels =
     Checkboxes(both, store.at('tumor'), () => store.at('cell').set({}), () => '#444')
     .map(
@@ -213,11 +212,11 @@ function Center() {
           {style: {width: 50}},
           css`border-bottom: 1px #666 solid`,
           css`display: flex`,
-          left_side || css`padding-right: 15px`,
+          left_side || css`padding-right: 7px`,
           left_side || css`justify-content: flex-end`,
           // css`& > label { padding: 0 8; }`,
           div(
-            css`position: absolute; top: 100%`,
+            css`position: absolute; top: 100%; margin-left: 6px`,
             x.label,
           ),
           div(
@@ -225,6 +224,7 @@ function Center() {
             css`margin-left: 8px`,
             x.checkbox
           ),
+          css`cursor: pointer`,
           {
             onClick: x.onClick,
             onMouseOver: () => set_hover(pretty(codes[x.text])),
@@ -312,23 +312,26 @@ function Left() {
             const cell_png = cell_pngs[range.cell[i]]
             const img_props: React.ImgHTMLAttributes<HTMLImageElement> = thief ? {onLoad: e => thief(cell, e.target as any)} : {}
             const img = cell_png && <img src={cell_png} {...img_props}/>
-            return <label onClick={x.onClick}>{div(
+            const color = cell_color(x.text)
+            return <label key={i} onClick={x.onClick}>{div(
               css`
                 display: flex
                 flex-direction: row
                 // justify-content: space-between
-                border: 1.5px #ddd solid
-                border-radius: 2px
+                border: 1.5px ${color} solid
+                border-radius: 15px
                 font-size: 0.8em
+                  background: ${x.checked ? color : 'white'}
+                  color: ${x.checked ? 'white' : 'black'}
               `,
               css`& > * {
                 margin: auto 0;
-                padding: 5px;
+                padding: 2px;
                 flex: 1;
               }`,
               div(
                 {style: {flex: 0}},
-                x.checkbox
+                // x.checkbox
               ),
               div(
                 // {style: {flex: 0.7}},
@@ -336,7 +339,15 @@ function Left() {
                 css`& > * { margin: auto; flex-grow: 0; }`,
                 img
               ),
-              x.label
+              div(
+                css`
+                  // border: 1.5px ${color} solid
+                  display: inline
+                  // border-radius: 1000px
+                  text-align: center
+                `,
+                x.label
+              )
             )
           }</label>})}
     </div>
