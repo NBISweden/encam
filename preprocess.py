@@ -33,7 +33,6 @@ This code preprocesses made-up-data.csv into a json "database" db.json. The json
 It uses code from python port of forestplots.R, see forestplots.py and forestplots.ipynb.
 '''
 # !pip install --user lifelines
-
 from lifelines import CoxPHFitter
 import pandas as pd
 import json
@@ -115,3 +114,10 @@ print('\n'.join(db_str.split('\n')[:30]) + '...')
 print()
 print('json len:', len(db_str))
 print('gzipped:', len(gzip.compress(db_str.encode())))
+
+codes_list = data[['Tumor_type', 'Tumor_type_code']].to_dict(orient='records')
+codes_dict = {d['Tumor_type_code']: d['Tumor_type'] for d in codes_list}
+
+with open('./frontend/codes.json', 'w') as fp:
+    json.dump(codes_dict, fp)
+
