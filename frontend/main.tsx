@@ -169,6 +169,16 @@ const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
 const both = [...left, ...right]
 both.forEach(b => b in codes || console.error(b, 'not in', codes))
 
+function by<A, B>(f: (a: A) => B) {
+  return (x: A, y: A) => {
+    const fx = f(x)
+    const fy = f(y)
+    return fx > fy ? 1 : fx === fy ? 0 : -1
+  }
+}
+
+db.sort(by(row => both.indexOf(row.tumor)))
+
 function Center() {
   const [hover, set_hover] = React.useState('hover')
   const tumor_labels =
