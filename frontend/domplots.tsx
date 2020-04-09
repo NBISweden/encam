@@ -142,6 +142,8 @@ const default_options = {
   orientation: 'landscape' as 'landscape' | 'portrait',
   x_axis: true,
 
+  max: undefined as undefined | number,
+
   hulled: true,
 
   x: 'location' as keyof Row,
@@ -168,7 +170,7 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
   const opts = {...default_options, ...options}
   const landscape = opts.orientation == 'landscape'
 
-  const max = kind == 'bar' ? Math.max(...range.expression) : 3
+  const max = kind == 'bar' ? (opts.max || Math.max(...rows.map(row => row.expression))) : 3
   const p = (x: number) => (x * 100) + '%'
   const o = landscape ? {
     width: 'width',

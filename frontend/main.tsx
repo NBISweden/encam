@@ -240,6 +240,7 @@ function Center() {
                   height: plot_height,
                   hulled: false,
                   x_axis: (i + 1) % T == 0,
+                  max: Math.max(...db.filter(row => store.get().cell[row.cell]).map(row => row.expression)),
                 }
               )))
         })
