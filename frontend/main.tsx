@@ -290,87 +290,68 @@ function Center() {
   )
 }
 
-import ColorThief from 'colorthief'
-const colorThief = new ColorThief()
+// import {thief} from './thief'
+const thief: undefined | ((cell: string, img: HTMLImageElement | null) => void) = undefined
 
-const i = range.cell.findIndex(c => c == 'iDC_single')
-i == -1 || range.cell.splice(i, 1)
-
+function Left() {
+  return (
+    <div id="left-sidebar" className="column">
+      <h2>Cell type</h2>
+      {Checkboxes(
+          range.cell,
+          store.at('cell'),
+          () => {
+            store.at('tumor').set({})
+            const cell_keys = Object.keys(store.get().cell)
+            if (cell_keys.length > 3) {
+              const x = {...store.get().cell}
+              delete x[cell_keys[0]]
+              store.at('cell').set(x)
+            }
+          },
+          cell_color
+        ).map((x, i) => {
+            const cell = range.cell[i]
+            const cell_png = cell_pngs[range.cell[i]]
+            const img_props: React.ImgHTMLAttributes<HTMLImageElement> = thief ? {onLoad: e => thief(cell, e.target as any)} : {}
+            const img = cell_png && <img src={cell_png} {...img_props}/>
+            return <label>{div(
+              css`
+                display: flex
+                flex-direction: row
+                // justify-content: space-between
+                border: 1.5px #ddd solid
+                border-radius: 2px
+              `,
+              css`& > * {
+                margin: auto 0;
+                padding: 5px;
+                flex: 1;
+              }`,
+              div(x, css`& .text { display: none }`, css`flex: 0`),
+              div(
+                // {style: {flex: 0.7}},
+                css`display: flex;`,
+                css`& > * { margin: auto; flex-grow: 0; }`,
+                img
+              ),
+              div(
+                x,
+                css`& .checkbox { display: none; }`,
+                css`& .text { margin-left: 0 }`,
+                css`font-size: 0.8em`),
+            )
+          }</label>})}
+    </div>
+  )
+}
 
 function Root() {
   return (
     <div id="top" className="row">
-      <div id="left-sidebar" className="column">
-        <h2>Cell type</h2>
-        {Checkboxes(
-            range.cell,
-            store.at('cell'),
-            () => {
-              store.at('tumor').set({})
-              const cell_keys = Object.keys(store.get().cell)
-              if (cell_keys.length > 3) {
-                const x = {...store.get().cell}
-                delete x[cell_keys[0]]
-                store.at('cell').set(x)
-              }
-            },
-            cell_color
-          ).map((x, i) => {
-              const cell = range.cell[i]
-              const cell_png = cell_pngs[range.cell[i]]
-              const thief = (e: HTMLImageElement) => {
-                if (e && e.complete) {
-                  const nice = (rgb: [number, number, number], i: number) => {
-                    const [r,g,b] = rgb
-                    const dist = Math.max(...rgb) - Math.min(...rgb)
-                    const avg = (r+g+b) / 3
-                    console.log(`%c  %c ${cell} ${dist} ${avg} ${rgb.join(', ')}`, `background:rgb(${rgb.join(',')})`, `background: unset`)
-                    return dist > 20 && avg < 210 && (cell != 'iDC' || i > 2) && (cell != 'CD4' || i > 0)
-                  }
-                  const p = colorThief.getPalette(e).filter(nice)
-                  if (domplots.set_cell_color(cell, `rgb(${p[0].join(',')})`)) {
-                    store.set(store.get())
-                  }
-                }
-              }
-              const img = cell_png && <img src={cell_png} onLoad={e => thief(e.target as any)} ref={thief}/>
-              return <label>{div(
-                css`
-                  display: flex
-                  flex-direction: row
-                  // justify-content: space-between
-                  border: 1.5px #ddd solid
-                  border-radius: 2px
-                `,
-                css`& > * {
-                  margin: auto 0;
-                  padding: 5px;
-                  flex: 1;
-                }`,
-                div(x, css`& .text { display: none }`, css`flex: 0`),
-                div(
-                  // {style: {flex: 0.7}},
-                  css`display: flex;`,
-                  css`& > * { margin: auto; flex-grow: 0; }`,
-                  img
-                ),
-                div(
-                  x,
-                  css`& .checkbox { display: none; }`,
-                  css`& .text { margin-left: 0 }`,
-                  css`font-size: 0.8em`),
-              )
-            }</label>})}
-      </div>
+      <Left/>
       <Center/>
-      {div(
-        {
-          id: 'right-sidebar',
-          className: 'column',
-        },
-        css`& > div { margin: 10px auto }`,
-        right_sidebar()
-      )}
+      <Right/>
     </div>
   )
 }
@@ -379,7 +360,7 @@ function selected(d: Record<string, boolean>): string[] {
   return Object.entries(d).filter(([_, v]) => v).map(([k, _]) => k)
 }
 
-function right_sidebar(): React.ReactNode[] {
+function Right() {
   const out: React.ReactNode[] = []
 
   const {tumor, cell} = store.get()
@@ -395,7 +376,14 @@ function right_sidebar(): React.ReactNode[] {
     out.push(<h2 style={{margin: '10 auto'}}>{pretty(c)}</h2>)
     out.push(plot(filter('cell', c), 'forest', {facet_x: 'tumor', ...opts}))
   }
-  return out
+  return div(
+    {
+      id: 'right-sidebar',
+      className: 'column',
+    },
+    css`& > div { margin: 10px auto }`,
+    out
+  )
 }
 
 function redraw() {

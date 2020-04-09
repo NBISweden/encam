@@ -10,6 +10,7 @@
     "@types/d3": "^5.7.2",
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
+    "colorthief": "^2.3.0",
     "parcel": "^1.12.4",
     "typescript": "^3.8.2"
   },
@@ -19,7 +20,6 @@
     "deploy": "yarn run build && echo deploy script TODO"
   },
   "dependencies": {
-    "colorthief": "^2.3.0",
     "d3": "^5.15.0",
     "random-js": "^2.1.0",
     "react": "^16.13.0",
