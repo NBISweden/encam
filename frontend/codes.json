@@ -1,1 +1,18 @@
-{"COAD": "Colon adenocarcinoma", "READ": "Rectum adenocarcinoma", "LUAD": "non small cell lung cancer adenocarcinoma", "LUSC": "non small cell lung cancer squamous cell carcinoma", "BRCA": "Breast invasive carcinoma", "PPADpb": "Periampullary and pancreatic adenocarcinoma pancreatobiliary type", "PPADi": "Periampullary and pancreatic adenocarcinoma intestinal type", "OVNSA": "Ovarian Carcinoma non serous", "OVSA": "Ovarian Carcinoma serous", "PRAD": "Prostate adenocarcinoma", "UCEC": "Uterine Corpus Endometrial Carcinoma", "KRCC": "Kidney renal cell carcinoma", "BLCA": "Bladder Urothelial Carcinoma", "MEL": "Melanoma", "ESCA": "Esophageal carcinoma", "STAD": "Stomach adenocarcinoma"}
+{
+  "COAD": "Colon adenocarcinoma",
+  "READ": "Rectum adenocarcinoma",
+  "LUAD": "non small cell lung cancer adenocarcinoma",
+  "LUSC": "non small cell lung cancer squamous cell carcinoma",
+  "BRCA": "Breast invasive carcinoma",
+  "PPADpb": "Periampullary and pancreatic adenocarcinoma pancreatobiliary type",
+  "PPADi": "Periampullary and pancreatic adenocarcinoma intestinal type",
+  "OVNSA": "Ovarian Carcinoma non serous",
+  "OVSA": "Ovarian Carcinoma serous",
+  "PRAD": "Prostate adenocarcinoma",
+  "UCEC": "Uterine Corpus Endometrial Carcinoma",
+  "KRCC": "Kidney renal cell carcinoma",
+  "BLCA": "Bladder Urothelial Carcinoma",
+  "MEL": "Melanoma",
+  "ESCA": "Esophageal carcinoma",
+  "STAD": "Stomach adenocarcinoma"
+}

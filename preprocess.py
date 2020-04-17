@@ -120,7 +120,7 @@ for t in tumor_types:
     cell_full = df.index
     df.reset_index(drop=True, inplace=True)
     df.insert(0, 'tumor', t)
-    df.insert(1, 'cell', cell_full.map(lambda x: '_'.join(x.split('_')[0:-1])))
+    df.insert(1, 'cell', cell_full.map(lambda x: '_'.join(x.split('_')[:-1])))
     df.insert(2, 'location', cell_full.map(lambda x: x.split('_')[-1]))
     df.insert(3, 'cell_full', cell_full)
     dfs.append(df)
@@ -128,21 +128,26 @@ for t in tumor_types:
 db = pd.concat(dfs, axis=0).reset_index(drop=True)
 db_str = db.to_json(orient='records', indent=2)
 
-with open('./frontend/db.json', 'w') as fp:
-    fp.write(db_str)
+def write_json(filename, obj):
+    if not isinstance(obj, str):
+        obj = json.dumps(obj, indent=2)
 
-import gzip
-print('\n'.join(db_str.split('\n')[:30]) + '...')
-print()
-print('json len:', len(db_str))
-print('gzipped:', len(gzip.compress(db_str.encode())))
+    with open(filename, 'w') as fp:
+        fp.write(obj)
+
+    import gzip
+    print(filename + ':')
+    print('\n'.join(obj.split('\n')[:15]) + '...')
+    print()
+    print('json len:', len(obj))
+    print('gzipped:', len(gzip.compress(obj.encode())))
+
+write_json('./frontend/db.json', db_str)
 
 codes_list = data[['Tumor_type', 'Tumor_type_code']].to_dict(orient='records')
 codes_dict = {d['Tumor_type_code']: d['Tumor_type'] for d in codes_list}
 
-with open('./frontend/codes.json', 'w') as fp:
-    json.dump(codes_dict, fp)
-
+write_json('./frontend/codes.json', codes_dict)
 
 def form_configuration():
     '''
@@ -175,6 +180,7 @@ def form_configuration():
                 })
 
     variant_columns = [
+        'Tumor_type_code',
         # 'Gender',
         # 'Anatomical_location',
         # 'Morphological_type',
@@ -201,10 +207,10 @@ def form_configuration():
     config = {
         'variant_values': variant_values,
         'tumor_specific_values': tumor_specific_values,
+        'cell_types_full': cell_types,
+        'cell_types': tidy_values('_'.join(c.split('_')[:-1]) for c in cell_types)
     }
-    from pprint import pprint
-    pprint(config)
-    # print(json.dumps(config, indent=2))
+    write_json('./frontend/form_configuration.json', config)
 
 form_configuration()
 
