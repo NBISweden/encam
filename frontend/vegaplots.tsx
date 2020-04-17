@@ -17,15 +17,15 @@ function Memoizer<K, V>() {
 
 const memo = Memoizer<VL.TopLevelSpec, V.Runtime>()
 
-function Embed({ spec, data }: { spec: VL.TopLevelSpec, data: any[] }) {
+function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.ReactElement {
   const [el, set_el] = React.useState(null as HTMLElement | null)
   if (el) {
     const runtime = memo(spec, () => V.parse(VL.compile(spec).spec))
     const view = new V.View(runtime)
-      .data('data', data)
-      .logLevel(V.Warn)
-      .renderer('svg')
-      .initialize(el)
+    data && view.data('data', data)
+    view.logLevel(V.Warn)
+        .renderer('svg')
+        .initialize(el)
       // .hover()
     view.runAsync().then(_ => {
       const svg = el.querySelector('svg')
@@ -36,7 +36,7 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data: any[] }) {
   return <div ref={set_el} />
 }
 
-function embed(spec: VL.TopLevelSpec, data: any[]): React.ReactNode {
+function embed(spec: VL.TopLevelSpec, data?: any[]): React.ReactElement {
   return <Embed spec={spec} data={data}/>
 }
 
@@ -74,8 +74,66 @@ function orient(options: Options) {
   }
 }
 
+export function boxplot(data: any[], opts?: Partial<Options>): React.ReactElement {
+  const options = { ...default_options, ...opts }
+  const { row, height, x, y } = orient(options)
+  const spec: VL.TopLevelSpec = {
+    $schema: "https://vega.github.io/schema/vega-lite/v4.json",
+    // data: { values: data },
+    data: { name: 'data' },
+    transform: [
+      // {calculate: "pow(datum.value, 4)", as: "value"}
+    ],
+    facet: {
+      [row]: {
+        field: 'variable',
+        type: "ordinal",
+        header: {
+          labelAngle: options.horizontal ? 0 : -45,
+          labelAlign: options.horizontal ? "left" : "right",
+          labelOrient: options.horizontal ? undefined : "bottom",
+          title: null
+        },
+      },
+    },
+    spec: {
+      height: 450,
+      [height]: { step: 12 },
+      encoding: {
+        [x]: {
+          field: "value", type: "quantitative",
+          axis: { title: "expression", grid: false }
+        },
+        [y]: {
+          field: "Tumor_type_code", type: "nominal",
+          axis: null,
+        },
+        color: {
+          field: "Tumor_type_code", type: "nominal",
+          scale: { scheme: "tableau20" },
+          legend: undefined ,
+        }
+      },
+      layer: [
+        {
+          mark: {
+            type: "boxplot",
+            outliers: false
+          }
+        },
+      ],
+    },
+    config: {
+      view: { stroke: "transparent" },
+      axis: { domainWidth: 1 },
+      facet: { spacing: 5 },
+    },
+  }
+  return embed(spec, data)
+}
+
 // horizontal barchart
-export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode {
+export function barchart(data: any[] | string, opts?: Partial<Options>): React.ReactElement {
   const options = { ...default_options, ...opts }
   const { row, height, x, y } = orient(options)
   const spec: VL.TopLevelSpec = {
@@ -84,7 +142,7 @@ export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode 
       resize: true
     },
     // data: { values: data },
-    data: { name: 'data' },
+    data: typeof data == 'string' ? {url: data} : { name: 'data' },
     facet: {
       [row]: {
         field: options.facet,
@@ -138,10 +196,10 @@ export function barchart(data: any[], opts?: Partial<Options>): React.ReactNode 
       facet: { spacing: 5 },
     }
   }
-  return embed(spec, data)
+  return embed(spec, typeof data == 'string' ? undefined : data)
 }
 
-export function forest(data: any[], opts?: Partial<Options>): React.ReactNode {
+export function forest(data: any[], opts?: Partial<Options>): React.ReactElement {
   const options = { ...default_options, ...opts }
   const { row, height, x, x2, y } = orient(options)
   const spec: VL.TopLevelSpec = {

@@ -1,0 +1,203 @@
+{
+  "variant_values": [
+    {
+      "column": "Tumor_type_code",
+      "values": [
+        "BLCA",
+        "BRCA",
+        "COAD",
+        "ESCA",
+        "KRCC",
+        "LUAD",
+        "LUSC",
+        "MEL",
+        "OVNSA",
+        "OVSA",
+        "PPADi",
+        "PPADpb",
+        "PRAD",
+        "READ",
+        "STAD",
+        "UCEC"
+      ]
+    },
+    {
+      "column": "clinical_stage",
+      "values": [
+        "0",
+        "I",
+        "II",
+        "III",
+        "IV"
+      ]
+    },
+    {
+      "column": "pT_stage",
+      "values": [
+        "T0",
+        "T1",
+        "T2",
+        "T3",
+        "T4"
+      ]
+    },
+    {
+      "column": "pN_stage",
+      "values": [
+        "N0",
+        "N1",
+        "N2"
+      ]
+    },
+    {
+      "column": "pM_stage",
+      "values": [
+        "M0",
+        "M1"
+      ]
+    },
+    {
+      "column": "Diff_grade",
+      "values": [
+        "high",
+        "low",
+        "missing"
+      ]
+    },
+    {
+      "column": "Neuralinv",
+      "values": [
+        "No",
+        "Yes",
+        "missing"
+      ]
+    },
+    {
+      "column": "Vascinv",
+      "values": [
+        "No",
+        "Yes",
+        "missing"
+      ]
+    },
+    {
+      "column": "PreOp_treatment_yesno",
+      "values": [
+        "No",
+        "Yes"
+      ]
+    },
+    {
+      "column": "PostOp_type_treatment",
+      "values": [
+        "Chemotherapy only",
+        "no"
+      ]
+    }
+  ],
+  "tumor_specific_values": [
+    {
+      "column": "Anatomical_location",
+      "tumor": "COAD",
+      "values": [
+        "Appendix",
+        "Ascendens",
+        "Caecum",
+        "Descendens",
+        "Flexura hepatica",
+        "Flexura lienalis",
+        "Rectum",
+        "Sigmoideum",
+        "Transversum"
+      ]
+    },
+    {
+      "column": "Anatomical_location",
+      "tumor": "READ",
+      "values": [
+        "Appendix",
+        "Rectum"
+      ]
+    },
+    {
+      "column": "Morphological_type",
+      "tumor": "COAD",
+      "values": [
+        "mucinon-mucinousus",
+        "non-mucinous",
+        "missing"
+      ]
+    },
+    {
+      "column": "Morphological_type",
+      "tumor": "READ",
+      "values": [
+        "mucinon-mucinousus",
+        "non-mucinous",
+        "missing"
+      ]
+    },
+    {
+      "column": "MSI_ARTUR",
+      "tumor": "COAD",
+      "values": [
+        "MSI",
+        "MSS"
+      ]
+    },
+    {
+      "column": "MSI_ARTUR",
+      "tumor": "READ",
+      "values": [
+        "MSI",
+        "MSS"
+      ]
+    }
+  ],
+  "cell_types_full": [
+    "CD4_TUMOR",
+    "CD4_Treg_TUMOR",
+    "CD8_TUMOR",
+    "CD8_Treg_TUMOR",
+    "B_cells_TUMOR",
+    "CD4_STROMA",
+    "CD4_Treg_STROMA",
+    "CD8_STROMA",
+    "CD8_Treg_STROMA",
+    "B_cells_STROMA",
+    "NK_TUMOR",
+    "NKT_TUMOR",
+    "M1_TUMOR",
+    "M2_TUMOR",
+    "Myeloid cell_TUMOR",
+    "NK_STROMA",
+    "NKT_STROMA",
+    "M1_STROMA",
+    "M2_STROMA",
+    "Myeloid cell_STROMA",
+    "iDC_TUMOR",
+    "mDC_TUMOR",
+    "pDC_TUMOR",
+    "Granulocyte_TUMOR",
+    "iDC_STROMA",
+    "mDC_STROMA",
+    "pDC_STROMA",
+    "Granulocyte_STROMA"
+  ],
+  "cell_types": [
+    "B_cells",
+    "CD4",
+    "CD4_Treg",
+    "CD8",
+    "CD8_Treg",
+    "Granulocyte",
+    "M1",
+    "M2",
+    "Myeloid cell",
+    "NK",
+    "NKT",
+    "iDC",
+    "mDC",
+    "pDC"
+  ]
+}

@@ -253,32 +253,37 @@ function Center() {
   return div(
     {
       id: 'center',
-      style: {
-        position: 'relative',
-      },
+      style: {},
     },
-    <img src={require('./img/center-trimmed.svg')} style={{
-      // width: '24%',
-      position: 'absolute',
-      width: '64%',
-      left: '50%',
-      top: 50,
-      transform: 'translate(-50%, 0)',
-    }}/>,
-    ...tumor_labels,
     div(
       {
         style: {
-          position: 'absolute',
-          top: 660,
-          left: '49%',
-          width: '100%',
-          textAlign: 'center',
-          transform: 'translate(-50%, 0)',
-        }
+          position: 'relative',
+        },
       },
-      hover
-    ),
+      <img src={require('./img/center-trimmed.svg')} style={{
+        // width: '24%',
+        position: 'absolute',
+        width: '64%',
+        left: '50%',
+        top: 50,
+        transform: 'translate(-50%, 0)',
+      }}/>,
+      ...tumor_labels,
+      div(
+        {
+          style: {
+            position: 'absolute',
+            top: 660,
+            left: '49%',
+            width: '100%',
+            textAlign: 'center',
+            transform: 'translate(-50%, 0)',
+          }
+        },
+        hover
+      ),
+    )
   )
 }
 
@@ -389,8 +394,34 @@ function Right() {
   )
 }
 
+import * as vp from './vegaplots'
+
+// import * as mup from '../made-up-data.csv'
+// console.log(mup)
+
+import {default as boxplot_json} from './boxplot.json'
+
+console.log(boxplot_json)
+
+function drawit() {
+  return vp.boxplot(boxplot_json, {facet: "Tumor_type_code", horizontal: false})
+}
+
+
+function Boxplots() {
+  return <div id="top" className="row">
+    <div id="center" style={{padding: 10}}>
+      Boxplots in vega!
+      <div style={{height:800}}>
+      {drawit()}
+        </div>
+    </div>
+  </div>
+}
+
 function redraw() {
   store.transaction(() => {
+    // ReactDOM.render(Boxplots(), document.querySelector('#root'))
     ReactDOM.render(Root(), document.querySelector('#root'))
     // ReactDOM.render(<Demo/>, document.querySelector('#root'))
   })
