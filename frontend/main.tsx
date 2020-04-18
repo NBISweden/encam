@@ -425,7 +425,7 @@ function Centered(d: React.ReactNode) {
 
 function redraw() {
   store.transaction(() => {
-    ReactDOM.render(Centered(form.Form()), document.querySelector('#root'))
+    ReactDOM.render(Centered(<form.Form/>), document.querySelector('#root'))
     // ReactDOM.render(Boxplots(), document.querySelector('#root'))
     // ReactDOM.render(Root(), document.querySelector('#root'))
     // ReactDOM.render(<Demo/>, document.querySelector('#root'))
