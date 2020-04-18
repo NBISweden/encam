@@ -4,7 +4,10 @@ module.hot && module.hot.accept()
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-import {CT, Row, range, pretty, db, filter, pick_cells, make_gen} from './db'
+import {by} from './utils'
+import * as utils from './utils'
+
+import {CT, Row, range, db, filter, pick_cells, make_gen} from './db'
 
 import {Store} from 'reactive-lens'
 
@@ -121,7 +124,7 @@ function Checkboxes(range: string[], store: Store<Record<string, boolean>>, on: 
       checked,
       text: x,
       onClick,
-      label: <span>{pretty(x)}</span>,
+      label: <span>{utils.pretty(x)}</span>,
       checkbox:
         <span
           onClick={onClick}
@@ -167,14 +170,6 @@ const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
 const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
 const both = [...left, ...right]
 both.forEach(b => b in codes || console.error(b, 'not in', codes))
-
-function by<A, B>(f: (a: A) => B) {
-  return (x: A, y: A) => {
-    const fx = f(x)
-    const fy = f(y)
-    return fx > fy ? 1 : fx === fy ? 0 : -1
-  }
-}
 
 db.sort(by(row => both.indexOf(row.tumor)))
 
@@ -227,8 +222,8 @@ function Center() {
           css`cursor: pointer`,
           {
             onClick: x.onClick,
-            onMouseOver: () => set_hover(pretty(codes[x.text])),
-            onMouseOut: () => hover === pretty(codes[x.text]) && set_hover(''),
+            onMouseOver: () => set_hover(utils.pretty(codes[x.text])),
+            onMouseOut: () => hover === utils.pretty(codes[x.text]) && set_hover(''),
           },
           div(
             css`position: relative`,
@@ -376,12 +371,12 @@ function Right() {
   const cells  = selected(cell)
   const opts   = {orientation: 'portrait' as 'portrait', axis_right: true}
   for (const t of tumors) {
-    out.push(<h2 style={{margin: '10 auto'}}>{pretty(t)}</h2>)
+    out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(t)}</h2>)
     out.push(plot(filter('tumor', t), 'bar', opts))
     out.push(plot(filter('tumor', t), 'forest', opts))
   }
   for (const c of cells) {
-    out.push(<h2 style={{margin: '10 auto'}}>{pretty(c)}</h2>)
+    out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(c)}</h2>)
     out.push(plot(filter('cell', c), 'forest', {facet_x: 'tumor', ...opts}))
   }
   return div(

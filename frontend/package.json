@@ -7,7 +7,6 @@
   "author": "NBIS",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@types/d3": "^5.7.2",
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
     "colorthief": "^2.3.0",
@@ -20,7 +19,6 @@
     "deploy": "yarn run build && echo deploy script TODO"
   },
   "dependencies": {
-    "d3": "^5.15.0",
     "random-js": "^2.1.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",

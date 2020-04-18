@@ -1,13 +1,13 @@
-import * as d3 from 'd3'
-
 import * as React from 'react'
 import * as stripes from './stripes'
 
-import {css, Div, div, clear as clear_css} from './css'
+import {css, div} from './css'
 
 // import * as plots from './plots'
 
-import {CT, Row, range, pretty, db, filter, pick_cells} from './db'
+import * as utils from './utils'
+
+import {CT, Row, range, db, filter, pick_cells} from './db'
 
 export function setup_css() {
   css`
@@ -34,14 +34,9 @@ const colors: Record<string, string> = {
   "Granulocyte": "rgb(170,108,28)"
 }
 
-
-const cell_color_d3 = d3
-  .scaleOrdinal((d3 as any).schemeTableau10 as string[])
-  .domain(range.cell)
-
 export const cell_color = (cell: string) => {
   if (!(cell in colors)) {
-    colors[cell] = cell_color_d3(cell)
+    colors[cell] = '#dab'
   }
   return colors[cell]
 }
@@ -117,22 +112,6 @@ function Hulled(props: {component: React.ReactElement}): React.ReactElement {
 
 const hulled = (component: React.ReactElement) => <Hulled component={component}/>
 
-function roundDown(x: number): number {
-  // Rounds down to one digit precision
-  // roundDown(999) => 900
-  // roundDown(0.123) => 0.1
-  const d = Math.pow(10, Math.floor(Math.log10(x)))
-  return Math.floor(x / d) * d
-}
-
-function enumTo(elements: number): number[] {
-  const out: number[] = []
-  for (let i = 0; i < elements; ++i) {
-    out.push(i)
-  }
-  return out
-}
-
 const default_options = {
   bar_width: 8,
   gap_width: 5,
@@ -150,20 +129,6 @@ const default_options = {
   facet_x: 'cell' as keyof Row,
   color: 'cell' as keyof Row,
   striped: 'STROMA',
-}
-
-function groupBy<T extends Record<string, any>>(k: keyof T, rows: T[]): Record<string, T[]> {
-  const res: Record<string, T[]> = {}
-  rows.forEach(row => {
-    const v = row[k]
-    res[v] = res[v] || []
-    res[v].push(row)
-  })
-  return res
-}
-
-function identity<A>(a: A): A {
-  return a
 }
 
 export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<typeof default_options>) {
@@ -189,11 +154,11 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
   }
 
   const bars: React.ReactElement[] = []
-  const facet_range = Object.entries(groupBy(opts.facet_x, rows))
+  const facet_range = Object.entries(utils.groupBy(opts.facet_x, rows))
   facet_range.forEach(([facet_x, subrows], facet_index) => {
 
     const marks: React.ReactElement[]  = []
-    const grouped = groupBy(opts.x, subrows)
+    const grouped = utils.groupBy(opts.x, subrows)
     const rng = range[opts.x] as string[]
     rng.forEach((x, i) => {
       const group_rows = grouped[x] || []
@@ -309,7 +274,7 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
             transform: landscape ? 'translate(-50%, -50%) rotate(-45deg) translate(-50%, 50%)' : undefined,
             whiteSpace: 'nowrap',
           }}>
-          {pretty(facet_x)}
+          {utils.pretty(facet_x)}
         </div>}
       </div>
     )
@@ -327,8 +292,8 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
     axis_label[opts.axis_right ? 'left' : 'right'] = 0
   }
 
-  const tick_step = roundDown(max / (opts.num_ticks - 1))
-  const ticks = enumTo(opts.num_ticks)
+  const tick_step = utils.roundDown(max / (opts.num_ticks - 1))
+  const ticks = utils.enumTo(opts.num_ticks)
     .map(x => x * tick_step)
     .map(x =>
         <div key={x} style={{
@@ -342,7 +307,7 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
         </div>
       )
 
-  return (opts.hulled ? hulled : identity)(
+  return (opts.hulled ? hulled : utils.identity)(
     <div style={{
         [o.height]: opts.height,
         display: 'inline-flex',
