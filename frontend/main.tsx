@@ -401,28 +401,33 @@ import * as vp from './vegaplots'
 
 import {default as boxplot_json} from './boxplot.json'
 
-console.log(boxplot_json)
+// console.log(boxplot_json)
 
 function drawit() {
-  return vp.boxplot(boxplot_json, {facet: "Tumor_type_code", horizontal: false})
+  return
 }
 
+import * as form from './form'
 
 function Boxplots() {
+  return Centered(
+    vp.boxplot(boxplot_json, {facet: "Tumor_type_code", horizontal: false})
+  )
+}
+
+function Centered(d: React.ReactNode) {
   return <div id="top" className="row">
     <div id="center" style={{padding: 10}}>
-      Boxplots in vega!
-      <div style={{height:800}}>
-      {drawit()}
-        </div>
+      {d}
     </div>
   </div>
 }
 
 function redraw() {
   store.transaction(() => {
+    ReactDOM.render(Centered(form.Form()), document.querySelector('#root'))
     // ReactDOM.render(Boxplots(), document.querySelector('#root'))
-    ReactDOM.render(Root(), document.querySelector('#root'))
+    // ReactDOM.render(Root(), document.querySelector('#root'))
     // ReactDOM.render(<Demo/>, document.querySelector('#root'))
   })
 }
