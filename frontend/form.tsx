@@ -38,6 +38,10 @@ import CheckBoxIcon from '@material-ui/icons/CheckBox';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
+function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
+  return React.useMemo(elem, deps)
+}
+
 export function Form() {
   const [tumors, set_tumors] = React.useState(['COAD'] as string[])
   const [cells, set_cells] = React.useState([] as string[])
@@ -46,10 +50,16 @@ export function Form() {
   const update_specific = (s: any) => set_specific({...specifics, ...s})
   const update_misc = (m: any) => set_misc({...misc, ...m})
   const specific = conf.tumor_specific_values
-    .filter(t => cells.length || tumors.includes(t.tumor))
-    .map(t => (
-      <Autocomplete
+    .map(t => memo(
+      [specifics[t.column + t.tumor], cells.length || tumors.includes(t.tumor)],
+      () => <Autocomplete
+        key={t.column + t.tumor}
         multiple
+        style={{
+          display: (cells.length || tumors.includes(t.tumor))
+            ? undefined
+            : 'none'
+        }}
         options={t.values}
         disableCloseOnSelect
         renderOption={(option, { selected } ) => (
@@ -73,12 +83,13 @@ export function Form() {
         size="small"
         onChange={(_, selected) => update_specific({[t.column + t.tumor]: selected})}
         value={specifics[t.column + t.tumor] || t.values}
-      />
-  ))
+      />))
   const misc_filters = conf.variant_values
     .filter(v => v.column != 'Tumor_type_code')
-    .map(v => (
-      <Grid container spacing={3}>
+    .map(v => memo([misc[v.column]], () =>
+      <Grid container spacing={3}
+        key={v.column}
+      >
         <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
           <span>{v.column.replace(/(_|yesno)/g, ' ')}:</span>
         </Grid>
@@ -111,8 +122,7 @@ export function Form() {
               />
           )}
         </Grid>
-      </Grid>
-    ))
+      </Grid>))
   return <Box>
     <CssBaseline/>
     {div(
@@ -120,36 +130,39 @@ export function Form() {
         & { display: flex; flex-direction: column }
         & > .MuiAutocomplete-root { padding-bottom: 1em }
       `,
-      <Autocomplete
-        multiple
-        options={tumor_codes}
-        disableCloseOnSelect
-        renderOption={(option, { selected } ) => (
-          <React.Fragment>
-            <Checkbox
-              icon={icon}
-              checkedIcon={checkedIcon}
-              style={{ marginRight: 8, padding: 0 }}
-              checked={selected}
-              color="primary"
+      memo([tumors, cells], () =>
+        <Autocomplete
+          key="tumor"
+          multiple
+          options={tumor_codes}
+          disableCloseOnSelect
+          renderOption={(option, { selected } ) => (
+            <React.Fragment>
+              <Checkbox
+                icon={icon}
+                checkedIcon={checkedIcon}
+                style={{ marginRight: 8, padding: 0 }}
+                checked={selected}
+                color="primary"
+              />
+              {option} <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({codes[option]})</i>
+            </React.Fragment>
+          )}
+          fullWidth={true}
+          renderInput={(params) => (
+            <TextField {...params}
+              variant="outlined"
+              label={'Tumor types' + (cells.length ? ' (cells selected, comparing across all tumors)' : '')}
             />
-            {option} <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({codes[option]})</i>
-          </React.Fragment>
-        )}
-        fullWidth={true}
-        renderInput={(params) => (
-          <TextField {...params}
-            variant="outlined"
-            label={'Tumor types' + (cells.length ? ' (cells selected, comparing across all tumors)' : '')}
-          />
-        )}
-        onChange={(_, selected) => {
-          set_tumors(selected.reverse().slice(0, 3).reverse())
-          set_cells([])
-        }}
-        value={tumors}
-      />,
-      <Autocomplete
+          )}
+          onChange={(_, selected) => {
+            set_tumors(selected.reverse().slice(0, 3).reverse())
+            set_cells([])
+          }}
+          value={tumors}
+        />),
+      memo([cells, tumors], () => <Autocomplete
+        key="cell"
         multiple
         options={conf.cell_types}
         disableCloseOnSelect
@@ -177,7 +190,7 @@ export function Form() {
           set_tumors([])
         }}
         value={cells}
-      />,
+      />),
       specific,
       misc_filters,
     )}
