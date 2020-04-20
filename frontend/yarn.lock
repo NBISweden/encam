@@ -4695,11 +4695,6 @@ react@^16.13.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
 
-reactive-lens@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/reactive-lens/-/reactive-lens-0.5.0.tgz#6839e34757adc2f9196077c04e39f06f858bd925"
-  integrity sha1-aDnjR1etwvkZYHfATjnwb4WL2SU=
-
 readable-stream@^2.0.2, readable-stream@^2.2.2, readable-stream@^2.3.3, readable-stream@^2.3.6, readable-stream@~2.3.3, readable-stream@~2.3.6:
   version "2.3.7"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.3.7.tgz#1eca1cf711aef814c04f62252a36a62f6cb23b57"

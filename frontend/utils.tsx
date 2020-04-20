@@ -84,3 +84,15 @@ export function expand(d: Record<string, string[]>): Record<string, string[] | R
   return out
 }
 
+export function selected(d: Record<string, boolean>): string[] {
+  return Object.entries(d).filter(([_, v]) => v).map(([k, _]) => k)
+}
+
+export function last<A>(N: number, xs: A[]): A[] {
+  return xs.reverse().slice(0, N).reverse()
+}
+
+export function cap(N: number, d: Record<string, boolean>) {
+  return Object.fromEntries(last(N, selected(d)).map(k => [k, true]))
+}
+

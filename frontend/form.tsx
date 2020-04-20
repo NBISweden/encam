@@ -116,6 +116,7 @@ export function Form(props: {onSubmit: (form_value: Record<string, any>) => void
           {v.values.map(value =>
             <FormControlLabel
               label={value}
+              key={value}
               control={
                 <Checkbox
                   checked={(state[v.column] || v.values).includes(value)}
