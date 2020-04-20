@@ -67,3 +67,20 @@ export function pretty(s: string | number) {
   }
 }
 
+export function expand(d: Record<string, string[]>): Record<string, string[] | Record<string, string[]>> {
+  const out = {} as any
+  Object.entries(d).forEach(([k, v]) => {
+    const m = k.match(/(.*),(.*)/)
+    if (m) {
+      const [_, k1, k2] = m
+      if (!(k1 in out)) {
+        out[k1] = {}
+      }
+      out[k1][k2] = v
+    } else {
+      out[k] = v
+    }
+  })
+  return out
+}
+

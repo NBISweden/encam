@@ -1,11 +1,11 @@
 import * as React from 'react'
 
-import {css, div, clear as clear_css} from './css'
+import {css, div} from './css'
 
 import * as utils from './utils'
 
-import { FormControlLabel, CssBaseline, Box, Container, Grid, Checkbox, TextField, Tooltip } from '@material-ui/core'
-import { Autocomplete, ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
+import { FormControlLabel, CssBaseline, Box, Container, Grid, Checkbox, TextField, Tooltip, Button } from '@material-ui/core'
+import { Autocomplete } from '@material-ui/lab'
 
 interface Conf {
   variant_values: {
@@ -26,11 +26,31 @@ declare const require: (path: string) => Conf
 const conf = require('./form_configuration.json')
 const codes = require('./codes.json') as Record<string, string>
 
+type State =
+  Record<string, string[]> &
+  {
+    tumors: string[],
+    cells: string[],
+  }
+
+function calculate_state0(conf: Conf) {
+  const state0 = {} as State
+  conf.variant_values.forEach(v => {
+    state0[v.column] = v.values
+  })
+  conf.tumor_specific_values.forEach(v => {
+    state0[v.column + ',' + v.tumor] = v.values
+  })
+  state0.cells = conf.cell_types
+  state0.cells = []
+  state0.tumors = ['COAD']
+  return state0
+}
+
+
 const tumor_codes = conf.variant_values
   .filter(v => v.column == 'Tumor_type_code')[0].values
   // .map(code => ({code, long: codes[code] || ''}))
-
-console.log(conf)
 
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
@@ -42,16 +62,15 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
 }
 
-export function Form() {
-  const [tumors, set_tumors] = React.useState(['COAD'] as string[])
-  const [cells, set_cells] = React.useState([] as string[])
-  const [specifics, set_specific] = React.useState({} as any)
-  const [misc, set_misc] = React.useState({} as any)
-  const update_specific = (s: any) => set_specific({...specifics, ...s})
-  const update_misc = (m: any) => set_misc({...misc, ...m})
+export function Form(props: {onSubmit: (form_value: Record<string, any>) => void}) {
+  const [state, set_state] = React.useState(() => calculate_state0(conf))
+  const {tumors, cells} = state
+  const update_state =
+    (next: Partial<State> | ((s: State) => Partial<State>)) =>
+    set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
   const specific = conf.tumor_specific_values
     .map(t => memo(
-      [specifics[t.column + t.tumor], cells.length || tumors.includes(t.tumor)],
+      [state[t.column + ',' + t.tumor], cells.length || tumors.includes(t.tumor)],
       () => <Autocomplete
         key={t.column + t.tumor}
         multiple
@@ -81,12 +100,12 @@ export function Form() {
           />
         )}
         size="small"
-        onChange={(_, selected) => update_specific({[t.column + t.tumor]: selected})}
-        value={specifics[t.column + t.tumor] || t.values}
+        onChange={(_, selected) => update_state({[t.column + ',' + t.tumor]: selected})}
+        value={state[t.column + ',' + t.tumor] || t.values}
       />))
   const misc_filters = conf.variant_values
     .filter(v => v.column != 'Tumor_type_code')
-    .map(v => memo([misc[v.column]], () =>
+    .map(v => memo([state[v.column]], () =>
       <Grid container spacing={3}
         key={v.column}
       >
@@ -94,30 +113,19 @@ export function Form() {
           <span>{v.column.replace(/(_|yesno)/g, ' ')}:</span>
         </Grid>
         <Grid item xs={9}>
-          {false && <ToggleButtonGroup
-            value={misc[v.column] || v.values}
-            size="small"
-            onChange={(_, selected) => update_misc({[v.column]: selected.length ? selected : v.values.filter(x => !misc[v.column].includes(x))})}
-            >{v.values.map(value =>
-              <ToggleButton
-                key={value}
-                value={value}
-              >{value}</ToggleButton>
-            )}
-          </ToggleButtonGroup>}
           {v.values.map(value =>
             <FormControlLabel
               label={value}
               control={
                 <Checkbox
-                  checked={(misc[v.column] || v.values).includes(value)}
+                  checked={(state[v.column] || v.values).includes(value)}
                   size="small"
                   color="primary"
-                  onChange={(_, checked) => {
-                    const prev: string[] = misc[v.column] || v.values
+                  onChange={(_, checked) => update_state(state => {
+                    const prev: string[] = state[v.column] || v.values
                     const selected = prev.slice().filter(x => x != value || checked).concat(checked ? [value] : [])
-                    update_misc({[v.column]: selected.length ? selected : v.values.filter(x => !prev.includes(x))})
-                  }}
+                    return {[v.column]: selected.length ? selected : v.values.filter(x => !prev.includes(x))}
+                  })}
                 />}
               />
           )}
@@ -156,8 +164,10 @@ export function Form() {
             />
           )}
           onChange={(_, selected) => {
-            set_tumors(selected.reverse().slice(0, 3).reverse())
-            set_cells([])
+            update_state({
+              tumors: selected.reverse().slice(0, 3).reverse(),
+              cells: []
+            })
           }}
           value={tumors}
         />),
@@ -186,13 +196,25 @@ export function Form() {
           />
         )}
         onChange={(_, selected) => {
-          set_cells(selected.reverse().slice(0, 3).reverse())
-          set_tumors([])
+          update_state({
+            cells: selected.reverse().slice(0, 3).reverse(),
+            tumors: [],
+          })
         }}
         value={cells}
       />),
       specific,
       misc_filters,
+      div(
+        css`
+          & { margin-left: auto }
+          & > button {
+            margin: 8px
+          }
+        `,
+        <Button onClick={() => set_state(calculate_state0(conf))} variant="contained">Reset</Button>,
+        <Button onClick={() => props.onSubmit && props.onSubmit(utils.expand(state))} variant="contained" color="primary">Submit</Button>
+      )
     )}
   </Box>
 }

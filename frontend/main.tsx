@@ -423,9 +423,23 @@ function Centered(d: React.ReactNode) {
   </div>
 }
 
+function FormAndPlot() {
+  const [filter, set_filter] = React.useState(undefined)
+  const plot = React.useMemo(
+    () => filter && vp.boxplot(boxplot_json, {facet: "Tumor_type_code", horizontal: false}),
+    [filter]
+  )
+  return (
+    <React.Fragment>
+      <form.Form onSubmit={set_filter}/>
+      {plot}
+    </React.Fragment>
+  )
+}
+
 function redraw() {
   store.transaction(() => {
-    ReactDOM.render(Centered(<form.Form/>), document.querySelector('#root'))
+    ReactDOM.render(Centered(<FormAndPlot/>), document.querySelector('#root'))
     // ReactDOM.render(Boxplots(), document.querySelector('#root'))
     // ReactDOM.render(Root(), document.querySelector('#root'))
     // ReactDOM.render(<Demo/>, document.querySelector('#root'))
