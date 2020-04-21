@@ -10,77 +10,76 @@ import {css, div} from './css'
 import {plot, cell_color} from './domplots'
 import * as domplots from './domplots'
 
-export function setup_css() {
-  domplots.setup_css()
-  css`
-    label {
-      cursor: pointer
-      padding-top: 2px
-      padding-bottom: 2px
-    }
-    svg {
-      display: block
-    }
-    * {
-      user-select: none
-    }
-    html {
-      box-sizing: border-box
-      overflow-y: scroll
-    }
-    *, *:before, *:after {
-      box-sizing: inherit
-    }
-    html, body, #root {
-      min-height: 100%
-      width: min-content
-      min-width: 100%
-    }
-    body {
-      margin: 0
-      font-family: sans-serif, sans
-    }
-    .row {
-      display: flex
-      flex-direction: row
-    }
-    .column {
-      display: flex
-      flex-direction: column
-    }
-    #root {
-      background: #eee
-    }
-    #top {
-      margin: 8 auto
-      background: #fff
-    }
-    #left-sidebar {
-      width: 200px
-      padding: 0 1em
-    }
-    #center {
-      width: 750px
-      border-right: 8px #eee solid
-      border-left: 8px #eee solid
-    }
-    #right-sidebar {
-      width: 200px
-    }
-    h2 {
-      margin-top: 1em
-      margin-bottom: 0.8em
-      margin-left: 0.2em
-      font-size: 1.1em
-    }
-    #sidebar {
-    }
-    #root {
-      display: flex
-      flex-direction: row
-    }
-  `
-}
+import styled, * as sc from 'styled-components'
+
+export const GlobalStyle = sc.createGlobalStyle`
+  label {
+    cursor: pointer;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  svg {
+    display: block;
+  }
+  * {
+    user-select: none;
+  }
+  html {
+    box-sizing: border-box;
+    overflow-y: scroll;
+  }
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+  html, body, #root {
+    min-height: 100%;
+    width: min-content;
+    min-width: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: sans-serif, sans;
+  }
+  .row {
+    display: flex;
+    flex-direction: row;
+  }
+  .column {
+    display: flex;
+    flex-direction: column;
+  }
+  #root {
+    background: #eee;
+  }
+  #top {
+    margin: 8 auto;
+    background: #fff;
+  }
+  #left-sidebar {
+    width: 200px;
+    padding: 0 1em;
+  }
+  #center {
+    width: 750px;
+    border-right: 8px #eee solid;
+    border-left: 8px #eee solid;
+  }
+  #right-sidebar {
+    width: 200px;
+  }
+  h2 {
+    margin-top: 1em;
+    margin-bottom: 0.8em;
+    margin-left: 0.2em;
+    font-size: 1.1em;
+  }
+  #sidebar {
+  }
+  #root {
+    display: flex;
+    flex-direction: row;
+  }
+`
 
 const state0 = {
   tumor: {} as Record<string, boolean>,
@@ -282,15 +281,17 @@ function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>
             const img = cell_png && <img src={cell_png} {...img_props}/>
             const color = cell_color(x.text)
             return <label key={i} onClick={x.onClick}>{div(
+              {style: {
+                border: `1.5px ${color} solid`,
+                background: x.checked ? color : 'white',
+                color: x.checked ? 'white' : 'black',
+              }},
               css`
-                display: flex
-                flex-direction: row
-                // justify-content: space-between
-                border: 1.5px ${color} solid
-                border-radius: 15px
-                font-size: 0.8em
-                  background: ${x.checked ? color : 'white'}
-                  color: ${x.checked ? 'white' : 'black'}
+                display: flex;
+                flex-direction: row;
+                // justify-content: space-between;
+                border-radius: 15px;
+                font-size: 0.8em;
               `,
               css`& > * {
                 margin: auto 0;
@@ -298,21 +299,14 @@ function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>
                 flex: 1;
               }`,
               div(
-                {style: {flex: 0}},
-                // x.checkbox
-              ),
-              div(
-                // {style: {flex: 0.7}},
                 css`display: flex;`,
                 css`& > * { margin: auto; flex-grow: 0; }`,
                 img
               ),
               div(
                 css`
-                  // border: 1.5px ${color} solid
-                  display: inline
-                  // border-radius: 1000px
-                  text-align: center
+                  display: inline;
+                  text-align: center;
                 `,
                 x.label
               )
@@ -367,6 +361,8 @@ export default function Splash() {
   const [state, dispatch] = React.useReducer(reduce, state0)
   return (
     <div id="top" className="row">
+      <domplots.GlobalStyle/>
+      <GlobalStyle/>
       <Left state={state} dispatch={dispatch}/>
       <Center state={state} dispatch={dispatch}/>
       <Right state={state}/>

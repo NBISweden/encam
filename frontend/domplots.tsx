@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as stripes from './stripes'
 
-import {css, div} from './css'
+import {div, css} from './css'
 
 // import * as plots from './plots'
 
@@ -9,13 +9,13 @@ import * as utils from './utils'
 
 import {CT, Row, range, db, filter, pick_cells} from './db'
 
-export function setup_css() {
-  css`
-    .striped {
-      background-image: url('data:image/svg+xml;base64,${btoa(stripes.patternSVG)}')
-    }
-  `
-}
+import styled, * as sc from 'styled-components'
+
+export const GlobalStyle = sc.createGlobalStyle`
+  .striped {
+    background-image: url('data:image/svg+xml;base64,${btoa(stripes.patternSVG)}')
+  }
+`
 
 const colors: Record<string, string> = {
   "CD4": "rgb(237,175,127)",
@@ -328,23 +328,24 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
   )
 }
 
-function Demo() {
+export function Demo() {
   const sep = div(css`height: 100`)
   return div(
+    <GlobalStyle/>,
     css`width: 900; margin: auto; background: white;`,
     css`& > div { display: inline-block; margin: 30px; }`,
     plot(filter('cell', 'CD4'), 'bar', {facet_x: 'tumor'}), sep,
     plot(filter('cell', 'CD4'), 'forest', {facet_x: 'tumor'}), sep,
-    plot(filter('tumor', 'lung'), 'bar', {facet_x: 'location', x: 'cell', bar_width: 2, gap_width: 18}), sep,
-    plot(filter('tumor', 'lung'), 'forest', {facet_x: 'location', x: 'cell', bar_width: 8, gap_width: 18}), sep,
-    plot(filter('tumor', 'lung'), 'bar', {}), sep,
-    plot(filter('tumor', 'lung'), 'bar', {axis_right: true, }), sep,
-    plot(filter('tumor', 'lung'), 'bar', {orientation: 'portrait'}), sep,
-    plot(filter('tumor', 'lung'), 'bar', {axis_right: true, orientation: 'portrait'}), sep,
-    plot(filter('tumor', 'lung'), 'forest', {}), sep,
-    plot(filter('tumor', 'lung'), 'forest', {axis_right: true, }), sep,
-    plot(filter('tumor', 'lung'), 'forest', {orientation: 'portrait'}), sep,
-    plot(filter('tumor', 'lung'), 'forest', {axis_right: true, orientation: 'portrait'}), sep,
+    plot(filter('tumor', 'MEL'), 'bar', {facet_x: 'location', x: 'cell', bar_width: 2, gap_width: 18}), sep,
+    plot(filter('tumor', 'MEL'), 'forest', {facet_x: 'location', x: 'cell', bar_width: 8, gap_width: 18}), sep,
+    plot(filter('tumor', 'MEL'), 'bar', {}), sep,
+    plot(filter('tumor', 'MEL'), 'bar', {axis_right: true, }), sep,
+    plot(filter('tumor', 'MEL'), 'bar', {orientation: 'portrait'}), sep,
+    plot(filter('tumor', 'MEL'), 'bar', {axis_right: true, orientation: 'portrait'}), sep,
+    plot(filter('tumor', 'MEL'), 'forest', {}), sep,
+    plot(filter('tumor', 'MEL'), 'forest', {axis_right: true, }), sep,
+    plot(filter('tumor', 'MEL'), 'forest', {orientation: 'portrait'}), sep,
+    plot(filter('tumor', 'MEL'), 'forest', {axis_right: true, orientation: 'portrait'}), sep,
   )
 }
 

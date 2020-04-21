@@ -1,69 +1,26 @@
 import * as React from 'react'
 
-export function make_class_cache(class_prefix='c') {
-  const generated = new Map()
-  const lines = [] as string[]
+import styled from 'styled-components'
 
-  const id = 'class_cache_' + class_prefix
-  const sheet = document.getElementById(id) || document.createElement('style')
-  document.head.appendChild(sheet)
-  sheet.id = id
-
-  const update = () => { sheet.innerHTML = lines.join('\n') }
-  update()
-
-  function generate_class(raw_code: string) {
-    const key = raw_code
-    if (!generated.has(key)) {
-      const code = raw_code
-        .trim()
-        .replace(/\/\/.*/g, '')
-        .replace(/\S*:/g, g => ';' + g)
-        .replace(/^\s*;+/, '')
-        .replace(/\s*;+/g, ';')
-        .replace(/\n\s*/g, '\n')
-        .replace(/\n}/g, '}')
-        .replace(/[:{;][;]?\s*/g, g => g[0])
-      const name = class_prefix + generated.size
-      generated.set(key, name)
-      if (-1 == code.search('{')) {
-        lines.push(`.${name} {${code}}`)
-      } else {
-        lines.push(code.replace(/&/g, _ => `.${name}`))
-      }
-      update()
-    }
-    return {'className': generated.get(key)}
+export function css(xs: TemplateStringsArray | string, ...more: string[]): {css: string} {
+  let css: string
+  if (typeof xs == 'string') {
+    css = xs
+  } else {
+    css = xs.map((s, i) => s + (more[i] === undefined ? '' : more[i])).join('')
   }
-
-  function css(xs: TemplateStringsArray | string, ...more: string[]) {
-    let code: string
-    if (typeof xs == 'string') {
-      code = xs
-    } else {
-      code = xs.map((s, i) => s + (more[i] === undefined ? '' : more[i])).join('')
-    }
-    return generate_class(code)
-  }
-
-  return {
-    css,
-    generate_class,
-    clear: () => {
-      lines.splice(0, lines.length)
-      generated.clear()
-      update()
-    },
-  }
+  return {css}
 }
-
-export const {css, clear} = make_class_cache()
 
 type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
 
-export function div(...args: (DivProps | React.ReactNode)[]) {
+
+const Div = styled.div`${(props: any) => props.css}`
+
+export function div(...args: (DivProps | {css: string} | React.ReactNode)[]) {
   const props: Record<string, any> = {
     children: [],
+    css: '',
   }
   args.forEach(function add(arg) {
     if (typeof arg == 'string' || typeof arg == 'number') {
@@ -82,11 +39,11 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
         arg.forEach(add)
       } else {
         Object.entries(arg).forEach(([k, v]) => {
-          if (k == 'children') {
+          if (k == 'css') {
+            props.css += ';\n' + v
+          } else if (k == 'children') {
             props.children.push(...v)
-            return
-          }
-          if (typeof v == 'function') {
+          } else if (typeof v == 'function') {
             const prev = props[k]
             if (prev) {
               props[k] = (...args: any[]) => {
@@ -110,6 +67,6 @@ export function div(...args: (DivProps | React.ReactNode)[]) {
       }
     }
   })
-  return React.createElement('div', props)
+  return React.createElement(Div, props)
 }
 
