@@ -5,6 +5,10 @@ import json
 
 app = Flask(__name__)
 
+@app.route('/ping')
+def ping():
+    return "pong"
+
 @app.route('/filter', methods=['GET', 'POST'])
 def filter():
     if request.is_json:
@@ -115,6 +119,7 @@ def data_per_type(dd):
     cox = coxph_per_type(dd)
     return pd.concat((expression, cox), axis=1)
 
+print("Initialization started")
 ntiles = lambda xs: pd.cut(pd.Series(xs).rank(), 2, right=False, labels=False) + 1
 
 data = pd.read_csv("../SIM.csv")
@@ -152,4 +157,4 @@ db_str = db.to_json(orient='records', indent=2)
 # OUTPUT - Second resutls to return
 codes_list = data[['Tumor_type', 'Tumor_type_code']].to_dict(orient='records')
 codes_dict = {d['Tumor_type_code']: d['Tumor_type'] for d in codes_list}
-
+print("Initialization finished")
