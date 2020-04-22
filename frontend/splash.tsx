@@ -3,7 +3,7 @@ import * as React from 'react'
 import {by} from './utils'
 import * as utils from './utils'
 
-import {CT, Row, range, db, filter, pick_cells, make_gen} from './db'
+import {DB, DBRange} from './db'
 
 import {css, div} from './css'
 
@@ -11,6 +11,8 @@ import {plot, cell_color} from './domplots'
 import * as domplots from './domplots'
 
 import styled, * as sc from 'styled-components'
+
+import * as backend from './backend'
 
 export const GlobalStyle = sc.createGlobalStyle`
   label {
@@ -88,10 +90,10 @@ const state0 = {
 
 type State = typeof state0
 
-function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (value: string) => void, color: (s: string) => string = () => 'black') {
+function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (value: string, checked: boolean) => void, color: (s: string) => string = () => 'black') {
   return range.map(x => {
     const checked = current[x]
-    const onClick = () => toggle(x)
+    const onClick = () => toggle(x, checked)
     return {
       checked,
       text: x,
@@ -135,22 +137,22 @@ const cell_pngs: Record<string, string> = {
   Granulocyte: require('./img/Granulocytes.png'),
 }
 
-const codes = require('./codes.json') as Record<string, string>
+// const codes = require('./codes.json') as Record<string, string>
 
 const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
 const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
 const both = [...left, ...right]
-both.forEach(b => b in codes || console.error(b, 'not in', codes))
-
-db.sort(by(row => both.indexOf(row.tumor)))
 
 function Center({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>}) {
+  const {db} = React.useContext(DB)
+  const codes = backend.useRequest('codes') || {}
+  Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
   const [hover, set_hover] = React.useState('')
   const tumor_labels =
     Checkboxes(
       both,
       state.tumor,
-      value => dispatch({type: 'toggle', kind: 'tumor', value}),
+      (value, checked) => dispatch({type: 'set', kind: 'tumor', value, checked: !checked}),
       () => '#444')
     .map(
       (x, i) => {
@@ -211,7 +213,7 @@ function Center({state, dispatch}: {state: State, dispatch: React.Dispatch<Actio
               z-index: 3
             `),
             {style: plot_style},
-            !utils.selected(state.cell).length ? null :
+            !db || !utils.selected(state.cell).length ? null :
               plot(
                 db.filter(row => state.cell[row.cell] && row.tumor == tumor),
                 'bar',
@@ -266,13 +268,14 @@ function Center({state, dispatch}: {state: State, dispatch: React.Dispatch<Actio
 const thief: undefined | ((cell: string, img: HTMLImageElement | null) => void) = undefined
 
 function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>}) {
+  const {range} = React.useContext(DB)
   return (
     <div id="left-sidebar" className="column">
       <h2>Cell type</h2>
-      {Checkboxes(
+      {range && Checkboxes(
           range.cell,
           state.cell,
-          value => dispatch({type: 'toggle', kind: 'cell', value}),
+          (value, checked) => dispatch({type: 'set', kind: 'cell', value, checked: !checked}),
           cell_color
         ).map((x, i) => {
             const cell = range.cell[i]
@@ -318,19 +321,22 @@ function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>
 
 function Right({state}: {state: State}) {
   const out: React.ReactNode[] = []
+  const {db} = React.useContext(DB)
 
-  const {tumor, cell} = state
-  const tumors = utils.selected(tumor)
-  const cells  = utils.selected(cell)
-  const opts   = {orientation: 'portrait' as 'portrait', axis_right: true}
-  for (const t of tumors) {
-    out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(t)}</h2>)
-    out.push(plot(filter('tumor', t), 'bar', opts))
-    out.push(plot(filter('tumor', t), 'forest', opts))
-  }
-  for (const c of cells) {
-    out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(c)}</h2>)
-    out.push(plot(filter('cell', c), 'forest', {facet_x: 'tumor', ...opts}))
+  if (db) {
+    const {tumor, cell} = state
+    const tumors = utils.selected(tumor)
+    const cells  = utils.selected(cell)
+    const opts   = {orientation: 'portrait' as 'portrait', axis_right: true}
+    for (const t of tumors) {
+      out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(t)}</h2>)
+      out.push(plot(db.filter(row => row.tumor == t), 'bar', opts))
+      out.push(plot(db.filter(row => row.tumor == t), 'forest', opts))
+    }
+    for (const c of cells) {
+      out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(c)}</h2>)
+      out.push(plot(db.filter(row => row.cell == c), 'forest', {facet_x: 'tumor', ...opts}))
+    }
   }
   return div(
     {
@@ -343,29 +349,38 @@ function Right({state}: {state: State}) {
 }
 
 interface Action {
-  type: 'toggle'
+  type: 'set'
   kind: 'cell' | 'tumor'
   value: string
+  checked: boolean
 }
 
 function reduce(state: State, action: Action) {
   switch (action.kind) {
     case 'cell':
-      return {tumor: {}, cell: utils.cap(3, {...state.cell, [action.value]: !state.cell[action.value]})}
+      return {tumor: {}, cell: utils.cap(3, {...state.cell, [action.value]: action.checked})}
     case 'tumor':
-      return {cell: {}, tumor: utils.cap(1, {...state.tumor, [action.value]: !state.tumor[action.value]})}
+      return {cell: {}, tumor: utils.cap(1, {...state.tumor, [action.value]: action.checked})}
   }
 }
 
+const DB = React.createContext({} as {db?: DB, range?: DBRange})
+
 export default function Splash() {
+  const db0 = backend.useRequest('database') as undefined | DB
+  const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
+  const range = React.useMemo(() => db ? utils.row_range(db) : undefined, [db])
   const [state, dispatch] = React.useReducer(reduce, state0)
+
   return (
     <div id="top" className="row">
       <domplots.GlobalStyle/>
       <GlobalStyle/>
-      <Left state={state} dispatch={dispatch}/>
-      <Center state={state} dispatch={dispatch}/>
-      <Right state={state}/>
+      <DB.Provider value={{db, range}}>
+        <Left state={state} dispatch={dispatch}/>
+        <Center state={state} dispatch={dispatch}/>
+        <Right state={state}/>
+      </DB.Provider>
     </div>
   )
 }

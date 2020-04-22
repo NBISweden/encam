@@ -7,7 +7,7 @@ import {div, css} from './css'
 
 import * as utils from './utils'
 
-import {CT, Row, range, db, filter, pick_cells} from './db'
+import {DB, Row} from './db'
 
 import styled, * as sc from 'styled-components'
 
@@ -155,6 +155,7 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
 
   const bars: React.ReactElement[] = []
   const facet_range = Object.entries(utils.groupBy(opts.facet_x, rows))
+  const range = utils.row_range(rows)
   facet_range.forEach(([facet_x, subrows], facet_index) => {
 
     const marks: React.ReactElement[]  = []
@@ -328,24 +329,27 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
   )
 }
 
+import * as backend from './backend'
+
 export function Demo() {
+  const db = backend.useRequest('database') as undefined | DB
   const sep = div(css`height: 100`)
   return div(
     <GlobalStyle/>,
     css`width: 900; margin: auto; background: white;`,
     css`& > div { display: inline-block; margin: 30px; }`,
-    plot(filter('cell', 'CD4'), 'bar', {facet_x: 'tumor'}), sep,
-    plot(filter('cell', 'CD4'), 'forest', {facet_x: 'tumor'}), sep,
-    plot(filter('tumor', 'MEL'), 'bar', {facet_x: 'location', x: 'cell', bar_width: 2, gap_width: 18}), sep,
-    plot(filter('tumor', 'MEL'), 'forest', {facet_x: 'location', x: 'cell', bar_width: 8, gap_width: 18}), sep,
-    plot(filter('tumor', 'MEL'), 'bar', {}), sep,
-    plot(filter('tumor', 'MEL'), 'bar', {axis_right: true, }), sep,
-    plot(filter('tumor', 'MEL'), 'bar', {orientation: 'portrait'}), sep,
-    plot(filter('tumor', 'MEL'), 'bar', {axis_right: true, orientation: 'portrait'}), sep,
-    plot(filter('tumor', 'MEL'), 'forest', {}), sep,
-    plot(filter('tumor', 'MEL'), 'forest', {axis_right: true, }), sep,
-    plot(filter('tumor', 'MEL'), 'forest', {orientation: 'portrait'}), sep,
-    plot(filter('tumor', 'MEL'), 'forest', {axis_right: true, orientation: 'portrait'}), sep,
+    db && plot(db.filter(row => row.cell == 'CD4'), 'bar', {facet_x: 'tumor'}), sep,
+    db && plot(db.filter(row => row.cell == 'CD4'), 'forest', {facet_x: 'tumor'}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {facet_x: 'location', x: 'cell', bar_width: 2, gap_width: 18}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {facet_x: 'location', x: 'cell', bar_width: 8, gap_width: 18}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {axis_right: true, }), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {orientation: 'portrait'}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {axis_right: true, orientation: 'portrait'}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {axis_right: true, }), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {orientation: 'portrait'}), sep,
+    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {axis_right: true, orientation: 'portrait'}), sep,
   )
 }
 

@@ -47,7 +47,9 @@ export function uniq<A>(xs: A[]): A[] {
   })
 }
 
-export function row_range<A extends Record<string, any>>(d: A[]): {[K in keyof A]: A[K][]} {
+export type RowRange<A extends Record<string, any>> = {[K in keyof A]: A[K][]}
+
+export function row_range<A extends Record<string, any>>(d: A[]): RowRange<A> {
   const out = {} as any
   for (const k of Object.keys(d[0])) {
     out[k] = uniq(d.map(x => x[k]))
