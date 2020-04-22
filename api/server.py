@@ -5,18 +5,30 @@ import json
 
 app = Flask(__name__)
 
+def cross_origin(f):
+    import functools
+    @functools.wraps(f)
+    def F(*args, **kws):
+        response = f(*args, **kws)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+    return F
+
 @app.route('/ping')
+@cross_origin
 def ping():
-    return "pong"
+    return make_response("pong", "text/plain")
 
 @app.route('/filter', methods=['GET', 'POST'])
+@cross_origin
 def filter():
     if request.is_json:
         body = request.json
         print(body)
-        return "Filter parsed"
+        return make_response("Filter parsed", "text/plain")
 
 @app.route('/configuration')
+@cross_origin
 def configuration():
     def tidy_values(values):
         values = uniq(values)
@@ -69,17 +81,19 @@ def configuration():
         'cell_types_full': cell_types,
         'cell_types': tidy_values('_'.join(c.split('_')[:-1]) for c in cell_types)
     }
-    return jsonify(config), "application/json"
+    return jsonify(config)
 
 @app.route('/codes')
+@cross_origin
 def codes():
     response = jsonify(codes_dict)
-    return response, "application/json"
+    return response
 
 @app.route('/database')
+@cross_origin
 def database():
     response = jsonify(db.to_dict(orient='records'))
-    return response, "application/json"
+    return response
 
 def uniq(xs):
     seen = set()
