@@ -1,0 +1,8 @@
+version: "3.4"
+services:
+    frontend:
+        command: yarn run build --experimental-scope-hoisting
+        volumes:
+            - type: bind
+              source: ./dist
+              target: /app/dist

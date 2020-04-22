@@ -10,7 +10,7 @@ services:
             - type: bind
               source: ./api
               target: /code
-    frontend-dev:
+    frontend:
         build:
             context: ./frontend
         volumes:
