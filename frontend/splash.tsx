@@ -3,7 +3,7 @@ import * as React from 'react'
 import {by} from './utils'
 import * as utils from './utils'
 
-import {DB, DBRange} from './db'
+import type {DB, DBRange} from './db'
 
 import {css, div} from './css'
 
@@ -144,7 +144,7 @@ const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
 const both = [...left, ...right]
 
 function Center({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>}) {
-  const {db} = React.useContext(DB)
+  const {db} = React.useContext(SplashCtx)
   const codes = backend.useRequest('codes') || {}
   Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
   const [hover, set_hover] = React.useState('')
@@ -268,7 +268,7 @@ function Center({state, dispatch}: {state: State, dispatch: React.Dispatch<Actio
 const thief: undefined | ((cell: string, img: HTMLImageElement | null) => void) = undefined
 
 function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>}) {
-  const {range} = React.useContext(DB)
+  const {range} = React.useContext(SplashCtx)
   return (
     <div id="left-sidebar" className="column">
       <h2>Cell type</h2>
@@ -321,7 +321,7 @@ function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>
 
 function Right({state}: {state: State}) {
   const out: React.ReactNode[] = []
-  const {db} = React.useContext(DB)
+  const {db} = React.useContext(SplashCtx)
 
   if (db) {
     const {tumor, cell} = state
@@ -364,7 +364,7 @@ function reduce(state: State, action: Action) {
   }
 }
 
-const DB = React.createContext({} as {db?: DB, range?: DBRange})
+const SplashCtx = React.createContext({} as {db?: DB, range?: DBRange})
 
 export default function Splash() {
   const db0 = backend.useRequest('database') as undefined | DB
@@ -376,11 +376,11 @@ export default function Splash() {
     <div id="top" className="row">
       <domplots.GlobalStyle/>
       <GlobalStyle/>
-      <DB.Provider value={{db, range}}>
+      <SplashCtx.Provider value={{db, range}}>
         <Left state={state} dispatch={dispatch}/>
         <Center state={state} dispatch={dispatch}/>
         <Right state={state}/>
-      </DB.Provider>
+      </SplashCtx.Provider>
     </div>
   )
 }

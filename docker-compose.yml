@@ -21,12 +21,16 @@ services:
               source: nodemodules
               target: /app/node_modules
             - type: volume
-              source: parcelcache
+              source: cache
               target: /app/.cache
+            - type: volume
+              source: parcelcache
+              target: /app/.parcel-cache
         working_dir: /app
         ports:
             - 1234:1234
             - 1235:1235
 volumes:
     nodemodules:
+    cache:
     parcelcache:

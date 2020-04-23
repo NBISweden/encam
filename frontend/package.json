@@ -2,7 +2,6 @@
   "name": "encam",
   "version": "0.1",
   "description": "Encyclopedia of the CAncer Microenvironment frontend",
-  "main": "index.js",
   "repository": "git@github.com:NBISweden/encam.git",
   "author": "NBIS",
   "license": "GPL-3.0",
@@ -11,12 +10,12 @@
     "@types/react-dom": "^16.9.5",
     "@types/styled-components": "^5.1.0",
     "colorthief": "^2.3.0",
-    "parcel": "^1.12.4",
+    "parcel": "^2.0.0-alpha.3.2",
     "typescript": "^3.8.2"
   },
   "scripts": {
     "start": "parcel serve index.html --hmr-port 1235 --no-source-maps",
-    "build": "rm dist/* -rf; parcel build index.html --no-source-maps --public-url .",
+    "build": "rm dist/* -rf; parcel build index.html --no-source-maps",
     "deploy": "yarn run build && echo deploy script TODO"
   },
   "dependencies": {
@@ -29,5 +28,14 @@
     "styled-components": "^5.1.0",
     "vega": "^5.10.0",
     "vega-lite": "^4.7.0"
-  }
+  },
+  "default": "dist/index.html",
+  "targets": {
+    "default": {
+      "publicUrl": "./"
+    }
+  },
+  "browserslist": [
+    "since 2017-06"
+  ]
 }
