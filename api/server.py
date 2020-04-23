@@ -55,7 +55,6 @@ def filter():
         # Filter based on the requested cells
         response = response[response['cell'].isin(body[0]['cells'])]
         response = response.drop(columns='cell_full')
-        
         return jsonify([response.to_dict(orient='records')])
     else:
         return jsonify({"error": "Body must be JSON"})
@@ -143,7 +142,7 @@ def coxph_per_type(dd):
         dd[i] = ntiles(dd[i])
 
     univariate_results = []
-    for c in cell_types:
+    for c in cell_types[:1]:
         dd_c = dd[[c, 'T', 'E']]
         dd_c = dd_c[~pd.isnull(dd_c).any(axis=1)]
         cph = CoxPHFitter()
@@ -182,7 +181,7 @@ tumor_types = uniq(data.Tumor_type_code)
 cell_types = uniq(c for c in data.columns if 'TUMOR' in c or 'STROMA' in c)
 
 dfs = []
-for t in tumor_types:
+for t in tumor_types[:1]:
     df = data_per_type(data[
         (data.Tumor_type_code == t) &
         (data['PreOp_treatment_yesno'] == 'No')

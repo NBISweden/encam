@@ -7,7 +7,16 @@ export const backend_url = process.env.NODE_ENV === 'development'
   : '/'
 
 export async function request(endpoint: string, body?: any) {
-  const resp = await fetch(backend_url + endpoint, body ? {body} : undefined)
+  const init = body ? {
+    body: JSON.stringify(body),
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  } : undefined
+  const resp = await fetch(backend_url + endpoint, init)
   return await resp.json()
 }
 

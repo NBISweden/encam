@@ -47,11 +47,12 @@ function calculate_state0(conf: Conf) {
 }
 
 
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import BarChartIcon from '@material-ui/icons/BarChart'
 
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />
+const checkedIcon = <CheckBoxIcon fontSize="small" />
 
 function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
@@ -104,12 +105,16 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
             />
             {option}
           </React.Fragment>}
-        renderInput={(params) => (
-          <TextField {...params}
-            variant="outlined"
-            label={t.column + ' ' + t.tumor}
-          />
-        )}
+        renderInput={(params) => {
+          const error = state[t.column + ',' + t.tumor].length == 0
+          return (
+            <TextField {...params}
+              variant="outlined"
+              label={t.column + ' ' + t.tumor}
+              error={error}
+              helperText={error && "Need at least one option"}
+            />
+        )}}
         size="small"
         onChange={(_, selected) => update_state({[t.column + ',' + t.tumor]: selected})}
         value={state[t.column + ',' + t.tumor] || t.values}
@@ -128,6 +133,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
             <FormControlLabel
               label={value}
               key={value}
+              style={{minWidth: '5em'}}
               control={
                 <Checkbox
                   checked={(state[v.column] || v.values).includes(value)}
@@ -223,7 +229,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
           }
         `,
         <Button onClick={() => set_state(calculate_state0(conf))} variant="contained">Reset</Button>,
-        <Button onClick={() => onSubmit && onSubmit(utils.expand(state))} variant="contained" color="primary">Submit</Button>
+        <Button onClick={() => onSubmit && onSubmit(utils.expand(state))} variant="contained" color="primary" startIcon={<BarChartIcon/>}>Plot</Button>
       )
     )}
   </Box>

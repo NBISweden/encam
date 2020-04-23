@@ -35,7 +35,7 @@ function FormAndPlot() {
   const conf = backend.useRequest('configuration')
   console.log('eh')
 
-  const [filter, set_filter] = React.useState(undefined)
+  const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   // console.log(JSON.stringify(filter, 2, 2))
   const plot = React.useMemo(
     () => filter && vp.boxplot(boxplot_json, {facet: "Tumor_type_code", horizontal: false}),
@@ -44,15 +44,18 @@ function FormAndPlot() {
   return (
     <React.Fragment>
       {conf
-        ? <form.Form conf={conf} onSubmit={set_filter}/>
+        ? <form.Form conf={conf} onSubmit={filter => {
+            set_filter(filter)
+            backend.request('filter', filter).then(x => console.log(x))
+          }}/>
         : <i>Loading form...</i>}
       {plot}
     </React.Fragment>
   )
 }
 
-ReactDOM.render(<Splash/>, document.querySelector('#root'))
-// ReactDOM.render(Centered(<FormAndPlot/>), document.querySelector('#root'))
+// ReactDOM.render(<Splash/>, document.querySelector('#root'))
+ReactDOM.render(Centered(<FormAndPlot/>), document.querySelector('#root'))
 // ReactDOM.render(Boxplots(), document.querySelector('#root'))
 // ReactDOM.render(Root(), document.querySelector('#root'))
 // import * as domplots from './domplots'
