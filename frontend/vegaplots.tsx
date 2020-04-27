@@ -40,16 +40,31 @@ function embed(spec: VL.TopLevelSpec, data?: any[]): React.ReactElement {
   return <Embed spec={spec} data={data}/>
 }
 
-const default_options = {
-  facet: 'cell' as 'cell' | 'tumor',
-  horizontal: true,
-  legend: false,
+interface Options<K> {
+  inner: K | K[]
+  facet: K | K[]
+  color: K
+  stripes: K
+  landscape: true
+  legend: false
+  scale?: {type: 'linear' | 'semilog'} | {type: 'pow', exponent: number}
 }
 
-type Options = typeof default_options
+const default_options: Options<string> = {
+  inner: 'location',
+  facet: 'tumor',
+  color: 'cell',
+  stripes: 'location',
+  landscape: true,
+  legend: false,
+  scale: {
+    type: 'pow',
+    exponent: 0.25,
+  }
+}
 
-function orient(options: Options) {
-  if (options.horizontal) {
+function orient(options: Options<any>) {
+  if (options.landscape) {
     return {
       row: 'row',
       column: 'column',
@@ -74,117 +89,100 @@ function orient(options: Options) {
   }
 }
 
-export function boxplot(data: any[], opts?: Partial<Options>): React.ReactElement {
+export function Boxplot<Row extends Record<string, any>>({data, options}: {data: Row[], options?: Partial<Options<K>>}) {
+  return boxplot(data, options)
+}
+
+function ensure_array<A>(x: A | A[]): A[] {
+  return Array.isArray(x) ? x : [x]
+}
+
+function tap<A>(a: A): A {
+  console.log(a)
+  return a
+}
+
+function boxplot<Row extends Record<string, any>>(data: Row[], opts?: Partial<Options<keyof Row>>): React.ReactElement {
+  console.log('new boxplot')
   const options = { ...default_options, ...opts }
-  const { row, height, x, y } = orient(options)
+  const { column, height, width, x, y } = orient(options)
+  const inner = ensure_array(options.inner)
+  const facet = ensure_array(options.facet)
+  const inner_key = inner.join(',') + '_key'
+  const facet_key = facet.join(',') + '_key'
+  let scale
+  if (options.scale) {
+    if (options.scale.type == 'pow') {
+      scale = {type: 'pow', exponent: options.scale.exponent}
+    } else if (options.scale.type == 'semilog') {
+      scale = {type: 'semilog'}
+    }
+  }
   const spec: VL.TopLevelSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    // data: { values: data },
+    // data: { expressions: data },
     data: { name: 'data' },
-    transform: [
-      // {calculate: "pow(datum.value, 4)", as: "value"}
-    ],
+    transform: tap([
+      // {calculate: "pow(datum.expression, 1/4)", as: "expression"}
+      // {calculate: "datum.location + ',' + datum.cell", as: "location,cell"}
+      {calculate: inner.map(x => 'datum.' + x).join(" + ',' + "), as: inner_key},
+      {calculate: facet.map(x => 'datum.' + x).join(" + ',' + "), as: facet_key},
+    ]),
     facet: {
-      [row]: {
-        field: 'variable',
+      [column]: {
+        field: facet_key,
         type: "ordinal",
         header: {
-          labelAngle: options.horizontal ? 0 : -45,
-          labelAlign: options.horizontal ? "left" : "right",
-          labelOrient: options.horizontal ? undefined : "bottom",
+          labelAngle:  options.landscape ? -45 : 0,
+          labelAlign:  options.landscape ? "right" : "left",
+          labelOrient: options.landscape ? "bottom" : undefined,
           title: null
         },
       },
     },
     spec: {
-      height: 450,
-      [height]: { step: 12 },
+      // height: 450,
+      // [height]: { step: 12 },
       encoding: {
         [x]: {
-          field: "value", type: "quantitative",
-          axis: { title: "expression", grid: false }
-        },
-        [y]: {
-          field: "Tumor_type_code", type: "nominal",
+          field: inner_key,
+          type: "nominal",
           axis: null,
         },
-        color: {
-          field: "Tumor_type_code", type: "nominal",
-          scale: { scheme: "tableau20" },
-          legend: undefined ,
-        }
+        [y]: {
+          field: "expression",
+          type: "quantitative",
+          axis: { title: "expression", grid: false },
+          scale
+        },
       },
       layer: [
         {
           mark: {
             type: "boxplot",
             outliers: false
-          }
-        },
-      ],
-    },
-    config: {
-      view: { stroke: "transparent" },
-      axis: { domainWidth: 1 },
-      facet: { spacing: 5 },
-    },
-  }
-  return embed(spec, data)
-}
-
-// horizontal barchart
-export function barchart(data: any[] | string, opts?: Partial<Options>): React.ReactElement {
-  const options = { ...default_options, ...opts }
-  const { row, height, x, y } = orient(options)
-  const spec: VL.TopLevelSpec = {
-    $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    autosize: {
-      resize: true
-    },
-    // data: { values: data },
-    data: typeof data == 'string' ? {url: data} : { name: 'data' },
-    facet: {
-      [row]: {
-        field: options.facet,
-        type: "ordinal",
-        header: {
-          labelAngle: options.horizontal ? 0 : -45,
-          labelAlign: options.horizontal ? "left" : "right",
-          labelOrient: options.horizontal ? undefined : "bottom",
-          title: null
-        },
-      },
-    },
-    spec: {
-      [height]: { step: 12 },
-      encoding: {
-        [x]: {
-          field: "expression", type: "quantitative",
-          axis: { title: "expression", grid: false }
-        },
-        [y]: {
-          field: "location", type: "nominal",
-          axis: null,
-        },
-      },
-      layer: [
-        {
-          mark: "bar",
+          },
           encoding: {
             color: {
-              field: "cell", type: "nominal",
+              field: options.color as string,
+              type: "nominal",
               scale: { scheme: "tableau20" },
-              legend: options.legend ? undefined : null,
+              // legend: options.legend ? undefined : null,
             }
           },
         },
         {
-          mark: "bar",
+          mark: {
+            type: "boxplot",
+            outliers: false
+          },
           encoding: {
             fill: {
-              field: "location", type: "nominal",
+              field: options.stripes as string,
+              type: "nominal",
               scale: { range: ["#fff0", "url(#stripe)"] },
-              legend: options.legend ? undefined : null,
+              legend: null,
+              // legend: options.legend ? undefined : null,
             }
           },
         }
@@ -192,116 +190,9 @@ export function barchart(data: any[] | string, opts?: Partial<Options>): React.R
     },
     config: {
       view: { stroke: "transparent" },
-      axis: { domainWidth: 1 },
-      facet: { spacing: 5 },
-    }
-  }
-  return embed(spec, typeof data == 'string' ? undefined : data)
-}
-
-export function forest(data: any[], opts?: Partial<Options>): React.ReactElement {
-  const options = { ...default_options, ...opts }
-  const { row, height, x, x2, y } = orient(options)
-  const spec: VL.TopLevelSpec = {
-    $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    data: { name: 'data' },
-    facet: {
-      [row]: {
-        field: options.facet,
-        type: "ordinal",
-        header: {
-          labelAngle: options.horizontal ? 0 : -45,
-          labelAlign: options.horizontal ? "left" : "right",
-          labelOrient: options.horizontal ? undefined : "bottom",
-          title: null
-        },
-      },
+      // axis: { domainWidth: 1 },
+      // facet: { spacing: 5 },
     },
-    spec: {
-      [height]: { step: 12 },
-      encoding: {
-        [y]: {
-          field: "location", type: "nominal",
-          axis: null,
-        },
-        [x]: {
-          field: "lower", type: "quantitative",
-          axis: { title: "HR", grid: false }
-        },
-        [x2]: {
-          field: "upper",
-        },
-        color: {
-          field: "cell", type: "nominal",
-          scale: { scheme: "tableau20" },
-          legend: options.legend ? undefined : null,
-        }
-      },
-      layer: [
-        {
-          mark: {
-            type: "bar",
-            size: 2
-          },
-          encoding: {
-
-          },
-        },
-        {
-          mark: {
-            type: "bar",
-            size: 2
-          },
-          encoding: {
-            fill: {
-              field: "location", type: "nominal",
-              scale: { range: ["#fff0", "url(#stripe)"] },
-              legend: options.legend ? undefined : null,
-            }
-          },
-        },
-        {
-          mark: {
-            type: "tick",
-            thickness: 2,
-          },
-          encoding: {
-            [x]: {
-              field: "coef", type: "quantitative",
-            },
-          },
-        },
-        {
-          mark: {
-            type: "tick",
-            thickness: 2,
-            size: 6,
-          },
-          encoding: {
-            [x]: {
-              field: "lower", type: "quantitative",
-            },
-          },
-        },
-        {
-          mark: {
-            type: "tick",
-            thickness: 2,
-            size: 6,
-          },
-          encoding: {
-            [x]: {
-              field: "upper", type: "quantitative",
-            },
-          },
-        }
-      ],
-    },
-    config: {
-      view: { stroke: "transparent" },
-      axis: { domainWidth: 1 },
-      facet: { spacing: 5 },
-    }
   }
   return embed(spec, data)
 }

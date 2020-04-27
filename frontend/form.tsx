@@ -42,7 +42,8 @@ function calculate_state0(conf: Conf) {
   })
   state0.cells = conf.cell_types
   state0.cells = []
-  state0.tumors = ['COAD']
+  state0.tumors = ['COAD', 'BRCA']
+  delete state0.Tumor_type_code
   return state0
 }
 
@@ -61,7 +62,7 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
 import * as backend from './backend'
 
 interface OnSubmit {
-  onSubmit(form_value: Record<string, any>): void
+  onSubmit(form_value: Record<string, any>, expand_result_: typeof expand_result): void
 }
 
 export function FormLoadConf(props: OnSubmit) {
@@ -69,7 +70,38 @@ export function FormLoadConf(props: OnSubmit) {
   return <Form conf={conf} {...props}/>
 }
 
+function expand_result(filter: Record<string, string[]>, result: Record<string, any>[]) {
+  const out = []
+  const {tumors, cells} = filter
+  for (let res of result) {
+    for (let k in res) {
+      let m: RegExpMatchArray | null
+      if (m = k.match(/(.*)_(STROMA|TUMOR)/)) {
+        const [_, cell, location] = m
+        const v = {
+          tumor: res.Tumor_type_code,
+          cell_full: `${cell.replace(/_/g, ' ')} (${location.toLowerCase()})`,
+          cell,
+          location,
+          expression: res[k],
+        }
+        if (
+             (!tumors.length || tumors.includes(v.tumor))
+          && (!cells.length || cells.includes(v.cell))
+        ) {
+          out.push(v)
+        }
+      }
+    }
+  }
+  console.log(out[0])
+  console.log(out)
+  return out
+}
+
 export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
+  console.log('new form')
+
   const tumor_codes = conf.variant_values
     .filter(v => v.column == 'Tumor_type_code')[0].values
 
@@ -79,7 +111,19 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
     (next: Partial<State> | ((s: State) => Partial<State>)) =>
     set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
 
+  const buttons = div(
+    css`
+      & { margin-left: auto }
+      & > button {
+        margin: 8px
+      }
+    `,
+    <Button onClick={() => set_state(calculate_state0(conf))} variant="contained">Reset</Button>,
+    <Button onClick={() => onSubmit && onSubmit(utils.expand(state), expand_result)} variant="contained" color="primary" startIcon={<BarChartIcon/>}>Plot</Button>
+  )
+
   const codes = backend.useRequest('codes') || {} as Record<string, string>
+  React.useEffect(() => onSubmit(utils.expand(state), expand_result), [])
 
   const specific = conf.tumor_specific_values
     .map(t => memo(
@@ -156,6 +200,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         & { display: flex; flex-direction: column }
         & > .MuiAutocomplete-root { padding-bottom: 1em }
       `,
+      buttons,
       memo([tumors, cells, codes], () =>
         <Autocomplete
           key="tumor"
@@ -182,7 +227,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
           )}
           onChange={(_, selected) => {
             update_state({
-              tumors: selected.reverse().slice(0, 3).reverse(),
+              tumors: utils.last(3, selected),
               cells: []
             })
           }}
@@ -213,7 +258,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         )}
         onChange={(_, selected) => {
           update_state({
-            cells: selected.reverse().slice(0, 3).reverse(),
+            cells: utils.last(3, selected),
             tumors: [],
           })
         }}
@@ -221,16 +266,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
       />),
       specific,
       misc_filters,
-      div(
-        css`
-          & { margin-left: auto }
-          & > button {
-            margin: 8px
-          }
-        `,
-        <Button onClick={() => set_state(calculate_state0(conf))} variant="contained">Reset</Button>,
-        <Button onClick={() => onSubmit && onSubmit(utils.expand(state))} variant="contained" color="primary" startIcon={<BarChartIcon/>}>Plot</Button>
-      )
+      buttons
     )}
   </Box>
 }

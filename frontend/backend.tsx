@@ -10,7 +10,6 @@ export async function request(endpoint: string, body?: any) {
   const init = body ? {
     body: JSON.stringify(body),
     method: 'POST',
-    mode: 'cors',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

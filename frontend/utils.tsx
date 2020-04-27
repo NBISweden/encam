@@ -98,3 +98,19 @@ export function cap(N: number, d: Record<string, boolean>) {
   return Object.fromEntries(last(N, selected(d)).map(k => [k, true]))
 }
 
+import * as React from 'react'
+
+export function useDebounce(ms: number, k: Function) {
+  const [block, set_block] = React.useState(false)
+  const [res, set_res] = React.useState(undefined)
+  React.useEffect(() => {
+    if (!block) {
+      const timer = setTimeout(() => set_block(false), ms)
+      set_res(k())
+      set_block(true)
+      return () => clearTimeout(timer)
+    }
+  })
+  return res
+}
+
