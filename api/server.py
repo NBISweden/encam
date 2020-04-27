@@ -11,6 +11,7 @@ def cross_origin(f):
     def F(*args, **kws):
         response = f(*args, **kws)
         response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         return response
     return F
 
@@ -19,13 +20,18 @@ def cross_origin(f):
 def ping():
     return make_response("pong", "text/plain")
 
-@app.route('/filter', methods=['GET', 'POST'])
+@app.route('/filter', methods=['OPTIONS', 'POST'])
 @cross_origin
 def filter():
-    if request.is_json:
+    if request.method == 'OPTIONS':
+        # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
+        # https://github.com/github/fetch/issues/143
+        return jsonify({})
+    elif request.is_json:
         body = request.json
-        print(body)
-        return make_response("Filter parsed", "text/plain")
+        return jsonify({"success": "Filter parsed"})
+    else:
+        return jsonify({"error": "Body must be JSON"})
 
 @app.route('/configuration')
 @cross_origin
