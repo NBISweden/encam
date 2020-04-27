@@ -29,7 +29,27 @@ def filter():
         return jsonify({})
     elif request.is_json:
         body = request.json
-        return jsonify({"success": "Filter parsed"})
+        # Basic filtering
+        base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
+        for key in base_filters:
+            data_filtered = data[data[key].isin(body[0][key])]
+
+        # Filter based on tumor types
+        dfs = pd.DataFrame(columns=data_filtered.columns)
+        complex_tumors = ['COAD', 'READ']
+        for t in body[0]['tumors']:
+            if t in complex_tumors:
+                df = data_filtered[(data_filtered['Tumor_type_code'] == t) & (data_filtered['Morphological_type'].isin(body[0]['Morphological_type'][t]))
+                    & (data_filtered['Anatomical_location'].isin(body[0]['Anatomical_location'][t])) &  (data_filtered['MSI_ARTUR'].isin(body[0]['MSI_ARTUR'][t]))]
+            else:
+                df = data_filtered[(data_filtered['Tumor_type_code'] == t)]
+            dfs = dfs.append(df)
+
+        dat2 = dfs.iloc[:,2].to_frame().join(dfs.iloc[:,18:46])
+        dat2 = dat2.melt(id_vars='Tumor_type_code')
+        dat2.columns = ['tumor', 'cell', 'expression']
+        print(dfs.shape)
+        return jsonify(dat2.to_dict(orient='records'))
     else:
         return jsonify({"error": "Body must be JSON"})
 
