@@ -30,9 +30,8 @@
     "vega-lite": "^4.7.0",
     "vega-tooltip": "^0.22.1"
   },
-  "default": "dist/index.html",
   "targets": {
-    "default": {
+    "browser": {
       "publicUrl": "./"
     }
   },
