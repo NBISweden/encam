@@ -48,7 +48,9 @@ def filter():
         dat2 = dfs.iloc[:,2].to_frame().join(dfs.iloc[:,18:46])
         dat2 = dat2.melt(id_vars='Tumor_type_code')
         dat2.columns = ['tumor', 'cell', 'expression']
-        print(dfs.shape)
+
+        dat2 = dat2[dat2['cell'].isin(body[0]['cells'])]
+        
         return jsonify(dat2.to_dict(orient='records'))
     else:
         return jsonify({"error": "Body must be JSON"})
