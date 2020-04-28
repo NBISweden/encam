@@ -94,14 +94,10 @@ function expand_result(filter: Record<string, string[]>, result: Record<string, 
       }
     }
   }
-  console.log(out[0])
-  console.log(out)
   return out
 }
 
 export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
-  console.log('new form')
-
   const tumor_codes = conf.variant_values
     .filter(v => v.column == 'Tumor_type_code')[0].values
 
@@ -118,8 +114,9 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         margin: 8px
       }
     `,
-    <Button onClick={() => set_state(calculate_state0(conf))} variant="contained">Reset</Button>,
-    <Button onClick={() => onSubmit && onSubmit(utils.expand(state), expand_result)} variant="contained" color="primary" startIcon={<BarChartIcon/>}>Plot</Button>
+    <Button variant="contained" onClick={() => set_state(calculate_state0(conf))}>Reset</Button>,
+    <Button variant="contained" color="primary" startIcon={<BarChartIcon/>}
+      onClick={() => onSubmit && onSubmit(utils.expand(state), expand_result)}>Plot</Button>
   )
 
   const codes = backend.useRequest('codes') || {} as Record<string, string>
@@ -178,18 +175,14 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
               label={value}
               key={value}
               style={{minWidth: '5em'}}
-              control={
-                <Checkbox
-                  checked={(state[v.column] || v.values).includes(value)}
-                  size="small"
-                  color="primary"
-                  onChange={(_, checked) => update_state(state => {
-                    const prev: string[] = state[v.column] || v.values
-                    const selected = prev.slice().filter(x => x != value || checked).concat(checked ? [value] : [])
-                    return {[v.column]: selected.length ? selected : v.values.filter(x => !prev.includes(x))}
-                  })}
-                />}
-              />
+              checked={(state[v.column] || v.values).includes(value)}
+              onChange={(_, checked) => update_state(state => {
+                const prev: string[] = state[v.column] || v.values
+                const selected = prev.slice().filter(x => x != value || checked).concat(checked ? [value] : [])
+                return {[v.column]: selected.length ? selected : v.values.filter(x => !prev.includes(x))}
+              })}
+              control={<Checkbox size="small" color="primary"/>}
+            />
           )}
         </Grid>
       </Grid>))

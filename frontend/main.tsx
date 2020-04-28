@@ -10,6 +10,8 @@ import Splash, * as splash from './splash'
 
 import * as vp from './vegaplots'
 
+import {Boxplot} from './boxplots'
+
 import boxplot_json from './boxplot.json'
 
 import * as form from './form'
@@ -26,61 +28,17 @@ function Centered(d: React.ReactNode) {
 }
 
 function FormAndPlot() {
-  // console.log('new form and plot')
   const conf = backend.useRequest('configuration')
-  // console.log(conf)
 
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
-  // console.log(JSON.stringify(filter, 2, 2))
   const plot = React.useMemo(
-    () => plot_data && <React.Fragment>
-      <vp.Boxplot
-        data={plot_data}
-        options={
-          {
-            landscape: true,
-            inner: 'tumor',
-            facet: ['cell', 'location'],
-            color: 'tumor',
-            stripes: 'location',
-          }
-        }/>
-      <vp.Boxplot
-        data={plot_data}
-        options={
-          {
-            landscape: true,
-            inner: 'location',
-            facet: ['tumor', 'cell'],
-            color: 'cell',
-            stripes: 'location',
-          }
-        }/>
-      <vp.Boxplot
-        data={plot_data}
-        options={
-          {
-            landscape: true,
-            inner: ['cell', 'location'],
-            facet: ['tumor'],
-            color: 'cell',
-            stripes: 'location',
-          }
-        }/>
-      <vp.Boxplot
-        data={plot_data}
-        options={
-          {
-            landscape: true,
-            inner: 'location',
-            facet: ['cell', 'tumor'],
-            color: 'cell',
-            stripes: 'location',
-          }
-        }/>
-    </React.Fragment>,
-    [plot_data, vp.Boxplot]
+    () => {
+      if (filter && plot_data) {
+        return <Boxplot key={JSON.stringify(filter)} data={plot_data} facet0={filter.cells.length != 0 ? 'tumor' : 'cell'} />
+      }
+    },
+    [filter, plot_data, vp.Boxplot]
   )
   return (
     <React.Fragment>
@@ -88,11 +46,9 @@ function FormAndPlot() {
       {conf
         ? <form.Form conf={conf} onSubmit={(filter, expand_result) => {
             console.log('filter:', filter)
-            console.log(JSON.stringify(filter, 2, 2))
             set_filter(filter)
             backend.request('filter', filter).then(res => {
               set_filter(filter)
-              console.log(res[0])
               const expanded = expand_result(filter, res)
               set_plot_data(expanded)
             })

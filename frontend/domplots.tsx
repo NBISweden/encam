@@ -17,7 +17,7 @@ export const GlobalStyle = sc.createGlobalStyle`
   }
 `
 
-const colors: Record<string, string> = {
+export const colors: Record<string, string> = {
   "CD4": "rgb(237,175,127)",
   "CD8": "rgb(180,20,4)",
   "CD8_Treg": "rgb(134,72,89)",
