@@ -8,7 +8,7 @@ import * as utils from './utils'
 
 import * as domplots from './domplots'
 
-import vegaTooltip from 'vega-tooltip';
+import vegaTooltip from 'vega-tooltip'
 
 function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.ReactElement {
   const [el, set_el] = React.useState(null as HTMLElement | null)
@@ -171,16 +171,18 @@ function boxplot<K extends string, Row extends Record<K, any>>(data0: Row[], opt
           // ]`,
         },
       },
-      [row]: split ? {
-        field: split,
-        type: "ordinal",
-        header: {
-          // labelAngle:  options.landscape ? 0 : -45,
-          // labelAlign:  options.landscape ? "left" : "right",
-          // labelOrient: options.landscape ? undefined : "bottom",
-          title: null,
-        },
-      } : undefined,
+      ...(split ? {
+        [row]: {
+          field: split,
+          type: "ordinal",
+          header: {
+            // labelAngle:  options.landscape ? 0 : -45,
+            // labelAlign:  options.landscape ? "left" : "right",
+            // labelOrient: options.landscape ? undefined : "bottom",
+            title: null,
+          },
+        } ,
+      } : {})
     },
     spec: {
       [height]: 300,

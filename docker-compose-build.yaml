@@ -5,4 +5,4 @@ services:
         volumes:
             - type: bind
               source: ./dist
-              target: /app/dist
+              target: /app/dist/browser
