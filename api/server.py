@@ -75,7 +75,7 @@ def configuration():
     tumor_specific_values = []
     for column in tumor_specific_columns:
         # values = uniq(data[c][lambda x: ~pd.isnull(x)])
-        # print(c, values)
+        # print(c, values, flush=True)
         for tumor in tumor_types:
             values = tidy_values(data[data.Tumor_type_code == tumor][column])
             if len(values) > 1:
@@ -142,7 +142,7 @@ def coxph_per_type(dd):
         dd[i] = ntiles(dd[i])
 
     univariate_results = []
-    for c in cell_types[:1]:
+    for c in cell_types:
         dd_c = dd[[c, 'T', 'E']]
         dd_c = dd_c[~pd.isnull(dd_c).any(axis=1)]
         cph = CoxPHFitter()
@@ -165,7 +165,7 @@ def data_per_type(dd):
     cox = coxph_per_type(dd)
     return pd.concat((expression, cox), axis=1)
 
-print("Initialization started")
+print("Initialization started", flush=True)
 ntiles = lambda xs: pd.cut(pd.Series(xs).rank(), 2, right=False, labels=False) + 1
 
 data = pd.read_csv("../SIM.csv")
@@ -173,6 +173,9 @@ data = pd.read_csv("../SIM.csv")
 # Whitespace stripping because of some trailing Morphological_type spaces
 strip = lambda x: x.strip() if isinstance(x, str) else x
 data = data.applymap(strip)
+# data = data.sample(frac = 0.25)
+# data = data.sample
+# data = data[lambda row: (row.Tumor_type_code == 'BRCA') | (row.Tumor_type_code == 'COAD')]
 
 data['T'] = data['Time_Diagnosis_Last_followup']
 data['E'] = data['Event_last_followup'] == 'Dead'
@@ -181,7 +184,7 @@ tumor_types = uniq(data.Tumor_type_code)
 cell_types = uniq(c for c in data.columns if 'TUMOR' in c or 'STROMA' in c)
 
 dfs = []
-for t in tumor_types[:1]:
+for t in tumor_types:
     df = data_per_type(data[
         (data.Tumor_type_code == t) &
         (data['PreOp_treatment_yesno'] == 'No')
@@ -203,4 +206,4 @@ db_str = db.to_json(orient='records', indent=2)
 # OUTPUT - Second resutls to return
 codes_list = data[['Tumor_type', 'Tumor_type_code']].to_dict(orient='records')
 codes_dict = {d['Tumor_type_code']: d['Tumor_type'] for d in codes_list}
-print("Initialization finished")
+print("Initialization finished", flush=True)

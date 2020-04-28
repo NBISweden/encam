@@ -49,11 +49,12 @@ function useRadio<K extends string>(label: string, options: K[], init?: K): [K, 
 }
 
 export function Boxplot(props: {data: Row[], facet0?: 'cell' | 'tumor'}) {
-  const [split, split_checkbox] = useCheckbox('split', false)
+  const [split, split_checkbox] = useCheckbox('split tumor and stroma', false)
   const [facet, facet_radio] = useRadio('facet', ['cell', 'tumor'], props.facet0)
   const [orientation, orientation_radio] = useRadio('orientation', ['landscape', 'portrait'])
   const radicals = ['√', '∛', '∜']
-  const [scale, scale_radio] = useRadio('scale', ['linear', ...radicals, 'semilog'])
+  const [scale, scale_radio] = useRadio('scale', ['linear', ...radicals])
+  const [mode, mode_radio] = useRadio('box plot settings', ['default (IQR=1.5)', 'min-max', 'outliers'])
   const opposite = (x: keyof Row) => x === 'cell' ? 'tumor' : 'cell'
   const options: Partial<vp.Options<keyof Row>> =
     split
@@ -73,6 +74,7 @@ export function Boxplot(props: {data: Row[], facet0?: 'cell' | 'tumor'}) {
   options.scale = {
     type: scale === 'linear' ? 'linear' : 'semilog'
   }
+  options.mode = mode === 'default (IQR=1.5)' ? 'default' : mode
   const r = radicals.indexOf(scale)
   if (r != -1) {
     options.scale = {
@@ -84,10 +86,20 @@ export function Boxplot(props: {data: Row[], facet0?: 'cell' | 'tumor'}) {
   return div(
     <vp.Boxplot data={props.data} options={options}/>,
     div(
+      css`
+        & .MuiFormGroup-root {
+          flex-direction: row;
+        }
+        & {
+          display: flex;
+          flex-direction: column;
+        }
+      `,
       split_checkbox,
       orientation_radio,
       facet_radio,
       scale_radio,
+      mode_radio,
     )
   )
 }

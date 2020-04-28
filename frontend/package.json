@@ -27,7 +27,8 @@
     "react-dom": "^16.13.0",
     "styled-components": "^5.1.0",
     "vega": "^5.10.0",
-    "vega-lite": "^4.7.0"
+    "vega-lite": "^4.7.0",
+    "vega-tooltip": "^0.22.1"
   },
   "default": "dist/index.html",
   "targets": {

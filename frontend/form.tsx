@@ -62,7 +62,7 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
 import * as backend from './backend'
 
 interface OnSubmit {
-  onSubmit(form_value: Record<string, any>, expand_result_: typeof expand_result): void
+  onSubmit(form_value: Record<string, any>): void
 }
 
 export function FormLoadConf(props: OnSubmit) {
@@ -70,31 +70,23 @@ export function FormLoadConf(props: OnSubmit) {
   return <Form conf={conf} {...props}/>
 }
 
-function expand_result(filter: Record<string, string[]>, result: Record<string, any>[]) {
-  const out = []
-  const {tumors, cells} = filter
-  for (let res of result) {
-    for (let k in res) {
-      let m: RegExpMatchArray | null
-      if (m = k.match(/(.*)_(STROMA|TUMOR)/)) {
-        const [_, cell, location] = m
-        const v = {
-          tumor: res.Tumor_type_code,
-          cell_full: `${cell.replace(/_/g, ' ')} (${location.toLowerCase()})`,
-          cell,
-          location,
-          expression: res[k],
-        }
-        if (
-             (!tumors.length || tumors.includes(v.tumor))
-          && (!cells.length || cells.includes(v.cell))
-        ) {
-          out.push(v)
-        }
-      }
-    }
+function prepare_state_for_backend(state0: State, conf: Conf) {
+  const conf_tumors = conf.variant_values
+    .filter(v => v.column == 'Tumor_type_code')[0].values
+  const state = {...state0}
+  let facet
+  if (!state.cells.length) {
+    state.cells = conf.cell_types
+    facet = 'cell'
   }
-  return out
+  if (!state.tumors.length) {
+    state.tumors = conf_tumors
+    facet = 'tumor'
+  }
+  return {
+    ...utils.expand(state),
+    facet,
+  }
 }
 
 export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
@@ -107,6 +99,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
     (next: Partial<State> | ((s: State) => Partial<State>)) =>
     set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
 
+
   const buttons = div(
     css`
       & { margin-left: auto }
@@ -116,11 +109,11 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
     `,
     <Button variant="contained" onClick={() => set_state(calculate_state0(conf))}>Reset</Button>,
     <Button variant="contained" color="primary" startIcon={<BarChartIcon/>}
-      onClick={() => onSubmit && onSubmit(utils.expand(state), expand_result)}>Plot</Button>
+      onClick={() => onSubmit && onSubmit(prepare_state_for_backend(state, conf))}>Plot</Button>
   )
 
   const codes = backend.useRequest('codes') || {} as Record<string, string>
-  React.useEffect(() => onSubmit(utils.expand(state), expand_result), [])
+  // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
   const specific = conf.tumor_specific_values
     .map(t => memo(
@@ -193,7 +186,6 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         & { display: flex; flex-direction: column }
         & > .MuiAutocomplete-root { padding-bottom: 1em }
       `,
-      buttons,
       memo([tumors, cells, codes], () =>
         <Autocomplete
           key="tumor"
