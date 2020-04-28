@@ -49,14 +49,14 @@ def filter():
         response = response.melt(id_vars='Tumor_type_code')
         response.columns = ['tumor', 'cell_full', 'expression']
 
-        # Filter based on the requested cells
-        response = response[response['cell_full'].isin(body[0]['cells'])]
         # Split the cell_full to cell and location
         response.insert(2, 'cell', response['cell_full'].map(lambda x: '_'.join(x.split('_')[:-1])))
         response.insert(3, 'location', response['cell_full'].map(lambda x: x.split('_')[-1]))
+        # Filter based on the requested cells
+        response = response[response['cell'].isin(body[0]['cells'])]
         response = response.drop(columns='cell_full')
         
-        return jsonify(response.to_dict(orient='records'))
+        return jsonify([response.to_dict(orient='records')])
     else:
         return jsonify({"error": "Body must be JSON"})
 
