@@ -45,13 +45,18 @@ def filter():
                 df = data_filtered[(data_filtered['Tumor_type_code'] == t)]
             dfs = dfs.append(df)
 
-        dat2 = dfs.iloc[:,2].to_frame().join(dfs.iloc[:,18:46])
-        dat2 = dat2.melt(id_vars='Tumor_type_code')
-        dat2.columns = ['tumor', 'cell', 'expression']
+        response = dfs.iloc[:,2].to_frame().join(dfs.iloc[:,18:46])
+        response = response.melt(id_vars='Tumor_type_code')
+        response.columns = ['tumor', 'cell_full', 'expression']
 
-        dat2 = dat2[dat2['cell'].isin(body[0]['cells'])]
+        # Filter based on the requested cells
+        response = response[response['cell_full'].isin(body[0]['cells'])]
+        # Split the cell_full to cell and location
+        response.insert(2, 'cell', response['cell_full'].map(lambda x: '_'.join(x.split('_')[:-1])))
+        response.insert(3, 'location', response['cell_full'].map(lambda x: x.split('_')[-1]))
+        response = response.drop(columns='cell_full')
         
-        return jsonify(dat2.to_dict(orient='records'))
+        return jsonify(response.to_dict(orient='records'))
     else:
         return jsonify({"error": "Body must be JSON"})
 
