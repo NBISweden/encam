@@ -1,0 +1,3 @@
+dist/
+frontend/.parcel-cache
+api/*.pickle
