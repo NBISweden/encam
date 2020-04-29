@@ -75,11 +75,11 @@ function prepare_state_for_backend(state0: State, conf: Conf) {
     .filter(v => v.column == 'Tumor_type_code')[0].values
   const state = {...state0}
   let facet
-  if (!state.cells.length) {
+  if (state0.cells.length == 0) {
     state.cells = conf.cell_types
     facet = 'cell'
   }
-  if (!state.tumors.length) {
+  if (state0.tumors.length == 0) {
     state.tumors = conf_tumors
     facet = 'tumor'
   }
@@ -90,6 +90,7 @@ function prepare_state_for_backend(state0: State, conf: Conf) {
 }
 
 export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
+
   const tumor_codes = conf.variant_values
     .filter(v => v.column == 'Tumor_type_code')[0].values
 
@@ -99,6 +100,11 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
     (next: Partial<State> | ((s: State) => Partial<State>)) =>
     set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
 
+  const codes = backend.useRequest('codes') || {} as Record<string, string>
+
+  // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
+
+  utils.useWhyChanged('Form', {conf, onSubmit, state, codes})
 
   const buttons = div(
     css`
@@ -112,8 +118,6 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
       onClick={() => onSubmit && onSubmit(prepare_state_for_backend(state, conf))}>Plot</Button>
   )
 
-  const codes = backend.useRequest('codes') || {} as Record<string, string>
-  // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
   const specific = conf.tumor_specific_values
     .map(t => memo(

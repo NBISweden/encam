@@ -4,6 +4,8 @@ import {div, css} from './css'
 
 import * as vp from './vegaplots'
 
+import * as utils from './utils'
+
 interface Row {
   cell: string
   tumor: string
@@ -48,15 +50,18 @@ function useRadio<K extends string>(label: string, options: K[], init?: K): [K, 
   ]
 }
 
-export function Boxplot(props: {data: Row[], facet0?: 'cell' | 'tumor'}) {
+type Options = Partial<vp.Options<keyof Row>>
+
+export function Boxplot(props: {data: Row[], facet?: 'cell' | 'tumor'}) {
   const [split, split_checkbox] = useCheckbox('split tumor and stroma', false)
-  const [facet, facet_radio] = useRadio('facet', ['cell', 'tumor'], props.facet0)
+  const [radio_facet, facet_radio] = useRadio('facet', ['cell', 'tumor'])
+  const facet = props.facet ?? radio_facet
   const [orientation, orientation_radio] = useRadio('orientation', ['landscape', 'portrait'])
   const radicals = ['√', '∛', '∜']
-  const [scale, scale_radio] = useRadio('scale', ['linear', ...radicals])
+  const [scale, scale_radio] = useRadio('scale', ['linear', ...radicals], radicals[0])
   const [mode, mode_radio] = useRadio('box plot settings', ['default (IQR=1.5)', 'min-max', 'outliers'])
   const opposite = (x: keyof Row) => x === 'cell' ? 'tumor' : 'cell'
-  const options: Partial<vp.Options<keyof Row>> =
+  const options: Partial<Options> =
     split
       ? {
         inner: opposite(facet),
@@ -82,7 +87,7 @@ export function Boxplot(props: {data: Row[], facet0?: 'cell' | 'tumor'}) {
       exponent: 1 / (2 + r)
     }
   }
-  console.log({options})
+  utils.useWhyChanged('boxplots.Boxplot', {...props, split, radio_facet, orientation, scale, mode})
   return div(
     <vp.Boxplot data={props.data} options={options}/>,
     div(
@@ -97,7 +102,7 @@ export function Boxplot(props: {data: Row[], facet0?: 'cell' | 'tumor'}) {
       `,
       split_checkbox,
       orientation_radio,
-      facet_radio,
+      !props.facet && facet_radio,
       scale_radio,
       mode_radio,
     )

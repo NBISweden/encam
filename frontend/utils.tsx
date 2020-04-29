@@ -114,3 +114,37 @@ export function useDebounce(ms: number, k: Function) {
   return res
 }
 
+export function Memoizer<K, V>() {
+  const mems = {} as Record<string, V>
+  return function memo(k: K, calc: () => V): V {
+    const ks = JSON.stringify(k)
+    if (!(ks in mems)) {
+      mems[ks] = calc()
+      // console.log('memo miss', k)
+    } else {
+      // console.log('memo hit', k)
+    }
+    return mems[ks]
+  }
+}
+
+declare const process: {env: {NODE_ENV: string}}
+export function useWhyChanged(name: string, props: Record<string, any>) {
+  if (process.env.NODE_ENV === 'development') {
+    const r = React.useRef()
+    React.useEffect(() => {
+      if (r.current !== undefined) {
+        const changed: string[] = []
+        for (let k in props) {
+          if (r.current[k] !== props[k]) {
+            changed.push(k)
+          }
+        }
+        console.log(`${name}: ${changed.join(', ')} changed`)
+      } else {
+        console.log(`${name} created`)
+      }
+      r.current = props || {}
+    })
+  }
+}

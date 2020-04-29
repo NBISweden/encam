@@ -18,6 +18,8 @@ import * as form from './form'
 
 import * as backend from './backend'
 
+import * as utils from './utils'
+
 function Centered(d: React.ReactNode) {
   return <div id="top" className="row">
     <splash.GlobalStyle/>
@@ -27,50 +29,71 @@ function Centered(d: React.ReactNode) {
   </div>
 }
 
+import {LinearProgress, CircularProgress} from '@material-ui/core'
+
 function FormAndPlot() {
   const conf = backend.useRequest('configuration')
 
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
-  const plot = React.useMemo(
-    () => {
-      if (filter && plot_data) {
-        return <Boxplot key={filter.facet} data={plot_data} facet0={filter.facet} />
-      }
+  const [loading, set_loading] = React.useState(false)
+  const plot = filter && plot_data && <Boxplot key="plot" data={plot_data} facet={filter.facet} />
+  const onSubmit = React.useCallback(
+    filter => {
+      console.log('filter:', filter)
+      set_loading(true)
+      console.time('request')
+      backend.request('filter', [filter]).then(res => {
+        console.timeEnd('request')
+        console.log('res:', res[0])
+        ReactDOM.unstable_batchedUpdates(() => {
+          set_loading(false)
+          set_filter(filter)
+          set_plot_data(res[0])
+        })
+      })
     },
-    [filter, plot_data, vp.Boxplot]
-  )
+    [])
+  utils.useWhyChanged('FormAndPlot', {conf, filter, plot_data, loading, plot, onSubmit})
   return div(
     css`
       body {
         background: #ccc;
       }
+      & > div:not(:first-child) {
+        margin-left: 0;
+      }
       & > div {
         padding: 0.5cm;
-        margin: 0.5cm auto;
+        margin: 0.5cm;
         background: #fff;
         border: 1px #aaa solid;
         border-radius: 5px;
       }
       & {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        align-items: flex-start;
       }
     `,
-    <div style={{maxWidth: '18cm'}}>
+    <div key="form" style={conf ? {width: '17cm'} : {}}>
       {conf
-        ? <form.Form conf={conf} onSubmit={filter => {
-            console.log('filter:', filter)
-            backend.request('filter', [filter]).then(res => {
-              console.log('res:', res[0])
-              set_filter(filter)
-              // const expanded = expand_result(filter, res)
-              set_plot_data(res[0])
-            })
-          }}/>
-        : <i>Loading form...</i>}
+        ? <form.Form key="form" conf={conf} onSubmit={onSubmit}/>
+        : <CircularProgress />}
     </div>,
-    plot && <div style={{width: 'fit-content'}}>
+    (plot || loading) && <div key="plot" style={{width: 'fit-content', position: 'relative'}}>
+      {loading &&
+        <div
+          style={plot ? {
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            margin: 20,
+            background: '#fffe',
+            boxShadow: '0 0 8px 8px #fffe',
+          } : {}}>
+          <CircularProgress/>
+        </div>}
       {plot}
     </div>
   )

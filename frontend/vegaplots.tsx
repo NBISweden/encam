@@ -10,12 +10,18 @@ import * as domplots from './domplots'
 
 import vegaTooltip from 'vega-tooltip'
 
+const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
+
 function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.ReactElement {
   const [el, set_el] = React.useState(null as HTMLElement | null)
-  const runtime: V.Runtime = React.useMemo<V.Runtime>(() => V.parse(VL.compile(spec).spec), [spec])
+  const runtime: V.Runtime = memo(spec, () => {
+    return V.parse(VL.compile(spec).spec)
+  })
+  utils.useWhyChanged('vp.Embed', {spec, data, el, runtime})
   React.useEffect(() =>
     {
       if (el) {
+        console.time('plot')
         const view = new V.View(runtime)
         data && view.data('data', data)
         view.logLevel(V.Warn)
@@ -29,9 +35,10 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.R
           const defs = document.createElementNS(svg.namespaceURI, 'defs')
           defs.innerHTML = stripes.pattern
           svg.append(defs)
+          console.timeEnd('plot')
         })
       }
-    }, [el, runtime])
+    }, [el, runtime, data])
   return <div ref={set_el} />
 }
 
@@ -94,7 +101,8 @@ function orient(options: Options<any>) {
   }
 }
 
-export function Boxplot<Row extends Record<string, any>>({data, options}: {data: Row[], options?: Partial<Options<K>>}) {
+export function Boxplot<K extends string, Row extends Record<K, any>>({data, options}: {data: Row[], options?: Partial<Options<K>>}) {
+  utils.useWhyChanged('vp.Boxplot', {data, options})
   return boxplot(data, options)
 }
 
@@ -215,14 +223,15 @@ function boxplot<K extends string, Row extends Record<K, any>>(data0: Row[], opt
             fill: {
               field: options.color,
               type: "nominal",
-              scale: options.color === 'cell'
-                ? { range:
-                      Object.entries(domplots.colors)
-                        .filter(pair => data.some(row => row.cell === pair[0]))
-                        .sort(utils.by(pair => pair[0]))
-                        .map(pair => pair[1]) }
-                : { scheme: 'tableau20' },
-              // scale: { scheme: "tableau20" },
+              // scale: options.color === 'cell'
+              //   ? { range:
+              //         Object.entries(domplots.colors)
+              //           .filter(pair => data.some(row => row.cell === pair[0]))
+              //           .sort(utils.by(pair => pair[0]))
+              //           .map(pair => pair[1]) }
+              //   : { scheme: 'tableau10' },
+              scale: { scheme: "tableau10" },
+              legend: true,
               // legend: options.legend ? undefined : null,
             },
           },
@@ -236,7 +245,7 @@ function boxplot<K extends string, Row extends Record<K, any>>(data0: Row[], opt
               field: 'fill',
               scale: null,
               // scale: { range: ["#fff0", "url(#stripe)"] },
-              legend: null,
+              legend: false,
               // legend: options.legend ? undefined : null,
             },
           },
