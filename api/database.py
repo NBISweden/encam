@@ -166,31 +166,67 @@ def test_Tukey():
 
 def filter(body):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
-    for key in base_filters:
-        data_filtered = db.data[db.data[key].isin(body[0][key])]
+    data_filtered = data
+    for filter_id in body:
+        for key in base_filters:
+            data_filtered = data_filtered[data_filtered[key].isin(filter_id[key])]
 
-    # Filter based on tumor types
-    dfs = pd.DataFrame(columns=data_filtered.columns)
-    complex_tumors = ['COAD', 'READ']
-    for t in body[0]['tumors']:
-        if t in complex_tumors:
-            df = data_filtered[(data_filtered['Tumor_type_code'] == t) & (data_filtered['Morphological_type'].isin(body[0]['Morphological_type'][t]))
-                & (data_filtered['Anatomical_location'].isin(body[0]['Anatomical_location'][t])) &  (data_filtered['MSI_ARTUR'].isin(body[0]['MSI_ARTUR'][t]))]
-        else:
-            df = data_filtered[(data_filtered['Tumor_type_code'] == t)]
-        dfs = dfs.append(df)
+        # Filter based on tumor types
+        dfs = pd.DataFrame(columns=data_filtered.columns)
+        for t in filter_id['tumors']:
+            if (t in filter_id['Morphological_type']) | (t in filter_id['Anatomical_location']) | (t in filter_id['MSI_ARTUR']):
+                df = data_filtered[data_filtered['Tumor_type_code'] == t]
+                if (t in filter_id['Morphological_type']):
+                    df = df[df['Morphological_type'].isin(filter_id['Morphological_type'][t])]
+                if (t in filter_id['Anatomical_location']):
+                    df =  df[df['Anatomical_location'].isin(filter_id['Anatomical_location'][t])]
+                if (t in filter_id['MSI_ARTUR']):
+                    df = df[df['MSI_ARTUR'].isin(filter_id['MSI_ARTUR'][t])]
+            else:
+                df = data_filtered[(data_filtered['Tumor_type_code'] == t)]
+            dfs = dfs.append(df)
 
-    response = dfs.iloc[:,2].to_frame().join(dfs.iloc[:,18:46])
-    response = response.melt(id_vars='Tumor_type_code')
-    response.columns = ['tumor', 'cell_full', 'expression']
+        # Filter the needed colums, melt and rename
+        response = dfs.iloc[:,2].to_frame().join(dfs.iloc[:,18:46])
+        response = response.melt(id_vars='Tumor_type_code')
+        response.columns = ['tumor', 'cell_full', 'expression']
 
-    # Split the cell_full to cell and location
-    response.insert(2, 'cell', response['cell_full'].map(lambda x: '_'.join(x.split('_')[:-1])))
-    response.insert(3, 'location', response['cell_full'].map(lambda x: x.split('_')[-1]))
-    # Filter based on the requested cells
-    response = response[response['cell'].isin(body[0]['cells'])]
-    response = response.drop(columns='cell_full')
-    return response
+        # Split the cell_full to cell and location
+        response.insert(2, 'cell', response['cell_full'].map(lambda x: '_'.join(x.split('_')[:-1])))
+        response.insert(3, 'location', response['cell_full'].map(lambda x: x.split('_')[-1]))
+
+        # Filter based on the requested cells
+        response = response[response['cell'].isin(filter_id['cells'])]
+        response = response.drop(columns='cell_full')
+        responses.append(response.to_dict(orient='records'))
+
+    return responses
+
+def filter2(body):
+    base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
+    data_filtered = data
+    for filter_id in body:
+        for key in base_filters:
+            data_filtered = data_filtered[data_filtered[key].isin(filter_id[key])]
+
+        for specific in ['Anatomical_location', 'MSI_ARTUR', 'Morphological_type']
+            for tumor, values in filter_id[specific].values():
+                data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
+
+        response = data_filtered
+        response = response.melt(id_vars='Tumor_type_code')
+        response.columns = ['tumor', 'cell_full', 'expression']
+
+        # Split the cell_full to cell and location
+        response.insert(2, 'cell', response['cell_full'].map(lambda x: '_'.join(x.split('_')[:-1])))
+        response.insert(3, 'location', response['cell_full'].map(lambda x: x.split('_')[-1]))
+
+        # Filter based on the requested cells
+        response = response[response['cell'].isin(filter_id['cells'])]
+        response = response.drop(columns='cell_full')
+        responses.append(response.to_dict(orient='records'))
+
+    return responses
 
 example_body = [{"clinical_stage":["0","I","II","III","IV"],"pT_stage":["T0","T1","T2","T3","T4"],"pN_stage":["N0","N1","N2"],"pM_stage":["M0","M1"],"Diff_grade":["high","low","missing"],"Neuralinv":["No","Yes","missing"],"Vascinv":["No","Yes","missing"],"PreOp_treatment_yesno":["No","Yes"],"PostOp_type_treatment":["Chemotherapy only","no"],"Anatomical_location":{"COAD":["Appendix","Ascendens","Caecum","Descendens","Flexura hepatica","Flexura lienalis","Rectum","Sigmoideum","Transversum"],"READ":["Appendix","Rectum"]},"Morphological_type":{"COAD":["mucinon-mucinousus","non-mucinous","missing"],"READ":["mucinon-mucinousus","non-mucinous","missing"]},"MSI_ARTUR":{"COAD":["MSI","MSS"],"READ":["MSI","MSS"]},"cells":["B_cells","CD4","CD4_Treg","CD8","CD8_Treg","Granulocyte","M1","M2","Myeloid cell","NK","NKT","iDC","mDC","pDC"],"tumors":["COAD","BRCA"]}]
 

@@ -31,6 +31,7 @@ def filter():
         # https://github.com/github/fetch/issues/143
         return jsonify({})
     elif request.is_json:
+        responses = []
         body = request.json
         # Basic filtering
         response = database_lib.filter(body)
