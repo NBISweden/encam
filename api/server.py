@@ -53,7 +53,7 @@ def tukey():
         body = request.json
         # Basic filtering
         responses = [
-            database_lib.filter(b).fillna('NaN').to_dict(orient='records')
+            database_lib.filter_to_tukey(b).fillna('NaN').to_dict(orient='records')
             for b in body
         ]
         return jsonify(responses)
