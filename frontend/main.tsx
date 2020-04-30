@@ -51,11 +51,6 @@ function FormAndPlot() {
           set_filter(filter)
           set_plot_data(res[0])
         })
-        console.time('request tukey')
-        backend.request('tukey', [filter]).then(res => {
-          console.log('tukey res:', res)
-          console.timeEnd('request tukey')
-        })
       })
     },
     [])

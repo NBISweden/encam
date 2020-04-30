@@ -34,8 +34,11 @@ def filter():
         responses = []
         body = request.json
         # Basic filtering
-        response = database_lib.filter(body)
-        return jsonify([response.to_dict(orient='records')])
+        responses = [
+            database_lib.filter(b).to_dict(orient='records')
+            for b in body
+        ]
+        return jsonify(responses)
     else:
         return jsonify({"error": "Body must be JSON"})
 
@@ -49,8 +52,11 @@ def tukey():
     elif request.is_json:
         body = request.json
         # Basic filtering
-        response = database_lib.filter_to_tukey(body)
-        return jsonify([response.fillna('NaN').to_dict(orient='records')])
+        responses = [
+            database_lib.filter(b).fillna('NaN').to_dict(orient='records')
+            for b in body
+        ]
+        return jsonify(responses)
     else:
         return jsonify({"error": "Body must be JSON"})
 
