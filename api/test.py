@@ -1,150 +1,211 @@
-from flask import Flask, request, jsonify, render_template, url_for, make_response
-from lifelines import CoxPHFitter
-import pandas as pd
+
+from database import filter, filter2
 import json
 
-app = Flask(__name__)
-
-@app.route('/configuration')
-def configuration():
-    def tidy_values(values):
-        values = uniq(values)
-        values = sorted(values, key=lambda x: (isinstance(x, float), x))
-        values = [ 'missing' if pd.isnull(v) else v for v in values ]
-        return values
-    tumor_specific_columns = [
-        'Anatomical_location',
-        'Morphological_type',
-        'MSI_ARTUR',
+example_body = {
+  "clinical_stage": [
+    "0",
+    "I",
+    "II",
+    "III",
+    "IV"
+  ],
+  "pT_stage": [
+    "T0",
+    "T1",
+    "T2",
+    "T3",
+    "T4"
+  ],
+  "pN_stage": [
+    "N0",
+    "N1",
+    "N2"
+  ],
+  "pM_stage": [
+    "M0",
+    "M1"
+  ],
+  "Diff_grade": [
+    "high",
+    "low",
+    "missing"
+  ],
+  "Neuralinv": [
+    "No",
+    "Yes",
+    "missing"
+  ],
+  "Vascinv": [
+    "No",
+    "Yes",
+    "missing"
+  ],
+  "PreOp_treatment_yesno": [
+    "No",
+    "Yes"
+  ],
+  "PostOp_type_treatment": [
+    "Chemotherapy only",
+    "no"
+  ],
+  "Anatomical_location": {
+    "COAD": [
+      "Appendix",
+      "Ascendens",
+      "Caecum",
+      "Descendens",
+      "Flexura hepatica",
+      "Flexura lienalis",
+      "Rectum",
+      "Sigmoideum",
+      "Transversum"
+    ],
+    "READ": [
+      "Appendix",
+      "Rectum"
     ]
-    tumor_specific_values = []
-    for column in tumor_specific_columns:
-        # values = uniq(data[c][lambda x: ~pd.isnull(x)])
-        # print(c, values)
-        for tumor in tumor_types:
-            values = tidy_values(data[data.Tumor_type_code == tumor][column])
-            if len(values) > 1:
-                tumor_specific_values.append({
-                    'column': column,
-                    'tumor': tumor,
-                    'values': values
-                })
-    variant_columns = [
-        'Tumor_type_code',
-        # 'Gender',
-        # 'Anatomical_location',
-        # 'Morphological_type',
-        'clinical_stage',
-        'pT_stage',
-        'pN_stage',
-        'pM_stage',
-        'Diff_grade',
-        'Neuralinv',
-        'Vascinv',
-        'PreOp_treatment_yesno',
-        'PostOp_type_treatment',
-        # 'MSI_ARTUR',
+  },
+  "Morphological_type": {
+    "COAD": [
+      "mucinon-mucinousus",
+      "non-mucinous",
+      "missing"
+    ],
+    "READ": [
+      "mucinon-mucinousus",
+      "non-mucinous",
+      "missing"
     ]
-    variant_values = []
-    for column in variant_columns:
-        values = tidy_values(data[column])
-        variant_values.append({
-            'column': column,
-            'values': values
-        })
-    config = {
-        'variant_values': variant_values,
-        'tumor_specific_values': tumor_specific_values,
-        'cell_types_full': cell_types,
-        'cell_types': tidy_values('_'.join(c.split('_')[:-1]) for c in cell_types)
-    }
-    return jsonify(config), "application/json"
-
-
-@app.route('/codes')
-def codes():
-    response = jsonify(codes_dict)
-    return response, "application/json"
-
-@app.route('/database')
-def database():
-    #response = jsonify(db_str)
-    #tmp = db.to_dict(orient='records')
-    response = jsonify(db.to_dict(orient='records'))
-    return response, "application/json"
-
-def uniq(xs):
-    seen = set()
-    return [
-        (seen.add(x), x)[-1]
-        for x in xs
-        if x not in seen
+  },
+  "MSI_ARTUR": {
+    "COAD": [
+      "MSI",
+      "MSS"
+    ],
+    "READ": [
+      "MSI",
+      "MSS"
     ]
+  },
+  "cells": [
+    "B_cells",
+    "CD4",
+    "CD4_Treg",
+    "CD8",
+    "CD8_Treg",
+    "Granulocyte",
+    "M1",
+    "M2",
+    "Myeloid cell",
+    "NK",
+    "NKT",
+    "iDC",
+    "mDC",
+    "pDC"
+  ],
+  "tumors": [
+    "COAD",
+    "BRCA"
+  ]
+}
 
-def coxph_per_type(dd):
-    dd = dd.copy()
+def test_impls(ex):
+    filter1_to_dict = lambda ex: filter(ex).to_dict(orient='records')
+    filter2_to_dict = lambda ex: filter2(ex).to_dict(orient='records')
 
-    for i in cell_types:
-        dd[i] = ntiles(dd[i])
+    c1 = filter1_to_dict(ex)
+    c2 = filter2_to_dict(ex)
 
-    univariate_results = []
-    for c in cell_types:
-        dd_c = dd[[c, 'T', 'E']]
-        dd_c = dd_c[~pd.isnull(dd_c).any(axis=1)]
-        cph = CoxPHFitter()
-        cph.fit(dd_c, 'T', event_col='E') # fits are ~15-60 ms each
-        univariate_results.append(cph.summary)
+    print(len(c1), len(c2))
 
-    cox = pd.concat(univariate_results)
-    rename = {
-        'exp(coef)': 'coef',
-        'exp(coef) lower 95%': 'lower',
-        'exp(coef) upper 95%': 'upper',
-        'p': 'p',
-    }
-    cox = cox[rename.keys()]
-    cox = cox.rename(columns=rename)
-    return cox
+    assert len(c1) == len(c2)
 
-def data_per_type(dd):
-    expression = pd.DataFrame({'expression': dd[cell_types].mean()})
-    cox = coxph_per_type(dd)
-    return pd.concat((expression, cox), axis=1)
+    sort = lambda xs: sorted(xs, key=json.dumps)
 
-ntiles = lambda xs: pd.cut(pd.Series(xs).rank(), 2, right=False, labels=False) + 1
+    assert sort(c1) == sort(c2)
 
-data = pd.read_csv("../SIM.csv")
+test_impls(example_body)
 
-# Whitespace stripping because of some trailing Morphological_type spaces
-strip = lambda x: x.strip() if isinstance(x, str) else x
-data = data.applymap(strip)
+def test_clinical_stage():
 
-data['T'] = data['Time_Diagnosis_Last_followup']
-data['E'] = data['Event_last_followup'] == 'Dead'
+    ex1 = dict(example_body)
+    ex2 = dict(example_body)
+    ex12 = dict(example_body)
 
-tumor_types = uniq(data.Tumor_type_code)
-cell_types = uniq(c for c in data.columns if 'TUMOR' in c or 'STROMA' in c)
+    ex1['clinical_stage'] = ["I", "II"]
+    ex2['clinical_stage'] = ["0", "IV"]
+    ex12['clinical_stage'] = ex1['clinical_stage'] + ex2['clinical_stage']
 
-dfs = []
-for t in tumor_types:
-    df = data_per_type(data[
-        (data.Tumor_type_code == t) &
-        (data['PreOp_treatment_yesno'] == 'No')
-    ])
-    # df = df.astype('float16')
-    df = df.applymap(lambda x: float(f'{x:.3e}'))
-    cell_full = df.index
-    df.reset_index(drop=True, inplace=True)
-    df.insert(0, 'tumor', t)
-    df.insert(1, 'cell', cell_full.map(lambda x: '_'.join(x.split('_')[:-1])))
-    df.insert(2, 'location', cell_full.map(lambda x: x.split('_')[-1]))
-    df.insert(3, 'cell_full', cell_full)
-    dfs.append(df)
+    test_impls(ex1)
+    test_impls(ex2)
+    test_impls(ex12)
 
-# OUTPUT - First result to return
-db = pd.concat(dfs, axis=0).reset_index(drop=True)
+    filter_to_dict = lambda ex: filter2(ex).to_dict(orient='records')
 
-# OUTPUT - Second resutls to return
-codes_list = data[['Tumor_type', 'Tumor_type_code']].to_dict(orient='records')
-codes_dict = {d['Tumor_type_code']: d['Tumor_type'] for d in codes_list}
+    c1 = filter_to_dict(ex1)
+    c2 = filter_to_dict(ex2)
+    c12 = filter_to_dict(ex12)
+
+    assert len(c1) + len(c2) == len(c12)
+
+    sort = lambda xs: sorted(xs, key=json.dumps)
+
+    assert sort(c1 + c2) == sort(c12)
+
+test_clinical_stage()
+
+def test_Anatomical_location():
+
+    ex1 = dict(example_body)
+    ex2 = dict(example_body)
+    ex12 = dict(example_body)
+
+    ex1['tumors'] = ['COAD']
+    ex2['tumors'] = ['COAD']
+    ex12['tumors'] = ['COAD']
+
+    ex1['Anatomical_location'] = dict(ex1['Anatomical_location'])
+    ex2['Anatomical_location'] = dict(ex2['Anatomical_location'])
+    ex12['Anatomical_location'] = dict(ex12['Anatomical_location'])
+
+    ex1['Anatomical_location']['COAD'] = [
+      "Appendix",
+      "Ascendens",
+      "Caecum",
+    ]
+    ex2['Anatomical_location']['COAD'] = [
+      "Descendens",
+      "Flexura hepatica",
+      "Flexura lienalis",
+      "Rectum",
+      "Sigmoideum",
+      "Transversum"
+    ]
+    ex12['Anatomical_location']['COAD'] = ex1['Anatomical_location']['COAD'] + ex2['Anatomical_location']['COAD']
+
+    test_impls(ex1)
+    test_impls(ex2)
+    test_impls(ex12)
+
+    filter_to_dict = lambda ex: filter2(ex).to_dict(orient='records')
+
+    c1 = filter_to_dict(ex1)
+    c2 = filter_to_dict(ex2)
+    c12 = filter_to_dict(ex12)
+
+    print(
+        len(c1),
+        len(c2),
+        len(c1) + len(c2),
+        len(c12)
+    )
+
+    assert len(c1) + len(c2) == len(c12)
+
+    sort = lambda xs: sorted(xs, key=json.dumps)
+
+    assert sort(c1 + c2) == sort(c12)
+
+test_Anatomical_location()
 

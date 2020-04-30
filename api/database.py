@@ -202,11 +202,14 @@ def filter(filter_id):
 def filter2(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
+
+    data_filtered = data_filtered[lambda row: row.Tumor_type_code.isin(filter_id['tumors'])]
+
     for key in base_filters:
         data_filtered = data_filtered[data_filtered[key].isin(filter_id[key])]
 
     for specific in ['Anatomical_location', 'MSI_ARTUR', 'Morphological_type']:
-        for tumor, values in filter_id[specific].values():
+        for tumor, values in filter_id[specific].items():
             data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
 
     response = data_filtered
@@ -221,8 +224,6 @@ def filter2(filter_id):
     response = response[response['cell'].isin(filter_id['cells'])]
     response = response.drop(columns='cell_full')
     return response
-
-example_body = [{"clinical_stage":["0","I","II","III","IV"],"pT_stage":["T0","T1","T2","T3","T4"],"pN_stage":["N0","N1","N2"],"pM_stage":["M0","M1"],"Diff_grade":["high","low","missing"],"Neuralinv":["No","Yes","missing"],"Vascinv":["No","Yes","missing"],"PreOp_treatment_yesno":["No","Yes"],"PostOp_type_treatment":["Chemotherapy only","no"],"Anatomical_location":{"COAD":["Appendix","Ascendens","Caecum","Descendens","Flexura hepatica","Flexura lienalis","Rectum","Sigmoideum","Transversum"],"READ":["Appendix","Rectum"]},"Morphological_type":{"COAD":["mucinon-mucinousus","non-mucinous","missing"],"READ":["mucinon-mucinousus","non-mucinous","missing"]},"MSI_ARTUR":{"COAD":["MSI","MSS"],"READ":["MSI","MSS"]},"cells":["B_cells","CD4","CD4_Treg","CD8","CD8_Treg","Granulocyte","M1","M2","Myeloid cell","NK","NKT","iDC","mDC","pDC"],"tumors":["COAD","BRCA"]}]
 
 def filter_to_tukey(body):
     df_long = filter(body)
