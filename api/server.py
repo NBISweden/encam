@@ -4,6 +4,7 @@ import pandas as pd
 import json
 
 from database import db
+import database as database_lib
 
 app = Flask(__name__)
 
@@ -32,42 +33,35 @@ def filter():
     elif request.is_json:
         body = request.json
         # Basic filtering
-        base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
-        for key in base_filters:
-            data_filtered = db.data[db.data[key].isin(body[0][key])]
-
-        # Filter based on tumor types
-        dfs = pd.DataFrame(columns=data_filtered.columns)
-        complex_tumors = ['COAD', 'READ']
-        for t in body[0]['tumors']:
-            if t in complex_tumors:
-                df = data_filtered[(data_filtered['Tumor_type_code'] == t) & (data_filtered['Morphological_type'].isin(body[0]['Morphological_type'][t]))
-                    & (data_filtered['Anatomical_location'].isin(body[0]['Anatomical_location'][t])) &  (data_filtered['MSI_ARTUR'].isin(body[0]['MSI_ARTUR'][t]))]
-            else:
-                df = data_filtered[(data_filtered['Tumor_type_code'] == t)]
-            dfs = dfs.append(df)
-
-        response = dfs.iloc[:,2].to_frame().join(dfs.iloc[:,18:46])
-        response = response.melt(id_vars='Tumor_type_code')
-        response.columns = ['tumor', 'cell_full', 'expression']
-
-        # Split the cell_full to cell and location
-        response.insert(2, 'cell', response['cell_full'].map(lambda x: '_'.join(x.split('_')[:-1])))
-        response.insert(3, 'location', response['cell_full'].map(lambda x: x.split('_')[-1]))
-        # Filter based on the requested cells
-        response = response[response['cell'].isin(body[0]['cells'])]
-        response = response.drop(columns='cell_full')
+        response = database_lib.filter(body)
         return jsonify([response.to_dict(orient='records')])
     else:
         return jsonify({"error": "Body must be JSON"})
+
+@app.route('/tukey', methods=['OPTIONS', 'POST'])
+@cross_origin
+def tukey():
+    if request.method == 'OPTIONS':
+        # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
+        # https://github.com/github/fetch/issues/143
+        return jsonify({})
+    elif request.is_json:
+        body = request.json
+        # Basic filtering
+        response = database_lib.filter_to_tukey(body)
+        return jsonify([response.fillna('NaN').to_dict(orient='records')])
+    else:
+        return jsonify({"error": "Body must be JSON"})
+
 
 @app.route('/configuration')
 @cross_origin
 def configuration():
     def tidy_values(values):
-        values = uniq(values)
+        # values = database_lib.uniq(values)
         values = sorted(values, key=lambda x: (isinstance(x, float), x))
         values = [ 'missing' if pd.isnull(v) else v for v in values ]
+        values = database_lib.uniq(values)
         return values
     tumor_specific_columns = [
         'Anatomical_location',
@@ -76,9 +70,9 @@ def configuration():
     ]
     tumor_specific_values = []
     for column in tumor_specific_columns:
-        # values = uniq(data[c][lambda x: ~pd.isnull(x)])
+        # values = database_lib.uniq(data[c][lambda x: ~pd.isnull(x)])
         # print(c, values, flush=True)
-        for tumor in tumor_types:
+        for tumor in db.tumor_types:
             values = tidy_values(db.data[db.data.Tumor_type_code == tumor][column])
             if len(values) > 1:
                 tumor_specific_values.append({
