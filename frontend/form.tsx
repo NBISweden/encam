@@ -7,7 +7,6 @@ import * as utils from './utils'
 import { FormControlLabel, CssBaseline, Box, Container, Grid, Checkbox, TextField, Tooltip, Button } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 
-
 interface Conf {
   variant_values: {
     column: string,
@@ -18,11 +17,11 @@ interface Conf {
     tumor: string,
     values: string[],
   }[],
-  cell_types_full: string[],
-  cell_types: string[]
+  cells_full: string[],
+  cells: string[],
+  tumors: string[],
+  tumor_codes: Record<string, string[]>,
 }
-
-declare const require: (path: string) => Conf
 
 type State =
   Record<string, string[]> &
@@ -30,7 +29,6 @@ type State =
     tumors: string[],
     cells: string[],
   }
-
 
 function calculate_state0(conf: Conf) {
   const state0 = {} as State
@@ -40,13 +38,11 @@ function calculate_state0(conf: Conf) {
   conf.tumor_specific_values.forEach(v => {
     state0[v.column + ',' + v.tumor] = v.values
   })
-  state0.cells = conf.cell_types
+  state0.cells = conf.cells
   state0.cells = []
   state0.tumors = ['COAD', 'BRCA']
-  delete state0.Tumor_type_code
   return state0
 }
-
 
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
@@ -59,28 +55,19 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
 }
 
-import * as backend from './backend'
-
 interface OnSubmit {
   onSubmit(form_value: Record<string, any>): void
 }
 
-export function FormLoadConf(props: OnSubmit) {
-  const conf = backend.useRequest('configuration')
-  return <Form conf={conf} {...props}/>
-}
-
 function prepare_state_for_backend(state0: State, conf: Conf) {
-  const conf_tumors = conf.variant_values
-    .filter(v => v.column == 'Tumor_type_code')[0].values
   const state = {...state0}
   let facet
   if (state0.cells.length == 0) {
-    state.cells = conf.cell_types
+    state.cells = conf.cells
     facet = 'cell'
   }
   if (state0.tumors.length == 0) {
-    state.tumors = conf_tumors
+    state.tumors = conf.tumors
     facet = 'tumor'
   }
   return {
@@ -91,20 +78,15 @@ function prepare_state_for_backend(state0: State, conf: Conf) {
 
 export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
 
-  const tumor_codes = conf.variant_values
-    .filter(v => v.column == 'Tumor_type_code')[0].values
-
   const [state, set_state] = React.useState(() => calculate_state0(conf))
   const {tumors, cells} = state
   const update_state =
     (next: Partial<State> | ((s: State) => Partial<State>)) =>
     set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
 
-  const codes = backend.useRequest('codes') || {} as Record<string, string>
-
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
-  utils.useWhyChanged('Form', {conf, onSubmit, state, codes})
+  utils.useWhyChanged('Form', {conf, onSubmit, state})
 
   const buttons = div(
     css`
@@ -158,7 +140,6 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         value={state[t.column + ',' + t.tumor] || t.values}
       />))
   const misc_filters = conf.variant_values
-    .filter(v => v.column != 'Tumor_type_code')
     .map(v => memo([state[v.column]], () =>
       <Grid container spacing={3}
         key={v.column}
@@ -190,11 +171,11 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         & { display: flex; flex-direction: column }
         & > .MuiAutocomplete-root { padding-bottom: 1em }
       `,
-      memo([tumors, cells, codes], () =>
+      memo([tumors, cells], () =>
         <Autocomplete
           key="tumor"
           multiple
-          options={tumor_codes}
+          options={conf.tumors}
           disableCloseOnSelect
           renderOption={(option, { selected } ) =>
             <React.Fragment>
@@ -205,7 +186,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
                 checked={selected}
                 color="primary"
               />
-              {option} <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({codes[option]})</i>
+              {option} <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({conf.tumor_codes[option]})</i>
             </React.Fragment>}
           fullWidth={true}
           renderInput={(params) => (
@@ -225,7 +206,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
       memo([cells, tumors], () => <Autocomplete
         key="cell"
         multiple
-        options={conf.cell_types}
+        options={conf.cells}
         disableCloseOnSelect
         renderOption={(option, { selected } ) =>
           <React.Fragment>

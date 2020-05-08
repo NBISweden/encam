@@ -53,7 +53,7 @@ def tukey():
         body = request.json
         # Basic filtering
         responses = [
-            database_lib.filter(b).fillna('NaN').to_dict(orient='records')
+            database_lib.filter_to_tukey(b).fillna('NaN').to_dict(orient='records')
             for b in body
         ]
         return jsonify(responses)
@@ -65,7 +65,6 @@ def tukey():
 @cross_origin
 def configuration():
     def tidy_values(values):
-        # values = database_lib.uniq(values)
         values = sorted(values, key=lambda x: (isinstance(x, float), x))
         values = [ 'missing' if pd.isnull(v) else v for v in values ]
         values = database_lib.uniq(values)
@@ -88,7 +87,7 @@ def configuration():
                     'values': values
                 })
     variant_columns = [
-        'Tumor_type_code',
+        # 'Tumor_type_code',
         # 'Gender',
         # 'Anatomical_location',
         # 'Morphological_type',
@@ -113,8 +112,10 @@ def configuration():
     config = {
         'variant_values': variant_values,
         'tumor_specific_values': tumor_specific_values,
-        'cell_types_full': db.cell_types,
-        'cell_types': tidy_values('_'.join(c.split('_')[:-1]) for c in db.cell_types)
+        'tumors': db.tumor_types,
+        'cells_full': db.cell_types,
+        'cells': tidy_values('_'.join(c.split('_')[:-1]) for c in db.cell_types),
+        'tumor_codes': db.codes_dict,
     }
     return jsonify(config)
 
