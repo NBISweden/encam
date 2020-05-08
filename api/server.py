@@ -112,9 +112,10 @@ def configuration():
     config = {
         'variant_values': variant_values,
         'tumor_specific_values': tumor_specific_values,
+        'tumors': db.tumor_types,
         'cells_full': db.cell_types,
         'cells': tidy_values('_'.join(c.split('_')[:-1]) for c in db.cell_types),
-        'tumors': db.tumor_types,
+        'tumor_codes': db.codes_dict,
     }
     return jsonify(config)
 

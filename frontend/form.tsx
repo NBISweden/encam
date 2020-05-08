@@ -7,7 +7,6 @@ import * as utils from './utils'
 import { FormControlLabel, CssBaseline, Box, Container, Grid, Checkbox, TextField, Tooltip, Button } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 
-
 interface Conf {
   variant_values: {
     column: string,
@@ -21,9 +20,8 @@ interface Conf {
   cells_full: string[],
   cells: string[],
   tumors: string[],
+  tumor_codes: Record<string, string[]>,
 }
-
-declare const require: (path: string) => Conf
 
 type State =
   Record<string, string[]> &
@@ -31,7 +29,6 @@ type State =
     tumors: string[],
     cells: string[],
   }
-
 
 function calculate_state0(conf: Conf) {
   const state0 = {} as State
@@ -47,7 +44,6 @@ function calculate_state0(conf: Conf) {
   return state0
 }
 
-
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import BarChartIcon from '@material-ui/icons/BarChart'
@@ -59,15 +55,8 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
 }
 
-import * as backend from './backend'
-
 interface OnSubmit {
   onSubmit(form_value: Record<string, any>): void
-}
-
-export function FormLoadConf(props: OnSubmit) {
-  const conf = backend.useRequest('configuration')
-  return <Form conf={conf} {...props}/>
 }
 
 function prepare_state_for_backend(state0: State, conf: Conf) {
@@ -95,11 +84,9 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
     (next: Partial<State> | ((s: State) => Partial<State>)) =>
     set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
 
-  const codes = backend.useRequest('codes') || {} as Record<string, string>
-
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
-  utils.useWhyChanged('Form', {conf, onSubmit, state, codes})
+  utils.useWhyChanged('Form', {conf, onSubmit, state})
 
   const buttons = div(
     css`
@@ -184,7 +171,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         & { display: flex; flex-direction: column }
         & > .MuiAutocomplete-root { padding-bottom: 1em }
       `,
-      memo([tumors, cells, codes], () =>
+      memo([tumors, cells], () =>
         <Autocomplete
           key="tumor"
           multiple
@@ -199,7 +186,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
                 checked={selected}
                 color="primary"
               />
-              {option} <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({codes[option]})</i>
+              {option} <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({conf.tumor_codes[option]})</i>
             </React.Fragment>}
           fullWidth={true}
           renderInput={(params) => (
