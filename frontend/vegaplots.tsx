@@ -106,8 +106,163 @@ export function Boxplot<K extends string, Row extends Record<K, any>>({data, opt
   return boxplot(data, options)
 }
 
+export function PrecalcBoxplot<K extends string, Row extends Record<K, any> & Precalc>({data, options}: {data: Row[], options?: Partial<Options<K>>}) {
+  utils.useWhyChanged('vp.PrecalcBoxplot', {data, options})
+  return precalc_boxplot(data, options)
+}
+
 function ensure_array<A>(x: A | A[]): A[] {
   return Array.isArray(x) ? x : x === undefined ? [] : [x]
+}
+
+interface Precalc {
+  mean: number
+  median: number
+  q1: number
+  q3: number
+  upper: number
+  lower: number
+  min: number
+  max: number
+}
+
+function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>(data0: Row[], opts?: Partial<Options<K>>): React.ReactElement {
+
+  const options = { ...default_options, ...opts }
+
+  let scale
+  if (options.scale) {
+    if (options.scale.type == 'pow') {
+      scale = {type: 'pow', exponent: options.scale.exponent}
+    } else if (options.scale.type == 'semilog') {
+      scale = {type: 'semilog'}
+    }
+  }
+
+  const data = data0.map(x => ({...x} as Record<string, any>))
+
+  data.map(datum => {
+    datum.comb = [datum.cell, datum.tumor, datum.location].join(',')
+  })
+
+  const spec: VL.TopLevelSpec = {
+    $schema: "https://vega.github.io/schema/vega-lite/v4.json",
+    data: { name: 'data' },
+    encoding: {
+      x: {
+        field: 'comb',
+        type: 'nominal',
+      },
+      color: {
+        field: 'cell',
+        type: 'nominal',
+        scale: {scheme: 'tableau20'}
+      }
+    },
+    width: { step: 12 },
+    layer: [
+      {
+        mark: {
+          type: "rule",
+          // style: "boxplot-rule"
+        },
+        encoding: {
+          y: {
+            field: "lower",
+            type: "quantitative",
+            axis: {title: "population"},
+            scale,
+          },
+          color: {value: 'black'},
+          y2: { field: "q1", },
+        }
+      },
+      {
+        mark: {
+          type: "rule",
+          // style: "boxplot-rule"
+        },
+        encoding: {
+          y: {
+            field: "q3",
+            type: "quantitative",
+            axis: {title: "population"},
+            scale,
+          },
+          y2: { field: "upper", },
+          color: {value: 'black'},
+        }
+      },
+      {
+        mark: {
+          type: "bar",
+          size: 6,
+          // orient: "horizontal",
+          // style: "boxplot-box"
+        },
+        encoding: {
+          y: {
+            field: "q1",
+            type: "quantitative",
+            axis: {title: "population"},
+            scale,
+          },
+          y2: { field: "q3", },
+        }
+      },
+      {
+        mark: {
+          type: "bar",
+          size: 6,
+          // orient: "horizontal",
+          // style: "boxplot-box"
+        },
+        encoding: {
+          y: {
+            field: "q1",
+            type: "quantitative",
+            axis: {title: "population"},
+            scale,
+          },
+          y2: { field: "q3", },
+          fill: {
+            field: 'location',
+            type: 'nominal',
+            scale: { range: ["#fff0", "url(#stripe)"] },
+            legend: null,
+            // field: options.stripes as string,
+              // type: "nominal",
+              // field: 'fill',
+              // scale: null,
+              // legend: false,
+              // legend: options.legend ? undefined : null,
+          }
+        }
+      },
+      {
+        mark: {
+          color: "white",
+          type: "tick",
+          // invalid: null,
+          // size: 14,
+          // orient: "vertical",
+          // style: "boxplot-median"
+        },
+        encoding: {
+          y: {
+            field: "median",
+            type: "quantitative",
+            axis: {title: "population"},
+            scale,
+          },
+          color: {
+            value: 'white',
+          }
+        }
+      }
+    ]
+  }
+  return embed(spec, data)
 }
 
 function boxplot<K extends string, Row extends Record<K, any>>(data0: Row[], opts?: Partial<Options<K>>): React.ReactElement {
@@ -162,7 +317,6 @@ function boxplot<K extends string, Row extends Record<K, any>>(data0: Row[], opt
 
   const spec: VL.TopLevelSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    // data: { expressions: data },
     data: { name: 'data' },
     facet: {
       [column]: {

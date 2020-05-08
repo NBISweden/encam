@@ -43,7 +43,7 @@ function FormAndPlot() {
       console.log('filter:', filter)
       set_loading(true)
       console.time('request')
-      backend.request('filter', [filter]).then(res => {
+      backend.request('tukey', [filter]).then(res => {
         console.timeEnd('request')
         console.log('res:', res[0])
         ReactDOM.unstable_batchedUpdates(() => {

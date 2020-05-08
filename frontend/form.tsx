@@ -84,7 +84,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
     (next: Partial<State> | ((s: State) => Partial<State>)) =>
     set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
 
-  // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
+  React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
   utils.useWhyChanged('Form', {conf, onSubmit, state})
 

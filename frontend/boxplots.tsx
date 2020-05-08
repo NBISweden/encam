@@ -89,7 +89,7 @@ export function Boxplot(props: {data: Row[], facet?: 'cell' | 'tumor'}) {
   }
   utils.useWhyChanged('boxplots.Boxplot', {...props, split, radio_facet, orientation, scale, mode})
   return div(
-    <vp.Boxplot data={props.data} options={options}/>,
+    <vp.PrecalcBoxplot data={props.data} options={options}/>,
     div(
       css`
         & .MuiFormGroup-root {
