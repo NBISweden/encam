@@ -3,7 +3,7 @@ export function by<A, B>(f: (a: A) => B) {
   return (x: A, y: A) => {
     const fx = f(x)
     const fy = f(y)
-    return fx > fy ? 1 : fx === fy ? 0 : -1
+    return fx > fy ? 1 : fx == fy ? 0 : -1
   }
 }
 
