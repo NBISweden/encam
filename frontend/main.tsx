@@ -8,11 +8,7 @@ import {css, div} from './css'
 
 import Splash, * as splash from './splash'
 
-import * as vp from './vegaplots'
-
 import {Boxplot} from './boxplots'
-
-import boxplot_json from './boxplot.json'
 
 import * as form from './form'
 
@@ -29,7 +25,7 @@ function Centered(d: React.ReactNode) {
   </div>
 }
 
-import {LinearProgress, CircularProgress} from '@material-ui/core'
+import {CircularProgress} from '@material-ui/core'
 
 function FormAndPlot() {
   const conf = backend.useRequest('configuration')
@@ -37,24 +33,19 @@ function FormAndPlot() {
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
   const [loading, set_loading] = React.useState(false)
-  const plot = filter && plot_data && <Boxplot key="plot"
-    data={plot_data.fast}
-    slow_data={plot_data.slow}
-  facet={filter.facet} />
+  const plot = filter && plot_data && <Boxplot key="plot" data={plot_data} facet={filter.facet} />
   const onSubmit = React.useCallback(
     filter => {
       console.log('filter:', filter)
       set_loading(true)
       console.time('request')
-      backend.request('filter', [filter]).then(slow_res => {
-        backend.request('tukey', [filter]).then(res => {
-          console.timeEnd('request')
-          console.log('res:', res[0])
-          ReactDOM.unstable_batchedUpdates(() => {
-            set_loading(false)
-            set_filter(filter)
-            set_plot_data({fast: res[0], slow: slow_res[0]})
-          })
+      backend.request('tukey', [filter]).then(res => {
+        console.timeEnd('request')
+        console.log('res:', res[0])
+        ReactDOM.unstable_batchedUpdates(() => {
+          set_loading(false)
+          set_filter(filter)
+          set_plot_data(res[0])
         })
       })
     },
