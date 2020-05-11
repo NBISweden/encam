@@ -145,7 +145,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         key={v.column}
       >
         <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
-          <span>{v.column.replace(/(_|yesno)/g, ' ')}:</span>
+          <span>{v.column.replace(/(_|yesno)/g, ' ').trim()}:</span>
         </Grid>
         <Grid item xs={9}>
           {v.values.map(value =>

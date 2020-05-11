@@ -10,7 +10,65 @@ import * as domplots from './domplots'
 
 import vegaTooltip from 'vega-tooltip'
 
+import * as sc from 'styled-components'
+
+const TooltipCSS = sc.createGlobalStyle`
+  #vg-tooltip-element {
+    &, & * {
+      font-family: inherit;
+    }
+    .key, .value {
+      font-size: 0.8em;
+      text-align: right;
+    }
+  }
+`
+
 const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
+
+function facet_line_fixup(svg: SVGElement) {
+  // Hack to fix facetted axis lines https://github.com/vega/vega-lite/issues/4703
+  console.time('facet fixup')
+  const xs = Array.from(svg.querySelectorAll('.mark-rule.role-axis-grid'))
+  if (xs.length < 2) {
+    return
+  }
+  const N = xs.length
+
+  const pairs = [
+    [0, N - 1],
+    [0, N / 2 - 1],
+    [N / 2, N - 1],
+    [0, N - 2],
+    [1, N - 1],
+  ]
+
+  const done = {} as Record<number, boolean>
+
+  for (let p = 0; p < pairs.length; ++p) {
+    const [j, k] = pairs[p]
+    if (done[j] || done[k]) {
+      continue
+    }
+    const left = Array.from(xs[j].children)
+    const right = Array.from(xs[k].children)
+    for (let i = 0; i < left.length && i < right.length; ++i) {
+      const L = left[i]
+      const R = right[i]
+      const L_rect = L.getBoundingClientRect()
+      const R_rect = R.getBoundingClientRect()
+      if (L_rect.width && L_rect.top == R_rect.top) {
+        L.setAttribute('x2', `${R_rect.right - L_rect.left}`)
+      } else if (L_rect.height && L_rect.left == R_rect.left) {
+        L.setAttribute('y1', `${R_rect.bottom - L_rect.top - L_rect.height}`)
+      } else {
+        break
+      }
+      done[j] = done[k] = true
+    }
+  }
+  console.timeEnd('facet fixup')
+}
 
 function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.ReactElement {
   const [el, set_el] = React.useState(null as HTMLElement | null)
@@ -32,6 +90,7 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.R
         view.runAsync().then(_ => {
           const svg = el.querySelector('svg')
           if (!svg) return
+          facet_line_fixup(svg)
           const defs = document.createElementNS(svg.namespaceURI, 'defs')
           defs.innerHTML = stripes.pattern
           svg.append(defs)
@@ -39,7 +98,10 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.R
         })
       }
     }, [el, runtime, data])
-  return <div ref={set_el} />
+  return <>
+    <div ref={set_el} />
+    <TooltipCSS/>
+  </>
 }
 
 function embed(spec: VL.TopLevelSpec, data?: any[]): React.ReactElement {
@@ -57,6 +119,7 @@ export interface Options<K> {
   inner_axis: boolean
   scale: {type: 'linear' | 'semilog'} | {type: 'pow', exponent: number}
   mode: 'default' | 'min-max' | 'outliers'
+  show_mean: boolean
 }
 
 const default_options: Options<string> = {
@@ -66,13 +129,14 @@ const default_options: Options<string> = {
   color: 'cell',
   stripes: 'location',
   landscape: true,
-  legend: false,
+  legend: true,
   scale: {
     type: 'pow',
     exponent: 0.25,
   },
   inner_axis: false,
-  mode: 'outliers',
+  mode: 'default',
+  show_mean: false,
 }
 
 function orient(options: Options<any>) {
@@ -128,7 +192,11 @@ interface Precalc {
 
 function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>(data0: Row[], opts?: Partial<Options<K>>): React.ReactElement {
 
+  const data = data0.map(x => ({...x} as Record<string, any>))
+
   const options = { ...default_options, ...opts }
+
+  const { column, row, height, width, x, y, y2 } = orient(options)
 
   let scale
   if (options.scale) {
@@ -139,128 +207,201 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     }
   }
 
-  const data = data0.map(x => ({...x} as Record<string, any>))
-
   data.map(datum => {
     datum.comb = [datum.cell, datum.tumor, datum.location].join(',')
+    datum.fill = datum[options.stripes] == 'STROMA' ? 'url(#stripe)' : '#fff0'
+    datum.cell_color = domplots.cell_color(datum.cell) // [options.color])
+    datum.location_lowercase = datum.location.toLowerCase()
+
+    // put stroma after tumor
+    datum.location = datum.location == 'STROMA' ? 1 : 0
   })
+
+  const prepare_option = (xs: string | string[]) => {
+    const array = ensure_array(xs)
+    const key = array.join(',')
+    if (array.length) {
+      data.forEach(datum => {
+        datum[key] = array.map(field => datum[field]).join(',')
+      })
+    }
+    return key
+  }
+
+  const inner = prepare_option(options.inner as string | string[])
+  const facet = prepare_option(options.facet as string | string[])
+  const split = prepare_option(options.split as string | string[])
+
+  const size = 8
+
+  const tooltip = [
+    { field: 'cell',
+      type: 'nominative',
+      title: 'Cell type'
+    },
+    { field: 'tumor',
+      type: 'nominative',
+      title: 'Tumor type'
+    },
+    { field: 'location_lowercase',
+      type: 'nominative',
+      title: 'Location'
+    },
+    { field: 'max',
+      type: 'quantitative', format: '.1f',
+      title: 'Max'
+    },
+    { field: 'upper_outliers',
+      type: 'quantitative', format: '.1f',
+      title: 'Upper outlier count'
+    },
+    { field: 'q3',
+      type: 'quantitative', format: '.1f',
+      title: 'Q3'
+    },
+    { field: 'mean',
+      type: 'quantitative', format: '.1f',
+      title: 'Mean',
+    },
+    { field: 'median',
+      type: 'quantitative', format: '.1f',
+      title: 'Median'
+    },
+    { field: 'q1',
+      type: 'quantitative', format: '.1f',
+      title: 'Q1'
+    },
+    { field: 'lower_outliers',
+      type: 'quantitative', format: '.1f',
+      title: 'Lower outlier count'
+    },
+    { field: 'min',
+      type: 'quantitative', format: '.1f',
+      title: 'Min'
+    }
+  ]
 
   const spec: VL.TopLevelSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v4.json",
     data: { name: 'data' },
-    encoding: {
-      x: {
-        field: 'comb',
-        type: 'nominal',
+    facet: {
+      [column]: {
+        field: facet,
+        type: "ordinal",
+        header: {
+          labelAngle:  options.landscape ? -90 : 0,
+          labelAlign:  options.landscape ? "right" : "left",
+          labelOrient: options.landscape ? "bottom" : undefined,
+          title: null,
+          // labelExpr: `[
+          //   truncate(split(datum.value, ",")[1] || '', 6),
+          //   truncate(split(datum.value, ",")[0], 6),
+          // ]`,
+        },
       },
-      color: {
-        field: 'cell',
-        type: 'nominal',
-        scale: {scheme: 'tableau20'}
-      }
+      ...(split ? {
+        [row]: {
+          field: split,
+          type: "ordinal",
+          header: {
+            // labelAngle:  options.landscape ? 0 : -45,
+            // labelAlign:  options.landscape ? "left" : "right",
+            // labelOrient: options.landscape ? undefined : "bottom",
+            title: null,
+            // labelAnchor: null,
+            labelExpr: '""',
+          },
+        } ,
+      } : {})
     },
-    width: { step: 12 },
-    layer: [
-      {
-        mark: {
-          type: "rule",
-          // style: "boxplot-rule"
-        },
-        encoding: {
-          y: {
-            field: "lower",
-            type: "quantitative",
-            axis: {title: "population"},
-            scale,
+    spec: {
+      [height]: 300,
+      [width]: { step: 12 },
+      encoding: {
+        [x]: {
+          field: inner,
+          type: 'nominal',
+          axis: {
+            title: null,
+            labelExpr: '',
+            tickSize: 0,
           },
-          color: {value: 'black'},
-          y2: { field: "q1", },
-        }
+        },
+        tooltip: tooltip as any,
       },
-      {
-        mark: {
-          type: "rule",
-          // style: "boxplot-rule"
-        },
-        encoding: {
-          y: {
-            field: "q3",
-            type: "quantitative",
-            axis: {title: "population"},
-            scale,
-          },
-          y2: { field: "upper", },
-          color: {value: 'black'},
-        }
-      },
-      {
-        mark: {
-          type: "bar",
-          size: 6,
-          // orient: "horizontal",
-          // style: "boxplot-box"
-        },
-        encoding: {
-          y: {
-            field: "q1",
-            type: "quantitative",
-            axis: {title: "population"},
-            scale,
-          },
-          y2: { field: "q3", },
-        }
-      },
-      {
-        mark: {
-          type: "bar",
-          size: 6,
-          // orient: "horizontal",
-          // style: "boxplot-box"
-        },
-        encoding: {
-          y: {
-            field: "q1",
-            type: "quantitative",
-            axis: {title: "population"},
-            scale,
-          },
-          y2: { field: "q3", },
-          fill: {
-            field: 'location',
-            type: 'nominal',
-            scale: { range: ["#fff0", "url(#stripe)"] },
-            legend: null,
-            // field: options.stripes as string,
-              // type: "nominal",
-              // field: 'fill',
-              // scale: null,
-              // legend: false,
-              // legend: options.legend ? undefined : null,
+      layer: [
+        { mark: { type: 'rule' },
+          encoding: {
+            [y]: {
+              axis: {title: 'expression'},
+              field: options.mode == 'min-max' ? 'min' : 'lower',
+              type: 'quantitative',
+              scale: scale,
+            },
+            color: { value: 'black' },
+            [y2]: { field: 'q1' },
           }
-        }
-      },
-      {
-        mark: {
-          color: "white",
-          type: "tick",
-          // invalid: null,
-          // size: 14,
-          // orient: "vertical",
-          // style: "boxplot-median"
         },
-        encoding: {
-          y: {
-            field: "median",
-            type: "quantitative",
-            axis: {title: "population"},
-            scale,
-          },
-          color: {
-            value: 'white',
+        { mark: { type: 'rule' },
+          encoding: {
+            [y]: { field: 'q3' },
+            [y2]: { field: options.mode == 'min-max' ? 'max' : 'upper' },
+            color: { value: 'black' },
           }
-        }
-      }
-    ]
+        },
+        { mark: { type: 'bar', size },
+          encoding: {
+            [y]: { field: 'q1' },
+            [y2]: { field: 'q3' },
+            color: {
+              field: options.color,
+              type: 'nominal',
+              scale: {scheme: 'tableau10'},
+              legend: options.legend ? {} : null,
+            },
+          }
+        },
+        { mark: { type: 'bar', size },
+          encoding: {
+            [y]: { field: 'q1' },
+            [y2]: { field: 'q3' },
+            fill: { field: 'fill', scale: null },
+            stroke: { value: 'black' },
+            strokeWidth: { value: 1 },
+          }
+        },
+        { mark: { type: 'tick', size },
+          encoding: {
+            [y]: { field: 'median', type: 'quantitative' },
+            // color: { value: 'white' },
+            stroke: { value: 'black' },
+            strokeWidth: { value: 1 },
+            opacity: { value: 1 },
+          }
+        },
+        ...(options.show_mean ? [{
+          mark: {
+            type: 'point',
+            shape: 'circle',
+            // shape: 'M-1 -1 L1 1 M1 -1 L-1 1'
+          },
+          encoding: {
+            [y]: { field: 'mean' },
+            stroke: { value: 'black' },
+            fill: { value: 'black' },
+            size: { value: 10 },
+            strokeWidth: { value: 1 },
+            opacity: { value: 1 },
+          }
+        }] : [])
+      ]
+    },
+    config: {
+      view: { stroke: "transparent" },
+      // axis: { grid: true },
+      // axis: { domainWidth: 1 },
+      facet: { spacing: 6 },
+    },
   }
   return embed(spec, data)
 }
@@ -292,7 +433,7 @@ function boxplot<K extends string, Row extends Record<K, any>>(data0: Row[], opt
     datum.cell_color = domplots.cell_color(datum.cell) // [options.color])
   })
 
-  let scale
+  let scale: any
   if (options.scale) {
     if (options.scale.type == 'pow') {
       scale = {type: 'pow', exponent: options.scale.exponent}
