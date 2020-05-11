@@ -52,7 +52,7 @@ function useRadio<K extends string>(label: string, options: K[], init?: K): [K, 
 
 type Options = Partial<vp.Options<keyof Row>>
 
-export function Boxplot(props: {data: Row[], slow_data: Row[], facet?: 'cell' | 'tumor'}) {
+export function Boxplot(props: {data: Row[], facet?: 'cell' | 'tumor'}) {
   const [split, split_checkbox] = useCheckbox('split tumor and stroma', false)
   const [mean, mean_checkbox] = useCheckbox('show mean', false)
   const [radio_facet, facet_radio] = useRadio('facet', ['cell', 'tumor'])
@@ -80,7 +80,7 @@ export function Boxplot(props: {data: Row[], slow_data: Row[], facet?: 'cell' | 
   options.scale = {
     type: scale === 'linear' ? 'linear' : 'semilog'
   }
-  options.mode = mode === 'default (IQR=1.5)' ? 'default' : mode
+  options.mode = mode === 'min-max' ? 'min-max' : 'default'
   options.show_mean = mean
   const r = radicals.indexOf(scale)
   if (r != -1) {
@@ -92,7 +92,6 @@ export function Boxplot(props: {data: Row[], slow_data: Row[], facet?: 'cell' | 
   utils.useWhyChanged('boxplots.Boxplot', {...props, split, radio_facet, orientation, scale, mode})
   return div(
     <vp.PrecalcBoxplot data={props.data} options={options}/>,
-    // <vp.Boxplot data={props.slow_data} options={options}/>,
     div(
       css`
         & .MuiFormGroup-root {
