@@ -129,6 +129,8 @@ export function TwoForms({conf, onSubmit}: {conf: Conf} & OnSubmit) {
 
   utils.useWhyChanged('Form', {conf, onSubmit, A_state: A.state, B_state: B.state})
 
+  const [do_stitch, box_stitch] = utils.useCheckbox('stitch', false)
+
   const buttons = div(
     css`
       & { margin-left: auto }
@@ -136,11 +138,17 @@ export function TwoForms({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         margin: 8px
       }
     `,
+    box_stitch,
     <Button variant="contained" onClick={() => reset()}>Reset</Button>,
     <Button variant="contained" color="primary" startIcon={<BarChartIcon/>} onClick={on_submit}>Plot</Button>
   )
 
   const names = "AB"
+
+  function stitch<A>(xs: A[][]): A[] {
+    const [y, ...ys] = xs
+    return y.flatMap((a, i) => [a, ...ys.map(y => y[i])])
+  }
 
   return <Box>
     <CssBaseline/>
@@ -149,15 +157,16 @@ export function TwoForms({conf, onSubmit}: {conf: Conf} & OnSubmit) {
         & { display: flex; flex-direction: column }
         & > .MuiAutocomplete-root { padding-bottom: 1em }
       `,
-      forms.map((form, i) => [
-        <h2>Group {names[i]}</h2>,
-        form.form,
-      ]),
+      do_stitch
+        ? stitch(forms.map(form => form.form))
+        : forms.map((form, i) => [
+            <h2>Group {names[i]}</h2>,
+            form.form,
+          ]),
       buttons
     )}
   </Box>
 }
-
 
 function useForm(conf: Conf, key_prefix='') {
 
@@ -305,8 +314,8 @@ function useForm(conf: Conf, key_prefix='') {
     form: [
       tumor_type,
       cell_type,
-      specific,
-      misc_filters,
+      ...specific,
+      ...misc_filters,
     ]
   }
 }

@@ -1,3 +1,4 @@
+import * as React from 'react'
 
 export function by<A, B>(f: (a: A) => B) {
   return (x: A, y: A) => {
@@ -98,8 +99,6 @@ export function cap(N: number, d: Record<string, boolean>) {
   return Object.fromEntries(last(N, selected(d)).map(k => [k, true]))
 }
 
-import * as React from 'react'
-
 export function useDebounce(ms: number, k: Function) {
   const [block, set_block] = React.useState(false)
   const [res, set_res] = React.useState(undefined)
@@ -147,4 +146,41 @@ export function useWhyChanged(name: string, props: Record<string, any>) {
       r.current = props || {}
     })
   }
+}
+
+import { Checkbox, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core'
+import { Autocomplete } from '@material-ui/lab'
+
+export function useCheckbox(label: string, init?: boolean): [boolean, React.ReactElement] {
+  const [value, set_value] = React.useState(init === undefined ? true : init)
+  return [
+    value,
+    <FormControlLabel
+      label={label}
+      key={label}
+      checked={value}
+      onChange={(_, checked) => set_value(checked)}
+      control={<Checkbox size="small" color="primary"/>}
+    />
+  ]
+}
+
+export function useRadio<K extends string>(label: string, options: K[], init?: K): [K, React.ReactElement] {
+  const [value, set_value] = React.useState(init === undefined ? options[0] : init)
+  return [
+    value,
+    <FormControl component="fieldset">
+      <FormLabel component="legend">{label}</FormLabel>
+      <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
+        {options.map(option =>
+          <FormControlLabel
+            label={option}
+            value={option}
+            key={option}
+            control={<Radio size="small" color="primary"/>}
+          />
+        )}
+      </RadioGroup>
+    </FormControl>
+  ]
 }
