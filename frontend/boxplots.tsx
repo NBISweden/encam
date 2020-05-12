@@ -11,6 +11,7 @@ interface Row {
   tumor: string
   location: string
   expression: number
+  group: string
 }
 
 import { Checkbox, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core'
@@ -65,15 +66,15 @@ export function Boxplot(props: {data: Row[], facet?: 'cell' | 'tumor'}) {
   const options: Partial<Options> =
     split
       ? {
-        inner: opposite(facet),
+        inner: [opposite(facet), 'group'],
         facet: facet,
         split: 'location',
-        color: opposite(facet),
+        color: [opposite(facet), 'group'],
       }
       : {
-        inner: [opposite(facet), 'location'],
+        inner: [opposite(facet), 'location', 'group'],
         facet: facet,
-        color: opposite(facet),
+        color: [opposite(facet), 'group'],
       }
   options.stripes = 'location'
   options.landscape = orientation == 'landscape'

@@ -35,17 +35,28 @@ function FormAndPlot() {
   const [loading, set_loading] = React.useState(false)
   const plot = filter && plot_data && <Boxplot key="plot" data={plot_data} facet={filter.facet} />
   const onSubmit = React.useCallback(
-    filter => {
-      console.log('filter:', filter)
+    (...filters) => {
+      // console.log('filter:', filters)
       set_loading(true)
       console.time('request')
-      backend.request('tukey', [filter]).then(res => {
+      backend.request('tukey', filters).then((res: any[][]) => {
         console.timeEnd('request')
-        console.log('res:', res[0])
+        // console.log('res:', res[0])
+        // console.log(res)
+        // if (filters.length > 1) {
+        //   const facet = filters[0].facet
+        //   const opp = facet === 'tumor' ? 'cell' : 'tumor'
+        //   console.log({res})
+        // }
+        const names = ['A', 'B']
+        res = res.flatMap((r, i) => r.map(row => ({
+          ...row,
+          group: names[i],
+        })))
         ReactDOM.unstable_batchedUpdates(() => {
           set_loading(false)
-          set_filter(filter)
-          set_plot_data(res[0])
+          set_filter(filters[0])
+          set_plot_data(res)
         })
       })
     },
@@ -71,10 +82,13 @@ function FormAndPlot() {
         flex-direction: row;
         align-items: flex-start;
       }
+      & h2:first-child {
+        margin-top: 0;
+      }
     `,
-    <div key="form" style={conf ? {width: '17cm'} : {}}>
+    <div key="form" style={conf ? {width: '15cm', flexShrink: 0} : {}}>
       {conf
-        ? <form.Form key="form" conf={conf} onSubmit={onSubmit}/>
+        ? <form.TwoForms key="form" conf={conf} onSubmit={onSubmit}/>
         : <CircularProgress />}
     </div>,
     (plot || loading) && <div key="plot" style={{width: 'fit-content', position: 'relative'}}>

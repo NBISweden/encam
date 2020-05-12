@@ -112,7 +112,7 @@ export interface Options<K> {
   inner: K | K[]
   facet: K | K[]
   split: K | K[]
-  color: K
+  color: K | K[]
   stripes: K
   landscape: boolean
   legend: boolean
@@ -203,7 +203,6 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   }
 
   data.map(datum => {
-    datum.comb = [datum.cell, datum.tumor, datum.location].join(',')
     datum.fill = datum[options.stripes] == 'STROMA' ? 'url(#stripe)' : '#fff0'
     datum.cell_color = domplots.cell_color(datum.cell) // [options.color])
     datum.location_lowercase = datum.location.toLowerCase()
@@ -212,12 +211,12 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     datum.location = datum.location == 'STROMA' ? 1 : 0
   })
 
-  const prepare_option = (xs: string | string[]) => {
+  const prepare_option = (xs: string | string[], sep=',') => {
     const array = ensure_array(xs)
     const key = array.join(',')
     if (array.length) {
       data.forEach(datum => {
-        datum[key] = array.map(field => datum[field]).join(',')
+        datum[key] = array.map(field => datum[field]).join(sep)
       })
     }
     return key
@@ -226,6 +225,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   const inner = prepare_option(options.inner as string | string[])
   const facet = prepare_option(options.facet as string | string[])
   const split = prepare_option(options.split as string | string[])
+  const color = prepare_option(options.color as string | string[], ' ')
 
   const size = 8
 
@@ -233,6 +233,10 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     { field: 'cell',
       type: 'nominative',
       title: 'Cell type'
+    },
+    { field: 'group',
+      type: 'nominative',
+      title: 'Group'
     },
     { field: 'tumor',
       type: 'nominative',
@@ -349,7 +353,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
             [y]: { field: 'q1' },
             [y2]: { field: 'q3' },
             color: {
-              field: options.color,
+              field: color,
               type: 'nominal',
               scale: {scheme: 'tableau10'},
               legend: options.legend ? {} : null,
