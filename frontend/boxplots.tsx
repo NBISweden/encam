@@ -14,54 +14,17 @@ interface Row {
   group: string
 }
 
-import { Checkbox, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
-
-function useCheckbox(label: string, init?: boolean): [boolean, React.ReactElement] {
-  const [value, set_value] = React.useState(init === undefined ? true : init)
-  return [
-    value,
-    <FormControlLabel
-      label={label}
-      key={label}
-      checked={value}
-      onChange={(_, checked) => set_value(checked)}
-      control={<Checkbox size="small" color="primary"/>}
-    />
-  ]
-}
-
-function useRadio<K extends string>(label: string, options: K[], init?: K): [K, React.ReactElement] {
-  const [value, set_value] = React.useState(init === undefined ? options[0] : init)
-  return [
-    value,
-    <FormControl component="fieldset">
-      <FormLabel component="legend">{label}</FormLabel>
-      <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
-        {options.map(option =>
-          <FormControlLabel
-            label={option}
-            value={option}
-            key={option}
-            control={<Radio size="small" color="primary"/>}
-          />
-        )}
-      </RadioGroup>
-    </FormControl>
-  ]
-}
-
 type Options = Partial<vp.Options<keyof Row>>
 
 export function Boxplot(props: {data: Row[], facet?: 'cell' | 'tumor'}) {
-  const [split, split_checkbox] = useCheckbox('split tumor and stroma', false)
-  const [mean, mean_checkbox] = useCheckbox('show mean', false)
-  const [radio_facet, facet_radio] = useRadio('facet', ['cell', 'tumor'])
+  const [split, split_checkbox] = utils.useCheckbox('split tumor and stroma', false)
+  const [mean, mean_checkbox] = utils.useCheckbox('show mean', false)
+  const [radio_facet, facet_radio] = utils.useRadio('facet', ['cell', 'tumor'])
   const facet = props.facet ?? radio_facet
-  const [orientation, orientation_radio] = useRadio('orientation', ['landscape', 'portrait'])
+  const [orientation, orientation_radio] = utils.useRadio('orientation', ['landscape', 'portrait'])
   const radicals = ['√', '∛', '∜']
-  const [scale, scale_radio] = useRadio('scale', ['linear', ...radicals], radicals[0])
-  const [mode, mode_radio] = useRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
+  const [scale, scale_radio] = utils.useRadio('scale', ['linear', ...radicals], radicals[0])
+  const [mode, mode_radio] = utils.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
   const opposite = (x: keyof Row) => x === 'cell' ? 'tumor' : 'cell'
   const options: Partial<Options> =
     split
