@@ -26,6 +26,10 @@ function Centered(d: React.ReactNode) {
 }
 
 import {CircularProgress} from '@material-ui/core'
+import * as mui from '@material-ui/core'
+
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 function FormAndPlot() {
   const conf = backend.useRequest('configuration')
@@ -53,6 +57,7 @@ function FormAndPlot() {
           ...row,
           group: names[i],
         })))
+        console.log(JSON.stringify(res))
         ReactDOM.unstable_batchedUpdates(() => {
           set_loading(false)
           set_filter(filters[0])
@@ -64,34 +69,24 @@ function FormAndPlot() {
   utils.useWhyChanged('FormAndPlot', {conf, filter, plot_data, loading, plot, onSubmit})
   return div(
     css`
-      body {
-        background: #ccc;
-      }
-      & > div:not(:first-child) {
+      & > :not(:first-child) {
         margin-left: 0;
       }
-      & > div {
-        padding: 0.5cm;
-        margin: 0.5cm;
-        background: #fff;
-        border: 1px #aaa solid;
-        border-radius: 5px;
-      }
-      & {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-      }
-      & h2:first-child {
-        margin-top: 0;
-      }
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
     `,
-    <div key="form" style={conf ? {width: '15cm', flexShrink: 0} : {}}>
+    <Paper key="form" style={conf ? {width: '15cm', flexShrink: 0} : {}}
+      css="
+        & h2:first-child {
+          margin-top: 0;
+        }
+      ">
       {conf
         ? <form.TwoForms key="form" conf={conf} onSubmit={onSubmit}/>
         : <CircularProgress />}
-    </div>,
-    (plot || loading) && <div key="plot" style={{width: 'fit-content', position: 'relative'}}>
+    </Paper>,
+    (plot || loading) && <Paper key="plot" style={{width: 'fit-content', position: 'relative'}}>
       {loading &&
         <div
           style={plot ? {
@@ -105,12 +100,34 @@ function FormAndPlot() {
           <CircularProgress/>
         </div>}
       {plot}
-    </div>
+    </Paper>
   )
 }
 
-// ReactDOM.render(<Splash/>, document.querySelector('#root'))
-ReactDOM.render(<FormAndPlot/>, document.querySelector('#root'))
-// ReactDOM.render(Root(), document.querySelector('#root'))
+import styled from 'styled-components'
+
+type WithCss<A> = A extends (props : infer P) => JSX.Element ? (props: P & {css?: string}) => JSX.Element : never
+
+const Paper = styled(mui.Paper as WithCss<typeof mui.Paper>).attrs(() => ({
+  // variant: 'outlined',
+  elevation: 2,
+}))`
+  margin: 20;
+  padding: 20;
+  ${props => props.css || ''}
+`
+
+import {Explore} from './explore'
+import * as boxplot_data from './boxplot_data'
+
+const root = document.querySelector('#root')
+const render = (e: React.ReactElement) => ReactDOM.render(e, root)
+
+// render(<FormAndPlot/>)
+// render(<Splash/>)
+render(<Paper><Boxplot data={boxplot_data.boxplot_data} facet="cell"/></Paper>)
+
+// render(<Explore/>)
+// render(Root())
 // import * as domplots from './domplots'
-// ReactDOM.render(<domplots.Demo/>, document.querySelector('#root'))
+// render(<domplots.Demo/>)
