@@ -28,7 +28,7 @@ const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
 
 function facet_line_fixup(svg: SVGElement) {
   // Hack to fix facetted axis lines https://github.com/vega/vega-lite/issues/4703
-  console.time('facet fixup')
+  // console.time('facet fixup')
   const xs = Array.from(svg.querySelectorAll('.mark-rule.role-axis-grid'))
   if (xs.length < 2) {
     return
@@ -50,6 +50,9 @@ function facet_line_fixup(svg: SVGElement) {
     if (done[j] || done[k]) {
       continue
     }
+    if (!xs[j] || !xs[k]) {
+      continue
+    }
     const left = Array.from(xs[j].children)
     const right = Array.from(xs[k].children)
     for (let i = 0; i < left.length && i < right.length; ++i) {
@@ -67,7 +70,7 @@ function facet_line_fixup(svg: SVGElement) {
       done[j] = done[k] = true
     }
   }
-  console.timeEnd('facet fixup')
+  // console.timeEnd('facet fixup')
 }
 
 function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.ReactElement {
@@ -79,10 +82,10 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.R
   React.useEffect(() =>
     {
       if (el) {
-        console.time('plot')
+        // console.time('plot')
         const view = new V.View(runtime)
         data && view.data('data', data)
-        view.logLevel(V.Warn)
+        view.logLevel(V.None)
             .renderer('svg')
             .initialize(el)
             .tooltip((...args) => console.log(args))
@@ -94,12 +97,12 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.R
           const defs = document.createElementNS(svg.namespaceURI, 'defs')
           defs.innerHTML = stripes.pattern
           svg.append(defs)
-          console.timeEnd('plot')
+          // console.timeEnd('plot')
         })
       }
     }, [el, runtime, data])
   return <>
-    <div ref={set_el} />
+    <div ref={set_el}/>
     <TooltipCSS/>
   </>
 }
@@ -165,16 +168,18 @@ function orient(options: Options<any>) {
   }
 }
 
-export function PrecalcBoxplot<K extends string, Row extends Record<K, any> & Precalc>({data, options}: {data: Row[], options?: Partial<Options<K>>}) {
-  utils.useWhyChanged('vp.PrecalcBoxplot', {data, options})
-  return precalc_boxplot(data, options)
-}
+export const PrecalcBoxplot = React.memo(
+  function PrecalcBoxplot<K extends string, Row extends Record<K, any> & Precalc>({data, options}: {data: Row[], options?: Partial<Options<K>>}) {
+    utils.useWhyChanged('vp.PrecalcBoxplot', {data, options})
+    return precalc_boxplot(data, options)
+  }
+)
 
 function ensure_array<A>(x: A | A[]): A[] {
   return Array.isArray(x) ? x : x === undefined ? [] : [x]
 }
 
-interface Precalc {
+export interface Precalc {
   mean: number
   median: number
   q1: number
@@ -343,14 +348,14 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
         },
         { mark: { type: 'rule' },
           encoding: {
-            [y]: { field: 'q3' },
+            [y]: { field: 'q3', type: 'quantitative' },
             [y2]: { field: options.mode == 'min-max' ? 'max' : 'upper' },
             color: { value: 'black' },
           }
         },
         { mark: { type: 'bar', size },
           encoding: {
-            [y]: { field: 'q1' },
+            [y]: { field: 'q1', type: 'quantitative' },
             [y2]: { field: 'q3' },
             color: {
               field: color,
@@ -362,9 +367,9 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
         },
         { mark: { type: 'bar', size },
           encoding: {
-            [y]: { field: 'q1' },
+            [y]: { field: 'q1', type: 'quantitative' },
             [y2]: { field: 'q3' },
-            fill: { field: 'fill', scale: null },
+            fill: { field: 'fill', scale: null, type: 'nominal' },
             stroke: { value: 'black' },
             strokeWidth: { value: 1 },
           }

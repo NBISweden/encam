@@ -47,7 +47,6 @@ function calculate_state0(conf: Conf, key_prefix='') {
   } else if (key_prefix == 'B') {
     state0.clinical_stage = state0.clinical_stage.slice(2, 4)
   }
-  console.log({state0})
   return state0
 }
 
@@ -125,7 +124,7 @@ export function TwoForms({conf, onSubmit}: {conf: Conf} & OnSubmit) {
 
   const reset = () => ReactDOM.unstable_batchedUpdates(() => forms.forEach(form => form.reset()))
 
-  // React.useEffect(() => on_submit(), [])
+  React.useEffect(() => on_submit(), [])
 
   utils.useWhyChanged('Form', {conf, onSubmit, A_state: A.state, B_state: B.state})
 
