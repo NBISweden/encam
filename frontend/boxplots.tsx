@@ -6,21 +6,22 @@ import * as vp from './vegaplots'
 
 import * as utils from './utils'
 
-interface Row {
+import * as mui from '@material-ui/core'
+
+export interface Row {
   cell: string
   tumor: string
   location: string
-  expression: number
   group: string
 }
 
 type Options = Partial<vp.Options<keyof Row>>
 
-export function Boxplot(props: {data: Row[], facet?: 'cell' | 'tumor'}) {
+function useOptions(props_facet?: keyof Row): [Options, React.ReactElement] {
   const [split, split_checkbox] = utils.useCheckbox('split tumor and stroma', false)
   const [mean, mean_checkbox] = utils.useCheckbox('show mean', false)
   const [radio_facet, facet_radio] = utils.useRadio('facet', ['cell', 'tumor'])
-  const facet = props.facet ?? radio_facet
+  const facet = props_facet ?? radio_facet
   const [orientation, orientation_radio] = utils.useRadio('orientation', ['landscape', 'portrait'])
   const radicals = ['√', '∛', '∜']
   const [scale, scale_radio] = utils.useRadio('scale', ['linear', ...radicals], radicals[0])
@@ -53,25 +54,107 @@ export function Boxplot(props: {data: Row[], facet?: 'cell' | 'tumor'}) {
       exponent: 1 / (2 + r)
     }
   }
-  utils.useWhyChanged('boxplots.Boxplot', {...props, split, radio_facet, orientation, scale, mode})
+  return [
+    React.useMemo(() => options, [JSON.stringify(options)]),
+    <>
+      {split_checkbox}
+      {orientation_radio}
+      {!props_facet && facet_radio}
+      {scale_radio}
+      {mode_radio}
+      {mean_checkbox}
+    </>
+  ]
+}
+
+
+export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tumor'}) {
+
+  const [options, options_form] = useOptions(props.facet)
+  const facet = options.facet
+  if (facet != 'cell' && facet != 'tumor') {
+    throw new Error('Facet needs to be cell or tumor')
+  }
+
+  const facet_vals = utils.uniq(props.data.map(x => x[facet]))
+  const all_facets = Object.fromEntries(facet_vals.map(v => [v, true]))
+  const [visible_facets, facet_boxes, set_visible_facets] = utils.useCheckboxes(facet_vals, all_facets)
+  React.useEffect(() => {
+    set_visible_facets(all_facets)
+  }, [JSON.stringify(facet_vals)])
+  const [show, set_show] = React.useState(true)
+  const icon_style = {marginLeft: -8, transform: 'translateY(7px)'}
+
+  const plot_data = React.useMemo(
+    () => props.data.filter(x => visible_facets[x[facet]]),
+    [props.data, JSON.stringify(visible_facets)]
+  )
+
+  const plot_options = React.useMemo(
+    () => options,
+    [JSON.stringify(options)]
+  )
+
+  const plot = React.useMemo(
+    () => <vp.PrecalcBoxplot data={plot_data} options={plot_options}/>,
+    [plot_data, plot_options]
+  )
+
+  utils.useWhyChanged('boxplots.Boxplot', {
+    ...props, ...options, visible_facets, show, plot_data, plot_options, plot
+  })
+
   return div(
-    <vp.PrecalcBoxplot data={props.data} options={options}/>,
+    css`
+      flex-direction: row;
+      display: flex;
+    `,
     div(
       css`
-        & .MuiFormGroup-root {
-          flex-direction: row;
-        }
-        & {
-          display: flex;
-          flex-direction: column;
+        flex-direction: column;
+        display: flex;
+        margin-left: 2px;
+        margin-right: 7px;
+        // & * {
+        //   font-size: 16px !important;
+        // }
+        .MuiButtonBase-root {
+          padding: 4px;
+          padding-left: 9px;
         }
       `,
-      split_checkbox,
-      orientation_radio,
-      !props.facet && facet_radio,
-      scale_radio,
-      mode_radio,
-      mean_checkbox,
-    )
+      <mui.FormControl>
+        <mui.FormLabel
+          style={{whiteSpace: 'pre', cursor: 'pointer', marginBottom: 2}}
+          onClick={() => set_show(b => !b)}>{
+            show
+              ? <> <ExpandLessIcon style={icon_style}/>{`visible ${facet}s`}</>
+              : <ExpandMoreIcon style={icon_style}/>
+        }</mui.FormLabel>
+        { show && <mui.FormGroup>
+          {facet_boxes}
+        </mui.FormGroup> }
+      </mui.FormControl>
+    ),
+    div(
+      div(
+        css`
+          & .MuiFormGroup-root {
+            flex-direction: row;
+          }
+          & {
+            display: flex;
+            flex-direction: column;
+          }
+        `,
+        plot,
+        options_form,
+      )
+    ),
   )
 }
+
+// import ChevronRightIcon from '@material-ui/icons/ChevronRight'
+// import MoreVertIcon from '@material-ui/icons/MoreVert'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'

@@ -135,7 +135,7 @@ export function useWhyChanged(name: string, props: Record<string, any>) {
       if (r.current !== undefined) {
         const changed: string[] = []
         for (let k in props) {
-          if (r.current[k] !== props[k]) {
+          if (!Object.is(r.current[k], props[k])) {
             changed.push(k)
           }
         }
@@ -149,21 +149,56 @@ export function useWhyChanged(name: string, props: Record<string, any>) {
 }
 
 import { Checkbox, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
 
 export function useCheckbox(label: string, init?: boolean): [boolean, React.ReactElement] {
   const [value, set_value] = React.useState(init === undefined ? true : init)
   return [
     value,
-    <FormControlLabel
+    React.useMemo(() => <FormControlLabel
       label={label}
       key={label}
       checked={value}
       onChange={(_, checked) => set_value(checked)}
       control={<Checkbox size="small" color="primary"/>}
-    />
+    />, [value])
   ]
 }
+
+export function mapObject<K extends string, A, B>(m: Record<K, A>, f: (a: A, k: K, i: number) => B): Record<K, B> {
+  return Object.fromEntries(Object.entries(m).map(([k, a], i) => [k, f(a as A, k as K, i)])) as any
+}
+
+export function useCheckboxes(labels: string[], init?: Record<string, boolean>): [Record<string, boolean>, React.ReactElement, (v: Record<string, boolean>) => void] {
+  const [value, set_value] = React.useState(init === undefined ? {} : init)
+  return [
+    value,
+    <>
+      {labels.map(label =>
+        <FormControlLabel
+          label={label}
+          key={label}
+          checked={value[label] || false}
+          onChange={(e, checked) => {
+            const ev = e.nativeEvent as MouseEvent
+            if (ev.ctrlKey || ev.shiftKey || ev.altKey) {
+              const only_me = selected(value).every((x, i) => i == 0 && x == label)
+              if (only_me) {
+                set_value(mapObject(value, () => true))
+              } else {
+                set_value(mapObject(value, (_, x) => x == label))
+              }
+            } else {
+              set_value(v => ({...v, [label]: checked}))
+            }
+          }}
+          control={<Checkbox size="small" color="primary"/>}
+        />
+      )}
+    </>,
+    set_value,
+  ]
+}
+
 
 export function useRadio<K extends string>(label: string, options: K[], init?: K): [K, React.ReactElement] {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
