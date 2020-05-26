@@ -6,25 +6,33 @@ import json
 from database import db
 import database as database_lib
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/static/')
 
-def cross_origin(f):
-    import functools
-    @functools.wraps(f)
-    def F(*args, **kws):
-        response = f(*args, **kws)
-        response.headers.add('Access-Control-Allow-Origin', '*')
+@app.route('/')
+def main():
+    """
+    Serves the single-page webapp.
+    """
+    return app.send_static_file('index.html')
+
+@app.after_request
+def after_request(response):
+    """
+    Callback that triggers after each request. Currently this is used to set
+    CORS headers to allow a different origin when using the development server.
+    """
+    if app.config['ENV'] == 'development':
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:2345')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        return response
-    return F
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+
+    return response
 
 @app.route('/ping')
-@cross_origin
 def ping():
     return make_response("pong", "text/plain")
 
 @app.route('/filter', methods=['OPTIONS', 'POST'])
-@cross_origin
 def filter():
     if request.method == 'OPTIONS':
         # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
@@ -43,7 +51,6 @@ def filter():
         return jsonify({"error": "Body must be JSON"})
 
 @app.route('/tukey', methods=['OPTIONS', 'POST'])
-@cross_origin
 def tukey():
     if request.method == 'OPTIONS':
         # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
@@ -62,7 +69,6 @@ def tukey():
 
 
 @app.route('/configuration')
-@cross_origin
 def configuration():
     def tidy_values(values):
         values = sorted(values, key=lambda x: (isinstance(x, float), x))
@@ -120,13 +126,11 @@ def configuration():
     return jsonify(config)
 
 @app.route('/codes')
-@cross_origin
 def codes():
     response = jsonify(db.codes_dict)
     return response
 
 @app.route('/database')
-@cross_origin
 def database():
     response = jsonify(db.db.to_dict(orient='records'))
     return response

@@ -6,7 +6,7 @@ import * as vp from './vegaplots'
 
 import * as utils from './utils'
 
-import * as mui from '@material-ui/core'
+import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
 
 export interface Row {
   cell: string
@@ -123,18 +123,18 @@ export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tu
           padding-left: 9px;
         }
       `,
-      <mui.FormControl>
-        <mui.FormLabel
+      <FormControl>
+        <FormLabel
           style={{whiteSpace: 'pre', cursor: 'pointer', marginBottom: 2}}
           onClick={() => set_show(b => !b)}>{
             show
               ? <> <ExpandLessIcon style={icon_style}/>{`visible ${facet}s`}</>
               : <ExpandMoreIcon style={icon_style}/>
-        }</mui.FormLabel>
-        { show && <mui.FormGroup>
+        }</FormLabel>
+        { show && <FormGroup>
           {facet_boxes}
-        </mui.FormGroup> }
-      </mui.FormControl>
+        </FormGroup> }
+      </FormControl>
     ),
     div(
       div(

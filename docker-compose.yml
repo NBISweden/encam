@@ -2,21 +2,21 @@ version: "3.4"
 services:
     api:
         build:
-            context: ./api
+            context: ./
+            dockerfile: api/Dockerfile
             network: host
         ports:
-            - "8080:8080"
+            - 8080:8080
         volumes:
-            - type: bind
-              source: ./api
-              target: /code
+            - ./api:/code
     frontend:
         build:
             context: ./frontend
         volumes:
-            - type: bind
-              source: ./frontend
-              target: /app
+            - ./frontend:/app
+            - /frontend/node_modules
+            - /frontend/.parcel-cache
+            - /frontend/.cache
         working_dir: /app
         ports:
             - 1234:1234
