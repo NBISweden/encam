@@ -26,7 +26,7 @@ function Centered(d: React.ReactNode) {
 }
 
 import {CircularProgress} from '@material-ui/core'
-import * as mui from '@material-ui/core'
+import {Paper as MuiPaper} from '@material-ui/core'
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
@@ -108,7 +108,7 @@ import styled from 'styled-components'
 
 type WithCss<A> = A extends (props : infer P) => JSX.Element ? (props: P & {css?: string}) => JSX.Element : never
 
-const Paper = styled(mui.Paper as WithCss<typeof mui.Paper>).attrs(() => ({
+const Paper = styled(MuiPaper as WithCss<typeof MuiPaper>).attrs(() => ({
   // variant: 'outlined',
   elevation: 2,
 }))`
