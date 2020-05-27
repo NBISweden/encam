@@ -6,7 +6,7 @@ import json
 from database import db
 import database as database_lib
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='/static/')
 
 @app.route('/')
 def main():

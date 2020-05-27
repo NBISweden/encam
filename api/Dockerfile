@@ -1,11 +1,14 @@
 # React build stage
 FROM node:13 as build-stage
 
-COPY ./frontend /build/
-
 WORKDIR /build
 
+COPY frontend/package.json frontend/yarn.lock ./
+
 RUN yarn install --frozen-lockfile
+
+COPY frontend /build
+
 RUN yarn run build
 
 FROM ubuntu:18.04
@@ -21,7 +24,7 @@ RUN pip3 install -r /code/requirements.txt
 
 WORKDIR /code
 
-COPY --from=build-stage /build/dist/* /code/static/
+COPY --from=build-stage /build/dist/* /static/
 
 ENV FLASK_APP=server.py
 ENV FLASK_ENV=development
