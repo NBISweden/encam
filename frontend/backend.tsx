@@ -4,7 +4,7 @@ declare const process: {env: {NODE_ENV: string}}
 
 export const backend_url =
   process.env.NODE_ENV === 'development'
-  ? 'http://localhost:8080/'
+  ? 'http://localhost:80/'
   : ''
 
 export async function request(endpoint: string, body?: any) {
