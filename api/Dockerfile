@@ -9,6 +9,8 @@ RUN yarn install --frozen-lockfile
 
 COPY frontend /build
 
+RUN rm -v /build/babel.config.js
+
 RUN yarn run build
 
 FROM ubuntu:18.04
