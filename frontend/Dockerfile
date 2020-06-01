@@ -1,5 +1,5 @@
 FROM node:14.3
-WORKDIR /app
-COPY package.json yarn.lock ./
+WORKDIR /build
+COPY frontend/package.json frontend/yarn.lock ./
 RUN yarn install --frozen-lockfile
 CMD yarn start
