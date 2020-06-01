@@ -4,20 +4,12 @@ services:
         build:
             context: ./api
             network: host
-        container_name: api
         ports:
             - "8080:8080"
-            - "5001:5001"
         volumes:
             - type: bind
               source: ./api
               target: /code
-    nginx:
-        build: ./nginx
-        container_name: nginx
-        restart: always
-        ports:
-            - "80:80"
     frontend:
         build:
             context: ./frontend
