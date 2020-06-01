@@ -10,3 +10,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the docker-compose images
       run: docker-compose build
+    - name: Run frontend tests
+      run: docker-compose run frontend yarn run test

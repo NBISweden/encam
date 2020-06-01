@@ -1,25 +1,14 @@
 # React build stage
 FROM node:14.3 as build-stage
-
 WORKDIR /build
-
 COPY frontend/package.json frontend/yarn.lock ./
-
 RUN yarn install --frozen-lockfile
 
 COPY frontend /build
-
 RUN rm -v /build/babel.config.js
-
 RUN yarn run build
 
 FROM python:3.8-buster
-
-# FROM ubuntu:20.04
-
-# RUN apt-get update && \
-#     apt-get install -y python3-pip && \
-#     mkdir /code
 
 RUN mkdir /code
 
