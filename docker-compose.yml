@@ -11,13 +11,14 @@ services:
             - ./api:/code
     frontend:
         build:
-            context: ./frontend
+            context: ./
+            dockerfile: frontend/Dockerfile
         volumes:
-            - ./frontend:/app
-            - /frontend/node_modules
-            - /frontend/.parcel-cache
-            - /frontend/.cache
-        working_dir: /app
+            - ./frontend:/build
+            - /build/node_modules
+            - /build/.parcel-cache
+            - /build/.cache
+        working_dir: /build
         ports:
             - 1234:1234
             - 1235:1235

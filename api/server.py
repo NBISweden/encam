@@ -22,7 +22,7 @@ def after_request(response):
     CORS headers to allow a different origin when using the development server.
     """
     if app.config['ENV'] == 'development':
-        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:2345')
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:1234')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         response.headers.add('Access-Control-Allow-Credentials', 'true')
 
