@@ -1,8 +1,0 @@
-version: "3.4"
-services:
-    frontend:
-        command: yarn run build
-        volumes:
-            - type: bind
-              source: ./dist
-              target: /app/dist/browser
