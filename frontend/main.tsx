@@ -57,7 +57,7 @@ function FormAndPlot() {
           ...row,
           group: names[i],
         })))
-        console.log(JSON.stringify(res))
+        // console.log(JSON.stringify(res))
         ReactDOM.unstable_batchedUpdates(() => {
           set_loading(false)
           set_filter(filters[0])
