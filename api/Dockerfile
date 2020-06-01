@@ -12,20 +12,9 @@ RUN pip3 install -r /code/requirements.txt
 
 WORKDIR /code
 
-
+ENV FLASK_APP=server.py
 ENV LC_ALL=C.UTF-8
+
 ENV LANG=C.UTF-8
 
-CMD [ "uwsgi", "app.ini" ]
-
-
-# Running the app with flask
-#ENV FLASK_APP=server.py
-#CMD flask run --reload --host 0.0.0.0 --port=8080
-
-# Alternative ways for running the app through uwsgi
-#CMD uwsgi --http 0.0.0.0:5001 --wsgi-file ${FLASK_APP} --callable app
-#CMD uwsgi app.ini
-
-
-
+CMD flask run --reload --host 0.0.0.0 --port=8080
