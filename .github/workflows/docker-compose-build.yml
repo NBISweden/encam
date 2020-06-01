@@ -9,6 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the docker-compose images
-      run: docker-compose build
+      run: docker-compose build frontend
     - name: Run frontend tests
       run: docker-compose run frontend yarn run test

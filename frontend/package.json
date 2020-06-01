@@ -25,8 +25,7 @@
   },
   "scripts": {
     "start": "parcel serve index.html --hmr-port 1235 --no-source-maps",
-    "build": "rm dist/* -rf; parcel build index.html --no-source-maps",
-    "deploy": "yarn run build && echo deploy script TODO",
+    "build": "rm .parcel-cache dist/* -rf; parcel build index.html --no-source-maps",
     "test": "jest"
   },
   "dependencies": {
