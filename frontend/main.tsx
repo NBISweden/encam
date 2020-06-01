@@ -123,9 +123,9 @@ import * as boxplot_data from './boxplot_data'
 const root = document.querySelector('#root')
 const render = (e: React.ReactElement) => ReactDOM.render(e, root)
 
-// render(<FormAndPlot/>)
+render(<FormAndPlot/>)
 // render(<Splash/>)
-render(<Paper><Boxplot data={boxplot_data.boxplot_data} facet="cell"/></Paper>)
+// render(<Paper><Boxplot data={boxplot_data.boxplot_data} facet="cell"/></Paper>)
 
 // render(<Explore/>)
 // render(Root())
