@@ -336,7 +336,7 @@ export function Demo() {
   const sep = div(css`height: 100`)
   return div(
     <GlobalStyle/>,
-    css`width: 900; margin: auto; background: white;`,
+    css`width: 900; margin: 10 auto; background: white;`,
     css`& > div { display: inline-block; margin: 30px; }`,
     db && plot(db.filter(row => row.cell == 'CD4'), 'bar', {facet_x: 'tumor'}), sep,
     db && plot(db.filter(row => row.cell == 'CD4'), 'forest', {facet_x: 'tumor'}), sep,

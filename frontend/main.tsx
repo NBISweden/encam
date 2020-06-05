@@ -28,9 +28,6 @@ function Centered(d: React.ReactNode) {
 import {CircularProgress} from '@material-ui/core'
 import {Paper as MuiPaper} from '@material-ui/core'
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-
 function FormAndPlot() {
   const conf = backend.useRequest('configuration')
 
@@ -104,7 +101,7 @@ function FormAndPlot() {
   )
 }
 
-import styled from 'styled-components'
+import styled, * as sc from 'styled-components'
 
 type WithCss<A> = A extends (props : infer P) => JSX.Element ? (props: P & {css?: string}) => JSX.Element : never
 
@@ -117,17 +114,69 @@ const Paper = styled(MuiPaper as WithCss<typeof MuiPaper>).attrs(() => ({
   ${props => props.css || ''}
 `
 
-import {Explore} from './explore'
+export const GlobalStyle = sc.createGlobalStyle`
+  * {
+    user-select: none;
+  }
+  html {
+    box-sizing: border-box;
+    overflow-y: scroll;
+  }
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+  html, body, #root {
+    min-height: 100%;
+    width: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: sans-serif, sans;
+  }
+`
+
 import * as boxplot_data from './boxplot_data'
+
+import * as domplots from './domplots'
+
+import {
+  AppBar,
+  Tab,
+  Tabs,
+} from '@material-ui/core'
+
+function Views() {
+  const conf = backend.useRequest('configuration')
+  const [tab, set_tab] = React.useState(0)
+  const tabs = [
+    {label: 'Splash',        component: <Splash/>},
+    {label: 'Boxplot',       component: <Paper><Boxplot data={boxplot_data.boxplot_data} facet="cell"/></Paper>},
+    {label: 'Form',          component: <Paper>{conf && <form.Form     conf={conf} onSubmit={() => {}}/>}</Paper>},
+    {label: 'Group Form',    component: <Paper>{conf && <form.TwoForms conf={conf} onSubmit={() => {}}/>}</Paper>},
+    {label: 'Form&Boxplot',  component: <FormAndPlot/>},
+    {label: 'Domplots demo', component: <domplots.Demo/>},
+  ]
+  return div(
+    <GlobalStyle/>,
+    <AppBar position="static" color="default">
+      <Tabs
+        value={tab}
+        onChange={(_, i) => set_tab(i)}
+        indicatorColor="primary"
+        textColor="primary">
+      {tabs.map(t => <Tab label={t.label} key={t.label}/>)}
+      </Tabs>
+    </AppBar>,
+    div(
+      {key: tab},
+      tabs[tab].component
+    )
+  )
+}
 
 const root = document.querySelector('#root')
 const render = (e: React.ReactElement) => ReactDOM.render(e, root)
 
-render(<FormAndPlot/>)
-// render(<Splash/>)
-// render(<Paper><Boxplot data={boxplot_data.boxplot_data} facet="cell"/></Paper>)
+render(<Views/>)
 
-// render(<Explore/>)
-// render(Root())
-// import * as domplots from './domplots'
-// render(<domplots.Demo/>)
+
