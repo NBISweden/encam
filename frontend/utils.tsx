@@ -116,3 +116,14 @@ export function mapObject<K extends string, A, B>(m: Record<K, A>, f: (a: A, k: 
   return Object.fromEntries(Object.entries(m).map(([k, a], i) => [k, f(a as A, k as K, i)])) as any
 }
 
+export function simple_object_diff<A extends Record<string, any>, B extends Record<string, any>>(prev: A, now: B): Partial<A & B> {
+  const diff = {} as any
+  const keys = [...Object.keys(prev), ...Object.keys(now)]
+  uniq(keys).map(k => {
+    if (JSON.stringify(prev[k]) != JSON.stringify(now[k])) {
+      diff[k] = now[k]
+    }
+  })
+  return diff
+}
+

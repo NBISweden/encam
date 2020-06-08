@@ -10,7 +10,7 @@ import * as ui from './ui_utils'
 import { FormControlLabel, CssBaseline, Box, Grid, Checkbox, TextField, Button } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 
-interface Conf {
+export interface Conf {
   variant_values: {
     column: string,
     values: string[],
@@ -20,10 +20,9 @@ interface Conf {
     tumor: string,
     values: string[],
   }[],
-  cells_full: string[],
   cells: string[],
   tumors: string[],
-  tumor_codes: Record<string, string[]>,
+  tumor_codes: Record<string, string>,
 }
 
 type State =
@@ -45,9 +44,9 @@ function calculate_state0(conf: Conf, key_prefix='') {
   state0.cells = []
   state0.tumors = ['BRCA']
   if (key_prefix == 'A') {
-    state0.clinical_stage = state0.clinical_stage.slice(0, 2)
+    state0.pN_stage = state0.pN_stage.slice(0, 1)
   } else if (key_prefix == 'B') {
-    state0.clinical_stage = state0.clinical_stage.slice(2, 4)
+    state0.pN_stage = state0.pN_stage.slice(1, 2)
   }
   return state0
 }
@@ -63,8 +62,10 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
 }
 
-interface OnSubmit {
-  onSubmit(...form_values: Record<string, any>[]): void
+interface FormProps {
+  conf: Conf
+  onSubmit?: (...form_values: Record<string, any>[]) => void
+  onState?: (...form_values: Record<string, any>[]) => void
 }
 
 function prepare_state_for_backend(state0: State, conf: Conf) {
@@ -84,12 +85,18 @@ function prepare_state_for_backend(state0: State, conf: Conf) {
   }
 }
 
-export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
+export function Form({conf, onSubmit, onState}: FormProps) {
   const {state, reset, form} = useForm(conf)
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
-  ui.useWhyChanged('Form', {conf, onSubmit, state})
+  const get_form_values = () => [prepare_state_for_backend(state, conf)]
+
+  onState && onState(...get_form_values())
+
+  // ui.useRecord()
+
+  ui.useWhyChanged('Form', {conf, state})
 
   const buttons = div(
     css`
@@ -100,8 +107,9 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
     `,
     <Button variant="contained" onClick={() => reset()}>Reset</Button>,
     <Button variant="contained" color="primary" startIcon={<BarChartIcon/>}
-      onClick={() => onSubmit && onSubmit(prepare_state_for_backend(state, conf))}>Plot</Button>
+      onClick={() => onSubmit && onSubmit(...get_form_values())}>Plot</Button>
   )
+
 
   return <Box>
     <CssBaseline/>
@@ -116,21 +124,25 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
   </Box>
 }
 
-export function TwoForms({conf, onSubmit}: {conf: Conf} & OnSubmit) {
+export function TwoForms({conf, onSubmit, onState}: FormProps) {
   const A = useForm(conf, 'A')
   const B = useForm(conf, 'B')
 
   const forms = [A, B]
 
-  const on_submit = () => onSubmit && onSubmit(...forms.map(form => prepare_state_for_backend(form.state, conf)))
+  const get_form_values = () => forms.map(form => prepare_state_for_backend(form.state, conf))
+
+  const on_submit = () => onSubmit && onSubmit(...get_form_values())
+
+  onState && onState(...get_form_values())
 
   const reset = () => ReactDOM.unstable_batchedUpdates(() => forms.forEach(form => form.reset()))
 
-  React.useEffect(() => on_submit(), [])
-
-  ui.useWhyChanged('Form', {conf, onSubmit, A_state: A.state, B_state: B.state})
+  // React.useEffect(() => on_submit(), [])
 
   const [do_stitch, box_stitch] = ui.useCheckbox('stitch', false)
+
+  ui.useWhyChanged('Form', {conf, A_state: A.state, B_state: B.state, do_stitch})
 
   const buttons = div(
     css`
@@ -171,8 +183,8 @@ export function TwoForms({conf, onSubmit}: {conf: Conf} & OnSubmit) {
 
 function useForm(conf: Conf, key_prefix='') {
 
-  const reset = () => calculate_state0(conf, key_prefix)
-  const [state, set_state] = React.useState(reset)
+  const state0 = () => calculate_state0(conf, key_prefix)
+  const [state, set_state] = React.useState(state0)
   const {tumors, cells} = state
   const update_state =
     (next: Partial<State> | ((s: State) => Partial<State>)) =>
@@ -250,16 +262,19 @@ function useForm(conf: Conf, key_prefix='') {
       options={conf.tumors}
       disableCloseOnSelect
       renderOption={(option, {selected}) =>
-        <React.Fragment>
-          <Checkbox
-            icon={icon}
-            checkedIcon={checkedIcon}
-            style={{ marginRight: 8, padding: 0 }}
-            checked={selected}
-            color="primary"
-          />
-          {option} <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({conf.tumor_codes[option]})</i>
-        </React.Fragment>}
+        <>
+          <label>
+            <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8, padding: 0 }}
+              checked={selected}
+              color="primary"
+            />
+            {option}
+          </label>
+          <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({conf.tumor_codes[option]})</i>
+        </>}
       fullWidth={true}
       renderInput={(params) => (
         <TextField {...params}
@@ -283,16 +298,18 @@ function useForm(conf: Conf, key_prefix='') {
       options={conf.cells}
       disableCloseOnSelect
       renderOption={(option, {selected}) =>
-        <React.Fragment>
-          <Checkbox
-            icon={icon}
-            checkedIcon={checkedIcon}
-            style={{ marginRight: 8, padding: 0 }}
-            checked={selected}
-            color="primary"
-          />
-          {option}
-        </React.Fragment>}
+        <>
+          <label>
+            <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8, padding: 0 }}
+              checked={selected}
+              color="primary"
+            />
+            {utils.pretty(option)}
+          </label>
+        </>}
       fullWidth={true}
       renderInput={(params) => (
         <TextField {...params}
@@ -311,7 +328,7 @@ function useForm(conf: Conf, key_prefix='') {
 
   return {
     state,
-    reset,
+    reset: () => set_state(state0()),
     form: [
       tumor_type,
       cell_type,

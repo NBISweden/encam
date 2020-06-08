@@ -33,25 +33,24 @@ export const GlobalStyle = sc.createGlobalStyle`
   }
 `
 
-import * as boxplot_data from './boxplot_data'
+import {boxplot_test_data} from './boxplot_test_data'
+import {form_test_conf} from './form_test_data'
 import * as domplots from './domplots'
 import * as form from './form'
 import {FormAndPlot} from './form_and_plot'
 
 import * as ui from './ui_utils'
 
-import {Paper} from './ui_utils'
 import {Boxplot} from './boxplots'
 import {Splash} from './splash'
 
 export function Views() {
-  const conf = backend.useRequest('configuration')
   const [tab, set_tab] = React.useState(0)
   const tabs = [
     {label: 'Splash',        component: <Splash/>},
-    {label: 'Boxplot',       component: <Paper><Boxplot data={boxplot_data.boxplot_data} facet="cell"/></Paper>},
-    {label: 'Form',          component: <Paper>{conf && <form.Form     conf={conf} onSubmit={() => {}}/>}</Paper>},
-    {label: 'Group Form',    component: <Paper>{conf && <form.TwoForms conf={conf} onSubmit={() => {}}/>}</Paper>},
+    {label: 'Boxplot',       component: <ui.Paper><Boxplot data={boxplot_test_data} facet="cell"/></ui.Paper>},
+    {label: 'Form',          component: <ui.Paper><form.Form     conf={form_test_conf}/></ui.Paper>},
+    {label: 'Group Form',    component: <ui.Paper><form.TwoForms conf={form_test_conf}/></ui.Paper>},
     {label: 'Form&Boxplot',  component: <FormAndPlot/>},
     {label: 'Domplots demo', component: <domplots.Demo/>},
   ]

@@ -2,13 +2,13 @@
 import * as React from 'react'
 import {Boxplot} from './boxplots'
 
-import {boxplot_data} from './boxplot_data'
+import {boxplot_test_data} from './boxplot_test_data'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 import * as q from '@testing-library/react'
 
 test('can change visible cells', async () => {
-  render(<Boxplot data={boxplot_data} facet="cell"/>)
+  render(<Boxplot data={boxplot_test_data} facet="cell"/>)
 
   async function axis_titles() {
     const svg = await waitFor(() => screen.getByLabelText('Vega visualization'))
@@ -31,7 +31,7 @@ test('can change visible cells', async () => {
 })
 
 test('visible cells can be hidden', async () => {
-  const BP = render(<Boxplot data={boxplot_data} facet="cell"/>)
+  const BP = render(<Boxplot data={boxplot_test_data} facet="cell"/>)
 
   expect(screen.getByLabelText('CD4')).toBeTruthy()
 
@@ -47,6 +47,3 @@ test('visible cells can be hidden', async () => {
   expect(screen.getByLabelText('CD4')).toBeTruthy()
   expect(screen.queryByText(/visible cells/)).toBeTruthy()
 })
-
-
-

@@ -119,9 +119,30 @@ export const Paper = styled(MuiPaper as WithCss<typeof MuiPaper>).attrs(() => ({
   ${props => props.css || ''}
 `
 
-export function useKeydown(h: (e: KeyboardEvent) => void) {
+export function useEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions) {
   React.useEffect(() => {
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
+    window.addEventListener(type, listener)
+    return () => window.removeEventListener(type, listener)
   }, [])
+}
+
+export const useKeydown = (h: (e: KeyboardEvent) => void) => useEventListener('keydown', h)
+
+export function useRecord() {
+  useEventListener('click', e => {
+    let p = e.target as HTMLElement | null
+    const p0 = p
+    let hits: Element[] = []
+    while (p) {
+      hits = p.tagName == 'LABEL' || p.tagName == 'BUTTON' ? [p] : Array.from(p.querySelectorAll('label'))
+      if (hits.length > 0) break
+      p = p.parentElement
+    }
+    if (hits.length == 1) {
+      console.log(hits[0].innerText)
+      // console.log({p0, p, hits})
+    } else if (hits.length > 1) {
+      console.warn('Multiple hits:', hits.map(i => i.innerText).join(', '))
+    }
+  })
 }

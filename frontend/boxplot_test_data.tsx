@@ -16,7 +16,7 @@ interface Row {
 }
 
 // CD4, CD4_Treg, CD8 for BRCA and groups A, B
-export const boxplot_data: Row[] = [
+export const boxplot_test_data: Row[] = [
   {
     cell: 'CD4',
     location: 'STROMA',
