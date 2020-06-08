@@ -5,6 +5,8 @@ import {css, div} from './css'
 
 import * as utils from './utils'
 
+import * as ui from './ui_utils'
+
 import { FormControlLabel, CssBaseline, Box, Grid, Checkbox, TextField, Button } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 
@@ -87,7 +89,7 @@ export function Form({conf, onSubmit}: {conf: Conf} & OnSubmit) {
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
-  utils.useWhyChanged('Form', {conf, onSubmit, state})
+  ui.useWhyChanged('Form', {conf, onSubmit, state})
 
   const buttons = div(
     css`
@@ -126,9 +128,9 @@ export function TwoForms({conf, onSubmit}: {conf: Conf} & OnSubmit) {
 
   React.useEffect(() => on_submit(), [])
 
-  utils.useWhyChanged('Form', {conf, onSubmit, A_state: A.state, B_state: B.state})
+  ui.useWhyChanged('Form', {conf, onSubmit, A_state: A.state, B_state: B.state})
 
-  const [do_stitch, box_stitch] = utils.useCheckbox('stitch', false)
+  const [do_stitch, box_stitch] = ui.useCheckbox('stitch', false)
 
   const buttons = div(
     css`

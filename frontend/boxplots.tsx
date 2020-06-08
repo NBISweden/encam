@@ -6,6 +6,8 @@ import * as vp from './vegaplots'
 
 import * as utils from './utils'
 
+import * as ui from './ui_utils'
+
 import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
 
 export interface Row {
@@ -17,15 +19,20 @@ export interface Row {
 
 type Options = Partial<vp.Options<keyof Row>>
 
+// import ChevronRightIcon from '@material-ui/icons/ChevronRight'
+// import MoreVertIcon from '@material-ui/icons/MoreVert'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+
 function useOptions(props_facet?: keyof Row): [Options, React.ReactElement] {
-  const [split, split_checkbox] = utils.useCheckbox('split tumor and stroma', false)
-  const [mean, mean_checkbox] = utils.useCheckbox('show mean', false)
-  const [radio_facet, facet_radio] = utils.useRadio('facet', ['cell', 'tumor'])
+  const [split, split_checkbox] = ui.useCheckbox('split tumor and stroma', false)
+  const [mean, mean_checkbox] = ui.useCheckbox('show mean', false)
+  const [radio_facet, facet_radio] = ui.useRadio('facet', ['cell', 'tumor'])
   const facet = props_facet ?? radio_facet
-  const [orientation, orientation_radio] = utils.useRadio('orientation', ['landscape', 'portrait'])
+  const [orientation, orientation_radio] = ui.useRadio('orientation', ['landscape', 'portrait'])
   const radicals = ['√', '∛', '∜']
-  const [scale, scale_radio] = utils.useRadio('scale', ['linear', ...radicals], radicals[0])
-  const [mode, mode_radio] = utils.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
+  const [scale, scale_radio] = ui.useRadio('scale', ['linear', ...radicals], radicals[0])
+  const [mode, mode_radio] = ui.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
   const opposite = (x: keyof Row) => x === 'cell' ? 'tumor' : 'cell'
   const options: Partial<Options> =
     split
@@ -78,7 +85,7 @@ export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tu
 
   const facet_vals = utils.uniq(props.data.map(x => x[facet]))
   const all_facets = Object.fromEntries(facet_vals.map(v => [v, true]))
-  const [visible_facets, facet_boxes, set_visible_facets] = utils.useCheckboxes(facet_vals, all_facets)
+  const [visible_facets, facet_boxes, set_visible_facets] = ui.useCheckboxes(facet_vals, all_facets)
   React.useEffect(() => {
     set_visible_facets(all_facets)
   }, [JSON.stringify(facet_vals)])
@@ -100,7 +107,7 @@ export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tu
     [plot_data, plot_options]
   )
 
-  utils.useWhyChanged('boxplots.Boxplot', {
+  ui.useWhyChanged('boxplots.Boxplot', {
     ...props, ...options, visible_facets, show, plot_data, plot_options, plot
   })
 
@@ -118,7 +125,7 @@ export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tu
         // & * {
         //   font-size: 16px !important;
         // }
-        .MuiButtonBase-root {
+        & .MuiButtonBase-root {
           padding: 4px;
           padding-left: 9px;
         }
@@ -154,7 +161,3 @@ export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tu
   )
 }
 
-// import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-// import MoreVertIcon from '@material-ui/icons/MoreVert'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'

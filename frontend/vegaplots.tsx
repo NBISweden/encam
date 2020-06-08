@@ -5,6 +5,7 @@ import * as V from 'vega'
 import * as stripes from './stripes'
 
 import * as utils from './utils'
+import * as ui from './ui_utils'
 
 import * as domplots from './domplots'
 
@@ -78,7 +79,7 @@ function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.R
   const runtime: V.Runtime = memo(spec, () => {
     return V.parse(VL.compile(spec).spec)
   })
-  utils.useWhyChanged('vp.Embed', {spec, data, el, runtime})
+  ui.useWhyChanged('vp.Embed', {spec, data, el, runtime})
   React.useEffect(() =>
     {
       if (el) {
@@ -170,7 +171,7 @@ function orient(options: Options<any>) {
 
 export const PrecalcBoxplot = React.memo(
   function PrecalcBoxplot<K extends string, Row extends Record<K, any> & Precalc>({data, options}: {data: Row[], options?: Partial<Options<K>>}) {
-    utils.useWhyChanged('vp.PrecalcBoxplot', {data, options})
+    ui.useWhyChanged('vp.PrecalcBoxplot', {data, options})
     return precalc_boxplot(data, options)
   }
 )

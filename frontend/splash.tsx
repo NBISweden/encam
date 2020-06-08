@@ -366,7 +366,7 @@ function reduce(state: State, action: Action) {
 
 const SplashCtx = React.createContext({} as {db?: DB, range?: DBRange})
 
-export default function Splash() {
+export function Splash() {
   const db0 = backend.useRequest('database') as undefined | DB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
   const range = React.useMemo(() => db ? utils.row_range(db) : undefined, [db])

@@ -1,4 +1,3 @@
-import * as React from 'react'
 
 export function by<A, B>(f: (a: A) => B) {
   return (x: A, y: A) => {
@@ -99,20 +98,6 @@ export function cap(N: number, d: Record<string, boolean>) {
   return Object.fromEntries(last(N, selected(d)).map(k => [k, true]))
 }
 
-export function useDebounce(ms: number, k: Function) {
-  const [block, set_block] = React.useState(false)
-  const [res, set_res] = React.useState(undefined)
-  React.useEffect(() => {
-    if (!block) {
-      const timer = setTimeout(() => set_block(false), ms)
-      set_res(k())
-      set_block(true)
-      return () => clearTimeout(timer)
-    }
-  })
-  return res
-}
-
 export function Memoizer<K, V>() {
   const mems = {} as Record<string, V>
   return function memo(k: K, calc: () => V): V {
@@ -127,95 +112,7 @@ export function Memoizer<K, V>() {
   }
 }
 
-declare const process: {env: {NODE_ENV: string}}
-export function useWhyChanged(name: string, props: Record<string, any>) {
-  if (process.env.NODE_ENV === 'development') {
-    const r = React.useRef()
-    React.useEffect(() => {
-      if (r.current !== undefined) {
-        const changed: string[] = []
-        for (let k in props) {
-          if (!Object.is(r.current[k], props[k])) {
-            changed.push(k)
-          }
-        }
-        console.log(`${name}: ${changed.join(', ')} changed`)
-      } else {
-        console.log(`${name} created`)
-      }
-      r.current = props || {}
-    })
-  }
-}
-
-import { Checkbox, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core'
-
-export function useCheckbox(label: string, init?: boolean): [boolean, React.ReactElement] {
-  const [value, set_value] = React.useState(init === undefined ? true : init)
-  return [
-    value,
-    React.useMemo(() => <FormControlLabel
-      label={label}
-      key={label}
-      checked={value}
-      onChange={(_, checked) => set_value(checked)}
-      control={<Checkbox size="small" color="primary"/>}
-    />, [value])
-  ]
-}
-
 export function mapObject<K extends string, A, B>(m: Record<K, A>, f: (a: A, k: K, i: number) => B): Record<K, B> {
   return Object.fromEntries(Object.entries(m).map(([k, a], i) => [k, f(a as A, k as K, i)])) as any
 }
 
-export function useCheckboxes(labels: string[], init?: Record<string, boolean>): [Record<string, boolean>, React.ReactElement, (v: Record<string, boolean>) => void] {
-  const [value, set_value] = React.useState(init === undefined ? {} : init)
-  return [
-    value,
-    <>
-      {labels.map(label =>
-        <FormControlLabel
-          label={label}
-          key={label}
-          checked={value[label] || false}
-          onChange={(e, checked) => {
-            const ev = e.nativeEvent as MouseEvent
-            if (ev.ctrlKey || ev.shiftKey || ev.altKey) {
-              const only_me = selected(value).every((x, i) => i == 0 && x == label)
-              if (only_me) {
-                set_value(mapObject(value, () => true))
-              } else {
-                set_value(mapObject(value, (_, x) => x == label))
-              }
-            } else {
-              set_value(v => ({...v, [label]: checked}))
-            }
-          }}
-          control={<Checkbox size="small" color="primary"/>}
-        />
-      )}
-    </>,
-    set_value,
-  ]
-}
-
-
-export function useRadio<K extends string>(label: string, options: K[], init?: K): [K, React.ReactElement] {
-  const [value, set_value] = React.useState(init === undefined ? options[0] : init)
-  return [
-    value,
-    <FormControl component="fieldset">
-      <FormLabel component="legend">{label}</FormLabel>
-      <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
-        {options.map(option =>
-          <FormControlLabel
-            label={option}
-            value={option}
-            key={option}
-            control={<Radio size="small" color="primary"/>}
-          />
-        )}
-      </RadioGroup>
-    </FormControl>
-  ]
-}
