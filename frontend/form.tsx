@@ -62,7 +62,7 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
 }
 
-interface FormProps {
+export interface FormProps {
   conf: Conf
   onSubmit?: (...form_values: Record<string, any>[]) => void
   onState?: (...form_values: Record<string, any>[]) => void
@@ -193,41 +193,39 @@ function useForm(conf: Conf, key_prefix='') {
   const specific = conf.tumor_specific_values
     .map(t => memo(
       [state[t.column + ',' + t.tumor], cells.length || tumors.includes(t.tumor)],
-      () => <Autocomplete
-        key={key_prefix + ':' + t.column + t.tumor}
-        multiple
-        style={{
-          display: (cells.length || tumors.includes(t.tumor))
-            ? undefined
-            : 'none'
-        }}
-        options={t.values}
-        disableCloseOnSelect
-        renderOption={(option, {selected}) =>
-          <React.Fragment>
-            <Checkbox
-              icon={icon}
-              checkedIcon={checkedIcon}
-              style={{ marginRight: 8, padding: 0 }}
-              checked={selected}
-              color="primary"
-            />
-            {option}
-          </React.Fragment>}
-        renderInput={(params) => {
-          const error = state[t.column + ',' + t.tumor].length == 0
-          return (
-            <TextField {...params}
-              variant="outlined"
-              label={t.column + ' ' + t.tumor}
-              error={error}
-              helperText={error && "Need at least one option"}
-            />
-        )}}
-        size="small"
-        onChange={(_, selected) => update_state({[t.column + ',' + t.tumor]: selected})}
-        value={state[t.column + ',' + t.tumor] || t.values}
-      />))
+      () => cells.length || tumors.includes(t.tumor)
+        ? <Autocomplete
+          key={key_prefix + ':' + t.column + t.tumor}
+          multiple
+          options={t.values}
+          disableCloseOnSelect
+          renderOption={(option, {selected}) =>
+            <label>
+              <Checkbox
+                icon={icon}
+                checkedIcon={checkedIcon}
+                style={{ marginRight: 8, padding: 0 }}
+                checked={selected}
+                color="primary"
+              />
+              {utils.pretty(option)}
+            </label>
+          }
+          renderInput={(params) => {
+            const error = state[t.column + ',' + t.tumor].length == 0
+            return (
+              <TextField {...params}
+                variant="outlined"
+                label={t.column + ' ' + t.tumor}
+                error={error}
+                helperText={error && "Need at least one option"}
+              />
+          )}}
+          size="small"
+          onChange={(_, selected) => update_state({[t.column + ',' + t.tumor]: selected})}
+          value={state[t.column + ',' + t.tumor] || t.values}
+        />
+        : <React.Fragment/>))
 
   const misc_filters = conf.variant_values
     .map(v => memo([state[v.column]], () =>
@@ -298,18 +296,16 @@ function useForm(conf: Conf, key_prefix='') {
       options={conf.cells}
       disableCloseOnSelect
       renderOption={(option, {selected}) =>
-        <>
-          <label>
-            <Checkbox
-              icon={icon}
-              checkedIcon={checkedIcon}
-              style={{ marginRight: 8, padding: 0 }}
-              checked={selected}
-              color="primary"
-            />
-            {utils.pretty(option)}
-          </label>
-        </>}
+        <label>
+          <Checkbox
+            icon={icon}
+            checkedIcon={checkedIcon}
+            style={{ marginRight: 8, padding: 0 }}
+            checked={selected}
+            color="primary"
+          />
+          {utils.pretty(option)}
+        </label>}
       fullWidth={true}
       renderInput={(params) => (
         <TextField {...params}
