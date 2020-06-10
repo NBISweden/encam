@@ -73,7 +73,7 @@ export function Views() {
       {tabs.map(t => <Tab label={t.label} key={t.label}/>)}
       </Tabs>
     </AppBar>,
-      tabs[tab].component
+    tabs[tab].component
   )
 }
 
