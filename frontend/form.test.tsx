@@ -10,7 +10,6 @@ import {within, render, fireEvent, screen} from '@testing-library/react'
 import * as q from '@testing-library/react'
 
 const {click} = fireEvent
-
 const {getByLabelText} = screen
 
 type State = Record<string, any>

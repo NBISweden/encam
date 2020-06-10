@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom'
 import * as React from 'react'
-import * as backend from './backend'
+import {backend} from './backend'
 
 import {css, div} from './css'
 
@@ -11,8 +11,9 @@ import * as form from './form'
 
 import {CircularProgress} from '@material-ui/core'
 
-export function FormAndPlot() {
-  const conf = backend.useRequest('configuration')
+export function FormAndPlot(props: {backend?: typeof backend}) {
+  const the_backend = props.backend || backend
+  const conf = the_backend.useRequest('configuration')
 
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
@@ -23,7 +24,7 @@ export function FormAndPlot() {
       // console.log('filter:', filters)
       set_loading(true)
       console.time('request')
-      backend.request('tukey', filters).then((res: any[][]) => {
+      the_backend.request('tukey', filters).then((res: any[][]) => {
         console.timeEnd('request')
         // console.log('res:', res[0])
         // console.log(res)

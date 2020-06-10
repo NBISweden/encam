@@ -210,3 +210,9 @@ export const boxplot_test_data: Row[] = [
     group: 'B'
   },
 ]
+
+import * as utils from './utils'
+
+export const boxplot_test_data_grouped: Row[][] =
+  Object.values(utils.groupBy('group', boxplot_test_data))
+

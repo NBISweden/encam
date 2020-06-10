@@ -32,7 +32,7 @@ type State =
     cells: string[],
   }
 
-function calculate_state0(conf: Conf, key_prefix='') {
+function calculate_state0(conf: Conf, key_prefix: string) {
   const state0 = {} as State
   conf.variant_values.forEach(v => {
     state0[v.column] = v.values
