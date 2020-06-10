@@ -12,7 +12,7 @@ import * as domplots from './domplots'
 
 import styled, * as sc from 'styled-components'
 
-import * as backend from './backend'
+import {backend} from './backend'
 
 export const GlobalStyle = sc.createGlobalStyle`
   label {
@@ -98,9 +98,10 @@ function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (
       checked,
       text: x,
       onClick,
-      label: <span>{utils.pretty(x)}</span>,
+      label: <label htmlFor={x}>{utils.pretty(x)}</label>,
       checkbox:
         <span
+          id={x}
           onClick={onClick}
           style={{
             borderRadius: '100px',
@@ -117,35 +118,37 @@ function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (
 
 declare const require: (s: string) => string
 
-const body = require('./img/bodies.png')
+const IN_JEST = process.env.JEST_WORKER_ID ? 'img' : undefined
 
 const cell_pngs: Record<string, string> = {
-  B_cells:      require('./img/B_cells.png'),
-  CD4:          require('./img/CD4.png'),
-  CD4_Treg:     require('./img/CD4_Treg.png'),
-  CD8:          require('./img/CD8.png'),
-  CD8_Treg:     require('./img/CD8_Treg.png'),
-  M1:           require('./img/M1.png'),
-  M2:           require('./img/M2.png'),
-  NK:           require('./img/NK.png'),
-  NKT:          require('./img/NKT.png'),
-  mDC:          require('./img/mDC.png'),
-  pDC:          require('./img/pDC.png'),
-  iDC:          require('./img/iDC.png'),
+  B_cells:      IN_JEST || require('./img/B_cells.png'),
+  CD4:          IN_JEST || require('./img/CD4.png'),
+  CD4_Treg:     IN_JEST || require('./img/CD4_Treg.png'),
+  CD8:          IN_JEST || require('./img/CD8.png'),
+  CD8_Treg:     IN_JEST || require('./img/CD8_Treg.png'),
+  M1:           IN_JEST || require('./img/M1.png'),
+  M2:           IN_JEST || require('./img/M2.png'),
+  NK:           IN_JEST || require('./img/NK.png'),
+  NKT:          IN_JEST || require('./img/NKT.png'),
+  mDC:          IN_JEST || require('./img/mDC.png'),
+  pDC:          IN_JEST || require('./img/pDC.png'),
+  iDC:          IN_JEST || require('./img/iDC.png'),
 
-  'Myeloid cell': require('./img/Myeloid.png'),
-  Granulocyte: require('./img/Granulocytes.png'),
+  'Myeloid cell': IN_JEST || require('./img/Myeloid.png'),
+  Granulocyte: IN_JEST || require('./img/Granulocytes.png'),
 }
 
-// const codes = require('./codes.json') as Record<string, string>
+const center_img = IN_JEST || require('./img/center-trimmed.svg')
+
+// const codes = IN_JEST || require('./codes.json') as Record<string, string>
 
 const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
 const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
 const both = [...left, ...right]
 
-function Center({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>}) {
+function Center({state, dispatch, the_backend}: {state: State, dispatch: React.Dispatch<Action>, the_backend: typeof backend}) {
   const {db} = React.useContext(SplashCtx)
-  const codes = backend.useRequest('codes') || {}
+  const codes = the_backend.useRequest('codes') || {}
   Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
   const [hover, set_hover] = React.useState('')
   const tumor_labels =
@@ -238,7 +241,7 @@ function Center({state, dispatch}: {state: State, dispatch: React.Dispatch<Actio
           position: 'relative',
         },
       },
-      <img src={require('./img/center-trimmed.svg')} style={{
+      <img src={center_img} style={{
         // width: '24%',
         position: 'absolute',
         width: '64%',
@@ -283,7 +286,7 @@ function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>
             const img_props: React.ImgHTMLAttributes<HTMLImageElement> = thief ? {onLoad: e => thief(cell, e.target as any)} : {}
             const img = cell_png && <img src={cell_png} {...img_props}/>
             const color = cell_color(x.text)
-            return <label key={i} onClick={x.onClick}>{div(
+            return <label key={i} id={cell} htmlFor={cell} onClick={x.onClick}>{div(
               {style: {
                 border: `1.5px ${color} solid`,
                 background: x.checked ? color : 'white',
@@ -311,7 +314,7 @@ function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>
                   display: inline;
                   text-align: center;
                 `,
-                x.label
+                utils.pretty(cell) // x.label
               )
             )
           }</label>})}
@@ -366,8 +369,9 @@ function reduce(state: State, action: Action) {
 
 const SplashCtx = React.createContext({} as {db?: DB, range?: DBRange})
 
-export function Splash() {
-  const db0 = backend.useRequest('database') as undefined | DB
+export function Splash(props: {backend?: typeof backend}) {
+  const the_backend = props.backend || backend
+  const db0 = the_backend.useRequest('database') as undefined | DB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
   const range = React.useMemo(() => db ? utils.row_range(db) : undefined, [db])
   const [state, dispatch] = React.useReducer(reduce, state0)
@@ -378,7 +382,7 @@ export function Splash() {
       <GlobalStyle/>
       <SplashCtx.Provider value={{db, range}}>
         <Left state={state} dispatch={dispatch}/>
-        <Center state={state} dispatch={dispatch}/>
+        <Center state={state} dispatch={dispatch} the_backend={the_backend}/>
         <Right state={state}/>
       </SplashCtx.Provider>
     </div>
