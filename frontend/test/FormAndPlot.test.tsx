@@ -1,7 +1,7 @@
 
 import * as React from 'react'
 
-import {FormAndPlot} from '../src/form_and_plot'
+import {FormAndPlot} from '../src/FormAndPlot'
 
 import {make_backend} from '../src/backend'
 
