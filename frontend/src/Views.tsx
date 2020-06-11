@@ -53,7 +53,8 @@ export function Views() {
     {label: 'Boxplot with Controls', component: <ui.Paper><BoxplotWithControls data={boxplot_test_data} facet="cell"/></ui.Paper>},
     {label: 'Form',                  component: <ui.Paper><form.Form     conf={form_test_conf}/></ui.Paper>},
     {label: 'Group Form',            component: <ui.Paper><form.TwoForms conf={form_test_conf}/></ui.Paper>},
-    {label: 'Form&Plot',             component: <FormAndPlot/>},
+    {label: 'Form&Plot',             component: <FormAndPlot key="Form"/>},
+    {label: 'Group Form&Plot',       component: <FormAndPlot key="TwoForms" form={form.TwoForms}/>},
     {label: 'Domplots demo',         component: <domplots.Demo/>},
   ]
   ui.useKeydown(e => {

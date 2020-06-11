@@ -24,11 +24,9 @@ type Options = Partial<VB.Options<keyof Row>>
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
-function useOptions(props_facet?: keyof Row): [Options, React.ReactElement] {
+function useOptions(facet: keyof Row): [Options, React.ReactElement] {
   const [split, split_checkbox] = ui.useCheckbox('split tumor and stroma', false)
   const [mean, mean_checkbox] = ui.useCheckbox('show mean', false)
-  const [radio_facet, facet_radio] = ui.useRadio('facet', ['cell', 'tumor'])
-  const facet = props_facet ?? radio_facet
   const [orientation, orientation_radio] = ui.useRadio('orientation', ['landscape', 'portrait'])
   const radicals = ['√', '∛', '∜']
   const [scale, scale_radio] = ui.useRadio('scale', ['linear', ...radicals], radicals[0])
@@ -66,7 +64,6 @@ function useOptions(props_facet?: keyof Row): [Options, React.ReactElement] {
     <>
       {split_checkbox}
       {orientation_radio}
-      {!props_facet && facet_radio}
       {scale_radio}
       {mode_radio}
       {mean_checkbox}
@@ -75,13 +72,10 @@ function useOptions(props_facet?: keyof Row): [Options, React.ReactElement] {
 }
 
 
-export function BoxplotWithControls(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tumor'}) {
+export function BoxplotWithControls(props: { data: (Row & VB.Precalc)[], facet: 'cell' | 'tumor' }) {
 
   const [options, options_form] = useOptions(props.facet)
-  const facet = options.facet
-  if (facet != 'cell' && facet != 'tumor') {
-    throw new Error('Facet needs to be cell or tumor')
-  }
+  const facet = props.facet
 
   const facet_vals = utils.uniq(props.data.map(x => x[facet]))
   const all_facets = Object.fromEntries(facet_vals.map(v => [v, true]))
@@ -98,16 +92,13 @@ export function BoxplotWithControls(props: {data: (Row & vp.Precalc)[], facet?: 
   )
 
   const plot_options = React.useMemo(
-    () => options,
+    () => ({...options, trimmable: {group: true}}),
     [JSON.stringify(options)]
   )
 
-  const plot = React.useMemo(
-    () => <VB.VegaBoxplot data={plot_data} options={plot_options}/>,
-    [plot_data, plot_options]
-  )
+  const plot = <VB.VegaBoxplot data={plot_data} options={plot_options}/>
 
-  ui.useWhyChanged('boxplots.BoxplotWithControls', {
+  ui.useWhyChanged('BoxplotWithControls', {
     ...props, ...options, visible_facets, show, plot_data, plot_options, plot
   })
 

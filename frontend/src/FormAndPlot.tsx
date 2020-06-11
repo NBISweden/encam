@@ -11,8 +11,9 @@ import * as form from './Form'
 
 import {CircularProgress} from '@material-ui/core'
 
-export function FormAndPlot(props: {backend?: typeof backend}) {
+export function FormAndPlot(props: {form?: typeof form.Form, backend?: typeof backend}) {
   const the_backend = props.backend || backend
+  const Form = props.form || form.Form
   const conf = the_backend.useRequest('configuration')
 
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
@@ -21,24 +22,15 @@ export function FormAndPlot(props: {backend?: typeof backend}) {
   const plot = filter && plot_data && <BoxplotWithControls key="plot" data={plot_data} facet={filter.facet} />
   const onSubmit = React.useCallback(
     (...filters) => {
-      // console.log('filter:', filters)
       set_loading(true)
-      console.time('request')
+      // console.time('request')
       the_backend.request('tukey', filters).then((res: any[][]) => {
-        console.timeEnd('request')
-        // console.log('res:', res[0])
-        // console.log(res)
-        // if (filters.length > 1) {
-        //   const facet = filters[0].facet
-        //   const opp = facet === 'tumor' ? 'cell' : 'tumor'
-        //   console.log({res})
-        // }
+        // console.timeEnd('request')
         const names = ['A', 'B']
         res = res.flatMap((r, i) => r.map(row => ({
           ...row,
           group: names[i],
         })))
-        // console.log(JSON.stringify(res))
         ReactDOM.unstable_batchedUpdates(() => {
           set_loading(false)
           set_filter(filters[0])
@@ -64,7 +56,7 @@ export function FormAndPlot(props: {backend?: typeof backend}) {
         }
       ">
       {conf
-        ? <form.TwoForms key="form" conf={conf} onSubmit={onSubmit}/>
+        ? <Form key="form" conf={conf} onSubmit={onSubmit}/>
         : <CircularProgress />}
     </ui.Paper>,
     (plot || loading) && <ui.Paper key="plot" style={{width: 'fit-content', position: 'relative'}}>

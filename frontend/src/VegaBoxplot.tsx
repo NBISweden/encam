@@ -1,4 +1,5 @@
 import * as ui from './ui_utils'
+import * as utils from './utils'
 import * as VL from 'vega-lite'
 
 import * as React from 'react'
@@ -19,6 +20,7 @@ export interface Options<K> {
   scale: {type: 'linear' | 'semilog'} | {type: 'pow', exponent: number}
   mode: 'default' | 'min-max' | 'outliers'
   show_mean: boolean
+  trimmable: Record<string, boolean>
 }
 
 const default_options: Options<string> = {
@@ -36,6 +38,7 @@ const default_options: Options<string> = {
   inner_axis: false,
   mode: 'default',
   show_mean: false,
+  trimmable: {},
 }
 
 function orient(options: Options<any>) {
@@ -112,8 +115,16 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     datum.location = datum.location == 'STROMA' ? 1 : 0
   })
 
-  const prepare_option = (xs: string | string[], sep=',') => {
-    const array = ensure_array(xs)
+  const prepare_option = (keys: string | string[], sep=',') => {
+    const array = ensure_array(keys).filter(k => {
+      if (!(options.trimmable || {})[k]) {
+        return true
+      }
+      const range = utils.uniq(data.map(datum => datum[k]))
+      const nontrivial = range.length > 1
+      // console.log(k, 'is', nontrivial ? 'nontrivial' : 'trivial', range)
+      return nontrivial
+    })
     const key = array.join(',')
     if (array.length) {
       data.forEach(datum => {
