@@ -75,7 +75,7 @@ function useOptions(props_facet?: keyof Row): [Options, React.ReactElement] {
 }
 
 
-export function BoxplotWithControls(props: {data: (Row & VB.Precalc)[], facet?: 'cell' | 'tumor'}) {
+export function BoxplotWithControls(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tumor'}) {
 
   const [options, options_form] = useOptions(props.facet)
   const facet = options.facet
@@ -107,7 +107,7 @@ export function BoxplotWithControls(props: {data: (Row & VB.Precalc)[], facet?: 
     [plot_data, plot_options]
   )
 
-  ui.useWhyChanged('boxplots.Boxplot', {
+  ui.useWhyChanged('boxplots.BoxplotWithControls', {
     ...props, ...options, visible_facets, show, plot_data, plot_options, plot
   })
 

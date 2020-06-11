@@ -41,20 +41,20 @@ import {FormAndPlot} from './form_and_plot'
 
 import * as ui from './ui_utils'
 
-import {Boxplot} from './boxplots'
+import {BoxplotWithControls} from './BoxplotWithControls'
 import {Splash} from './splash'
 import {backend as splash_test_backend} from '../test/data/splash'
 
 export function Views() {
   const [tab, set_tab] = React.useState(0)
   const tabs = [
-    {label: 'Splash',              component: <Splash/>},
-    {label: 'Splash mock backend', component: <Splash key="mock" backend={splash_test_backend}/>},
-    {label: 'Boxplot',             component: <ui.Paper><Boxplot data={boxplot_test_data} facet="cell"/></ui.Paper>},
-    {label: 'Form',                component: <ui.Paper><form.Form     conf={form_test_conf}/></ui.Paper>},
-    {label: 'Group Form',          component: <ui.Paper><form.TwoForms conf={form_test_conf}/></ui.Paper>},
-    {label: 'Form&Boxplot',        component: <FormAndPlot/>},
-    {label: 'Domplots demo',       component: <domplots.Demo/>},
+    {label: 'Splash',                component: <Splash/>},
+    {label: 'Splash mock backend',   component: <Splash key="mock" backend={splash_test_backend}/>},
+    {label: 'Boxplot with Controls', component: <ui.Paper><BoxplotWithControls data={boxplot_test_data} facet="cell"/></ui.Paper>},
+    {label: 'Form',                  component: <ui.Paper><form.Form     conf={form_test_conf}/></ui.Paper>},
+    {label: 'Group Form',            component: <ui.Paper><form.TwoForms conf={form_test_conf}/></ui.Paper>},
+    {label: 'Form&Plot',             component: <FormAndPlot/>},
+    {label: 'Domplots demo',         component: <domplots.Demo/>},
   ]
   ui.useKeydown(e => {
     if (e.key == '[') {

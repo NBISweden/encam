@@ -6,7 +6,7 @@ import {css, div} from './css'
 
 import * as ui from './ui_utils'
 
-import {Boxplot} from './boxplots'
+import {BoxplotWithControls} from './BoxplotWithControls'
 import * as form from './form'
 
 import {CircularProgress} from '@material-ui/core'
@@ -18,7 +18,7 @@ export function FormAndPlot(props: {backend?: typeof backend}) {
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
   const [loading, set_loading] = React.useState(false)
-  const plot = filter && plot_data && <Boxplot key="plot" data={plot_data} facet={filter.facet} />
+  const plot = filter && plot_data && <BoxplotWithControls key="plot" data={plot_data} facet={filter.facet} />
   const onSubmit = React.useCallback(
     (...filters) => {
       // console.log('filter:', filters)
