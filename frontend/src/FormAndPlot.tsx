@@ -7,7 +7,7 @@ import {css, div} from './css'
 import * as ui from './ui_utils'
 
 import {BoxplotWithControls} from './BoxplotWithControls'
-import * as form from './form'
+import * as form from './Form'
 
 import {CircularProgress} from '@material-ui/core'
 

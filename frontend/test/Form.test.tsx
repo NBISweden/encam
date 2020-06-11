@@ -1,6 +1,6 @@
 
 import * as React from 'react'
-import * as form from '../src/form'
+import * as form from '../src/Form'
 
 import * as utils from '../src/utils'
 

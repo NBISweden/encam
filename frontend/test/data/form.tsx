@@ -1,4 +1,4 @@
-import {Conf} from './form'
+import {Conf} from '../../src/Form'
 
 export const form_test_conf: Conf = {
   cells: [
