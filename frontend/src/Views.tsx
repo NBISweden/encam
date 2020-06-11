@@ -42,7 +42,7 @@ import {FormAndPlot} from './FormAndPlot'
 import * as ui from './ui_utils'
 
 import {BoxplotWithControls} from './BoxplotWithControls'
-import {Splash} from './splash'
+import {Splash} from './Splash'
 import {backend as splash_test_backend} from '../test/data/splash'
 
 export function Views() {

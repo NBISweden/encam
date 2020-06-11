@@ -1,7 +1,7 @@
 
 import * as React from 'react'
 
-import * as splash from '../src/splash'
+import {Splash} from '../src/Splash'
 
 import {backend} from './data/splash'
 
@@ -10,9 +10,9 @@ import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 const {click} = fireEvent
 const {getByLabelText} = screen
 
-describe(splash.Splash, () => {
+describe(Splash, () => {
   test('draws plots and one tumor type at a time can be selected', async () => {
-    render(<splash.Splash backend={backend}/>)
+    render(<Splash backend={backend}/>)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
 
@@ -40,7 +40,7 @@ describe(splash.Splash, () => {
   })
 
   test('draws plots and up to three cell types can be selected', async () => {
-    render(<splash.Splash backend={backend}/>)
+    render(<Splash backend={backend}/>)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
 
