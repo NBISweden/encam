@@ -5,16 +5,10 @@ RUN apt-get update && \
           && \
     mkdir /code
 
-COPY requirements.txt /code/
-COPY SIM.csv .
+
+WORKDIR /api_source
+COPY ./ /code/
+WORKDIR /code
 
 RUN pip3 install -r /code/requirements.txt
 
-WORKDIR /code
-
-ENV FLASK_APP=server.py
-ENV LC_ALL=C.UTF-8
-
-ENV LANG=C.UTF-8
-
-CMD flask run --reload --host 0.0.0.0 --port=8080
