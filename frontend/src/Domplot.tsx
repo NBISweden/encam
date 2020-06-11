@@ -3,43 +3,19 @@ import * as stripes from './stripes'
 
 import {div, css} from './css'
 
-// import * as plots from './plots'
-
 import * as utils from './utils'
 
 import {DB, Row} from './db'
 
 import styled, * as sc from 'styled-components'
 
-export const GlobalStyle = sc.createGlobalStyle`
+import {cell_color} from './cell_colors'
+
+export const DomplotCSS = sc.createGlobalStyle`
   .striped {
     background-image: url('data:image/svg+xml;base64,${btoa(stripes.patternSVG)}')
   }
 `
-
-export const colors: Record<string, string> = {
-  "CD4": "rgb(237,175,127)",
-  "CD8": "rgb(180,20,4)",
-  "CD8_Treg": "rgb(134,72,89)",
-  "B_cells": "rgb(236,116,11)",
-  "NK": "rgb(246,185,5)",
-  "CD4_Treg": "rgb(212,185,118)",
-  "M1": "rgb(4,147,123)",
-  "NKT": "rgb(140,67,10)",
-  "M2": "rgb(100,132,58)",
-  "Myeloid cell": "rgb(119,148,4)",
-  "iDC": "rgb(70,105,164)",
-  "mDC": "rgb(100,148,202)",
-  "pDC": "rgb(147,170,218)",
-  "Granulocyte": "rgb(170,108,28)"
-}
-
-export const cell_color = (cell: string) => {
-  if (!(cell in colors)) {
-    colors[cell] = '#dab'
-  }
-  return colors[cell]
-}
 
 interface Rect {
   width: number
@@ -131,7 +107,7 @@ const default_options = {
   striped: 'STROMA',
 }
 
-export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<typeof default_options>) {
+export function Domplot({rows, kind, options}: {rows: Row[], kind: 'bar' | 'forest', options?: Partial<typeof default_options>}) {
   const opts = {...default_options, ...options}
   const landscape = opts.orientation == 'landscape'
 
@@ -329,13 +305,22 @@ export function plot(rows: Row[], kind: 'bar' | 'forest', options?: Partial<type
   )
 }
 
-import * as backend from './backend'
+function wrap3
+  <R extends Record<string, any>, K1 extends keyof R, K2 extends keyof R, K3 extends keyof R, T>
+  (f: (r: R) => T, k1: K1, k2: K2, k3: K3)
+{
+  return (x1: R[K1], x2: R[K2], x3: R[K3]) => f({[k1]: x1, [k2]: x2, [k3]: x3} as any)
+}
 
-export function Demo() {
-  const db = backend.useRequest('database') as undefined | DB
+import {backend} from './backend'
+
+export function Demo(props: {backend?: typeof backend}) {
+  const the_backend = props.backend || backend
+  const db = the_backend.useRequest('database') as undefined | DB
   const sep = div(css`height: 100`)
+  const plot = wrap3(Domplot, 'rows', 'kind', 'options')
   return div(
-    <GlobalStyle/>,
+    <DomplotCSS/>,
     css`width: 900; margin: 10 auto; background: white;`,
     css`& > div { display: inline-block; margin: 30px; }`,
     db && plot(db.filter(row => row.cell == 'CD4'), 'bar', {facet_x: 'tumor'}), sep,

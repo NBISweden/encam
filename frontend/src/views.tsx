@@ -35,7 +35,7 @@ export const GlobalStyle = sc.createGlobalStyle`
 
 import {boxplot_test_data} from '../test/data/boxplot'
 import {form_test_conf} from '../test/data/form'
-import * as domplots from './domplots'
+import * as domplots from './Domplot'
 import * as form from './Form'
 import {FormAndPlot} from './FormAndPlot'
 

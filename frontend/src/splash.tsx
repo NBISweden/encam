@@ -7,10 +7,11 @@ import type {DB, DBRange} from './db'
 
 import {css, div} from './css'
 
-import {plot, cell_color} from './domplots'
-import * as domplots from './domplots'
+import {Domplot, DomplotCSS} from './Domplot'
 
 import styled, * as sc from 'styled-components'
+
+import {cell_color} from './cell_colors'
 
 import {backend} from './backend'
 
@@ -217,17 +218,17 @@ function Center({state, dispatch, the_backend}: {state: State, dispatch: React.D
             `),
             {style: plot_style},
             !db || !utils.selected(state.cell).length ? null :
-              plot(
-                db.filter(row => state.cell[row.cell] && row.tumor == tumor),
-                'bar',
-                {
-                  axis_right: !left_side,
-                  height: plot_height,
-                  hulled: false,
-                  x_axis: (i + 1) % T == 0,
-                  max: Math.max(...db.filter(row => state.cell[row.cell]).map(row => row.expression)),
-                }
-              )))
+              <Domplot
+                rows={db.filter(row => state.cell[row.cell] && row.tumor == tumor)}
+                kind="bar"
+                options={{
+                    axis_right: !left_side,
+                    height: plot_height,
+                    hulled: false,
+                    x_axis: (i + 1) % T == 0,
+                    max: Math.max(...db.filter(row => state.cell[row.cell]).map(row => row.expression)),
+                }}/>
+              ))
         })
 
   return div(
@@ -333,12 +334,12 @@ function Right({state}: {state: State}) {
     const opts   = {orientation: 'portrait' as 'portrait', axis_right: true}
     for (const t of tumors) {
       out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(t)}</h2>)
-      out.push(plot(db.filter(row => row.tumor == t), 'bar', opts))
-      out.push(plot(db.filter(row => row.tumor == t), 'forest', opts))
+      out.push(<Domplot rows={db.filter(row => row.tumor == t)} kind="bar" options={opts}/>)
+      out.push(<Domplot rows={db.filter(row => row.tumor == t)} kind="forest" options={opts}/>)
     }
     for (const c of cells) {
       out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(c)}</h2>)
-      out.push(plot(db.filter(row => row.cell == c), 'forest', {facet_x: 'tumor', ...opts}))
+      out.push(<Domplot rows={db.filter(row => row.cell == c)} kind="forest" options={{facet_x: 'tumor', ...opts}}/>)
     }
   }
   return div(
@@ -378,7 +379,7 @@ export function Splash(props: {backend?: typeof backend}) {
 
   return (
     <div id="top" className="row">
-      <domplots.GlobalStyle/>
+      <DomplotCSS/>
       <GlobalStyle/>
       <SplashCtx.Provider value={{db, range}}>
         <Left state={state} dispatch={dispatch}/>

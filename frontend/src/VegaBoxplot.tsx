@@ -5,7 +5,7 @@ import * as React from 'react'
 
 import {Embed} from './vega_utils'
 
-import * as domplots from './domplots'
+import {cell_color} from './cell_colors'
 
 export interface Options<K> {
   inner: K | K[]
@@ -105,7 +105,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
 
   data.map(datum => {
     datum.fill = datum[options.stripes] == 'STROMA' ? 'url(#stripe)' : '#fff0'
-    datum.cell_color = domplots.cell_color(datum.cell) // [options.color])
+    datum.cell_color = cell_color(datum.cell) // [options.color])
     datum.location_lowercase = datum.location.toLowerCase()
 
     // put stroma after tumor
