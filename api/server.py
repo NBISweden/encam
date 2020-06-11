@@ -168,7 +168,7 @@ def data_per_type(dd):
 print("Initialization started", flush=True)
 ntiles = lambda xs: pd.cut(pd.Series(xs).rank(), 2, right=False, labels=False) + 1
 
-data = pd.read_csv("../SIM.csv")
+data = pd.read_csv("SIM.csv")
 
 # Whitespace stripping because of some trailing Morphological_type spaces
 strip = lambda x: x.strip() if isinstance(x, str) else x
