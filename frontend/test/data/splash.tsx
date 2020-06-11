@@ -1,3 +1,5 @@
+import {make_backend} from '../../src/backend'
+
 const codes = {
   "BLCA": "Bladder Urothelial Carcinoma",
   "BRCA": "Breast invasive carcinoma",
@@ -1430,8 +1432,6 @@ const database = [
 
 
 const endpoints = {codes, database}
-
-import {make_backend} from '../src/backend'
 
 export const backend = make_backend(async path => (endpoints as any)[path])
 

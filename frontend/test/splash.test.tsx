@@ -3,7 +3,7 @@ import * as React from 'react'
 
 import * as splash from '../src/splash'
 
-import {backend} from './splash_data'
+import {backend} from './data/splash'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 

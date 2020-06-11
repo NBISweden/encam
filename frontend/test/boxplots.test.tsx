@@ -2,7 +2,7 @@
 import * as React from 'react'
 import {Boxplot} from '../src/boxplots'
 
-import {boxplot_test_data} from './boxplot_data'
+import {boxplot_test_data} from './data/boxplot'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 import * as q from '@testing-library/react'

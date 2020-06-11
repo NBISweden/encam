@@ -5,8 +5,8 @@ import {FormAndPlot} from '../src/form_and_plot'
 
 import {make_backend} from '../src/backend'
 
-import {form_test_conf} from './form_data'
-import {boxplot_test_data_grouped} from './boxplot_data'
+import {form_test_conf} from './data/form'
+import {boxplot_test_data_grouped} from './data/boxplot'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 

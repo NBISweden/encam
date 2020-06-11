@@ -33,8 +33,8 @@ export const GlobalStyle = sc.createGlobalStyle`
   }
 `
 
-import {boxplot_test_data} from '../test/boxplot_data'
-import {form_test_conf} from '../test/form_data'
+import {boxplot_test_data} from '../test/data/boxplot'
+import {form_test_conf} from '../test/data/form'
 import * as domplots from './domplots'
 import * as form from './form'
 import {FormAndPlot} from './form_and_plot'
@@ -43,7 +43,7 @@ import * as ui from './ui_utils'
 
 import {Boxplot} from './boxplots'
 import {Splash} from './splash'
-import {backend as splash_test_backend} from '../test/splash_data'
+import {backend as splash_test_backend} from '../test/data/splash'
 
 export function Views() {
   const [tab, set_tab] = React.useState(0)

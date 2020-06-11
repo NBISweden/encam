@@ -4,7 +4,7 @@ import * as form from '../src/form'
 
 import * as utils from '../src/utils'
 
-import {form_test_conf} from './form_data'
+import {form_test_conf} from './data/form'
 
 import {within, render, fireEvent, screen} from '@testing-library/react'
 import * as q from '@testing-library/react'
