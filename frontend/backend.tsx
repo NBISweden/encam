@@ -2,11 +2,7 @@ import * as React from 'react'
 
 declare const process: {env: {NODE_ENV: string}}
 
-export const backend_url =
-  process.env.NODE_ENV === 'development'
-  ? 'http://localhost:8080/'
-  :
-  'http://129.16.122.36:8080/'
+export const backend_url = window.location.href
 
 export async function request(endpoint: string, body?: any) {
   const init = body ? {
