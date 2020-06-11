@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import {div, css} from './css'
 
-import * as vp from './vegaplots'
+import * as VB from './VegaBoxplot'
 
 import * as utils from './utils'
 
@@ -17,7 +17,7 @@ export interface Row {
   group: string
 }
 
-type Options = Partial<vp.Options<keyof Row>>
+type Options = Partial<VB.Options<keyof Row>>
 
 // import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 // import MoreVertIcon from '@material-ui/icons/MoreVert'
@@ -75,7 +75,7 @@ function useOptions(props_facet?: keyof Row): [Options, React.ReactElement] {
 }
 
 
-export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tumor'}) {
+export function BoxplotWithControls(props: {data: (Row & VB.Precalc)[], facet?: 'cell' | 'tumor'}) {
 
   const [options, options_form] = useOptions(props.facet)
   const facet = options.facet
@@ -103,7 +103,7 @@ export function Boxplot(props: {data: (Row & vp.Precalc)[], facet?: 'cell' | 'tu
   )
 
   const plot = React.useMemo(
-    () => <vp.PrecalcBoxplot data={plot_data} options={plot_options}/>,
+    () => <VB.VegaBoxplot data={plot_data} options={plot_options}/>,
     [plot_data, plot_options]
   )
 
