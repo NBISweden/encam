@@ -1,10 +1,10 @@
 
 import * as React from 'react'
-import * as form from './form'
+import * as form from '../src/form'
 
-import * as utils from './utils'
+import * as utils from '../src/utils'
 
-import {form_test_conf} from './form_test_data'
+import {form_test_conf} from './form_data'
 
 import {within, render, fireEvent, screen} from '@testing-library/react'
 import * as q from '@testing-library/react'

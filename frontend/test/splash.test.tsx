@@ -1,9 +1,9 @@
 
 import * as React from 'react'
 
-import * as splash from './splash'
+import * as splash from '../src/splash'
 
-import {backend} from './splash_test_data'
+import {backend} from './splash_data'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 

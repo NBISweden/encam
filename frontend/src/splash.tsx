@@ -121,24 +121,24 @@ declare const require: (s: string) => string
 const IN_JEST = process.env.JEST_WORKER_ID ? 'img' : undefined
 
 const cell_pngs: Record<string, string> = {
-  B_cells:      IN_JEST || require('./img/B_cells.png'),
-  CD4:          IN_JEST || require('./img/CD4.png'),
-  CD4_Treg:     IN_JEST || require('./img/CD4_Treg.png'),
-  CD8:          IN_JEST || require('./img/CD8.png'),
-  CD8_Treg:     IN_JEST || require('./img/CD8_Treg.png'),
-  M1:           IN_JEST || require('./img/M1.png'),
-  M2:           IN_JEST || require('./img/M2.png'),
-  NK:           IN_JEST || require('./img/NK.png'),
-  NKT:          IN_JEST || require('./img/NKT.png'),
-  mDC:          IN_JEST || require('./img/mDC.png'),
-  pDC:          IN_JEST || require('./img/pDC.png'),
-  iDC:          IN_JEST || require('./img/iDC.png'),
+  B_cells:      IN_JEST || require('../img/B_cells.png'),
+  CD4:          IN_JEST || require('../img/CD4.png'),
+  CD4_Treg:     IN_JEST || require('../img/CD4_Treg.png'),
+  CD8:          IN_JEST || require('../img/CD8.png'),
+  CD8_Treg:     IN_JEST || require('../img/CD8_Treg.png'),
+  M1:           IN_JEST || require('../img/M1.png'),
+  M2:           IN_JEST || require('../img/M2.png'),
+  NK:           IN_JEST || require('../img/NK.png'),
+  NKT:          IN_JEST || require('../img/NKT.png'),
+  mDC:          IN_JEST || require('../img/mDC.png'),
+  pDC:          IN_JEST || require('../img/pDC.png'),
+  iDC:          IN_JEST || require('../img/iDC.png'),
 
-  'Myeloid cell': IN_JEST || require('./img/Myeloid.png'),
-  Granulocyte: IN_JEST || require('./img/Granulocytes.png'),
+  'Myeloid cell': IN_JEST || require('../img/Myeloid.png'),
+  Granulocyte: IN_JEST || require('../img/Granulocytes.png'),
 }
 
-const center_img = IN_JEST || require('./img/center-trimmed.svg')
+const center_img = IN_JEST || require('../img/center-trimmed.svg')
 
 // const codes = IN_JEST || require('./codes.json') as Record<string, string>
 
