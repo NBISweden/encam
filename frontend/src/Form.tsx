@@ -280,6 +280,7 @@ function useForm(conf: Conf, key_prefix='') {
           label={'Tumor types' + (cells.length ? ' (cells selected, comparing across all tumors)' : '')}
         />
       )}
+      style={{minWidth: 500}}
       onChange={(_, selected) => {
         update_state({
           tumors: utils.last(3, selected),
@@ -313,6 +314,7 @@ function useForm(conf: Conf, key_prefix='') {
           label={'Cell types' + (tumors.length ? ' (tumors selected, comparing across all cells)' : '')}
         />
       )}
+      style={{minWidth: 500}}
       onChange={(_, selected) => {
         update_state({
           cells: utils.last(3, selected),

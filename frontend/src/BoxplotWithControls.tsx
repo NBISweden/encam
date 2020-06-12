@@ -19,8 +19,6 @@ export interface Row {
 
 type Options = Partial<VB.Options<keyof Row>>
 
-// import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-// import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
