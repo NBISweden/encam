@@ -106,7 +106,9 @@ export function useDebounce(ms: number, k: Function) {
 
 import styled from 'styled-components'
 
-type WithCss<A> = A extends (props : infer P) => JSX.Element ? (props: P & {css?: string}) => JSX.Element : never
+type Arg0<T> = T extends (a: infer A) => any ? A : never
+
+type WithCss<A> = (props: Arg0<A> & {css?: string}) => JSX.Element
 
 import {Paper as MuiPaper} from '@material-ui/core'
 
@@ -119,10 +121,8 @@ export const Paper = styled(MuiPaper as WithCss<typeof MuiPaper>).attrs(() => ({
   ${props => props.css || ''}
 `
 
-export const InlinePaper = (props: {children: React.ReactNode}) =>
-  <Paper css="display: inline-flex; flex-direction: row">
-    {props.children}
-  </Paper>
+export const InlinePaper = (props: Arg0<typeof MuiPaper> ) =>
+  <Paper css="display: inline-flex; flex-direction: row" {...props}/>
 
 export function useEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions) {
   React.useEffect(() => {

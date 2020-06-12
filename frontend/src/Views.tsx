@@ -18,9 +18,8 @@ export const GlobalStyle = sc.createGlobalStyle`
   * {
     user-select: none;
   }
-  html, body, #root {
-    min-height: 100%;
-    width: 100%;
+  html {
+    width: fit-content;
   }
 `
 

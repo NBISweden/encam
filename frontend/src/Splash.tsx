@@ -17,72 +17,6 @@ import {backend} from './backend'
 
 import * as ui from './ui_utils'
 
-export const GlobalStyle = sc.createGlobalStyle`
-  label {
-    cursor: pointer;
-    padding-top: 2px;
-    padding-bottom: 2px;
-  }
-  svg {
-    display: block;
-  }
-  * {
-    user-select: none;
-  }
-  html {
-    box-sizing: border-box;
-    overflow-y: scroll;
-  }
-  *, *:before, *:after {
-    box-sizing: inherit;
-  }
-  html, body, #root {
-    min-height: 100%;
-    width: min-content;
-    min-width: 100%;
-  }
-  body {
-    margin: 0;
-    font-family: sans-serif, sans;
-  }
-  .row {
-    display: flex;
-    flex-direction: row;
-  }
-  .column {
-    display: flex;
-    flex-direction: column;
-  }
-  #root {
-    background: #eee;
-  }
-  #top {
-    margin: 8 auto;
-    background: #fff;
-  }
-  #left-sidebar {
-    width: 200px;
-    padding: 0 1em;
-  }
-  #center {
-    width: 750px;
-    border-right: 8px #eee solid;
-    border-left: 8px #eee solid;
-    min-height: 660px;
-  }
-  #right-sidebar {
-    width: 200px;
-  }
-  h2 {
-    margin-top: 1em;
-    margin-bottom: 0.8em;
-    margin-left: 0.2em;
-    font-size: 1.1em;
-  }
-  #sidebar {
-  }
-`
-
 declare const require: (s: string) => string
 
 const IN_JEST = process.env.JEST_WORKER_ID ? 'img' : undefined
@@ -140,6 +74,46 @@ function reduce(state: State, action: Action): State {
   }
 }
 
+const flex_column = {
+  display: 'flex' as 'flex',
+  flexDirection: 'column' as 'column',
+}
+
+const useStyles = makeStyles({
+  Splash: {
+    '& label': {
+      cursor: 'pointer',
+      paddingTop: 2,
+      paddingBottom: 2,
+    },
+    '& h2': {
+      marginTop: '1em',
+      marginBottom: '0.8em',
+      marginLeft: '0.2em',
+      fontSize: '1.1em',
+    },
+  },
+  Right: {
+    ...flex_column,
+    width: 200,
+    '& > div': {
+      margin: '10px auto',
+    }
+  },
+  Left: {
+    ...flex_column,
+    width: 200,
+    padding: '0 1em',
+  },
+  Center: {
+    width: 750,
+    borderRight: '8px #eee solid',
+    borderLeft: '8px #eee solid',
+    minHeight: 680,
+    position: 'relative',
+  },
+})
+
 function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (value: string, checked: boolean) => void, color: (s: string) => string = () => 'black') {
   return range.map(x => {
     const checked = current[x]
@@ -167,6 +141,7 @@ function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (
 }
 
 function Center({state, dispatch, codes, db}: SplashProps) {
+  const classes = useStyles()
   const [hover, set_hover] = React.useState('')
   const tumor_labels =
     Checkboxes(
@@ -247,17 +222,8 @@ function Center({state, dispatch, codes, db}: SplashProps) {
               ))
         })
 
-  return div(
-    {
-      id: 'center',
-      style: {},
-    },
-    div(
-      {
-        style: {
-          position: 'relative',
-        },
-      },
+  return (
+    <div className={classes.Center}>
       <img src={center_img} style={{
         // width: '24%',
         position: 'absolute',
@@ -266,27 +232,26 @@ function Center({state, dispatch, codes, db}: SplashProps) {
         top: 50,
         transform: 'translate(-50%, 0)',
       }}/>,
-      ...tumor_labels,
-      div(
-        {
-          style: {
-            position: 'absolute',
-            top: 660,
-            left: '49%',
-            width: '100%',
-            textAlign: 'center',
-            transform: 'translate(-50%, 0)',
-          }
-        },
-        hover
-      ),
-    )
+      {tumor_labels}
+      <div
+        style={{
+          position: 'absolute',
+          top: 660,
+          left: '49%',
+          width: '100%',
+          textAlign: 'center',
+          transform: 'translate(-50%, 0)',
+        }}>
+        {hover}
+      </div>
+    </div>
   )
 }
 
 function Left({state, dispatch, range}: SplashProps) {
+  const classes = useStyles()
   return (
-    <div id="left-sidebar" className="column">
+    <div className={classes.Left}>
       <h2>Cell type</h2>
       {range && Checkboxes(
           range.cell,
@@ -336,6 +301,8 @@ function Left({state, dispatch, range}: SplashProps) {
 }
 
 function Right({state, db}: SplashProps) {
+  const classes = useStyles()
+
   const out: React.ReactNode[] = []
 
   if (db) {
@@ -353,13 +320,10 @@ function Right({state, db}: SplashProps) {
       out.push(<Domplot rows={db.filter(row => row.cell == c)} kind="forest" options={{facet_x: 'tumor', ...opts}}/>)
     }
   }
-  return div(
-    {
-      id: 'right-sidebar',
-      className: 'column',
-    },
-    css`& > div { margin: 10px auto }`,
-    out
+  return (
+    <div className={classes.Right}>
+      {out}
+    </div>
   )
 }
 
@@ -371,6 +335,8 @@ interface SplashProps {
   codes: Record<string, string>
 }
 
+import {makeStyles} from '@material-ui/core/styles'
+
 export function Splash(props: {backend?: typeof backend}) {
   const the_backend = props.backend || backend
   const db0 = the_backend.useRequest('database') as undefined | DB
@@ -379,14 +345,15 @@ export function Splash(props: {backend?: typeof backend}) {
   const codes = the_backend.useRequest('codes') as Record<string, string> || {}
   Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
 
+  const classes = useStyles()
+
   const [state, dispatch] = React.useReducer(reduce, state0)
 
   const splash_props: SplashProps = {state, dispatch, range, codes, db}
 
   return (
-    <ui.InlinePaper>
+    <ui.InlinePaper className={classes.Splash}>
       <DomplotCSS/>
-      <GlobalStyle/>
       <Left {...splash_props}/>
       <Center {...splash_props}/>
       <Right {...splash_props}/>
