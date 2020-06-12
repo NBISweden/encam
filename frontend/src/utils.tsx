@@ -57,9 +57,9 @@ export function row_range<A extends Record<string, any>>(d: A[]): RowRange<A> {
   return out
 }
 
-export function pretty(s: string | number) {
+export function pretty(s: string | number): string {
   if (typeof s === 'number') {
-    return s
+    return s + ''
   }
   const s2 = s.replace('_', ' ')
   if (s2.toLowerCase() == s2) {

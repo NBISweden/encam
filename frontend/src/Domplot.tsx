@@ -69,7 +69,8 @@ function Hulled(props: {component: React.ReactElement}): React.ReactElement {
       left: inner.left - outer.left,
       top: inner.top - outer.top,
     }
-    if (JSON.stringify(size) != JSON.stringify(new_size)) {
+    const normalize = (x: typeof size) => JSON.stringify(x && utils.mapObject(x, v => Math.round(v)))
+    if (normalize(size) != normalize(new_size)) {
       set_size(new_size)
     }
   }

@@ -6,6 +6,8 @@ import {css, div} from './css'
 
 import * as backend from './backend'
 
+import {CssBaseline} from '@material-ui/core'
+
 import {
   AppBar,
   Tab,
@@ -16,20 +18,9 @@ export const GlobalStyle = sc.createGlobalStyle`
   * {
     user-select: none;
   }
-  html {
-    box-sizing: border-box;
-    overflow-y: scroll;
-  }
-  *, *:before, *:after {
-    box-sizing: inherit;
-  }
   html, body, #root {
     min-height: 100%;
     width: 100%;
-  }
-  body {
-    margin: 0;
-    font-family: sans-serif, sans;
   }
 `
 
@@ -50,12 +41,12 @@ export function Views() {
   const tabs = [
     {label: 'Splash',                component: <Splash/>},
     {label: 'Splash mock backend',   component: <Splash key="mock" backend={splash_test_backend}/>},
-    {label: 'Boxplot with Controls', component: <ui.Paper><BoxplotWithControls data={boxplot_test_data} facet="cell"/></ui.Paper>},
-    {label: 'Form',                  component: <ui.Paper><form.Form     conf={form_test_conf}/></ui.Paper>},
-    {label: 'Group Form',            component: <ui.Paper><form.TwoForms conf={form_test_conf}/></ui.Paper>},
+    {label: 'Boxplot with Controls', component: <ui.InlinePaper><BoxplotWithControls data={boxplot_test_data} facet="cell"/></ui.InlinePaper>},
+    {label: 'Form',                  component: <ui.InlinePaper><form.Form     conf={form_test_conf}/></ui.InlinePaper>},
+    {label: 'Group Form',            component: <ui.InlinePaper><form.TwoForms conf={form_test_conf}/></ui.InlinePaper>},
     {label: 'Form&Plot',             component: <FormAndPlot key="Form"/>},
     {label: 'Group Form&Plot',       component: <FormAndPlot key="TwoForms" form={form.TwoForms}/>},
-    {label: 'Domplots demo',         component: <domplots.Demo/>},
+    {label: 'Domplots demo',         component: <ui.InlinePaper><domplots.Demo/></ui.InlinePaper>},
   ]
   ui.useKeydown(e => {
     if (e.key == '[') {
@@ -65,8 +56,9 @@ export function Views() {
       set_tab(index => Math.min(index + 1, tabs.length - 1))
     }
   })
-  return div(
-    <GlobalStyle/>,
+  return <>
+    <CssBaseline/>
+    <GlobalStyle/>
     <AppBar position="static" color="default">
       <Tabs
         value={tab}
@@ -75,8 +67,8 @@ export function Views() {
         textColor="primary">
       {tabs.map(t => <Tab label={t.label} key={t.label}/>)}
       </Tabs>
-    </AppBar>,
-    tabs[tab].component
-  )
+    </AppBar>
+    {tabs[tab].component}
+  </>
 }
 

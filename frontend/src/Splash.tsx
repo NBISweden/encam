@@ -3,7 +3,7 @@ import * as React from 'react'
 import {by} from './utils'
 import * as utils from './utils'
 
-import type {DB, DBRange} from './db'
+import type {DB, Row} from './db'
 
 import {css, div} from './css'
 
@@ -14,6 +14,8 @@ import styled, * as sc from 'styled-components'
 import {cell_color} from './cell_colors'
 
 import {backend} from './backend'
+
+import * as ui from './ui_utils'
 
 export const GlobalStyle = sc.createGlobalStyle`
   label {
@@ -66,6 +68,7 @@ export const GlobalStyle = sc.createGlobalStyle`
     width: 750px;
     border-right: 8px #eee solid;
     border-left: 8px #eee solid;
+    min-height: 660px;
   }
   #right-sidebar {
     width: 200px;
@@ -78,18 +81,64 @@ export const GlobalStyle = sc.createGlobalStyle`
   }
   #sidebar {
   }
-  #root {
-    display: flex;
-    flex-direction: row;
-  }
 `
 
-const state0 = {
-  tumor: {} as Record<string, boolean>,
-  cell: {CD4: true} as Record<string, boolean>,
+declare const require: (s: string) => string
+
+const IN_JEST = process.env.JEST_WORKER_ID ? 'img' : undefined
+
+const cell_pngs: Record<string, string> = {
+  B_cells:      IN_JEST || require('../img/B_cells.png'),
+  CD4:          IN_JEST || require('../img/CD4.png'),
+  CD4_Treg:     IN_JEST || require('../img/CD4_Treg.png'),
+  CD8:          IN_JEST || require('../img/CD8.png'),
+  CD8_Treg:     IN_JEST || require('../img/CD8_Treg.png'),
+  M1:           IN_JEST || require('../img/M1.png'),
+  M2:           IN_JEST || require('../img/M2.png'),
+  NK:           IN_JEST || require('../img/NK.png'),
+  NKT:          IN_JEST || require('../img/NKT.png'),
+  mDC:          IN_JEST || require('../img/mDC.png'),
+  pDC:          IN_JEST || require('../img/pDC.png'),
+  iDC:          IN_JEST || require('../img/iDC.png'),
+
+  'Myeloid cell': IN_JEST || require('../img/Myeloid.png'),
+  Granulocyte: IN_JEST || require('../img/Granulocytes.png'),
 }
 
-type State = typeof state0
+const center_img = IN_JEST || require('../img/center-trimmed.svg')
+
+const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
+const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
+const both = [...left, ...right]
+
+// import {thief} from './thief'
+const thief: undefined | ((cell: string, img: HTMLImageElement | null) => void) = undefined
+
+interface State {
+  tumor: Record<string, boolean>
+  cell: Record<string, boolean>
+}
+
+const state0: State = {
+  tumor: {},
+  cell: {CD4: true},
+}
+
+interface Action {
+  type: 'set'
+  kind: 'cell' | 'tumor'
+  value: string
+  checked: boolean
+}
+
+function reduce(state: State, action: Action): State {
+  switch (action.kind) {
+    case 'cell':
+      return {tumor: {}, cell: utils.cap(3, {...state.cell, [action.value]: action.checked})}
+    case 'tumor':
+      return {cell: {}, tumor: utils.cap(1, {...state.tumor, [action.value]: action.checked})}
+  }
+}
 
 function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (value: string, checked: boolean) => void, color: (s: string) => string = () => 'black') {
   return range.map(x => {
@@ -117,40 +166,7 @@ function Checkboxes(range: string[], current: Record<string, boolean>, toggle: (
   })
 }
 
-declare const require: (s: string) => string
-
-const IN_JEST = process.env.JEST_WORKER_ID ? 'img' : undefined
-
-const cell_pngs: Record<string, string> = {
-  B_cells:      IN_JEST || require('../img/B_cells.png'),
-  CD4:          IN_JEST || require('../img/CD4.png'),
-  CD4_Treg:     IN_JEST || require('../img/CD4_Treg.png'),
-  CD8:          IN_JEST || require('../img/CD8.png'),
-  CD8_Treg:     IN_JEST || require('../img/CD8_Treg.png'),
-  M1:           IN_JEST || require('../img/M1.png'),
-  M2:           IN_JEST || require('../img/M2.png'),
-  NK:           IN_JEST || require('../img/NK.png'),
-  NKT:          IN_JEST || require('../img/NKT.png'),
-  mDC:          IN_JEST || require('../img/mDC.png'),
-  pDC:          IN_JEST || require('../img/pDC.png'),
-  iDC:          IN_JEST || require('../img/iDC.png'),
-
-  'Myeloid cell': IN_JEST || require('../img/Myeloid.png'),
-  Granulocyte: IN_JEST || require('../img/Granulocytes.png'),
-}
-
-const center_img = IN_JEST || require('../img/center-trimmed.svg')
-
-// const codes = IN_JEST || require('./codes.json') as Record<string, string>
-
-const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
-const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
-const both = [...left, ...right]
-
-function Center({state, dispatch, the_backend}: {state: State, dispatch: React.Dispatch<Action>, the_backend: typeof backend}) {
-  const {db} = React.useContext(SplashCtx)
-  const codes = the_backend.useRequest('codes') || {}
-  Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
+function Center({state, dispatch, codes, db}: SplashProps) {
   const [hover, set_hover] = React.useState('')
   const tumor_labels =
     Checkboxes(
@@ -268,11 +284,7 @@ function Center({state, dispatch, the_backend}: {state: State, dispatch: React.D
   )
 }
 
-// import {thief} from './thief'
-const thief: undefined | ((cell: string, img: HTMLImageElement | null) => void) = undefined
-
-function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>}) {
-  const {range} = React.useContext(SplashCtx)
+function Left({state, dispatch, range}: SplashProps) {
   return (
     <div id="left-sidebar" className="column">
       <h2>Cell type</h2>
@@ -323,9 +335,8 @@ function Left({state, dispatch}: {state: State, dispatch: React.Dispatch<Action>
   )
 }
 
-function Right({state}: {state: State}) {
+function Right({state, db}: SplashProps) {
   const out: React.ReactNode[] = []
-  const {db} = React.useContext(SplashCtx)
 
   if (db) {
     const {tumor, cell} = state
@@ -352,41 +363,34 @@ function Right({state}: {state: State}) {
   )
 }
 
-interface Action {
-  type: 'set'
-  kind: 'cell' | 'tumor'
-  value: string
-  checked: boolean
+interface SplashProps {
+  state: State
+  dispatch: (action: Action) => void
+  db?: DB
+  range?: utils.RowRange<Row>
+  codes: Record<string, string>
 }
-
-function reduce(state: State, action: Action) {
-  switch (action.kind) {
-    case 'cell':
-      return {tumor: {}, cell: utils.cap(3, {...state.cell, [action.value]: action.checked})}
-    case 'tumor':
-      return {cell: {}, tumor: utils.cap(1, {...state.tumor, [action.value]: action.checked})}
-  }
-}
-
-const SplashCtx = React.createContext({} as {db?: DB, range?: DBRange})
 
 export function Splash(props: {backend?: typeof backend}) {
   const the_backend = props.backend || backend
   const db0 = the_backend.useRequest('database') as undefined | DB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
   const range = React.useMemo(() => db ? utils.row_range(db) : undefined, [db])
+  const codes = the_backend.useRequest('codes') as Record<string, string> || {}
+  Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
+
   const [state, dispatch] = React.useReducer(reduce, state0)
 
+  const splash_props: SplashProps = {state, dispatch, range, codes, db}
+
   return (
-    <div id="top" className="row">
+    <ui.InlinePaper>
       <DomplotCSS/>
       <GlobalStyle/>
-      <SplashCtx.Provider value={{db, range}}>
-        <Left state={state} dispatch={dispatch}/>
-        <Center state={state} dispatch={dispatch} the_backend={the_backend}/>
-        <Right state={state}/>
-      </SplashCtx.Provider>
-    </div>
+      <Left {...splash_props}/>
+      <Center {...splash_props}/>
+      <Right {...splash_props}/>
+    </ui.InlinePaper>
   )
 }
 
