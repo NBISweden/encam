@@ -1,4 +1,5 @@
 from lifelines import CoxPHFitter, KaplanMeierFitter
+from lifelines.statistics import multivariate_logrank_test
 import pandas as pd
 import json
 
@@ -241,7 +242,7 @@ def filter_survival(filter_id):
 
     # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
     data_filtered['rank'] = ntiles(data_filtered[filter_id['cells'][0]], groups)
-    responses = []
+    points = []
     for g in range(groups):
         kmf = KaplanMeierFitter()
         data = data_filtered[lambda row: row['rank'] == g+1]
@@ -252,7 +253,25 @@ def filter_survival(filter_id):
         )
         fit_as_dict = kmf.survival_function_.to_dict()['Kaplan_Meier']
         fit_as_tuples = [(t, p) for t, p in fit_as_dict.items()]
-        responses.append(fit_as_tuples)
+        points.append(fit_as_tuples)
+    
+    # Run multivarate analysis
+    log_rank = multivariate_logrank_test(data_filtered['T'], data_filtered['rank'], data_filtered['E'])
+    log = {
+        'test_statistic_logrank': log_rank.summary['test_statistic'][0], 
+        'p_logrank': log_rank.summary['p'][0]
+    }
+    
+    # Run cox regression
+    cph = CoxPHFitter()
+    cph.fit(data_filtered[['rank', 'T', 'E']], 'T', event_col='E')
+    cox = {
+        'coef': cph.summary['exp(coef)'][0],
+        'lower': cph.summary['exp(coef) lower 95%'][0],
+        'upper': cph.summary['exp(coef) upper 95%'][0],
+        'p': cph.summary['p'][0]
+    }
+    responses = {'points': points, 'log_rank': log, 'cox_regression': cox}
     return responses
 
 
