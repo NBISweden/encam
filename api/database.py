@@ -238,12 +238,11 @@ def filter(filter_id):
 def filter_survival(filter_id):
 
     data_filtered = filtering(filter_id)
-    groups = 3
 
     # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
-    data_filtered['rank'] = ntiles(data_filtered[filter_id['cells'][0]], groups)
+    data_filtered['rank'] = ntiles(data_filtered[filter_id['cell_full']], filter_id['num_groups'])
     points = []
-    for g in range(groups):
+    for g in range(filter_id['num_groups']):
         kmf = KaplanMeierFitter()
         data = data_filtered[lambda row: row['rank'] == g+1]
         kmf.fit(
