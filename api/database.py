@@ -252,7 +252,7 @@ def filter_survival(filter_id):
         )
         fit_as_dict = kmf.survival_function_.to_dict()['Kaplan_Meier']
         fit_as_tuples = [(t, p) for t, p in fit_as_dict.items()]
-        responses.append(B)
+        responses.append(fit_as_tuples)
     return responses
 
 
