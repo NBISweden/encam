@@ -322,7 +322,7 @@ function Right({state, db}: SplashProps) {
   }
   return (
     <div className={classes.Right}>
-      {out}
+      {ui.dummy_keys(out)}
     </div>
   )
 }

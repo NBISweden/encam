@@ -149,3 +149,19 @@ export function useRecord() {
     }
   })
 }
+
+export function dummy_keys(xs: React.ReactNode[]): React.ReactNode[] {
+  return xs.map((x, i) => {
+    if (x && typeof x == 'object' && '$$typeof' in x) {
+      let child = x as any
+      if (!child.key) {
+        const key = ';' + i
+        const ref = child.ref
+        child = React.createElement(child.type, {key, ref, ...child.props})
+      }
+      return child
+    } else {
+      return x
+    }
+  })
+}
