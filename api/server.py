@@ -18,14 +18,8 @@ def main():
 @app.after_request
 def after_request(response):
     """
-    Callback that triggers after each request. Currently this is used to set
-    CORS headers to allow a different origin when using the development server.
+    Callback that triggers after each request. Currently no-op.
     """
-    if app.config['ENV'] == 'development':
-        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:1234')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-
     return response
 
 @app.route('/ping')
