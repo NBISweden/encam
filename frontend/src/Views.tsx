@@ -43,7 +43,7 @@ export function Views() {
   const tabs = [
     {label: 'Splash',                component: <Splash/>},
     {label: 'Splash mock backend',   component: <Splash key="mock" backend={splash_test_backend}/>},
-    {label: 'Boxplot',               component: <ui.InlinePaper><VegaBoxplot data={boxplot_test_data}/></ui.InlinePaper>},
+    {label: 'Boxplot',               component: <ui.InlinePaper><VegaBoxplot data={boxplot_test_data} options={{facet:"cell", inner:["tumor", "group", "location"], color: ["tumor", "group"]}}/></ui.InlinePaper>},
     {label: 'Kaplan-Meier plot',     component: <ui.InlinePaper><VegaKMPlot points={kmplot_test_data.points}/></ui.InlinePaper>},
     {label: 'Boxplot with Controls', component: <ui.InlinePaper><BoxplotWithControls data={boxplot_test_data} facet="cell"/></ui.InlinePaper>},
     {label: 'Form',                  component: <ui.InlinePaper><form.Form     conf={form_test_conf}/></ui.InlinePaper>},
