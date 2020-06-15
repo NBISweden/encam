@@ -24,6 +24,7 @@ export const GlobalStyle = sc.createGlobalStyle`
 `
 
 import {boxplot_test_data} from '../test/data/boxplot'
+import {kmplot_test_data} from '../test/data/kmplot'
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
@@ -32,6 +33,7 @@ import {FormAndBoxPlot} from './FormAndBoxPlot'
 import * as ui from './ui_utils'
 
 import {VegaBoxplot} from './VegaBoxplot'
+import {VegaKMPlot} from './VegaKMPlot'
 import {BoxplotWithControls} from './BoxplotWithControls'
 import {Splash} from './Splash'
 import {backend as splash_test_backend} from '../test/data/splash'
@@ -42,6 +44,7 @@ export function Views() {
     {label: 'Splash',                component: <Splash/>},
     {label: 'Splash mock backend',   component: <Splash key="mock" backend={splash_test_backend}/>},
     {label: 'Boxplot',               component: <ui.InlinePaper><VegaBoxplot data={boxplot_test_data}/></ui.InlinePaper>},
+    {label: 'Kaplan-Meier plot',     component: <ui.InlinePaper><VegaKMPlot points={kmplot_test_data.points}/></ui.InlinePaper>},
     {label: 'Boxplot with Controls', component: <ui.InlinePaper><BoxplotWithControls data={boxplot_test_data} facet="cell"/></ui.InlinePaper>},
     {label: 'Form',                  component: <ui.InlinePaper><form.Form     conf={form_test_conf}/></ui.InlinePaper>},
     {label: 'Group Form',            component: <ui.InlinePaper><form.TwoForms conf={form_test_conf}/></ui.InlinePaper>},
