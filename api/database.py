@@ -40,7 +40,7 @@ def data_per_type(dd, cell_types):
     cox = coxph_per_type(dd, cell_types)
     return pd.concat((expression, cox), axis=1)
 
-ntiles = lambda xs: pd.cut(pd.Series(xs).rank(), 2, right=False, labels=False) + 1
+ntiles = lambda xs,groups=2: pd.cut(pd.Series(xs).rank(), groups, right=False, labels=False) + 1
 
 def init():
     print("Initialization started", flush=True)
@@ -211,8 +211,7 @@ def filter(filter_id):
     for specific in ['Anatomical_location', 'MSI_ARTUR', 'Morphological_type']:
         for tumor, values in filter_id[specific].items():
             data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
-
-    response = filtering(filter_id)
+    response = data_filtered
     response = response.melt(id_vars='Tumor_type_code')
     response.columns = ['tumor', 'cell_full', 'expression']
 
@@ -224,7 +223,6 @@ def filter(filter_id):
     response = response[response['cell'].isin(filter_id['cells'])]
     response = response.drop(columns='cell_full')
     return response
-
 
 def filter_survival(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
@@ -239,11 +237,11 @@ def filter_survival(filter_id):
         for tumor, values in filter_id[specific].items():
             data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
 
-
+    groups = 3
     # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
-    data_filtered['rank'] = ntiles(data_filtered[filter_id['cells'][0]])
+    data_filtered['rank'] = ntiles(data_filtered[filter_id['cells'][0]], groups)
     responses = []
-    for g in range(2):
+    for g in range(groups):
         kmf = KaplanMeierFitter()
         kmf.fit(data_filtered[data_filtered['rank']==g+1]['T'], data_filtered[data_filtered['rank']==g+1]['E'],label='Kaplan_maier')
         responses.append(kmf.survival_function_.to_dict())
