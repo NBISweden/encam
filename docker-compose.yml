@@ -4,10 +4,6 @@ services:
         image: encam_api:latest
         build:
             context: ./api
-        volumes:
-            - type: bind
-              source: ./api
-              target: /api_source
     encam-frontend-devel:
         image: encam_frontend:latest
         build:
@@ -26,7 +22,7 @@ services:
       volumes:
           - type: bind
             source: ./api
-            target: /api_source
+            target: /api_src
           - type: bind
             source: ./config
             target: /config

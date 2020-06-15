@@ -7,6 +7,9 @@ RUN apt-get update && apt-get -y upgrade &&\
 
 RUN pip3 install uwsgi
 
+# Mountpoint for backend
+RUN mkdir -p /api_src
+
 COPY --from=encam_frontend:latest --chown=www-data:www-data /app/dist/browser /app/dist/browser
 
 COPY system/supervisord.conf /etc/

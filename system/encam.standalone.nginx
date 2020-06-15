@@ -9,7 +9,7 @@
         root /app/dist/browser/;
 
         location / {
-            try_files $uri $uri/ @wsgi =415;
+            try_files $uri $uri/ @wsgi =404;
         }
 
         location /api/ {

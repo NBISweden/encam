@@ -1,9 +1,7 @@
 FROM python:3.8-buster
 
-RUN mkdir /code
+RUN mkdir -p /code
 
-WORKDIR /api_source
-RUN ls 
 COPY ./ /code/
 WORKDIR /code
 
