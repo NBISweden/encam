@@ -208,15 +208,16 @@ def test_impls(ex):
     assert sort(c1) == sort(c2)
 
 test_impls(example_body)
+test_impls(example_body2)
 
 # Test filtering using clinical stage subgroups
-# Assert that the sum of the results for the subgroups 
+# Assert that the sum of the results for the subgroups
 # is equal to the amount of results for the group
-def test_clinical_stage():
+def test_clinical_stage(ex):
 
-    ex1 = dict(example_body)
-    ex2 = dict(example_body)
-    ex12 = dict(example_body)
+    ex1 = dict(ex)
+    ex2 = dict(ex)
+    ex12 = dict(ex)
 
     ex1['clinical_stage'] = ["I", "II"]
     ex2['clinical_stage'] = ["0", "IV"]
@@ -234,16 +235,17 @@ def test_clinical_stage():
 
     assert sort(c1 + c2) == sort(c12)
 
-test_clinical_stage()
+test_clinical_stage(example_body)
+test_clinical_stage(example_body2)
 
 # Test filtering using anatomical location subgroups
-# Assert that the sum of the results for the subgroups 
+# Assert that the sum of the results for the subgroups
 # is equal to the amount of results for the group
-def test_anatomical_location():
+def test_anatomical_location(ex):
 
-    ex1 = dict(example_body)
-    ex2 = dict(example_body)
-    ex12 = dict(example_body)
+    ex1 = dict(ex)
+    ex2 = dict(ex)
+    ex12 = dict(ex)
 
     ex1['tumors'] = ['COAD']
     ex2['tumors'] = ['COAD']
@@ -280,16 +282,17 @@ def test_anatomical_location():
 
     assert sort(c1 + c2) == sort(c12)
 
-test_anatomical_location()
+test_anatomical_location(example_body)
+test_anatomical_location(example_body2)
 
 # Test filtering using pt stage subgroups
-# Assert that the sum of the results for the subgroups 
+# Assert that the sum of the results for the subgroups
 # is equal to the amount of results for the group
-def test_pt_stage():
+def test_pt_stage(ex):
 
-    ex1 = dict(example_body)
-    ex2 = dict(example_body)
-    ex12 = dict(example_body)
+    ex1 = dict(ex)
+    ex2 = dict(ex)
+    ex12 = dict(ex)
 
     ex1['pT_stage'] = ['T0', 'T1', 'T2']
     ex2['pT_stage'] = ['T3', 'T4']
@@ -307,16 +310,17 @@ def test_pt_stage():
 
     assert sort(c1 + c2) == sort(c12)
 
-test_pt_stage()
+test_pt_stage(example_body)
+test_pt_stage(example_body2)
 
 # Test filtering using pn stage subgroups
-# Assert that the sum of the results for the subgroups 
+# Assert that the sum of the results for the subgroups
 # is equal to the amount of results for the group
-def test_pn_stage():
+def test_pn_stage(ex):
 
-    ex1 = dict(example_body)
-    ex2 = dict(example_body)
-    ex12 = dict(example_body)
+    ex1 = dict(ex)
+    ex2 = dict(ex)
+    ex12 = dict(ex)
 
     ex1['pN_stage'] = ['N0']
     ex2['pN_stage'] = ['N1']
@@ -335,16 +339,17 @@ def test_pn_stage():
 
     assert sort(c1 + c2) == sort(c12)
 
-test_pn_stage()
+test_pn_stage(example_body)
+test_pn_stage(example_body2)
 
 # Test filtering using pm stage subgroups
-# Assert that the sum of the results for the subgroups 
+# Assert that the sum of the results for the subgroups
 # is equal to the amount of results for the group
-def test_pm_stage():
+def test_pm_stage(ex):
 
-    ex1 = dict(example_body)
-    ex2 = dict(example_body)
-    ex12 = dict(example_body)
+    ex1 = dict(ex)
+    ex2 = dict(ex)
+    ex12 = dict(ex)
 
     ex1['pM_stage'] = ['M0']
     ex2['pM_stage'] = ['M1']
@@ -362,13 +367,14 @@ def test_pm_stage():
 
     assert sort(c1 + c2) == sort(c12)
 
-test_pm_stage()
+test_pm_stage(example_body)
+test_pm_stage(example_body2)
 
 
 # Test the number of results returned with current filtering
 def test_results_number():
     ex = dict(example_body)
-    
+
     c = filter2_to_dict(ex)
 
     assert len(c) == 27580
