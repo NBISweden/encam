@@ -219,7 +219,7 @@ def filtering(filter_id):
     return data_filtered
 
 def filter(filter_id):
-    
+
     response = filtering(filter_id)
     response = response.melt(id_vars='Tumor_type_code')
     response.columns = ['tumor', 'cell_full', 'expression']
@@ -234,7 +234,6 @@ def filter(filter_id):
     return response
 
 
-# def filter_survival(filter_id, cell_full, num_groups):
 def filter_survival(filter_id):
 
     data_filtered = filtering(filter_id)
@@ -253,14 +252,14 @@ def filter_survival(filter_id):
         fit_as_dict = kmf.survival_function_.to_dict()['Kaplan_Meier']
         fit_as_tuples = [(t, p) for t, p in fit_as_dict.items()]
         points.append(fit_as_tuples)
-    
+
     # Run multivarate analysis
     log_rank = multivariate_logrank_test(data_filtered['T'], data_filtered['rank'], data_filtered['E'])
     log = {
-        'test_statistic_logrank': log_rank.summary['test_statistic'][0], 
+        'test_statistic_logrank': log_rank.summary['test_statistic'][0],
         'p_logrank': log_rank.summary['p'][0]
     }
-    
+
     # Run cox regression
     cph = CoxPHFitter()
     cph.fit(data_filtered[['rank', 'T', 'E']], 'T', event_col='E')
