@@ -2,6 +2,8 @@ from database import filter, filter2, uniq
 import server
 import json
 
+from copy import deepcopy
+
 example_body = {
   "clinical_stage": [
     "0",
@@ -215,9 +217,9 @@ test_impls(example_body2)
 # is equal to the amount of results for the group
 def test_clinical_stage(ex):
 
-    ex1 = dict(ex)
-    ex2 = dict(ex)
-    ex12 = dict(ex)
+    ex1 = deepcopy(ex)
+    ex2 = deepcopy(ex)
+    ex12 = deepcopy(ex)
 
     ex1['clinical_stage'] = ["I", "II"]
     ex2['clinical_stage'] = ["0", "IV"]
@@ -243,17 +245,13 @@ test_clinical_stage(example_body2)
 # is equal to the amount of results for the group
 def test_anatomical_location(ex):
 
-    ex1 = dict(ex)
-    ex2 = dict(ex)
-    ex12 = dict(ex)
+    ex1 = deepcopy(ex)
+    ex2 = deepcopy(ex)
+    ex12 = deepcopy(ex)
 
     ex1['tumors'] = ['COAD']
     ex2['tumors'] = ['COAD']
     ex12['tumors'] = ['COAD']
-
-    ex1['Anatomical_location'] = dict(ex1['Anatomical_location'])
-    ex2['Anatomical_location'] = dict(ex2['Anatomical_location'])
-    ex12['Anatomical_location'] = dict(ex12['Anatomical_location'])
 
     ex1['Anatomical_location']['COAD'] = [
       "Appendix",
@@ -290,9 +288,9 @@ test_anatomical_location(example_body2)
 # is equal to the amount of results for the group
 def test_pt_stage(ex):
 
-    ex1 = dict(ex)
-    ex2 = dict(ex)
-    ex12 = dict(ex)
+    ex1 = deepcopy(ex)
+    ex2 = deepcopy(ex)
+    ex12 = deepcopy(ex)
 
     ex1['pT_stage'] = ['T0', 'T1', 'T2']
     ex2['pT_stage'] = ['T3', 'T4']
@@ -318,9 +316,9 @@ test_pt_stage(example_body2)
 # is equal to the amount of results for the group
 def test_pn_stage(ex):
 
-    ex1 = dict(ex)
-    ex2 = dict(ex)
-    ex12 = dict(ex)
+    ex1 = deepcopy(ex)
+    ex2 = deepcopy(ex)
+    ex12 = deepcopy(ex)
 
     ex1['pN_stage'] = ['N0']
     ex2['pN_stage'] = ['N1']
@@ -347,9 +345,9 @@ test_pn_stage(example_body2)
 # is equal to the amount of results for the group
 def test_pm_stage(ex):
 
-    ex1 = dict(ex)
-    ex2 = dict(ex)
-    ex12 = dict(ex)
+    ex1 = deepcopy(ex)
+    ex2 = deepcopy(ex)
+    ex12 = deepcopy(ex)
 
     ex1['pM_stage'] = ['M0']
     ex2['pM_stage'] = ['M1']
@@ -373,7 +371,7 @@ test_pm_stage(example_body2)
 
 # Test the number of results returned with current filtering
 def test_results_number():
-    ex = dict(example_body)
+    ex = deepcopy(example_body)
 
     c = filter2_to_dict(ex)
 
@@ -386,7 +384,7 @@ def test_results_number():
     assert len(c) == 3940
 
     # Using second example data
-    ex = dict(example_body2)
+    ex = deepcopy(example_body2)
     c = filter2_to_dict(ex)
 
     assert len(c) == 124
