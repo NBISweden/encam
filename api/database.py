@@ -243,8 +243,15 @@ def filter_survival(filter_id):
     responses = []
     for g in range(groups):
         kmf = KaplanMeierFitter()
-        kmf.fit(data_filtered[data_filtered['rank']==g+1]['T'], data_filtered[data_filtered['rank']==g+1]['E'],label='Kaplan_maier')
-        responses.append(kmf.survival_function_.to_dict())
+        data = data_filtered[lambda row: row['rank'] == g+1]
+        kmf.fit(
+            data['T'],
+            data['E'],
+            label='Kaplan_Meier'
+        )
+        fit_as_dict = kmf.survival_function_.to_dict()['Kaplan_Meier']
+        fit_as_tuples = [(t, p) for t, p in fit_as_dict.items()]
+        responses.append(B)
     return responses
 
 
