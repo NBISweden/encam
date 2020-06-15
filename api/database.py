@@ -233,6 +233,7 @@ def filter(filter_id):
     return response
 
 
+# def filter_survival(filter_id, cell_full, num_groups):
 def filter_survival(filter_id):
 
     data_filtered = filtering(filter_id)

@@ -143,7 +143,11 @@ def survival():
         return jsonify({})
     elif request.is_json:
         body = request.json
-        # Basic filtering
+        # TODO:
+        # { filter: filter as in the others,
+        #   num_groups: eg 2,
+        #   cell_full: eg 'CD4_STROMA'
+        # }
         response = database_lib.filter_survival(body[0])
         return jsonify(response)
     else:
