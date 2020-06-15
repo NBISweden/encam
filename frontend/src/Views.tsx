@@ -27,10 +27,11 @@ import {boxplot_test_data} from '../test/data/boxplot'
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
-import {FormAndPlot} from './FormAndPlot'
+import {FormAndBoxPlot} from './FormAndBoxPlot'
 
 import * as ui from './ui_utils'
 
+import {VegaBoxplot} from './VegaBoxplot'
 import {BoxplotWithControls} from './BoxplotWithControls'
 import {Splash} from './Splash'
 import {backend as splash_test_backend} from '../test/data/splash'
@@ -40,11 +41,12 @@ export function Views() {
   const tabs = [
     {label: 'Splash',                component: <Splash/>},
     {label: 'Splash mock backend',   component: <Splash key="mock" backend={splash_test_backend}/>},
+    {label: 'Boxplot',               component: <ui.InlinePaper><VegaBoxplot data={boxplot_test_data}/></ui.InlinePaper>},
     {label: 'Boxplot with Controls', component: <ui.InlinePaper><BoxplotWithControls data={boxplot_test_data} facet="cell"/></ui.InlinePaper>},
     {label: 'Form',                  component: <ui.InlinePaper><form.Form     conf={form_test_conf}/></ui.InlinePaper>},
     {label: 'Group Form',            component: <ui.InlinePaper><form.TwoForms conf={form_test_conf}/></ui.InlinePaper>},
-    {label: 'Form&Plot',             component: <FormAndPlot key="Form"/>},
-    {label: 'Group Form&Plot',       component: <FormAndPlot key="TwoForms" form={form.TwoForms}/>},
+    {label: 'Form&Plot',             component: <FormAndBoxPlot key="Form"/>},
+    {label: 'Group Form&Plot',       component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms}/>},
     {label: 'Domplots demo',         component: <ui.InlinePaper><domplots.Demo/></ui.InlinePaper>},
   ]
   ui.useKeydown(e => {

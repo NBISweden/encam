@@ -1,7 +1,7 @@
 
 import * as React from 'react'
 
-import {FormAndPlot} from '../src/FormAndPlot'
+import {FormAndBoxPlot} from '../src/FormAndBoxPlot'
 
 import {make_backend} from '../src/backend'
 
@@ -13,7 +13,7 @@ import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 const {click} = fireEvent
 const {getByLabelText} = screen
 
-describe(FormAndPlot, () => {
+describe(FormAndBoxPlot, () => {
   test('pressing plot calls backend and makes a plot', async () => {
     let calls = 0
 
@@ -29,7 +29,7 @@ describe(FormAndPlot, () => {
       throw new Error(`Unsupported endpoint ${endpoint}`)
     })
 
-    render(<FormAndPlot backend={backend}/>)
+    render(<FormAndBoxPlot backend={backend}/>)
 
     await waitFor(() => screen.getByText(/plot/i))
 

@@ -11,7 +11,7 @@ import * as form from './Form'
 
 import {CircularProgress} from '@material-ui/core'
 
-export function FormAndPlot(props: {form?: typeof form.Form, backend?: typeof backend}) {
+export function FormAndBoxPlot(props: {form?: typeof form.Form, backend?: typeof backend}) {
   const the_backend = props.backend || backend
   const Form = props.form || form.Form
   const conf = the_backend.useRequest('configuration')
@@ -39,7 +39,7 @@ export function FormAndPlot(props: {form?: typeof form.Form, backend?: typeof ba
       })
     },
     [])
-  ui.useWhyChanged('FormAndPlot', {conf, filter, plot_data, loading, plot, onSubmit})
+  ui.useWhyChanged('FormAndBoxPlot', {conf, filter, plot_data, loading, plot, onSubmit})
   return div(
     css`
       & > :not(:first-child) {
