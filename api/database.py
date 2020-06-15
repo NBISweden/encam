@@ -1,4 +1,4 @@
-from lifelines import CoxPHFitter
+from lifelines import CoxPHFitter, KaplanMeierFitter
 import pandas as pd
 import json
 
@@ -79,7 +79,7 @@ def init():
 
     # OUTPUT - First result to return
     db = pd.concat(dfs, axis=0).reset_index(drop=True)
-    db_str = db.to_json(orient='records', indent=2)
+    #db_str = db.to_json(orient='records', indent=2)
 
     # OUTPUT - Second results to return
     codes_list = data[['Tumor_type', 'Tumor_type_code']].to_dict(orient='records')
@@ -164,7 +164,7 @@ def test_Tukey():
 
     print(res)
 
-def filter(filter_id):
+def filter2(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
     for key in base_filters:
@@ -199,7 +199,7 @@ def filter(filter_id):
     response = response.drop(columns='cell_full')
     return response
 
-def filter2(filter_id):
+def filter(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
 
@@ -212,7 +212,7 @@ def filter2(filter_id):
         for tumor, values in filter_id[specific].items():
             data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
 
-    response = data_filtered
+    response = filtering(filter_id)
     response = response.melt(id_vars='Tumor_type_code')
     response.columns = ['tumor', 'cell_full', 'expression']
 
@@ -224,6 +224,31 @@ def filter2(filter_id):
     response = response[response['cell'].isin(filter_id['cells'])]
     response = response.drop(columns='cell_full')
     return response
+
+
+def filter_survival(filter_id):
+    base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
+    data_filtered = db.data
+
+    data_filtered = data_filtered[lambda row: row.Tumor_type_code.isin(filter_id['tumors'])]
+
+    for key in base_filters:
+        data_filtered = data_filtered[data_filtered[key].isin(filter_id[key])]
+
+    for specific in ['Anatomical_location', 'MSI_ARTUR', 'Morphological_type']:
+        for tumor, values in filter_id[specific].items():
+            data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
+
+
+    # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
+    data_filtered['rank'] = ntiles(data_filtered[filter_id['cells'][0]])
+    responses = []
+    for g in range(2):
+        kmf = KaplanMeierFitter()
+        kmf.fit(data_filtered[data_filtered['rank']==g+1]['T'], data_filtered[data_filtered['rank']==g+1]['E'],label='Kaplan_maier')
+        responses.append(kmf.survival_function_.to_dict())
+    return responses
+
 
 def filter_to_tukey(body):
     df_long = filter(body)
