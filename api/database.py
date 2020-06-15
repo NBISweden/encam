@@ -164,6 +164,9 @@ def test_Tukey():
 
     print(res)
 
+''' Function used only for testing purposes
+    File test.py compares the filter2 with the filter function
+'''
 def filter2(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
@@ -199,7 +202,7 @@ def filter2(filter_id):
     response = response.drop(columns='cell_full')
     return response
 
-def filter(filter_id):
+def filtering(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
 
@@ -211,7 +214,12 @@ def filter(filter_id):
     for specific in ['Anatomical_location', 'MSI_ARTUR', 'Morphological_type']:
         for tumor, values in filter_id[specific].items():
             data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
-    response = data_filtered
+
+    return data_filtered
+
+def filter(filter_id):
+    
+    response = filtering(filter_id)
     response = response.melt(id_vars='Tumor_type_code')
     response.columns = ['tumor', 'cell_full', 'expression']
 
@@ -224,20 +232,12 @@ def filter(filter_id):
     response = response.drop(columns='cell_full')
     return response
 
+
 def filter_survival(filter_id):
-    base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
-    data_filtered = db.data
 
-    data_filtered = data_filtered[lambda row: row.Tumor_type_code.isin(filter_id['tumors'])]
-
-    for key in base_filters:
-        data_filtered = data_filtered[data_filtered[key].isin(filter_id[key])]
-
-    for specific in ['Anatomical_location', 'MSI_ARTUR', 'Morphological_type']:
-        for tumor, values in filter_id[specific].items():
-            data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
-
+    data_filtered = filtering(filter_id)
     groups = 3
+
     # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
     data_filtered['rank'] = ntiles(data_filtered[filter_id['cells'][0]], groups)
     responses = []
