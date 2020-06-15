@@ -11,4 +11,4 @@ jobs:
     - name: Build the docker-compose images
       run: docker-compose build
     - name: Run frontend tests
-      run: docker-compose run encam-frontend-devel yarn run test
+      run: docker-compose run -w /app encam-frontend-devel yarn run test
