@@ -200,10 +200,7 @@ filter2_to_dict = lambda ex: filter2(ex).to_dict(orient='records')
 
 # Test the two different filter methods
 def test_impls(ex):
-    filter1_to_dict = lambda ex: filter(ex).to_dict(orient='records')
-    filter2_to_dict = lambda ex: filter2(ex).to_dict(orient='records')
-
-    c1 = filter1_to_dict(ex)
+    c1 = filter_to_dict(ex)
     c2 = filter2_to_dict(ex)
 
     assert len(c1) == len(c2)
