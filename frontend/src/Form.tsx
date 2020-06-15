@@ -7,7 +7,7 @@ import * as utils from './utils'
 
 import * as ui from './ui_utils'
 
-import { FormControlLabel, CssBaseline, Box, Grid, Checkbox, TextField, Button } from '@material-ui/core'
+import { FormControlLabel, Box, Grid, Checkbox, TextField, Button } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 
 export interface Conf {
@@ -112,7 +112,6 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 
 
   return <Box>
-    <CssBaseline/>
     {div(
       css`
         & { display: flex; flex-direction: column }
@@ -164,7 +163,6 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
   }
 
   return <Box>
-    <CssBaseline/>
     {div(
       css`
         & { display: flex; flex-direction: column }
