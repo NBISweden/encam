@@ -140,7 +140,7 @@ function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
     },
     encoding: {
       [x]: {
-        axis: {title: 'time (months)'},
+        axis: {title: 'time (weeks)'},
         field: 'time',
         type: 'quantitative',
       },
