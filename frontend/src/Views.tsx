@@ -38,6 +38,8 @@ import {BoxplotWithControls} from './BoxplotWithControls'
 import {Splash} from './Splash'
 import {backend as splash_test_backend} from '../test/data/splash'
 
+import {version} from './version'
+
 export function Views() {
   const [tab, set_tab] = React.useState(0)
   const tabs = [
@@ -69,10 +71,18 @@ export function Views() {
         onChange={(_, i) => set_tab(i)}
         indicatorColor="primary"
         textColor="primary">
-      {tabs.map(t => <Tab label={t.label} key={t.label}/>)}
+        {tabs.map(t => <Tab label={t.label} key={t.label}/>)}
       </Tabs>
     </AppBar>
     {tabs[tab].component}
+    {div(
+      css`
+        position: fixed;
+        bottom: 15px;
+        right: 30px;
+      `,
+      `version: ${version}`,
+    )}
   </>
 }
 
