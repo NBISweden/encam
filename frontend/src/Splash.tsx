@@ -231,7 +231,7 @@ function Center({state, dispatch, codes, db}: SplashProps) {
         left: '50%',
         top: 50,
         transform: 'translate(-50%, 0)',
-      }}/>,
+      }}/>
       {tumor_labels}
       <div
         style={{
