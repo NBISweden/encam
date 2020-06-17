@@ -2,10 +2,9 @@
 
 FROM encam_api:latest
 
-RUN apt-get update && apt-get -y upgrade &&\
-    apt-get install -y supervisor nginx inotify-tools rsync
+RUN apt-get install -y supervisor nginx inotify-tools rsync
 
-RUN pip3 install uwsgi
+RUN pip3 install --no-cache-dir uwsgi
 
 # Mountpoint for backend
 RUN mkdir -p /api_src
