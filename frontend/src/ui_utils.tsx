@@ -1,7 +1,25 @@
 import * as React from 'react'
 import * as utils from './utils'
 
-export function useCheckboxes(labels: string[], init?: Record<string, boolean>): [Record<string, boolean>, React.ReactElement, (v: Record<string, boolean>) => void] {
+import {
+  Checkbox,
+  CheckboxProps,
+  FormControlLabel,
+  FormControlLabelProps,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio
+} from '@material-ui/core'
+
+export function useCheckboxes(
+    labels: string[],
+    init?: Record<string, boolean>,
+    extra_props?: Partial<{
+      label_props: Partial<FormControlLabelProps>,
+      checkbox_props: Partial<CheckboxProps>,
+    }>
+  ): [Record<string, boolean>, React.ReactElement, (v: Record<string, boolean>) => void] {
   const [value, set_value] = React.useState(init === undefined ? {} : init)
   return [
     value,
@@ -10,6 +28,7 @@ export function useCheckboxes(labels: string[], init?: Record<string, boolean>):
         <FormControlLabel
           label={label}
           key={label}
+          className="bababa"
           checked={value[label] || false}
           onChange={(e, checked) => {
             const ev = e.nativeEvent as MouseEvent
@@ -24,7 +43,8 @@ export function useCheckboxes(labels: string[], init?: Record<string, boolean>):
               set_value(v => ({...v, [label]: checked}))
             }
           }}
-          control={<Checkbox size="small" color="primary"/>}
+          control={<Checkbox size="small" color="primary" {...(extra_props || {}).checkbox_props || {}}/>}
+          {...(extra_props || {}).label_props || {}}
         />
       )}
     </>,
@@ -52,8 +72,6 @@ export function useRadio<K extends string>(label: string, options: K[], init?: K
     </FormControl>
   ]
 }
-
-import { Checkbox, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio } from '@material-ui/core'
 
 export function useCheckbox(label: string, init?: boolean): [boolean, React.ReactElement] {
   const [value, set_value] = React.useState(init === undefined ? true : init)

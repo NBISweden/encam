@@ -9,7 +9,7 @@ import {css, div} from './ui_utils'
 
 import {Domplot, DomplotCSS} from './Domplot'
 
-import styled, * as sc from 'styled-components'
+import {makeStyles} from '@material-ui/core/styles'
 
 import {cell_color} from './cell_colors'
 
@@ -334,8 +334,6 @@ interface SplashProps {
   range?: utils.RowRange<Row>
   codes: Record<string, string>
 }
-
-import {makeStyles} from '@material-ui/core/styles'
 
 export function Splash(props: {backend?: typeof backend}) {
   const the_backend = props.backend || backend

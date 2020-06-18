@@ -1,14 +1,15 @@
 import * as React from 'react'
 
-import {div, css} from './ui_utils'
-
 import * as VB from './VegaBoxplot'
 
 import * as utils from './utils'
 
+import {div, css} from './ui_utils'
 import * as ui from './ui_utils'
 
 import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
+
+import {makeStyles} from '@material-ui/core/styles'
 
 export interface Row {
   cell: string
@@ -69,21 +70,67 @@ function useOptions(facet: keyof Row): [Options, React.ReactElement] {
   ]
 }
 
+const flex_column = {
+  display: 'flex' as 'flex',
+  flexDirection: 'column' as 'column',
+}
+
+const flex_row = {
+  display: 'flex' as 'flex',
+  flexDirection: 'row' as 'row',
+}
+
+const useStyles = makeStyles({
+  BoxPlotWithControls: {
+    ...flex_row
+  },
+  VisibleSidebar: {
+    ...flex_column,
+    marginLeft: 2,
+    marginRight: 7,
+  },
+  VisibleCheckboxLabel: {
+    whiteSpace: 'pre',
+    cursor: 'pointer',
+    marginBottom: 2
+  },
+  VisibleCheckbox: {
+    padding: 4,
+    paddingLeft: 9,
+  },
+  VisibleSidebarIcon: {
+    marginLeft: -8,
+    transform: 'translateY(7px)'
+  },
+  Main: {
+    ...flex_column,
+
+    // Radio buttons:
+    '& .useRadio': {
+      ...flex_row,
+    }
+  }
+})
 
 export function BoxplotWithControls(props: { data: (Row & VB.Precalc)[], facet: 'cell' | 'tumor' }) {
+
+  const classes = useStyles()
 
   const [options, options_form] = useOptions(props.facet)
   const facet = props.facet
 
   const facet_vals = utils.uniq(props.data.map(x => x[facet]))
   const all_facets = Object.fromEntries(facet_vals.map(v => [v, true]))
-  const [visible_facets, facet_boxes, set_visible_facets] = ui.useCheckboxes(facet_vals, all_facets)
+  const [visible_facets, facet_boxes, set_visible_facets] =
+    ui.useCheckboxes(facet_vals, all_facets, {
+      label_props: {className: classes.VisibleCheckboxLabel},
+      checkbox_props: {className: classes.VisibleCheckbox},
+    })
+
   React.useEffect(() => {
     set_visible_facets(all_facets)
   }, [JSON.stringify(facet_vals)])
   const [show, set_show] = React.useState(true)
-  const icon_style = {marginLeft: -8, transform: 'translateY(7px)'}
-
   const plot_data = React.useMemo(
     () => props.data.filter(x => visible_facets[x[facet]]),
     [props.data, JSON.stringify(visible_facets)]
@@ -100,53 +147,27 @@ export function BoxplotWithControls(props: { data: (Row & VB.Precalc)[], facet: 
     ...props, ...options, visible_facets, show, plot_data, plot_options, plot
   })
 
-  return div(
-    css`
-      flex-direction: row;
-      display: flex;
-    `,
-    div(
-      css`
-        flex-direction: column;
-        display: flex;
-        margin-left: 2px;
-        margin-right: 7px;
-        // & * {
-        //   font-size: 16px !important;
-        // }
-        & .MuiButtonBase-root {
-          padding: 4px;
-          padding-left: 9px;
-        }
-      `,
-      <FormControl>
-        <FormLabel
-          style={{whiteSpace: 'pre', cursor: 'pointer', marginBottom: 2}}
-          onClick={() => set_show(b => !b)}>{
-            show
-              ? <> <ExpandLessIcon style={icon_style}/>{`visible ${facet}s`}</>
-              : <ExpandMoreIcon style={icon_style}/>
-        }</FormLabel>
-        { show && <FormGroup>
-          {facet_boxes}
-        </FormGroup> }
-      </FormControl>
-    ),
-    div(
-      div(
-        css`
-          & .MuiFormGroup-root {
-            flex-direction: row;
-          }
-          & {
-            display: flex;
-            flex-direction: column;
-          }
-        `,
-        plot,
-        options_form,
-      )
-    ),
+  return (
+    <div className={classes.BoxPlotWithControls}>
+      <div className={classes.VisibleSidebar}>
+        <FormControl>
+          <FormLabel onClick={() => set_show(b => !b)}>{
+              show
+                ? <> <ExpandLessIcon className={classes.VisibleSidebarIcon}/>{`visible ${facet}s`}</>
+                : <ExpandMoreIcon className={classes.VisibleSidebarIcon}/>
+          }</FormLabel>
+          { show && <FormGroup>
+            {facet_boxes}
+          </FormGroup> }
+        </FormControl>
+      </div>
+      <div>
+        <div className={classes.Main}>
+          {plot}
+          {options_form}
+        </div>
+      </div>
+    </div>
   )
 }
 
