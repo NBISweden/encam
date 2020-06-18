@@ -93,8 +93,6 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 
   onState && onState(...get_form_values())
 
-  // ui.useRecord()
-
   ui.useWhyChanged('Form', {conf, state})
 
   const buttons = div(
@@ -205,7 +203,7 @@ function useForm(conf: Conf, key_prefix='') {
               {utils.pretty(option)}
             </label>
           }
-          renderInput={(params) => {
+          renderInput={params => {
             const error = state[t.column + ',' + t.tumor].length == 0
             return (
               <TextField {...params}
@@ -302,7 +300,7 @@ function useForm(conf: Conf, key_prefix='') {
           {utils.pretty(option)}
         </label>}
       fullWidth={true}
-      renderInput={(params) => (
+      renderInput={params => (
         <TextField {...params}
           variant="outlined"
           label={'Cell types' + (tumors.length ? ' (tumors selected, comparing across all cells)' : '')}
