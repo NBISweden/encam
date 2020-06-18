@@ -1,9 +1,5 @@
 import * as React from 'react'
 
-declare const process: {env: {NODE_ENV: string}}
-
-export const backend_url = window.location.href + "/api/"
-
 export async function request(endpoint: string, body?: any) {
   const init = body ? {
     body: JSON.stringify(body),
@@ -13,7 +9,7 @@ export async function request(endpoint: string, body?: any) {
       'Content-Type': 'application/json',
     },
   } : undefined
-  const resp = await fetch(backend_url + endpoint, init)
+  const resp = await fetch('api/' + endpoint, init)
   return await resp.json()
 }
 
