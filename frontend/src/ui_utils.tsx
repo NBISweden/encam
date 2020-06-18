@@ -226,3 +226,12 @@ export function div(...args: (DivProps | {css: string} | React.ReactNode)[]) {
   props.children = dummy_keys(props.children, ':')
   return React.createElement(Div, props)
 }
+
+export function useStateWithUpdate<State>(init: State | (() => State)) {
+  const [state, set_state] = React.useState(init)
+  const update_state =
+    (next: Partial<State> | ((s: State) => Partial<State>)) =>
+    set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
+  const res: [typeof state, typeof update_state] = [state, update_state]
+  return res
+}

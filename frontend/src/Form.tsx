@@ -181,11 +181,8 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 function useForm(conf: Conf, key_prefix='') {
 
   const state0 = () => calculate_state0(conf, key_prefix)
-  const [state, set_state] = React.useState(state0)
+  const [state, update_state] = ui.useStateWithUpdate(state0)
   const {tumors, cells} = state
-  const update_state =
-    (next: Partial<State> | ((s: State) => Partial<State>)) =>
-    set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
 
   const specific = conf.tumor_specific_values
     .map(t => memo(
@@ -323,7 +320,7 @@ function useForm(conf: Conf, key_prefix='') {
 
   return {
     state,
-    reset: () => set_state(state0()),
+    reset: () => update_state(state0()),
     form: [
       tumor_type,
       cell_type,

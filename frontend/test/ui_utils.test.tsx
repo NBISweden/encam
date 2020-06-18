@@ -61,3 +61,33 @@ describe('div, css', () => {
     expect(el.container.innerHTML).toMatchInlineSnapshot(str`<div class="sc-AxirZ ktnnZK">hit me</div>`)
   })
 })
+
+describe(ui.useStateWithUpdate, () => {
+  test('updates correctly', () => {
+    let st
+    const C = () => {
+      const [state, update_state] = ui.useStateWithUpdate({a: 1, b: 2})
+      st = {...state}
+      return div('hit me', {
+        onClick: () => {
+          if (state.a < 2) {
+            update_state({a: 2})
+          } else {
+            update_state(st => ({b: st.b + 1}))
+          }
+        }
+      })
+    }
+    render(<C/>)
+    expect(st).toStrictEqual({a: 1, b: 2})
+
+    fireEvent.click(screen.getByText('hit me'))
+    expect(st).toStrictEqual({a: 2, b: 2})
+
+    fireEvent.click(screen.getByText('hit me'))
+    expect(st).toStrictEqual({a: 2, b: 3})
+
+    fireEvent.click(screen.getByText('hit me'))
+    expect(st).toStrictEqual({a: 2, b: 4})
+  })
+})
