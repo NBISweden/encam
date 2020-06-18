@@ -1,7 +1,10 @@
 
     server {
+        listen 8443 ssl http2;
         listen 8080;
 
+        ssl_certificate /code/cert.pem;
+        ssl_certificate_key /code/key.pem;
         root /app/dist/browser/;
 
         location / {
