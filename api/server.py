@@ -129,4 +129,15 @@ def database():
     response = jsonify(db.db.to_dict(orient='records'))
     return response
 
-
+@app.route('/survival', methods=['OPTIONS', 'POST'])
+def survival():
+    if request.method == 'OPTIONS':
+        # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
+        # https://github.com/github/fetch/issues/143
+        return jsonify({})
+    elif request.is_json:
+        body = request.json
+        response = database_lib.filter_survival(body)
+        return jsonify(response)
+    else:
+        return jsonify({"error": "Body must be JSON"})

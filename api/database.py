@@ -1,4 +1,5 @@
-from lifelines import CoxPHFitter
+from lifelines import CoxPHFitter, KaplanMeierFitter
+from lifelines.statistics import multivariate_logrank_test
 import pandas as pd
 import json
 
@@ -40,7 +41,7 @@ def data_per_type(dd, cell_types):
     cox = coxph_per_type(dd, cell_types)
     return pd.concat((expression, cox), axis=1)
 
-ntiles = lambda xs: pd.cut(pd.Series(xs).rank(), 2, right=False, labels=False) + 1
+ntiles = lambda xs,groups=2: pd.cut(pd.Series(xs).rank(), groups, right=False, labels=False) + 1
 
 def init():
     print("Initialization started", flush=True)
@@ -79,7 +80,7 @@ def init():
 
     # OUTPUT - First result to return
     db = pd.concat(dfs, axis=0).reset_index(drop=True)
-    db_str = db.to_json(orient='records', indent=2)
+    #db_str = db.to_json(orient='records', indent=2)
 
     # OUTPUT - Second results to return
     codes_list = data[['Tumor_type', 'Tumor_type_code']].to_dict(orient='records')
@@ -164,7 +165,10 @@ def test_Tukey():
 
     print(res)
 
-def filter(filter_id):
+''' Function used only for testing purposes
+    File test.py compares the filter2 with the filter function
+'''
+def filter2(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
     for key in base_filters:
@@ -199,7 +203,7 @@ def filter(filter_id):
     response = response.drop(columns='cell_full')
     return response
 
-def filter2(filter_id):
+def filtering(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
 
@@ -212,7 +216,11 @@ def filter2(filter_id):
         for tumor, values in filter_id[specific].items():
             data_filtered = data_filtered[lambda row: (row.Tumor_type_code != tumor) | row[specific].isin(values)]
 
-    response = data_filtered
+    return data_filtered
+
+def filter(filter_id):
+
+    response = filtering(filter_id)
     response = response.melt(id_vars='Tumor_type_code')
     response.columns = ['tumor', 'cell_full', 'expression']
 
@@ -224,6 +232,46 @@ def filter2(filter_id):
     response = response[response['cell'].isin(filter_id['cells'])]
     response = response.drop(columns='cell_full')
     return response
+
+
+def filter_survival(filter_id):
+
+    data_filtered = filtering(filter_id)
+
+    # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
+    data_filtered['rank'] = ntiles(data_filtered[filter_id['cell_full']], filter_id['num_groups'])
+    points = []
+    for g in range(filter_id['num_groups']):
+        kmf = KaplanMeierFitter()
+        data = data_filtered[lambda row: row['rank'] == g+1]
+        kmf.fit(
+            data['T'],
+            data['E'],
+            label='Kaplan_Meier'
+        )
+        fit_as_dict = kmf.survival_function_.to_dict()['Kaplan_Meier']
+        fit_as_tuples = [(t, p) for t, p in fit_as_dict.items()]
+        points.append(fit_as_tuples)
+
+    # Run multivarate analysis
+    log_rank = multivariate_logrank_test(data_filtered['T'], data_filtered['rank'], data_filtered['E'])
+    log = {
+        'test_statistic_logrank': log_rank.summary['test_statistic'][0],
+        'p_logrank': log_rank.summary['p'][0]
+    }
+
+    # Run cox regression
+    cph = CoxPHFitter()
+    cph.fit(data_filtered[['rank', 'T', 'E']], 'T', event_col='E')
+    cox = {
+        'coef': cph.summary['exp(coef)'][0],
+        'lower': cph.summary['exp(coef) lower 95%'][0],
+        'upper': cph.summary['exp(coef) upper 95%'][0],
+        'p': cph.summary['p'][0]
+    }
+    responses = {'points': points, 'log_rank': log, 'cox_regression': cox}
+    return responses
+
 
 def filter_to_tukey(body):
     df_long = filter(body)
