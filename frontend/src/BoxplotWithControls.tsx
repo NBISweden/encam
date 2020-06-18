@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import {div, css} from './css'
+import {div, css} from './ui_utils'
 
 import * as VB from './VegaBoxplot'
 

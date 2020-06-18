@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import * as sc from 'styled-components'
 
-import {css, div} from './css'
+import {css, div} from './ui_utils'
 
 import * as backend from './backend'
 

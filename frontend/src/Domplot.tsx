@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as stripes from './stripes'
 
-import {div, css} from './css'
+import {div, css} from './ui_utils'
 
 import * as utils from './utils'
 

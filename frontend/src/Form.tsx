@@ -1,11 +1,10 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-import {css, div} from './css'
-
 import * as utils from './utils'
 
 import * as ui from './ui_utils'
+import {css, div} from './ui_utils'
 
 import { FormControlLabel, Box, Grid, Checkbox, TextField, Button } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'

@@ -2,7 +2,7 @@ import * as ReactDOM from 'react-dom'
 import * as React from 'react'
 import {backend} from './backend'
 
-import {css, div} from './css'
+import {css, div} from './ui_utils'
 
 import * as ui from './ui_utils'
 

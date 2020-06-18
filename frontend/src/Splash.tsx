@@ -5,7 +5,7 @@ import * as utils from './utils'
 
 import type {DB, Row} from './db'
 
-import {css, div} from './css'
+import {css, div} from './ui_utils'
 
 import {Domplot, DomplotCSS} from './Domplot'
 
