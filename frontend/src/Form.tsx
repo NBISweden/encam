@@ -4,9 +4,9 @@ import * as ReactDOM from 'react-dom'
 import * as utils from './utils'
 
 import * as ui from './ui_utils'
-import {css, div} from './ui_utils'
 
-import { FormControlLabel, Box, Grid, Checkbox, TextField, Button } from '@material-ui/core'
+import {makeStyles} from '@material-ui/core/styles'
+import { FormControlLabel, Grid, Checkbox, TextField, Button } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 
 export interface Conf {
@@ -64,6 +64,8 @@ function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
 export interface FormProps {
   conf: Conf
   onSubmit?: (...form_values: Record<string, any>[]) => void
+
+  /** For testing */
   onState?: (...form_values: Record<string, any>[]) => void
 }
 
@@ -84,6 +86,32 @@ function prepare_state_for_backend(state0: State, conf: Conf) {
   }
 }
 
+type Action = () => void
+
+function Buttons(props: {onReset: Action, onSubmit: Action, children?: React.ReactNode}) {
+  return (
+    <Grid item container justify="flex-end" spacing={2} style={{marginTop: 0}}>
+      {props.children}
+      <Grid item>
+        <Button variant="contained" onClick={props.onReset}>Reset</Button>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" color="primary" startIcon={<BarChartIcon/>}
+          onClick={props.onSubmit}>Plot</Button>
+      </Grid>
+    </Grid>
+  )
+}
+
+const useStyles = makeStyles({
+  Form: {
+    ...ui.flex_column,
+    '& > .MuiAutocomplete-root': {
+      paddingBottom: '1em'
+    }
+  }
+})
+
 export function Form({conf, onSubmit, onState}: FormProps) {
   const {state, reset, form} = useForm(conf)
 
@@ -95,34 +123,21 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 
   ui.useWhyChanged('Form', {conf, state})
 
-  const buttons = div(
-    css`
-      & { margin-left: auto }
-      & > button {
-        margin: 8px
-      }
-    `,
-    <Button variant="contained" onClick={() => reset()}>Reset</Button>,
-    <Button variant="contained" color="primary" startIcon={<BarChartIcon/>}
-      onClick={() => onSubmit && onSubmit(...get_form_values())}>Plot</Button>
+  const classes = useStyles()
+
+  return (
+    <div className={classes.Form}>
+      {form}
+      <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(...get_form_values())}/>
+    </div>
   )
-
-
-  return <Box>
-    {div(
-      css`
-        & { display: flex; flex-direction: column }
-        & > .MuiAutocomplete-root { padding-bottom: 1em }
-      `,
-      ...form,
-      buttons
-    )}
-  </Box>
 }
 
 export function TwoForms({conf, onSubmit, onState}: FormProps) {
-  const A = useForm(conf, 'A')
-  const B = useForm(conf, 'B')
+  const names = "AB"
+
+  const A = useForm(conf, names[0])
+  const B = useForm(conf, names[1])
 
   const forms = [A, B]
 
@@ -140,40 +155,28 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 
   ui.useWhyChanged('Form', {conf, A_state: A.state, B_state: B.state, do_stitch})
 
-  const buttons = div(
-    css`
-      & { margin-left: auto }
-      & > button {
-        margin: 8px
-      }
-    `,
-    box_stitch,
-    <Button variant="contained" onClick={() => reset()}>Reset</Button>,
-    <Button variant="contained" color="primary" startIcon={<BarChartIcon/>} onClick={on_submit}>Plot</Button>
-  )
-
-  const names = "AB"
-
   function stitch<A>(xs: A[][]): A[] {
     const [y, ...ys] = xs
     return y.flatMap((a, i) => [a, ...ys.map(y => y[i])])
   }
 
-  return <Box>
-    {div(
-      css`
-        & { display: flex; flex-direction: column }
-        & > .MuiAutocomplete-root { padding-bottom: 1em }
-      `,
-      do_stitch
+  const classes = useStyles()
+
+  return (
+    <div className={classes.Form}>
+      {do_stitch
         ? stitch(forms.map(form => form.form))
         : forms.map((form, i) => [
-            <h2>Group {names[i]}</h2>,
+            <h2 key={names[i]}>Group {names[i]}</h2>,
             form.form,
-          ]),
-      buttons
-    )}
-  </Box>
+          ])}
+      <Buttons onReset={reset} onSubmit={on_submit}>
+        <Grid item>
+          {box_stitch}
+        </Grid>
+      </Buttons>
+    </div>
+  )
 }
 
 function useForm(conf: Conf, key_prefix='') {
@@ -212,12 +215,14 @@ function useForm(conf: Conf, key_prefix='') {
                 error={error}
                 helperText={error && "Need at least one option"}
               />
-          )}}
+            )
+          }}
           size="small"
           onChange={(_, selected) => update_state({[t.column + ',' + t.tumor]: selected})}
           value={state[t.column + ',' + t.tumor] || t.values}
         />
-        : <React.Fragment/>))
+        : <React.Fragment key={key_prefix + ':' + t.column + t.tumor}/>
+      ))
 
   const misc_filters = conf.variant_values
     .map(v => memo([state[v.column]], () =>

@@ -9,7 +9,7 @@ export async function request(endpoint: string, body?: any) {
       'Content-Type': 'application/json',
     },
   } : undefined
-  const resp = await fetch('api/' + endpoint, init)
+  const resp = await fetch(window.location.origin + '/api/' + endpoint, init)
   return await resp.json()
 }
 

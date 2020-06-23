@@ -16,6 +16,8 @@ COPY system/nginx.conf /etc/nginx/
 COPY system/encam.devel.nginx /etc/nginx/encam.devel
 COPY system/encam.standalone.nginx /etc/nginx/encam.standalone
 
+VOLUME /etc/nginx
+
 COPY system/entrypoint.sh /
 
 CMD /entrypoint.sh

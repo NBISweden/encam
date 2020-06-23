@@ -11,6 +11,9 @@ import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
 
 import {makeStyles} from '@material-ui/core/styles'
 
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+
 export interface Row {
   cell: string
   tumor: string
@@ -20,8 +23,39 @@ export interface Row {
 
 type Options = Partial<VB.Options<keyof Row>>
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+const useStyles = makeStyles({
+  BoxPlotWithControls: {
+    ...ui.flex_row
+  },
+  VisibleSidebar: {
+    ...ui.flex_column,
+    marginLeft: 2,
+    marginRight: 7,
+
+    // Checkboxes:
+    '& .MuiFormControlLabel-root': {
+      whiteSpace: 'pre',
+      cursor: 'pointer',
+      marginBottom: 2
+    },
+    '& .MuiCheckbox-root': {
+      padding: 4,
+      paddingLeft: 9,
+    },
+  },
+  VisibleSidebarIcon: {
+    marginLeft: -8,
+    transform: 'translateY(7px)'
+  },
+  Main: {
+    ...ui.flex_column,
+
+    // Radio buttons:
+    '& .MuiFormGroup-root': {
+      ...ui.flex_row,
+    }
+  },
+})
 
 function useOptions(facet: keyof Row): [Options, React.ReactElement] {
   const [split, split_checkbox] = ui.useCheckbox('split tumor and stroma', false)
@@ -70,48 +104,6 @@ function useOptions(facet: keyof Row): [Options, React.ReactElement] {
   ]
 }
 
-const flex_column = {
-  display: 'flex' as 'flex',
-  flexDirection: 'column' as 'column',
-}
-
-const flex_row = {
-  display: 'flex' as 'flex',
-  flexDirection: 'row' as 'row',
-}
-
-const useStyles = makeStyles({
-  BoxPlotWithControls: {
-    ...flex_row
-  },
-  VisibleSidebar: {
-    ...flex_column,
-    marginLeft: 2,
-    marginRight: 7,
-  },
-  VisibleCheckboxLabel: {
-    whiteSpace: 'pre',
-    cursor: 'pointer',
-    marginBottom: 2
-  },
-  VisibleCheckbox: {
-    padding: 4,
-    paddingLeft: 9,
-  },
-  VisibleSidebarIcon: {
-    marginLeft: -8,
-    transform: 'translateY(7px)'
-  },
-  Main: {
-    ...flex_column,
-
-    // Radio buttons:
-    '& .useRadio': {
-      ...flex_row,
-    }
-  }
-})
-
 export function BoxplotWithControls(props: { data: (Row & VB.Precalc)[], facet: 'cell' | 'tumor' }) {
 
   const classes = useStyles()
@@ -122,10 +114,7 @@ export function BoxplotWithControls(props: { data: (Row & VB.Precalc)[], facet: 
   const facet_vals = utils.uniq(props.data.map(x => x[facet]))
   const all_facets = Object.fromEntries(facet_vals.map(v => [v, true]))
   const [visible_facets, facet_boxes, set_visible_facets] =
-    ui.useCheckboxes(facet_vals, all_facets, {
-      label_props: {className: classes.VisibleCheckboxLabel},
-      checkbox_props: {className: classes.VisibleCheckbox},
-    })
+    ui.useCheckboxes(facet_vals, all_facets, )
 
   React.useEffect(() => {
     set_visible_facets(all_facets)
@@ -151,21 +140,21 @@ export function BoxplotWithControls(props: { data: (Row & VB.Precalc)[], facet: 
     <div className={classes.BoxPlotWithControls}>
       <div className={classes.VisibleSidebar}>
         <FormControl>
-          <FormLabel onClick={() => set_show(b => !b)}>{
+          <FormLabel onClick={() => set_show(b => !b)}>
+            {
               show
                 ? <> <ExpandLessIcon className={classes.VisibleSidebarIcon}/>{`visible ${facet}s`}</>
                 : <ExpandMoreIcon className={classes.VisibleSidebarIcon}/>
-          }</FormLabel>
-          { show && <FormGroup>
-            {facet_boxes}
-          </FormGroup> }
+            }
+          </FormLabel>
+          <FormGroup>
+            {show && facet_boxes}
+          </FormGroup>
         </FormControl>
       </div>
-      <div>
-        <div className={classes.Main}>
-          {plot}
-          {options_form}
-        </div>
+      <div className={classes.Main}>
+        {plot}
+        {options_form}
       </div>
     </div>
   )

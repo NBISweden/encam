@@ -1,3 +1,7 @@
+export * from './ui_utils/useRoutedTabs'
+export * from './ui_utils/div'
+export * from './ui_utils/incubator'
+
 import * as React from 'react'
 import * as utils from './utils'
 
@@ -15,10 +19,6 @@ import {
 export function useCheckboxes(
     labels: string[],
     init?: Record<string, boolean>,
-    extra_props?: Partial<{
-      label_props: Partial<FormControlLabelProps>,
-      checkbox_props: Partial<CheckboxProps>,
-    }>
   ): [Record<string, boolean>, React.ReactElement, (v: Record<string, boolean>) => void] {
   const [value, set_value] = React.useState(init === undefined ? {} : init)
   return [
@@ -43,8 +43,7 @@ export function useCheckboxes(
               set_value(v => ({...v, [label]: checked}))
             }
           }}
-          control={<Checkbox size="small" color="primary" {...(extra_props || {}).checkbox_props || {}}/>}
-          {...(extra_props || {}).label_props || {}}
+          control={<Checkbox size="small" color="primary"/>}
         />
       )}
     </>,
@@ -122,34 +121,30 @@ export function useDebounce(ms: number, k: Function) {
   return res
 }
 
-import styled from 'styled-components'
+import {Paper as MuiPaper, PaperProps} from '@material-ui/core'
 
-type Arg0<T> = T extends (a: infer A) => any ? A : never
+import {styled} from '@material-ui/core/styles'
 
-type WithCss<A> = (props: Arg0<A> & {css?: string}) => JSX.Element
+const ElevatedPaper = (props?: PaperProps) => <MuiPaper elevation={2} {...props}/>
 
-import {Paper as MuiPaper} from '@material-ui/core'
+export const Paper = styled(ElevatedPaper)({
+  margin: 20,
+  padding: 20,
+})
 
-export const Paper = styled(MuiPaper as WithCss<typeof MuiPaper>).attrs(() => ({
-  // variant: 'outlined',
-  elevation: 2,
-}))`
-  margin: 20;
-  padding: 20;
-  ${props => props.css || ''}
-`
+export const InlinePaper = styled(Paper)({
+  display: 'inline-flex',
+  flexDirection: 'row',
+})
 
-export const InlinePaper = (props: Arg0<typeof MuiPaper> ) =>
-  <Paper css="display: inline-flex; flex-direction: row" {...props}/>
-
-export function useEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions) {
+export function useEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions, deps?: React.DependencyList) {
   React.useEffect(() => {
     window.addEventListener(type, listener, options)
     return () => window.removeEventListener(type, listener)
-  }, [])
+  }, deps)
 }
 
-export const useKeydown = (h: (e: KeyboardEvent) => void) => useEventListener('keydown', h)
+export const useKeydown = (h: (e: KeyboardEvent) => void, deps?: React.DependencyList) => useEventListener('keydown', h, undefined, deps)
 
 export function useRecord() {
   useEventListener('click', e => {
@@ -168,83 +163,6 @@ export function useRecord() {
   })
 }
 
-export function dummy_keys(xs: React.ReactNode[], prefix=';'): React.ReactNode[] {
-  return xs.map((x, i) => {
-    if (x && typeof x == 'object' && '$$typeof' in x) {
-      let child = x as any
-      if (!child.key) {
-        const key = prefix + i
-        const ref = child.ref
-        child = React.createElement(child.type, {key, ref, ...child.props})
-      }
-      return child
-    } else {
-      return x
-    }
-  })
-}
-
-export function css(xs: TemplateStringsArray | string, ...more: string[]): {css: string} {
-  let css: string
-  if (typeof xs == 'string') {
-    css = xs
-  } else {
-    css = xs.map((s, i) => s + (more[i] === undefined ? '' : more[i])).join('')
-  }
-  return {css}
-}
-
-export type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
-
-const Div = styled.div`${(props: any) => props.css}`
-
-export function div(...args: (DivProps | {css: string} | React.ReactNode)[]) {
-  const props: Record<string, any> = {
-    children: [],
-    css: '',
-  }
-  args.forEach(function add(arg) {
-    if (typeof arg == 'string' || typeof arg == 'number') {
-      props.children.push(arg)
-    } else if (arg && typeof arg == 'object') {
-      if ('$$typeof' in arg) {
-        props.children.push(arg)
-      } else if (Array.isArray(arg)) {
-        arg.forEach(add)
-      } else {
-        Object.entries(arg).forEach(([k, v]) => {
-          if (k == 'css') {
-            props.css += ';\n' + v
-          } else if (k == 'children') {
-            props.children.push(...v)
-          } else if (typeof v == 'function') {
-            const prev = props[k]
-            if (prev) {
-              props[k] = (...args: any[]) => {
-                prev(...args)
-                v(...args)
-              }
-            } else {
-              props[k] = v
-            }
-          } else if (typeof v == 'object') {
-            props[k] = {...props[k], ...v}
-          } else {
-            if (props[k]) {
-              props[k] += ' '
-            } else {
-              props[k] = ''
-            }
-            props[k] += v
-          }
-        })
-      }
-    }
-  })
-  props.children = dummy_keys(props.children, ':')
-  return React.createElement(Div, props)
-}
-
 export function useStateWithUpdate<State>(init: State | (() => State)) {
   const [state, set_state] = React.useState(init)
   const update_state =
@@ -253,3 +171,14 @@ export function useStateWithUpdate<State>(init: State | (() => State)) {
   const res: [typeof state, typeof update_state] = [state, update_state]
   return res
 }
+
+export const flex_column: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+}
+
+export const flex_row: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'row',
+}
+

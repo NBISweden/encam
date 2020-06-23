@@ -74,9 +74,12 @@ function reduce(state: State, action: Action): State {
   }
 }
 
-const flex_column = {
-  display: 'flex' as 'flex',
-  flexDirection: 'column' as 'column',
+interface SplashProps {
+  state: State
+  dispatch: (action: Action) => void
+  db?: DB
+  range?: utils.RowRange<Row>
+  codes: Record<string, string>
 }
 
 const useStyles = makeStyles({
@@ -87,21 +90,19 @@ const useStyles = makeStyles({
       paddingBottom: 2,
     },
     '& h2': {
-      marginTop: '1em',
-      marginBottom: '0.8em',
-      marginLeft: '0.2em',
+      margin: '10 auto',
       fontSize: '1.1em',
     },
   },
   Right: {
-    ...flex_column,
+    ...ui.flex_column,
     width: 200,
     '& > div': {
       margin: '10px auto',
     }
   },
   Left: {
-    ...flex_column,
+    ...ui.flex_column,
     width: 200,
     padding: '0 1em',
   },
@@ -265,15 +266,16 @@ function Left({state, dispatch, range}: SplashProps) {
             const img = cell_png && <img src={cell_png} {...img_props}/>
             const color = cell_color(x.text)
             return <label key={i} id={cell} htmlFor={cell} onClick={x.onClick}>{div(
-              {style: {
-                border: `1.5px ${color} solid`,
-                background: x.checked ? color : 'white',
-                color: x.checked ? 'white' : 'black',
-              }},
+              {
+                style: {
+                  border: `1.5px ${color} solid`,
+                  background: x.checked ? color : 'white',
+                  color: x.checked ? 'white' : 'black',
+                }
+              },
               css`
                 display: flex;
                 flex-direction: row;
-                // justify-content: space-between;
                 border-radius: 15px;
                 font-size: 0.8em;
               `,
@@ -292,10 +294,9 @@ function Left({state, dispatch, range}: SplashProps) {
                   display: inline;
                   text-align: center;
                 `,
-                utils.pretty(cell) // x.label
+                utils.pretty(cell)
               )
-            )
-          }</label>})}
+            )}</label>})}
     </div>
   )
 }
@@ -311,28 +312,21 @@ function Right({state, db}: SplashProps) {
     const cells  = utils.selected(cell)
     const opts   = {orientation: 'portrait' as 'portrait', axis_right: true}
     for (const t of tumors) {
-      out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(t)}</h2>)
+      out.push(<h2>{utils.pretty(t)}</h2>)
       out.push(<Domplot rows={db.filter(row => row.tumor == t)} kind="bar" options={opts}/>)
       out.push(<Domplot rows={db.filter(row => row.tumor == t)} kind="forest" options={opts}/>)
     }
     for (const c of cells) {
-      out.push(<h2 style={{margin: '10 auto'}}>{utils.pretty(c)}</h2>)
+      out.push(<h2>{utils.pretty(c)}</h2>)
       out.push(<Domplot rows={db.filter(row => row.cell == c)} kind="forest" options={{facet_x: 'tumor', ...opts}}/>)
     }
   }
+
   return (
     <div className={classes.Right}>
       {ui.dummy_keys(out)}
     </div>
   )
-}
-
-interface SplashProps {
-  state: State
-  dispatch: (action: Action) => void
-  db?: DB
-  range?: utils.RowRange<Row>
-  codes: Record<string, string>
 }
 
 export function Splash(props: {backend?: typeof backend}) {

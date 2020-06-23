@@ -11,6 +11,21 @@ import * as form from './Form'
 
 import {CircularProgress} from '@material-ui/core'
 
+import {makeStyles} from '@material-ui/core/styles'
+
+const useStyles = makeStyles({
+  FormAndBoxPlot: {
+    ...ui.flex_row,
+    alignItems: 'flex-start',
+    '& > :not(:first-child)': {
+      marginLeft: 0,
+    },
+    '& h2:first-child': {
+      marginTop: 0,
+    }
+  }
+})
+
 export function FormAndBoxPlot(props: {form?: typeof form.Form, backend?: typeof backend}) {
   const the_backend = props.backend || backend
   const Form = props.form || form.Form
@@ -40,40 +55,29 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form, backend?: typeof
     },
     [])
   ui.useWhyChanged('FormAndBoxPlot', {conf, filter, plot_data, loading, plot, onSubmit})
-  return div(
-    css`
-      & > :not(:first-child) {
-        margin-left: 0;
-      }
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-    `,
-    <ui.Paper key="form" style={conf ? {width: '15cm', flexShrink: 0} : {}}
-      css="
-        & h2:first-child {
-          margin-top: 0;
-        }
-      ">
-      {conf
-        ? <Form key="form" conf={conf} onSubmit={onSubmit}/>
-        : <CircularProgress />}
-    </ui.Paper>,
-    (plot || loading) && <ui.Paper key="plot" style={{width: 'fit-content', position: 'relative'}}>
-      {loading &&
-        <div
-          style={plot ? {
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            margin: 20,
-            background: '#fffe',
-            boxShadow: '0 0 8px 8px #fffe',
-          } : {}}>
-          <CircularProgress/>
-        </div>}
-      {plot}
-    </ui.Paper>
+  const classes = useStyles()
+  return (
+    <div className={classes.FormAndBoxPlot}>
+      <ui.Paper key="form" style={conf ? {width: '15cm', flexShrink: 0} : {}}>
+        {conf
+          ? <Form key="form" conf={conf} onSubmit={onSubmit}/>
+          : <CircularProgress />}
+      </ui.Paper>
+      {(plot || loading) && <ui.Paper key="plot" style={{width: 'fit-content', position: 'relative'}}>
+        {loading &&
+          <div
+            style={plot ? {
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              margin: 20,
+              background: '#fffe',
+              boxShadow: '0 0 8px 8px #fffe',
+            } : {}}>
+            <CircularProgress/>
+          </div>}
+        {plot}
+      </ui.Paper>}
+    </div>
   )
 }
-

@@ -9,6 +9,8 @@ const root = document.querySelector('#root')
 
 const view = <Views/>
 
-ReactDOM.render(view, root)
+import * as R from 'react-router-dom'
+
+ReactDOM.render(<R.BrowserRouter>{view}</R.BrowserRouter>, root)
 
 
