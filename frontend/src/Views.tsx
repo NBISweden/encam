@@ -4,8 +4,6 @@ import * as sc from 'styled-components'
 
 import {css, div} from './ui_utils'
 
-import * as backend from './backend'
-
 import {CssBaseline} from '@material-ui/core'
 
 import {
@@ -36,7 +34,8 @@ import {VegaBoxplot} from './VegaBoxplot'
 import {VegaKMPlot} from './VegaKMPlot'
 import {BoxplotWithControls} from './BoxplotWithControls'
 import {Splash} from './Splash'
-import {backend as splash_test_backend} from '../test/data/splash'
+import * as splash_test from '../test/data/splash'
+import {MockBackend} from './backend'
 
 import {Switch} from 'react-router-dom'
 
@@ -117,7 +116,10 @@ export function Views() {
     {
       label: 'Splash mock backend',
       path: '/SplashMock',
-      component: <Splash key="mock" backend={splash_test_backend}/>
+      component:
+        <MockBackend request={splash_test.request}>
+          <Splash key="mock"/>
+        </MockBackend>
     },
   ])
   ui.useKeydown(e => {

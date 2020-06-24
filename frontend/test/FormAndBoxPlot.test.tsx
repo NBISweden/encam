@@ -3,7 +3,7 @@ import * as React from 'react'
 
 import {FormAndBoxPlot} from '../src/FormAndBoxPlot'
 
-import {make_backend} from '../src/backend'
+import {MockBackend} from '../src/backend'
 
 import {form_test_conf} from './data/form'
 import {boxplot_test_data_grouped} from './data/boxplot'
@@ -17,7 +17,7 @@ describe(FormAndBoxPlot, () => {
   test('pressing plot calls backend and makes a plot', async () => {
     let calls = 0
 
-    const backend = make_backend(async (endpoint, body) => {
+    const request = async (endpoint: string, body: any) => {
       calls++
       if (endpoint == 'configuration') {
         expect(body).toBeUndefined()
@@ -27,9 +27,13 @@ describe(FormAndBoxPlot, () => {
         return boxplot_test_data_grouped
       }
       throw new Error(`Unsupported endpoint ${endpoint}`)
-    })
+    }
 
-    render(<FormAndBoxPlot backend={backend}/>)
+    render(
+      <MockBackend request={request}>
+        <FormAndBoxPlot/>
+      </MockBackend>
+    )
 
     await waitFor(() => screen.getByText(/plot/i))
 

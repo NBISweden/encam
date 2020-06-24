@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-export async function request(endpoint: string, body?: any) {
+async function request_by_fetch(endpoint: string, body?: any) {
   const init = body ? {
     body: JSON.stringify(body),
     method: 'POST',
@@ -13,25 +13,26 @@ export async function request(endpoint: string, body?: any) {
   return await resp.json()
 }
 
-export function make_useRequest(the_request: typeof request) {
-  return function useRequest(endpoint: string, argument?: any) {
-    let [resp, set_resp] = React.useState(undefined as any)
-    React.useEffect(() => {
-      the_request(endpoint, argument).then(set_resp)
-    }, [])
-    // TODO: handle error
-    return resp
-  }
+const Backend = React.createContext(request_by_fetch)
+
+export function useRequestFn(): typeof request_by_fetch {
+  return React.useContext(Backend)
 }
 
-export const useRequest = make_useRequest(request)
-
-export function make_backend(the_request: typeof request) {
-  return {
-    request: the_request,
-    useRequest: make_useRequest(the_request)
-  }
+export function useRequest(endpoint: string, argument?: any) {
+  const [resp, set_resp] = React.useState(undefined as any)
+  const request = useRequestFn()
+  React.useEffect(() => {
+    request(endpoint, argument).then(set_resp)
+  }, [])
+  return resp
 }
 
-export const backend = make_backend(request)
+export function MockBackend(props: {request: typeof request_by_fetch, children: React.ReactNode}) {
+  return (
+    <Backend.Provider value={props.request}>
+      {props.children}
+    </Backend.Provider>
+  )
+}
 

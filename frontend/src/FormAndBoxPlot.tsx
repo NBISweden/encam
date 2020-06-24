@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom'
 import * as React from 'react'
-import {backend} from './backend'
+import * as backend from './backend'
 
 import {css, div} from './ui_utils'
 
@@ -26,20 +26,20 @@ const useStyles = makeStyles({
   }
 })
 
-export function FormAndBoxPlot(props: {form?: typeof form.Form, backend?: typeof backend}) {
-  const the_backend = props.backend || backend
+export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   const Form = props.form || form.Form
-  const conf = the_backend.useRequest('configuration')
+  const conf = backend.useRequest('configuration')
 
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
   const [loading, set_loading] = React.useState(false)
   const plot = filter && plot_data && <BoxplotWithControls key="plot" data={plot_data} facet={filter.facet} />
+  const request = backend.useRequestFn()
   const onSubmit = React.useCallback(
     (...filters) => {
       set_loading(true)
       // console.time('request')
-      the_backend.request('tukey', filters).then((res: any[][]) => {
+      request('tukey', filters).then((res: any[][]) => {
         // console.timeEnd('request')
         const names = ['A', 'B']
         res = res.flatMap((r, i) => r.map(row => ({

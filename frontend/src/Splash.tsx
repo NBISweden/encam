@@ -13,7 +13,7 @@ import {makeStyles} from '@material-ui/core/styles'
 
 import {cell_color} from './cell_colors'
 
-import {backend} from './backend'
+import * as backend from './backend'
 
 import * as ui from './ui_utils'
 
@@ -329,12 +329,11 @@ function Right({state, db}: SplashProps) {
   )
 }
 
-export function Splash(props: {backend?: typeof backend}) {
-  const the_backend = props.backend || backend
-  const db0 = the_backend.useRequest('database') as undefined | DB
+export function Splash() {
+  const db0 = backend.useRequest('database') as undefined | DB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
   const range = React.useMemo(() => db ? utils.row_range(db) : undefined, [db])
-  const codes = the_backend.useRequest('codes') as Record<string, string> || {}
+  const codes = backend.useRequest('codes') as Record<string, string> || {}
   Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
 
   const classes = useStyles()

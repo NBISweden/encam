@@ -3,16 +3,22 @@ import * as React from 'react'
 
 import {Splash} from '../src/Splash'
 
-import {backend} from './data/splash'
+import * as splash_test_data from './data/splash'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 
+import {MockBackend} from '../src/backend'
+
 const {click} = fireEvent
-const {getByLabelText} = screen
+
+const MockSplash = () =>
+  <MockBackend request={splash_test_data.request}>
+    <Splash/>
+  </MockBackend>
 
 describe(Splash, () => {
   test('draws plots and one tumor type at a time can be selected', async () => {
-    render(<Splash backend={backend}/>)
+    render(<MockSplash/>)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
 
@@ -40,7 +46,7 @@ describe(Splash, () => {
   })
 
   test('draws plots and up to three cell types can be selected', async () => {
-    render(<Splash backend={backend}/>)
+    render(<MockSplash/>)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
 
