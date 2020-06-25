@@ -26,6 +26,7 @@
   "scripts": {
     "start": "parcel serve index.html --hmr-port 1235 --no-source-maps",
     "build": "rm .parcel-cache dist/* -rf; parcel build index.html --no-source-maps",
+    "typecheck": "tsc **/*.tsx --noEmit --jsx react --lib es2019,dom --skipLibCheck",
     "test": "jest"
   },
   "dependencies": {

@@ -10,5 +10,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the docker-compose images
       run: docker-compose build
+    - name: Run frontend typecheck
+      run: docker-compose run -w /app encam-frontend-devel yarn run typecheck
     - name: Run frontend tests
       run: docker-compose run -w /app encam-frontend-devel yarn run test
