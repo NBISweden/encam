@@ -2,8 +2,6 @@ import * as ReactDOM from 'react-dom'
 import * as React from 'react'
 import * as backend from './backend'
 
-import {css, div} from './ui_utils'
-
 import * as ui from './ui_utils'
 
 import {BoxplotWithControls} from './BoxplotWithControls'
@@ -20,9 +18,6 @@ const useStyles = makeStyles({
     '& > :not(:first-child)': {
       marginLeft: 0,
     },
-    '& h2:first-child': {
-      marginTop: 0,
-    }
   }
 })
 
@@ -42,19 +37,19 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
       request('tukey', filters).then((res: any[][]) => {
         // console.timeEnd('request')
         const names = ['A', 'B']
-        res = res.flatMap((r, i) => r.map(row => ({
+        const res_with_named_groups = res.flatMap((r, i) => r.map(row => ({
           ...row,
           group: names[i],
         })))
         ReactDOM.unstable_batchedUpdates(() => {
           set_loading(false)
           set_filter(filters[0])
-          set_plot_data(res)
+          set_plot_data(res_with_named_groups)
         })
       })
     },
     [])
-  ui.useWhyChanged('FormAndBoxPlot', {conf, filter, plot_data, loading, plot, onSubmit})
+  ui.useWhyChanged('FormAndBoxPlot', {conf, filter, plot_data, loading, plot})
   const classes = useStyles()
   return (
     <div className={classes.FormAndBoxPlot}>

@@ -1,6 +1,6 @@
 export * from './ui_utils/useRoutedTabs'
 export * from './ui_utils/div'
-export * from './ui_utils/incubator'
+// export * from './ui_utils/incubator'
 
 import * as React from 'react'
 import * as utils from './utils'
@@ -16,28 +16,30 @@ import {
   Radio
 } from '@material-ui/core'
 
-export function useCheckboxes(
-    labels: string[],
-    init?: Record<string, boolean>,
-  ): [Record<string, boolean>, React.ReactElement, (v: Record<string, boolean>) => void] {
-  const [value, set_value] = React.useState(init === undefined ? {} : init)
-  return [
+export function useCheckboxes(labels: string[], init?: Record<string, boolean>) {
+  const init_value = init === undefined ? {} : init
+  const [value, set_value] = React.useState(init_value)
+  React.useLayoutEffect(() => {
+    if (value !== init_value) {
+      set_value(init_value)
+    }
+  }, [utils.str(labels)])
+  return utils.tuple(
     value,
     <>
       {labels.map(label =>
         <FormControlLabel
           label={label}
           key={label}
-          className="bababa"
           checked={value[label] || false}
           onChange={(e, checked) => {
             const ev = e.nativeEvent as MouseEvent
             if (ev.ctrlKey || ev.shiftKey || ev.altKey) {
               const only_me = utils.selected(value).every((x, i) => i == 0 && x == label)
               if (only_me) {
-                set_value(utils.mapObject(value, () => true))
+                set_value(Object.fromEntries(labels.map(v => [v, true])))
               } else {
-                set_value(utils.mapObject(value, (_, x) => x == label))
+                set_value({[label]: true})
               }
             } else {
               set_value(v => ({...v, [label]: checked}))
@@ -47,14 +49,14 @@ export function useCheckboxes(
         />
       )}
     </>,
-    set_value,
-  ]
+    set_value
+  )
 }
 
 
-export function useRadio<K extends string>(label: string, options: K[], init?: K): [K, React.ReactElement] {
+export function useRadio<K extends string>(label: string, options: K[], init?: K) {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
-  return [
+  return utils.tuple(
     value,
     <FormControl component="fieldset">
       <FormLabel component="legend">{label}</FormLabel>
@@ -68,13 +70,14 @@ export function useRadio<K extends string>(label: string, options: K[], init?: K
           />
         )}
       </RadioGroup>
-    </FormControl>
-  ]
+    </FormControl>,
+    set_value
+  )
 }
 
-export function useCheckbox(label: string, init?: boolean): [boolean, React.ReactElement] {
+export function useCheckbox(label: string, init?: boolean) {
   const [value, set_value] = React.useState(init === undefined ? true : init)
-  return [
+  return utils.tuple(
     value,
     React.useMemo(() => <FormControlLabel
       label={label}
@@ -82,8 +85,9 @@ export function useCheckbox(label: string, init?: boolean): [boolean, React.Reac
       checked={value}
       onChange={(_, checked) => set_value(checked)}
       control={<Checkbox size="small" color="primary"/>}
-    />, [value])
-  ]
+    />, [value]),
+    set_value
+  )
 }
 
 declare const process: {env: {NODE_ENV: string}}

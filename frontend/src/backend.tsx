@@ -19,8 +19,8 @@ export function useRequestFn(): typeof request_by_fetch {
   return React.useContext(Backend)
 }
 
-export function useRequest(endpoint: string, argument?: any) {
-  const [resp, set_resp] = React.useState(undefined as any)
+export function useRequest<A = any>(endpoint: string, argument?: any) {
+  const [resp, set_resp] = React.useState(undefined as undefined | A)
   const request = useRequestFn()
   React.useEffect(() => {
     request(endpoint, argument).then(set_resp)

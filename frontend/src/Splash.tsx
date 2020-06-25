@@ -330,18 +330,22 @@ function Right({state, db}: SplashProps) {
 }
 
 export function Splash() {
+
   const db0 = backend.useRequest('database') as undefined | DB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
+
   const range = React.useMemo(() => db ? utils.row_range(db) : undefined, [db])
   const codes = backend.useRequest('codes') as Record<string, string> || {}
-  Object.keys(codes).length && both.forEach(b => b in codes || console.error(b, 'not in', codes))
 
-  const classes = useStyles()
+  Object.keys(codes).length && both.forEach(b => {
+    b in codes || console.error(b, 'not in', codes)
+  })
 
   const [state, dispatch] = React.useReducer(reduce, state0)
 
   const splash_props: SplashProps = {state, dispatch, range, codes, db}
 
+  const classes = useStyles()
   return (
     <ui.InlinePaper className={classes.Splash}>
       <DomplotCSS/>

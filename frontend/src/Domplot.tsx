@@ -69,7 +69,7 @@ function Hulled(props: {component: React.ReactElement}): React.ReactElement {
       left: inner.left - outer.left,
       top: inner.top - outer.top,
     }
-    const normalize = (x: typeof size) => JSON.stringify(x && utils.mapObject(x, v => Math.round(v)))
+    const normalize = (x: typeof size) => utils.str(x && utils.mapObject(x, v => Math.round(v)))
     if (normalize(size) != normalize(new_size)) {
       set_size(new_size)
     }
@@ -313,11 +313,10 @@ function wrap3
   return (x1: R[K1], x2: R[K2], x3: R[K3]) => f({[k1]: x1, [k2]: x2, [k3]: x3} as any)
 }
 
-import {backend} from './backend'
+import * as backend from './backend'
 
-export function Demo(props: {backend?: typeof backend}) {
-  const the_backend = props.backend || backend
-  const db = the_backend.useRequest('database') as undefined | DB
+export function Demo() {
+  const db = backend.useRequest<DB>('database')
   const sep = div(css`height: 100`)
   const plot = wrap3(Domplot, 'rows', 'kind', 'options')
   return div(

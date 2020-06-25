@@ -8,7 +8,7 @@ import {Embed} from './vega_utils'
 
 import {cell_color} from './cell_colors'
 
-export interface Options<K> {
+export interface Options<K extends string> {
   inner: K | K[]
   facet: K | K[]
   split: K | K[]
@@ -20,7 +20,7 @@ export interface Options<K> {
   scale: {type: 'linear' | 'semilog'} | {type: 'pow', exponent: number}
   mode: 'default' | 'min-max' | 'outliers'
   show_mean: boolean
-  trimmable: Record<string, boolean>
+  trimmable: Record<K, boolean>
 }
 
 const default_options: Options<string> = {
@@ -93,7 +93,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
 
   const data = data0.map(x => ({...x} as Record<string, any>))
 
-  const options = { ...default_options, ...opts }
+  const options = { ...default_options as Options<K>, ...opts }
 
   const { column, row, height, width, x, y, y2 } = orient(options)
 
@@ -115,7 +115,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     datum.location = datum.location == 'STROMA' ? 1 : 0
   })
 
-  const prepare_option = (keys: string | string[], sep=',') => {
+  const prepare_option = (keys: K | K[], sep=',') => {
     const array = ensure_array(keys).filter(k => {
       if (!(options.trimmable || {})[k]) {
         return true
@@ -134,10 +134,10 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     return key
   }
 
-  const inner = prepare_option(options.inner as string | string[])
-  const facet = prepare_option(options.facet as string | string[])
-  const split = prepare_option(options.split as string | string[])
-  const color = prepare_option(options.color as string | string[], ' ')
+  const inner = prepare_option(options.inner)
+  const facet = prepare_option(options.facet)
+  const split = prepare_option(options.split)
+  const color = prepare_option(options.color, ' ')
 
   const size = 8
 

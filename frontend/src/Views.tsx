@@ -6,11 +6,7 @@ import {css, div} from './ui_utils'
 
 import {CssBaseline} from '@material-ui/core'
 
-import {
-  AppBar,
-  // Tab,
-  // Tabs,
-} from '@material-ui/core'
+import { AppBar } from '@material-ui/core'
 
 export const GlobalStyle = sc.createGlobalStyle`
   * {
@@ -34,7 +30,7 @@ import {VegaBoxplot} from './VegaBoxplot'
 import {VegaKMPlot} from './VegaKMPlot'
 import {BoxplotWithControls} from './BoxplotWithControls'
 import {Splash} from './Splash'
-import * as splash_test from '../test/data/splash'
+import * as splash_test_data from '../test/data/splash'
 import {MockBackend} from './backend'
 
 import {Switch} from 'react-router-dom'
@@ -114,10 +110,20 @@ export function Views() {
         </ui.InlinePaper>
     },
     {
+      label: 'Domplots demo mock data',
+      path: '/DomplotsMock',
+      component:
+        <ui.InlinePaper>
+          <MockBackend request={splash_test_data.request}>
+            <domplots.Demo/>
+          </MockBackend>
+        </ui.InlinePaper>
+    },
+    {
       label: 'Splash mock backend',
       path: '/SplashMock',
       component:
-        <MockBackend request={splash_test.request}>
+        <MockBackend request={splash_test_data.request}>
           <Splash key="mock"/>
         </MockBackend>
     },

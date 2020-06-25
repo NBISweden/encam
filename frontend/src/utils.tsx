@@ -101,7 +101,7 @@ export function cap(N: number, d: Record<string, boolean>) {
 export function Memoizer<K, V>() {
   const mems = {} as Record<string, V>
   return function memo(k: K, calc: () => V): V {
-    const ks = JSON.stringify(k)
+    const ks = str(k)
     if (!(ks in mems)) {
       mems[ks] = calc()
       // console.log('memo miss', k)
@@ -120,10 +120,15 @@ export function simple_object_diff<A extends Record<string, any>, B extends Reco
   const diff = {} as any
   const keys = [...Object.keys(prev), ...Object.keys(now)]
   uniq(keys).map(k => {
-    if (JSON.stringify(prev[k]) != JSON.stringify(now[k])) {
+    if (str(prev[k]) != str(now[k])) {
       diff[k] = now[k]
     }
   })
   return diff
 }
 
+export function tuple<Args extends any[]>(...args: Args): Args {
+  return args
+}
+
+export const str = (a: any) => JSON.stringify(a)

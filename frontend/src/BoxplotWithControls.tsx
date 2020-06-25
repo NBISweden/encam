@@ -57,7 +57,7 @@ const useStyles = makeStyles({
   },
 })
 
-function useOptions(facet: keyof Row): [Options, React.ReactElement] {
+function useOptions(facet: keyof Row) {
   const [split, split_checkbox] = ui.useCheckbox('split tumor and stroma', false)
   const [mean, mean_checkbox] = ui.useCheckbox('show mean', false)
   const [orientation, orientation_radio] = ui.useRadio('orientation', ['landscape', 'portrait'])
@@ -92,8 +92,8 @@ function useOptions(facet: keyof Row): [Options, React.ReactElement] {
       exponent: 1 / (2 + r)
     }
   }
-  return [
-    React.useMemo(() => options, [JSON.stringify(options)]),
+  return utils.tuple(
+    React.useMemo(() => options, [utils.str(options)]),
     <>
       {split_checkbox}
       {orientation_radio}
@@ -101,60 +101,65 @@ function useOptions(facet: keyof Row): [Options, React.ReactElement] {
       {mode_radio}
       {mean_checkbox}
     </>
-  ]
+  )
 }
 
-export function BoxplotWithControls(props: { data: (Row & VB.Precalc)[], facet: 'cell' | 'tumor' }) {
+
+function useVisibleSidebar(facet: string, facet_vals: string[]) {
+  const all_selected = Object.fromEntries(facet_vals.map(v => [v, true]))
+
+  const [visible_facets, facet_boxes] = ui.useCheckboxes(facet_vals, all_selected)
+
+  const [show, set_show] = React.useState(true)
 
   const classes = useStyles()
+  return utils.tuple(
+    visible_facets,
+    <div className={classes.VisibleSidebar}>
+      <FormControl>
+        <FormLabel onClick={() => set_show(b => !b)}>
+          {
+            show
+              ? <> <ExpandLessIcon className={classes.VisibleSidebarIcon}/>{`visible ${facet}s`} </>
+              : <ExpandMoreIcon className={classes.VisibleSidebarIcon}/>
+          }
+        </FormLabel>
+        <FormGroup>
+          {show && facet_boxes}
+        </FormGroup>
+      </FormControl>
+    </div>
+  )
+}
 
-  const [options, options_form] = useOptions(props.facet)
-  const facet = props.facet
+export function BoxplotWithControls({data, facet}: { data: (Row & VB.Precalc)[], facet: 'cell' | 'tumor' }) {
+  const [options, Options] = useOptions(facet)
 
-  const facet_vals = utils.uniq(props.data.map(x => x[facet]))
-  const all_facets = Object.fromEntries(facet_vals.map(v => [v, true]))
-  const [visible_facets, facet_boxes, set_visible_facets] =
-    ui.useCheckboxes(facet_vals, all_facets, )
+  const facet_vals = utils.uniq(data.map(x => x[facet]))
 
-  React.useEffect(() => {
-    set_visible_facets(all_facets)
-  }, [JSON.stringify(facet_vals)])
-  const [show, set_show] = React.useState(true)
+  const [visible_facets, VisibleSidebar] = useVisibleSidebar(facet, facet_vals)
+
   const plot_data = React.useMemo(
-    () => props.data.filter(x => visible_facets[x[facet]]),
-    [props.data, JSON.stringify(visible_facets)]
+    () => data.filter(x => visible_facets[x[facet]]),
+    [data, utils.str(visible_facets)]
   )
 
   const plot_options = React.useMemo(
     () => ({...options, trimmable: {group: true}}),
-    [JSON.stringify(options)]
+    [utils.str(options)]
   )
 
-  const plot = <VB.VegaBoxplot data={plot_data} options={plot_options}/>
-
   ui.useWhyChanged('BoxplotWithControls', {
-    ...props, ...options, visible_facets, show, plot_data, plot_options, plot
+    data, facet, ...options, visible_facets, plot_data, plot_options
   })
 
+  const classes = useStyles()
   return (
     <div className={classes.BoxPlotWithControls}>
-      <div className={classes.VisibleSidebar}>
-        <FormControl>
-          <FormLabel onClick={() => set_show(b => !b)}>
-            {
-              show
-                ? <> <ExpandLessIcon className={classes.VisibleSidebarIcon}/>{`visible ${facet}s`}</>
-                : <ExpandMoreIcon className={classes.VisibleSidebarIcon}/>
-            }
-          </FormLabel>
-          <FormGroup>
-            {show && facet_boxes}
-          </FormGroup>
-        </FormControl>
-      </div>
+      {VisibleSidebar}
       <div className={classes.Main}>
-        {plot}
-        {options_form}
+        <VB.VegaBoxplot data={plot_data} options={plot_options}/>
+        {Options}
       </div>
     </div>
   )

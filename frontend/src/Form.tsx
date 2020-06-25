@@ -108,7 +108,10 @@ const useStyles = makeStyles({
     ...ui.flex_column,
     '& > .MuiAutocomplete-root': {
       paddingBottom: '1em'
-    }
+    },
+    '& h2:first-child': {
+      marginTop: 0,
+    },
   }
 })
 
@@ -124,7 +127,6 @@ export function Form({conf, onSubmit, onState}: FormProps) {
   ui.useWhyChanged('Form', {conf, state})
 
   const classes = useStyles()
-
   return (
     <div className={classes.Form}>
       {form}
@@ -161,7 +163,6 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
   }
 
   const classes = useStyles()
-
   return (
     <div className={classes.Form}>
       {do_stitch
