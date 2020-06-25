@@ -117,7 +117,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
 
   const prepare_option = (keys: K | K[], sep=',') => {
     const array = ensure_array(keys).filter(k => {
-      if (!(options.trimmable || {})[k]) {
+      if (!(options.trimmable || {} as Record<K, boolean>)[k]) {
         return true
       }
       const range = utils.uniq(data.map(datum => datum[k]))
@@ -292,7 +292,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
         },
         ...(options.show_mean ? [{
           mark: {
-            type: 'point',
+            type: 'point' as 'point',
             shape: 'circle',
             // shape: 'M-1 -1 L1 1 M1 -1 L-1 1'
           },

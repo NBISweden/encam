@@ -17,6 +17,8 @@ interface Row {
   group: string
 }
 
+const NaN = 'NaN' as any as number
+
 // CD4, CD4_Treg, CD8 for BRCA and groups A, B
 export const boxplot_test_data: Row[] = [
   {
@@ -79,7 +81,7 @@ export const boxplot_test_data: Row[] = [
     q1: 0,
     q3: 0,
     tumor: 'BRCA',
-    upper: 'NaN',
+    upper: NaN,
     upper_outliers: 0,
     group: 'A'
   },
@@ -175,7 +177,7 @@ export const boxplot_test_data: Row[] = [
     q1: 0,
     q3: 0,
     tumor: 'BRCA',
-    upper: 'NaN',
+    upper: NaN,
     upper_outliers: 0,
     group: 'B'
   },

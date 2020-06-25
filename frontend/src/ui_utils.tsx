@@ -7,9 +7,7 @@ import * as utils from './utils'
 
 import {
   Checkbox,
-  CheckboxProps,
   FormControlLabel,
-  FormControlLabelProps,
   FormControl,
   FormLabel,
   RadioGroup,
