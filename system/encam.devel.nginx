@@ -17,7 +17,7 @@
 
         ssl_certificate /code/cert.pem;
         ssl_certificate_key /code/key.pem;
-        root /app/dist/browser/;
+        root /app/dist/;
 
         location /api/ {
                 # There were issues using the wsgi transport for uwsgi,

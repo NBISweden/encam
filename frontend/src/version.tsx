@@ -1,1 +1,2 @@
-export const version = 'git'
+declare const VERSION: undefined | string
+export const version = typeof VERSION !== "undefined" ? VERSION : 'git'

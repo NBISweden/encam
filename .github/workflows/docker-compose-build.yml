@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the docker-compose images
-      run: docker-compose build
+      run: docker-compose build --parallel
     - name: Run frontend typecheck
       run: docker-compose run -w /app encam-frontend-devel yarn run typecheck
     - name: Run frontend tests

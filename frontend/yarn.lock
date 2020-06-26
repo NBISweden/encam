@@ -4157,6 +4157,11 @@ es6-object-assign@^1.1.0:
   resolved "https://registry.npmjs.org/es6-object-assign/-/es6-object-assign-1.1.0.tgz#c2c3582656247c39ea107cb1e6652b6f9f24523c"
   integrity sha1-wsNYJlYkfDnqEHyx5mUrb58kUjw=
 
+esbuild@^0.5.12:
+  version "0.5.12"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.5.12.tgz#14a6a6f19cfcebe98ddb8dc984a9c6da616608cd"
+  integrity sha512-iENorCZkM0UlkiV4bdbfEs2zML9W9xrbhJc3pdyIHv5wwz5t7tgf1tNNJC/lHmWDfARG1Vl4LkubYeo49ft9qA==
+
 escape-html@~1.0.3:
   version "1.0.3"
   resolved "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz#0258eae4d3d0c0974de1c169188ef0051d1d1988"

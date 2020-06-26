@@ -10,7 +10,7 @@ VOLUME /app/node_modules
 VOLUME /app/.cache
 VOLUME /app/.parcel-cache
 
-RUN yarn run parcel --version
-RUN rm -f babel.config.js && yarn build  --no-source-maps
+ARG VERSION
+RUN echo $VERSION && yarn build
 
 CMD cd /app && yarn run parcel --version && yarn start
