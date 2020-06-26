@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Set up self signed certificate in case none is supplied.
 
