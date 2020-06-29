@@ -1,3 +1,9 @@
-dist/
-frontend/.parcel-cache
-api/*.pickle
+*/*.pickle
+*/dist
+*/node_modules
+*/.cache
+*/.parcel-cache
+*/coverage
+*/node_modules
+*/htmlcov
+*/__pycache__

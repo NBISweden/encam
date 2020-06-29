@@ -1,5 +1,16 @@
-FROM node:14.3
-WORKDIR /build
-COPY frontend/package.json frontend/yarn.lock ./
+FROM node:lts
+
+RUN mkdir -p /app
+COPY ./ /app/
+WORKDIR /app
 RUN yarn install --frozen-lockfile
-CMD yarn start
+
+
+VOLUME /app/node_modules
+VOLUME /app/.cache
+VOLUME /app/.parcel-cache
+
+ARG VERSION
+RUN echo $VERSION && yarn build
+
+CMD cd /app && yarn run parcel --version && yarn start

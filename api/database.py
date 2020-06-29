@@ -46,7 +46,7 @@ ntiles = lambda xs,groups=2: pd.cut(pd.Series(xs).rank(), groups, right=False, l
 def init():
     print("Initialization started", flush=True)
 
-    data = pd.read_csv("../SIM.csv")
+    data = pd.read_csv("./SIM.csv")
 
     # Whitespace stripping because of some trailing Morphological_type spaces
     strip = lambda x: x.strip() if isinstance(x, str) else x

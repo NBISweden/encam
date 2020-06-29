@@ -1,3 +1,5 @@
+import * as utils from '../../src/utils'
+
 interface Row {
   cell: string
   location: string
@@ -15,8 +17,10 @@ interface Row {
   group: string
 }
 
+const NaN = ('NaN' as any) as number
+
 // CD4, CD4_Treg, CD8 for BRCA and groups A, B
-export const boxplot_data: Row[] = [
+export const boxplot_test_data: Row[] = [
   {
     cell: 'CD4',
     location: 'STROMA',
@@ -31,7 +35,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 98.0,
     upper_outliers: 13,
-    group: 'A'
+    group: 'A',
   },
   {
     cell: 'CD4',
@@ -47,7 +51,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 58.5,
     upper_outliers: 13,
-    group: 'A'
+    group: 'A',
   },
   {
     cell: 'CD4_Treg',
@@ -63,7 +67,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 4.8,
     upper_outliers: 16,
-    group: 'A'
+    group: 'A',
   },
   {
     cell: 'CD4_Treg',
@@ -77,9 +81,9 @@ export const boxplot_data: Row[] = [
     q1: 0,
     q3: 0,
     tumor: 'BRCA',
-    upper: 'NaN',
+    upper: NaN,
     upper_outliers: 0,
-    group: 'A'
+    group: 'A',
   },
   {
     cell: 'CD8',
@@ -95,7 +99,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 500.0,
     upper_outliers: 12,
-    group: 'A'
+    group: 'A',
   },
   {
     cell: 'CD8',
@@ -111,9 +115,9 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 500.6,
     upper_outliers: 14,
-    group: 'A'
+    group: 'A',
   },
-      {
+  {
     cell: 'CD4',
     location: 'STROMA',
     lower: 0,
@@ -127,7 +131,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 165.4,
     upper_outliers: 61,
-    group: 'B'
+    group: 'B',
   },
   {
     cell: 'CD4',
@@ -143,7 +147,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 162.0,
     upper_outliers: 59,
-    group: 'B'
+    group: 'B',
   },
   {
     cell: 'CD4_Treg',
@@ -159,7 +163,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 23.6,
     upper_outliers: 70,
-    group: 'B'
+    group: 'B',
   },
   {
     cell: 'CD4_Treg',
@@ -173,9 +177,9 @@ export const boxplot_data: Row[] = [
     q1: 0,
     q3: 0,
     tumor: 'BRCA',
-    upper: 'NaN',
+    upper: NaN,
     upper_outliers: 0,
-    group: 'B'
+    group: 'B',
   },
   {
     cell: 'CD8',
@@ -191,7 +195,7 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 458.3,
     upper_outliers: 50,
-    group: 'B'
+    group: 'B',
   },
   {
     cell: 'CD8',
@@ -207,6 +211,10 @@ export const boxplot_data: Row[] = [
     tumor: 'BRCA',
     upper: 475.5,
     upper_outliers: 72,
-    group: 'B'
+    group: 'B',
   },
 ]
+
+export const boxplot_test_data_grouped: Row[][] = Object.values(
+  utils.groupBy('group', boxplot_test_data)
+)

@@ -1,6 +1,21 @@
 import * as React from 'react'
-
 import styled from 'styled-components'
+
+export function dummy_keys(xs: React.ReactNode[], prefix = ';'): React.ReactNode[] {
+  return xs.map((x, i) => {
+    if (x && typeof x == 'object' && '$$typeof' in x) {
+      let child = x as any
+      if (!child.key) {
+        const key = prefix + i
+        const ref = child.ref
+        child = React.createElement(child.type, {key, ref, ...child.props})
+      }
+      return child
+    } else {
+      return x
+    }
+  })
+}
 
 export function css(xs: TemplateStringsArray | string, ...more: string[]): {css: string} {
   let css: string
@@ -12,8 +27,8 @@ export function css(xs: TemplateStringsArray | string, ...more: string[]): {css:
   return {css}
 }
 
-type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
-
+export type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> &
+  React.RefAttributes<HTMLDivElement>
 
 const Div = styled.div`${(props: any) => props.css}`
 
@@ -27,14 +42,7 @@ export function div(...args: (DivProps | {css: string} | React.ReactNode)[]) {
       props.children.push(arg)
     } else if (arg && typeof arg == 'object') {
       if ('$$typeof' in arg) {
-        // automatically add keys if they are missing to make React shut up ':D
-        let child = arg as any
-        if (!child.key) {
-          const key = ':' + props.children.length
-          const ref = child.ref
-          child = React.createElement(child.type, {key, ref, ...child.props})
-        }
-        props.children.push(child)
+        props.children.push(arg)
       } else if (Array.isArray(arg)) {
         arg.forEach(add)
       } else {
@@ -67,6 +75,6 @@ export function div(...args: (DivProps | {css: string} | React.ReactNode)[]) {
       }
     }
   })
+  props.children = dummy_keys(props.children, ':')
   return React.createElement(Div, props)
 }
-

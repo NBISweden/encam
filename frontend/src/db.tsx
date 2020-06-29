@@ -16,4 +16,3 @@ export interface Row {
 export type DB = Row[]
 
 export type DBRange = utils.RowRange<Row>
-

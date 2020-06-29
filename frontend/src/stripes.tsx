@@ -18,4 +18,3 @@ export const patternSVG = `
     ${path}
   </svg>
 `
-
