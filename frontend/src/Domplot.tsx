@@ -50,17 +50,24 @@ function hull(e: Element): Rect {
 
 function Hulled(props: {component: React.ReactElement}): React.ReactElement {
   let [size, set_size] = React.useState(
-    undefined as undefined | {
-       width: number,
-       height: number,
-       left: number,
-       top: number,
-    })
+    undefined as
+      | undefined
+      | {
+          width: number
+          height: number
+          left: number
+          top: number
+        }
+  )
   const dim: undefined | React.CSSProperties = size && {
-    width: size.width, height: size.height, position: 'relative'
+    width: size.width,
+    height: size.height,
+    position: 'relative',
   }
   const offset: undefined | React.CSSProperties = size && {
-    left: size.left, top: size.top, position: 'absolute'
+    left: size.left,
+    top: size.top,
+    position: 'absolute',
   }
   const update_size = (outer: Rect, inner: Rect) => {
     const new_size = {
@@ -76,18 +83,23 @@ function Hulled(props: {component: React.ReactElement}): React.ReactElement {
   }
   return (
     <div style={dim}>
-      <div style={offset} ref={e => {
-        if (e) {
-          const ch = e.firstChild
-          if (ch && ch instanceof Element) {
-            update_size(hull(ch), ch.getBoundingClientRect())
+      <div
+        style={offset}
+        ref={e => {
+          if (e) {
+            const ch = e.firstChild
+            if (ch && ch instanceof Element) {
+              update_size(hull(ch), ch.getBoundingClientRect())
+            }
           }
-        }
-      }}>{props.component}</div></div>
+        }}>
+        {props.component}
+      </div>
+    </div>
   )
 }
 
-const hulled = (component: React.ReactElement) => <Hulled component={component}/>
+const hulled = (component: React.ReactElement) => <Hulled component={component} />
 
 const default_options = {
   bar_width: 8,
@@ -108,34 +120,43 @@ const default_options = {
   striped: 'STROMA',
 }
 
-export function Domplot({rows, kind, options}: {rows: Row[], kind: 'bar' | 'forest', options?: Partial<typeof default_options>}) {
+export function Domplot({
+  rows,
+  kind,
+  options,
+}: {
+  rows: Row[]
+  kind: 'bar' | 'forest'
+  options?: Partial<typeof default_options>
+}) {
   const opts = {...default_options, ...options}
   const landscape = opts.orientation == 'landscape'
 
-  const max = kind == 'bar' ? (opts.max || Math.max(...rows.map(row => row.expression))) : 3
-  const p = (x: number) => (x * 100) + '%'
-  const o = landscape ? {
-    width: 'width',
-    height: 'height',
-    left: 'left',
-    bottom: 'bottom',
-    right: 'right',
-    top: 'top',
-  } : {
-    width: 'height',
-    height: 'width',
-    left: 'top',
-    bottom: 'left',
-    right: 'bottom',
-    top: 'right',
-  }
+  const max = kind == 'bar' ? opts.max || Math.max(...rows.map(row => row.expression)) : 3
+  const p = (x: number) => x * 100 + '%'
+  const o = landscape
+    ? {
+        width: 'width',
+        height: 'height',
+        left: 'left',
+        bottom: 'bottom',
+        right: 'right',
+        top: 'top',
+      }
+    : {
+        width: 'height',
+        height: 'width',
+        left: 'top',
+        bottom: 'left',
+        right: 'bottom',
+        top: 'right',
+      }
 
   const bars: React.ReactElement[] = []
   const facet_range = Object.entries(utils.groupBy(opts.facet_x, rows))
   const range = utils.row_range(rows)
   facet_range.forEach(([facet_x, subrows], facet_index) => {
-
-    const marks: React.ReactElement[]  = []
+    const marks: React.ReactElement[] = []
     const grouped = utils.groupBy(opts.x, subrows)
     const rng = range[opts.x] as string[]
     rng.forEach((x, i) => {
@@ -146,11 +167,11 @@ export function Domplot({rows, kind, options}: {rows: Row[], kind: 'bar' | 'fore
         return
       }
       interface Mark {
-        width: number | string,
-        height: number | string,
-        bottom?: number | string,
-        striped?: boolean,
-        arrow?: number,
+        width: number | string
+        height: number | string
+        bottom?: number | string
+        striped?: boolean
+        arrow?: number
       }
       const color = cell_color(row[opts.color] + '')
       const striped = x == opts.striped
@@ -162,20 +183,21 @@ export function Domplot({rows, kind, options}: {rows: Row[], kind: 'bar' | 'fore
         }
         const half = (m.arrow || 0) / 2
         // https://css-tricks.com/snippets/css/css-triangle/
-        const arrowBorders: React.CSSProperties = m.arrow ? {
-          borderWidth:
-            // top right bottom left
-            landscape
-            ? `0px ${half}px ${half}px ${half}px`
-            : `${half}px 0px ${half}px ${half}px`,
-          borderColor:
-            landscape
-            ? `transparent transparent ${color} transparent`
-            : `transparent transparent transparent ${color}`,
-          borderStyle: 'solid',
-          backgroundColor: undefined,
-          [o.left]: left(m.arrow),
-        }: {}
+        const arrowBorders: React.CSSProperties = m.arrow
+          ? {
+              borderWidth:
+                // top right bottom left
+                landscape
+                  ? `0px ${half}px ${half}px ${half}px`
+                  : `${half}px 0px ${half}px ${half}px`,
+              borderColor: landscape
+                ? `transparent transparent ${color} transparent`
+                : `transparent transparent transparent ${color}`,
+              borderStyle: 'solid',
+              backgroundColor: undefined,
+              [o.left]: left(m.arrow),
+            }
+          : {}
         marks.push(
           <div
             key={marks.length}
@@ -187,129 +209,163 @@ export function Domplot({rows, kind, options}: {rows: Row[], kind: 'bar' | 'fore
               position: 'absolute',
               backgroundColor: color,
               zIndex: 2,
-              ...arrowBorders
+              ...arrowBorders,
             }}
             className={m.striped ? 'striped' : undefined}
-            />)
+          />
+        )
       }
       if (kind == 'forest') {
         const upper = Math.min(row.upper, max)
         const height = upper - row.lower
-        row.lower < max && mark({
-          height: `calc(${p(height / max)} + 0.5px)`,
-          width: 2,
-          bottom: p(row.lower / max),
-          striped,
-        })
-        row.coef < max && mark({
-          height: 1,
-          width: 6,
-          bottom: p(row.coef / max),
-        })
-        row.lower < max && mark({
-          height: 1,
-          width: 4,
-          bottom: p(row.lower / max),
-        })
-        upper < max && mark({
-          height: 1,
-          width: 4,
-          bottom: p(upper / max),
-        })
-        upper >= max && mark({
-          height: 0,
-          width: 0,
-          bottom: `calc(${p(upper / max)} - 2px)`,
-          arrow: 8,
-        })
+        row.lower < max &&
+          mark({
+            height: `calc(${p(height / max)} + 0.5px)`,
+            width: 2,
+            bottom: p(row.lower / max),
+            striped,
+          })
+        row.coef < max &&
+          mark({
+            height: 1,
+            width: 6,
+            bottom: p(row.coef / max),
+          })
+        row.lower < max &&
+          mark({
+            height: 1,
+            width: 4,
+            bottom: p(row.lower / max),
+          })
+        upper < max &&
+          mark({
+            height: 1,
+            width: 4,
+            bottom: p(upper / max),
+          })
+        upper >= max &&
+          mark({
+            height: 0,
+            width: 0,
+            bottom: `calc(${p(upper / max)} - 2px)`,
+            arrow: 8,
+          })
       } else {
         const height = row.expression / max
-        height >= (1 / opts.height) && mark({
-          height: p(height),
-          width: p(full_width),
-          striped,
-        })
+        height >= 1 / opts.height &&
+          mark({
+            height: p(height),
+            width: p(full_width),
+            striped,
+          })
       }
       return marks
     })
-    facet_index == 0 || bars.push(
-      <div key={bars.length} style={{[o.width]: opts.gap_width,
-        // backgroundColor: '#f3f3f3'
-      }}/>
-    )
+    facet_index == 0 ||
+      bars.push(
+        <div
+          key={bars.length}
+          style={{
+            [o.width]: opts.gap_width,
+            // backgroundColor: '#f3f3f3'
+          }}
+        />
+      )
     bars.push(
-      <div key={bars.length} style={{
+      <div
+        key={bars.length}
+        style={{
           [o.width]: opts.bar_width * rng.length,
           [o.height]: p(1),
           position: 'relative',
         }}>
         {marks}
-        {opts.x_axis && <div style={{
-            position: 'absolute',
-            [o.top]: landscape ? p(1) : p(1.05),
-            [o.left]: landscape ? `calc(${p(0.5)} - 3px)` : undefined,
-            fontSize: 10,
-            transform: landscape ? 'translate(-50%, -50%) rotate(-45deg) translate(-50%, 50%)' : undefined,
-            whiteSpace: 'nowrap',
-          }}>
-          {utils.pretty(facet_x)}
-        </div>}
+        {opts.x_axis && (
+          <div
+            style={{
+              position: 'absolute',
+              [o.top]: landscape ? p(1) : p(1.05),
+              [o.left]: landscape ? `calc(${p(0.5)} - 3px)` : undefined,
+              fontSize: 10,
+              transform: landscape
+                ? 'translate(-50%, -50%) rotate(-45deg) translate(-50%, 50%)'
+                : undefined,
+              whiteSpace: 'nowrap',
+            }}>
+            {utils.pretty(facet_x)}
+          </div>
+        )}
       </div>
     )
   })
 
   const axis_label: React.CSSProperties = {
-    transform:
-      opts.axis_right
-        ? (landscape ? 'translate(6px, -55%)' : 'translate(-50%, 10%)')
-        : (landscape ? 'translate(-6px, -55%)' : 'translate(-50%, -110%)'),
+    transform: opts.axis_right
+      ? landscape
+        ? 'translate(6px, -55%)'
+        : 'translate(-50%, 10%)'
+      : landscape
+      ? 'translate(-6px, -55%)'
+      : 'translate(-50%, -110%)',
     position: 'absolute',
-    fontSize: 11
+    fontSize: 11,
   }
   if (landscape) {
     axis_label[opts.axis_right ? 'left' : 'right'] = 0
   }
 
   const tick_step = utils.roundDown(max / (opts.num_ticks - 1))
-  const ticks = utils.enumTo(opts.num_ticks)
+  const ticks = utils
+    .enumTo(opts.num_ticks)
     .map(x => x * tick_step)
-    .map(x =>
-        <div key={x} style={{
-            [opts.axis_right ? o.left : o.right]: p(1),
-            [o.bottom]: p(x / max),
-            position: 'absolute',
-            border: '0.5px #888 solid',
-            [o.width]: 4
-          }}>
-          <div style={axis_label}>{x}</div>
-        </div>
-      )
+    .map(x => (
+      <div
+        key={x}
+        style={{
+          [opts.axis_right ? o.left : o.right]: p(1),
+          [o.bottom]: p(x / max),
+          position: 'absolute',
+          border: '0.5px #888 solid',
+          [o.width]: 4,
+        }}>
+        <div style={axis_label}>{x}</div>
+      </div>
+    ))
 
   return (opts.hulled ? hulled : utils.identity)(
-    <div style={{
+    <div
+      style={{
         [o.height]: opts.height,
         display: 'inline-flex',
         flexDirection: landscape ? 'row' : 'column',
-        position: 'relative'
+        position: 'relative',
       }}>
       {ticks}
-      {kind == 'forest' && <div key="one" style={{
-        [o.left]: 0,
-        [o.bottom]: p(1 / max),
-        position: 'absolute',
-        border: '0.5px #ddd solid',
-        [o.width]: p(1),
-        zIndex: 1,
-       }}/>}
-       {bars}
+      {kind == 'forest' && (
+        <div
+          key="one"
+          style={{
+            [o.left]: 0,
+            [o.bottom]: p(1 / max),
+            position: 'absolute',
+            border: '0.5px #ddd solid',
+            [o.width]: p(1),
+            zIndex: 1,
+          }}
+        />
+      )}
+      {bars}
     </div>
   )
 }
 
-function wrap3
-  <R extends Record<string, any>, K1 extends keyof R, K2 extends keyof R, K3 extends keyof R, T>
-  (f: (r: R) => T, k1: K1, k2: K2, k3: K3)
-{
+function wrap3<
+  R extends Record<string, any>,
+  K1 extends keyof R,
+  K2 extends keyof R,
+  K3 extends keyof R,
+  T
+>(f: (r: R) => T, k1: K1, k2: K2, k3: K3) {
   return (x1: R[K1], x2: R[K2], x3: R[K3]) => f({[k1]: x1, [k2]: x2, [k3]: x3} as any)
 }
 
@@ -317,24 +373,26 @@ import * as backend from './backend'
 
 export function Demo() {
   const db = backend.useRequest<DB>('database')
-  const sep = div(css`height: 100`)
+  const CD4s = db && db.filter(row => row.cell == 'CD4')
+  const MELs = db && db.filter(row => row.tumor == 'MEL')
   const plot = wrap3(Domplot, 'rows', 'kind', 'options')
-  return div(
-    <DomplotCSS/>,
-    css`width: 900; margin: 10 auto; background: white;`,
-    css`& > div { display: inline-block; margin: 30px; }`,
-    db && plot(db.filter(row => row.cell == 'CD4'), 'bar', {facet_x: 'tumor'}), sep,
-    db && plot(db.filter(row => row.cell == 'CD4'), 'forest', {facet_x: 'tumor'}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {facet_x: 'location', x: 'cell', bar_width: 2, gap_width: 18}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {facet_x: 'location', x: 'cell', bar_width: 8, gap_width: 18}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {axis_right: true, }), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {orientation: 'portrait'}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'bar', {axis_right: true, orientation: 'portrait'}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {axis_right: true, }), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {orientation: 'portrait'}), sep,
-    db && plot(db.filter(row => row.tumor == 'MEL'), 'forest', {axis_right: true, orientation: 'portrait'}), sep,
-  )
+  return !CD4s || !MELs
+    ? null
+    : div(
+        <DomplotCSS />,
+        css`width: 900; margin: 10 auto; background: white;`,
+        css`& > div { display: inline-block; margin: 30px; }`,
+        plot(CD4s, 'bar', {facet_x: 'tumor'}),
+        plot(CD4s, 'forest', {facet_x: 'tumor'}),
+        plot(MELs, 'bar', {facet_x: 'location', x: 'cell', bar_width: 2, gap_width: 18}),
+        plot(MELs, 'forest', {facet_x: 'location', x: 'cell', bar_width: 8, gap_width: 18}),
+        plot(MELs, 'bar', {}),
+        plot(MELs, 'bar', {axis_right: true}),
+        plot(MELs, 'bar', {orientation: 'portrait'}),
+        plot(MELs, 'bar', {axis_right: true, orientation: 'portrait'}),
+        plot(MELs, 'forest', {}),
+        plot(MELs, 'forest', {axis_right: true}),
+        plot(MELs, 'forest', {orientation: 'portrait'}),
+        plot(MELs, 'forest', {axis_right: true, orientation: 'portrait'})
+      )
 }
-

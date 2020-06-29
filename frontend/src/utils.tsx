@@ -1,4 +1,3 @@
-
 export function by<A, B>(f: (a: A) => B) {
   return (x: A, y: A) => {
     const fx = f(x)
@@ -69,7 +68,9 @@ export function pretty(s: string | number): string {
   }
 }
 
-export function expand(d: Record<string, string[]>): Record<string, string[] | Record<string, string[]>> {
+export function expand(
+  d: Record<string, string[]>
+): Record<string, string[] | Record<string, string[]>> {
   const out = {} as any
   Object.entries(d).forEach(([k, v]) => {
     const m = k.match(/(.*),(.*)/)
@@ -87,7 +88,9 @@ export function expand(d: Record<string, string[]>): Record<string, string[] | R
 }
 
 export function selected(d: Record<string, boolean>): string[] {
-  return Object.entries(d).filter(([_, v]) => v).map(([k, _]) => k)
+  return Object.entries(d)
+    .filter(([_, v]) => v)
+    .map(([k, _]) => k)
 }
 
 export function last<A>(N: number, xs: A[]): A[] {
@@ -112,11 +115,17 @@ export function Memoizer<K, V>() {
   }
 }
 
-export function mapObject<K extends string, A, B>(m: Record<K, A>, f: (a: A, k: K, i: number) => B): Record<K, B> {
+export function mapObject<K extends string, A, B>(
+  m: Record<K, A>,
+  f: (a: A, k: K, i: number) => B
+): Record<K, B> {
   return Object.fromEntries(Object.entries(m).map(([k, a], i) => [k, f(a as A, k as K, i)])) as any
 }
 
-export function simple_object_diff<A extends Record<string, any>, B extends Record<string, any>>(prev: A, now: B): Partial<A & B> {
+export function simple_object_diff<A extends Record<string, any>, B extends Record<string, any>>(
+  prev: A,
+  now: B
+): Partial<A & B> {
   const diff = {} as any
   const keys = [...Object.keys(prev), ...Object.keys(now)]
   uniq(keys).map(k => {

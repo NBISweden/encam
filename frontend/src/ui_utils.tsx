@@ -11,7 +11,7 @@ import {
   FormControl,
   FormLabel,
   RadioGroup,
-  Radio
+  Radio,
 } from '@material-ui/core'
 
 export function useCheckboxes(labels: string[], init?: Record<string, boolean>) {
@@ -25,7 +25,7 @@ export function useCheckboxes(labels: string[], init?: Record<string, boolean>) 
   return utils.tuple(
     value,
     <>
-      {labels.map(label =>
+      {labels.map(label => (
         <FormControlLabel
           label={label}
           key={label}
@@ -43,14 +43,13 @@ export function useCheckboxes(labels: string[], init?: Record<string, boolean>) 
               set_value(v => ({...v, [label]: checked}))
             }
           }}
-          control={<Checkbox size="small" color="primary"/>}
+          control={<Checkbox size="small" color="primary" />}
         />
-      )}
+      ))}
     </>,
     set_value
   )
 }
-
 
 export function useRadio<K extends string>(label: string, options: K[], init?: K) {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
@@ -59,14 +58,14 @@ export function useRadio<K extends string>(label: string, options: K[], init?: K
     <FormControl component="fieldset">
       <FormLabel component="legend">{label}</FormLabel>
       <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
-        {options.map(option =>
+        {options.map(option => (
           <FormControlLabel
             label={option}
             value={option}
             key={option}
-            control={<Radio size="small" color="primary"/>}
+            control={<Radio size="small" color="primary" />}
           />
-        )}
+        ))}
       </RadioGroup>
     </FormControl>,
     set_value
@@ -77,13 +76,18 @@ export function useCheckbox(label: string, init?: boolean) {
   const [value, set_value] = React.useState(init === undefined ? true : init)
   return utils.tuple(
     value,
-    React.useMemo(() => <FormControlLabel
-      label={label}
-      key={label}
-      checked={value}
-      onChange={(_, checked) => set_value(checked)}
-      control={<Checkbox size="small" color="primary"/>}
-    />, [value]),
+    React.useMemo(
+      () => (
+        <FormControlLabel
+          label={label}
+          key={label}
+          checked={value}
+          onChange={(_, checked) => set_value(checked)}
+          control={<Checkbox size="small" color="primary" />}
+        />
+      ),
+      [value]
+    ),
     set_value
   )
 }
@@ -127,7 +131,7 @@ import {Paper as MuiPaper, PaperProps} from '@material-ui/core'
 
 import {styled} from '@material-ui/core/styles'
 
-const ElevatedPaper = (props?: PaperProps) => <MuiPaper elevation={2} {...props}/>
+const ElevatedPaper = (props?: PaperProps) => <MuiPaper elevation={2} {...props} />
 
 export const Paper = styled(ElevatedPaper)({
   margin: 20,
@@ -139,21 +143,30 @@ export const InlinePaper = styled(Paper)({
   flexDirection: 'row',
 })
 
-export function useEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions, deps?: React.DependencyList) {
+export function useEventListener<K extends keyof WindowEventMap>(
+  type: K,
+  listener: (this: Window, ev: WindowEventMap[K]) => any,
+  options?: boolean | AddEventListenerOptions,
+  deps?: React.DependencyList
+) {
   React.useEffect(() => {
     window.addEventListener(type, listener, options)
     return () => window.removeEventListener(type, listener)
   }, deps)
 }
 
-export const useKeydown = (h: (e: KeyboardEvent) => void, deps?: React.DependencyList) => useEventListener('keydown', h, undefined, deps)
+export const useKeydown = (h: (e: KeyboardEvent) => void, deps?: React.DependencyList) =>
+  useEventListener('keydown', h, undefined, deps)
 
 export function useRecord() {
   useEventListener('click', e => {
     let p = e.target as HTMLElement | null
     let hits: HTMLElement[] = []
     while (p) {
-      hits = p.tagName == 'LABEL' || p.tagName == 'BUTTON' ? [p] : Array.from(p.querySelectorAll('label'))
+      hits =
+        p.tagName == 'LABEL' || p.tagName == 'BUTTON'
+          ? [p]
+          : Array.from(p.querySelectorAll('label'))
       if (hits.length > 0) break
       p = p.parentElement
     }
@@ -167,9 +180,8 @@ export function useRecord() {
 
 export function useStateWithUpdate<State>(init: State | (() => State)) {
   const [state, set_state] = React.useState(init)
-  const update_state =
-    (next: Partial<State> | ((s: State) => Partial<State>)) =>
-    set_state(now => ({...now, ...typeof next === 'function' ? next(now) : next}) as any)
+  const update_state = (next: Partial<State> | ((s: State) => Partial<State>)) =>
+    set_state(now => ({...now, ...(typeof next === 'function' ? next(now) : next)} as any))
   const res: [typeof state, typeof update_state] = [state, update_state]
   return res
 }
@@ -183,4 +195,3 @@ export const flex_row: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'row',
 }
-

@@ -1,4 +1,3 @@
-
 import * as React from 'react'
 
 import {FormAndBoxPlot} from '../src/FormAndBoxPlot'
@@ -31,7 +30,7 @@ describe(FormAndBoxPlot, () => {
 
     render(
       <MockBackend request={request}>
-        <FormAndBoxPlot/>
+        <FormAndBoxPlot />
       </MockBackend>
     )
 
@@ -46,4 +45,3 @@ describe(FormAndBoxPlot, () => {
     expect(calls).toBe(2)
   })
 })
-

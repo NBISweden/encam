@@ -72,37 +72,38 @@ function facet_line_fixup(svg: SVGElement) {
   // console.timeEnd('facet fixup')
 }
 
-export function Embed({ spec, data }: { spec: VL.TopLevelSpec, data?: any[] }): React.ReactElement {
+export function Embed({spec, data}: {spec: VL.TopLevelSpec; data?: any[]}): React.ReactElement {
   const [el, set_el] = React.useState(null as HTMLElement | null)
   const runtime: V.Runtime = memo(spec, () => {
     return V.parse(VL.compile(spec).spec)
   })
   ui.useWhyChanged('vega_utils.Embed', {spec, data, el, runtime})
-  React.useEffect(() =>
-    {
-      if (el) {
-        // console.time('plot')
-        const view = new V.View(runtime)
-        data && view.data('data', data)
-        view.logLevel(V.None)
-            .renderer('svg')
-            .initialize(el)
-            .tooltip((...args) => console.log(args))
-        vegaTooltip(view)
-        view.runAsync().then(_ => {
-          const svg = el.querySelector('svg')
-          if (!svg) return
-          facet_line_fixup(svg)
-          const defs = document.createElementNS(svg.namespaceURI, 'defs')
-          defs.innerHTML = stripes.pattern
-          svg.append(defs)
-          // console.timeEnd('plot')
-        })
-      }
-    }, [el, runtime, data])
-  return <>
-    <div ref={set_el}/>
-    <TooltipCSS/>
-  </>
+  React.useEffect(() => {
+    if (el) {
+      // console.time('plot')
+      const view = new V.View(runtime)
+      data && view.data('data', data)
+      view
+        .logLevel(V.None)
+        .renderer('svg')
+        .initialize(el)
+        .tooltip((...args) => console.log(args))
+      vegaTooltip(view)
+      view.runAsync().then(_ => {
+        const svg = el.querySelector('svg')
+        if (!svg) return
+        facet_line_fixup(svg)
+        const defs = document.createElementNS(svg.namespaceURI, 'defs')
+        defs.innerHTML = stripes.pattern
+        svg.append(defs)
+        // console.timeEnd('plot')
+      })
+    }
+  }, [el, runtime, data])
+  return (
+    <>
+      <div ref={set_el} />
+      <TooltipCSS />
+    </>
+  )
 }
-

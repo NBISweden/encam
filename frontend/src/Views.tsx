@@ -6,7 +6,7 @@ import {css, div} from './ui_utils'
 
 import {CssBaseline} from '@material-ui/core'
 
-import { AppBar } from '@material-ui/core'
+import {AppBar} from '@material-ui/core'
 
 export const GlobalStyle = sc.createGlobalStyle`
   * {
@@ -43,116 +43,127 @@ export function Views() {
       label: 'Splash',
       path: '/',
       exact: true,
-      component: <Splash/>
+      component: <Splash />,
     },
     {
       label: 'Form&Plot',
       path: '/FormAndPlot',
-      component: <FormAndBoxPlot key="Form"/>
+      component: <FormAndBoxPlot key="Form" />,
     },
     {
       label: 'Group Form&Plot',
       path: '/GroupFormAndPlot',
-      component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms}/>
+      component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms} />,
     },
     {
       label: 'Form',
       path: '/Form',
-      component:
+      component: (
         <ui.InlinePaper>
-          <form.Form conf={form_test_conf}/>
+          <form.Form conf={form_test_conf} />
         </ui.InlinePaper>
+      ),
     },
     {
       label: 'Group Form',
       path: '/TwoForms',
-      component:
+      component: (
         <ui.InlinePaper>
-          <form.TwoForms conf={form_test_conf}/>
+          <form.TwoForms conf={form_test_conf} />
         </ui.InlinePaper>
+      ),
     },
     {
       label: 'Boxplot with Controls',
       path: '/BoxplotWithControls',
-      component:
+      component: (
         <ui.InlinePaper>
-          <BoxplotWithControls data={boxplot_test_data} facet="cell"/>
+          <BoxplotWithControls data={boxplot_test_data} facet="cell" />
         </ui.InlinePaper>
+      ),
     },
     {
       label: 'Boxplot',
       path: '/Boxplot',
-      component:
+      component: (
         <ui.InlinePaper>
           <VegaBoxplot
             data={boxplot_test_data}
             options={{
-              facet:"cell",
-              inner:["tumor", "group", "location"],
-              color: ["tumor", "group"]
-            }}/>
+              facet: 'cell',
+              inner: ['tumor', 'group', 'location'],
+              color: ['tumor', 'group'],
+            }}
+          />
         </ui.InlinePaper>
+      ),
     },
     {
       label: 'Kaplan-Meier plot',
       path: '/KMPlot',
-      component:
+      component: (
         <ui.InlinePaper>
-          <VegaKMPlot points={kmplot_test_data.points}/>
+          <VegaKMPlot points={kmplot_test_data.points} />
         </ui.InlinePaper>
+      ),
     },
     {
       label: 'Domplots demo',
       path: '/Domplots',
-      component:
+      component: (
         <ui.InlinePaper>
-          <domplots.Demo/>
+          <domplots.Demo />
         </ui.InlinePaper>
+      ),
     },
     {
       label: 'Domplots demo mock data',
       path: '/DomplotsMock',
-      component:
+      component: (
         <ui.InlinePaper>
           <MockBackend request={splash_test_data.request}>
-            <domplots.Demo/>
+            <domplots.Demo />
           </MockBackend>
         </ui.InlinePaper>
+      ),
     },
     {
       label: 'Splash mock backend',
       path: '/SplashMock',
-      component:
+      component: (
         <MockBackend request={splash_test_data.request}>
-          <Splash key="mock"/>
+          <Splash key="mock" />
         </MockBackend>
+      ),
     },
   ])
-  ui.useKeydown(e => {
-    if (e.key == '[') {
-      set_tab(index => Math.max(0, index - 1))
-    }
-    if (e.key == ']') {
-      set_tab((index, N) => Math.min(index + 1, N - 1))
-    }
-  }, [set_tab])
-  return <>
-    <CssBaseline/>
-    <GlobalStyle/>
-    <AppBar position="static" color="default">
-      <Tabs/>
-    </AppBar>
-    <Switch>
-      {TabbedRoutes}
-    </Switch>
-    {div(
-      css`
+  ui.useKeydown(
+    e => {
+      if (e.key == '[') {
+        set_tab(index => Math.max(0, index - 1))
+      }
+      if (e.key == ']') {
+        set_tab((index, N) => Math.min(index + 1, N - 1))
+      }
+    },
+    [set_tab]
+  )
+  return (
+    <>
+      <CssBaseline />
+      <GlobalStyle />
+      <AppBar position="static" color="default">
+        <Tabs />
+      </AppBar>
+      <Switch>{TabbedRoutes}</Switch>
+      {div(
+        css`
         position: fixed;
         bottom: 15px;
         right: 30px;
       `,
-      `version: ${version}`,
-    )}
-  </>
+        `version: ${version}`
+      )}
+    </>
+  )
 }
-

@@ -6,30 +6,28 @@ import * as utils from './utils'
 import * as ui from './ui_utils'
 
 import {makeStyles} from '@material-ui/core/styles'
-import { FormControlLabel, Grid, Checkbox, TextField, Button } from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
+import {FormControlLabel, Grid, Checkbox, TextField, Button} from '@material-ui/core'
+import {Autocomplete} from '@material-ui/lab'
 
 export interface Conf {
   variant_values: {
-    column: string,
-    values: string[],
-  }[],
+    column: string
+    values: string[]
+  }[]
   tumor_specific_values: {
-    column: string,
-    tumor: string,
-    values: string[],
-  }[],
-  cells: string[],
-  tumors: string[],
-  tumor_codes: Record<string, string>,
+    column: string
+    tumor: string
+    values: string[]
+  }[]
+  cells: string[]
+  tumors: string[]
+  tumor_codes: Record<string, string>
 }
 
-type State =
-  Record<string, string[]> &
-  {
-    tumors: string[],
-    cells: string[],
-  }
+type State = Record<string, string[]> & {
+  tumors: string[]
+  cells: string[]
+}
 
 function calculate_state0(conf: Conf, key_prefix: string) {
   const state0 = {} as State
@@ -88,16 +86,23 @@ function prepare_state_for_backend(state0: State, conf: Conf) {
 
 type Action = () => void
 
-function Buttons(props: {onReset: Action, onSubmit: Action, children?: React.ReactNode}) {
+function Buttons(props: {onReset: Action; onSubmit: Action; children?: React.ReactNode}) {
   return (
     <Grid item container justify="flex-end" spacing={2} style={{marginTop: 0}}>
       {props.children}
       <Grid item>
-        <Button variant="contained" onClick={props.onReset}>Reset</Button>
+        <Button variant="contained" onClick={props.onReset}>
+          Reset
+        </Button>
       </Grid>
       <Grid item>
-        <Button variant="contained" color="primary" startIcon={<BarChartIcon/>}
-          onClick={props.onSubmit}>Plot</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<BarChartIcon />}
+          onClick={props.onSubmit}>
+          Plot
+        </Button>
       </Grid>
     </Grid>
   )
@@ -107,12 +112,12 @@ const useStyles = makeStyles({
   Form: {
     ...ui.flex_column,
     '& > .MuiAutocomplete-root': {
-      paddingBottom: '1em'
+      paddingBottom: '1em',
     },
     '& h2:first-child': {
       marginTop: 0,
     },
-  }
+  },
 })
 
 export function Form({conf, onSubmit, onState}: FormProps) {
@@ -130,13 +135,13 @@ export function Form({conf, onSubmit, onState}: FormProps) {
   return (
     <div className={classes.Form}>
       {form}
-      <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(...get_form_values())}/>
+      <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(...get_form_values())} />
     </div>
   )
 }
 
 export function TwoForms({conf, onSubmit, onState}: FormProps) {
-  const names = "AB"
+  const names = 'AB'
 
   const A = useForm(conf, names[0])
   const B = useForm(conf, names[1])
@@ -167,54 +172,48 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
     <div className={classes.Form}>
       {do_stitch
         ? stitch(forms.map(form => form.form))
-        : forms.map((form, i) => [
-            <h2 key={names[i]}>Group {names[i]}</h2>,
-            form.form,
-          ])}
+        : forms.map((form, i) => [<h2 key={names[i]}>Group {names[i]}</h2>, form.form])}
       <Buttons onReset={reset} onSubmit={on_submit}>
-        <Grid item>
-          {box_stitch}
-        </Grid>
+        <Grid item>{box_stitch}</Grid>
       </Buttons>
     </div>
   )
 }
 
-function useForm(conf: Conf, key_prefix='') {
-
+function useForm(conf: Conf, key_prefix = '') {
   const state0 = () => calculate_state0(conf, key_prefix)
   const [state, update_state] = ui.useStateWithUpdate(state0)
   const {tumors, cells} = state
 
-  const specific = conf.tumor_specific_values
-    .map(t => memo(
-      [state[t.column + ',' + t.tumor], cells.length || tumors.includes(t.tumor)],
-      () => cells.length || tumors.includes(t.tumor)
-        ? <Autocomplete
+  const specific = conf.tumor_specific_values.map(t =>
+    memo([state[t.column + ',' + t.tumor], cells.length || tumors.includes(t.tumor)], () =>
+      cells.length || tumors.includes(t.tumor) ? (
+        <Autocomplete
           key={key_prefix + ':' + t.column + t.tumor}
           multiple
           options={t.values}
           disableCloseOnSelect
-          renderOption={(option, {selected}) =>
+          renderOption={(option, {selected}) => (
             <label>
               <Checkbox
                 icon={icon}
                 checkedIcon={checkedIcon}
-                style={{ marginRight: 8, padding: 0 }}
+                style={{marginRight: 8, padding: 0}}
                 checked={selected}
                 color="primary"
               />
               {utils.pretty(option)}
             </label>
-          }
+          )}
           renderInput={params => {
             const error = state[t.column + ',' + t.tumor].length == 0
             return (
-              <TextField {...params}
+              <TextField
+                {...params}
                 variant="outlined"
                 label={t.column + ' ' + t.tumor}
                 error={error}
-                helperText={error && "Need at least one option"}
+                helperText={error && 'Need at least one option'}
               />
             )
           }}
@@ -222,94 +221,117 @@ function useForm(conf: Conf, key_prefix='') {
           onChange={(_, selected) => update_state({[t.column + ',' + t.tumor]: selected})}
           value={state[t.column + ',' + t.tumor] || t.values}
         />
-        : <React.Fragment key={key_prefix + ':' + t.column + t.tumor}/>
-      ))
+      ) : (
+        <React.Fragment key={key_prefix + ':' + t.column + t.tumor} />
+      )
+    )
+  )
 
-  const misc_filters = conf.variant_values
-    .map(v => memo([state[v.column]], () =>
-      <Grid container spacing={3}
-        key={key_prefix + ':' + v.column}
-      >
+  const misc_filters = conf.variant_values.map(v =>
+    memo([state[v.column]], () => (
+      <Grid container spacing={3} key={key_prefix + ':' + v.column}>
         <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
           <span>{v.column.replace(/(_|yesno)/g, ' ').trim()}:</span>
         </Grid>
         <Grid item xs={9}>
-          {v.values.map(value =>
+          {v.values.map(value => (
             <FormControlLabel
               label={value}
               key={key_prefix + ':' + value}
               style={{minWidth: '5em'}}
               checked={(state[v.column] || v.values).includes(value)}
-              onChange={(_, checked) => update_state(state => {
-                const prev: string[] = state[v.column] || v.values
-                const selected = prev.slice().filter(x => x != value || checked).concat(checked ? [value] : [])
-                return {[v.column]: selected.length ? selected : v.values.filter(x => !prev.includes(x))}
-              })}
-              control={<Checkbox size="small" color="primary"/>}
+              onChange={(_, checked) =>
+                update_state(state => {
+                  const prev: string[] = state[v.column] || v.values
+                  const selected = prev
+                    .slice()
+                    .filter(x => x != value || checked)
+                    .concat(checked ? [value] : [])
+                  return {
+                    [v.column]: selected.length
+                      ? selected
+                      : v.values.filter(x => !prev.includes(x)),
+                  }
+                })
+              }
+              control={<Checkbox size="small" color="primary" />}
             />
-          )}
+          ))}
         </Grid>
-      </Grid>))
+      </Grid>
+    ))
+  )
 
-  const tumor_type = memo([tumors, cells], () =>
+  const tumor_type = memo([tumors, cells], () => (
     <Autocomplete
       key={key_prefix + ':tumor'}
       multiple
       options={conf.tumors}
       disableCloseOnSelect
-      renderOption={(option, {selected}) =>
+      renderOption={(option, {selected}) => (
         <>
           <label>
             <Checkbox
               icon={icon}
               checkedIcon={checkedIcon}
-              style={{ marginRight: 8, padding: 0 }}
+              style={{marginRight: 8, padding: 0}}
               checked={selected}
               color="primary"
             />
             {option}
           </label>
-          <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>({conf.tumor_codes[option]})</i>
-        </>}
+          <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
+            ({conf.tumor_codes[option]})
+          </i>
+        </>
+      )}
       fullWidth={true}
-      renderInput={(params) => (
-        <TextField {...params}
+      renderInput={params => (
+        <TextField
+          {...params}
           variant="outlined"
-          label={'Tumor types' + (cells.length ? ' (cells selected, comparing across all tumors)' : '')}
+          label={
+            'Tumor types' + (cells.length ? ' (cells selected, comparing across all tumors)' : '')
+          }
         />
       )}
       style={{minWidth: 500}}
       onChange={(_, selected) => {
         update_state({
           tumors: utils.last(3, selected),
-          cells: []
+          cells: [],
         })
       }}
       value={tumors}
-   />)
+    />
+  ))
 
-  const cell_type = memo([cells, tumors], () =>
+  const cell_type = memo([cells, tumors], () => (
     <Autocomplete
       key={key_prefix + ':cell'}
       multiple
       options={conf.cells}
       disableCloseOnSelect
-      renderOption={(option, {selected}) =>
+      renderOption={(option, {selected}) => (
         <label>
           <Checkbox
             icon={icon}
             checkedIcon={checkedIcon}
-            style={{ marginRight: 8, padding: 0 }}
+            style={{marginRight: 8, padding: 0}}
             checked={selected}
             color="primary"
           />
           {utils.pretty(option)}
-        </label>}
+        </label>
+      )}
       fullWidth={true}
       renderInput={params => (
-        <TextField {...params}
+        <TextField
+          {...params}
           variant="outlined"
-          label={'Cell types' + (tumors.length ? ' (tumors selected, comparing across all cells)' : '')}
+          label={
+            'Cell types' + (tumors.length ? ' (tumors selected, comparing across all cells)' : '')
+          }
         />
       )}
       style={{minWidth: 500}}
@@ -320,17 +342,12 @@ function useForm(conf: Conf, key_prefix='') {
         })
       }}
       value={cells}
-    />)
+    />
+  ))
 
   return {
     state,
     reset: () => update_state(state0()),
-    form: [
-      tumor_type,
-      cell_type,
-      ...specific,
-      ...misc_filters,
-    ]
+    form: [tumor_type, cell_type, ...specific, ...misc_filters],
   }
 }
-

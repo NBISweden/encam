@@ -1,4 +1,3 @@
-
 import * as React from 'react'
 import * as form from '../src/Form'
 
@@ -32,7 +31,7 @@ function make_setup(Form: typeof form.Form, N: number) {
       })
     }
 
-    render(<Form conf={form_test_conf} onState={on_state} onSubmit={on_submit}/>)
+    render(<Form conf={form_test_conf} onState={on_state} onSubmit={on_submit} />)
 
     refs.forEach(ref => {
       expect(ref.prev).toBeUndefined()
@@ -75,30 +74,30 @@ describe(form.Form, () => {
     const [ref] = setup()
 
     click(getByLabelText('N0'))
-    expect(ref.diff).toStrictEqual({'pN_stage': ['N1', 'N2']})
+    expect(ref.diff).toStrictEqual({pN_stage: ['N1', 'N2']})
 
     click(screen.getByText(/reset/i))
-    expect(ref.diff).toStrictEqual({'pN_stage': ['N0', 'N1', 'N2']})
+    expect(ref.diff).toStrictEqual({pN_stage: ['N0', 'N1', 'N2']})
   })
 
   test('can select and deselect options', async () => {
     const [ref] = setup()
 
     click(getByLabelText('low'))
-    expect(ref.diff).toStrictEqual({'Diff_grade': ['high', 'missing']})
+    expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'missing']})
 
     click(getByLabelText('high'))
-    expect(ref.diff).toStrictEqual({'Diff_grade': ['missing']})
+    expect(ref.diff).toStrictEqual({Diff_grade: ['missing']})
 
     // wrap-around
     click(screen.getAllByLabelText('missing')[0])
-    expect(ref.diff).toStrictEqual({'Diff_grade': ['high', 'low']})
+    expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'low']})
 
     click(screen.getAllByLabelText('missing')[1])
-    expect(ref.diff).toStrictEqual({'Neuralinv': ['No', 'Yes']})
+    expect(ref.diff).toStrictEqual({Neuralinv: ['No', 'Yes']})
 
     click(screen.getAllByLabelText('missing')[0])
-    expect(ref.diff).toStrictEqual({'Diff_grade': ['high', 'low', 'missing']})
+    expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
   })
 
   test('can select up to 3 tumor types', async () => {
@@ -136,16 +135,16 @@ describe(form.Form, () => {
     })
 
     click(getByLabelText('CD4 Treg'))
-    expect(ref.diff).toStrictEqual({ cells: ['CD4', 'CD4_Treg'], })
+    expect(ref.diff).toStrictEqual({cells: ['CD4', 'CD4_Treg']})
 
     click(getByLabelText('CD8'))
-    expect(ref.diff).toStrictEqual({ cells: ['CD4', 'CD4_Treg', 'CD8'], })
+    expect(ref.diff).toStrictEqual({cells: ['CD4', 'CD4_Treg', 'CD8']})
 
     click(getByLabelText('CD8 Treg'))
-    expect(ref.diff).toStrictEqual({ cells: ['CD4_Treg', 'CD8', 'CD8_Treg'], })
+    expect(ref.diff).toStrictEqual({cells: ['CD4_Treg', 'CD8', 'CD8_Treg']})
 
     click(getByLabelText('CD8'))
-    expect(ref.diff).toStrictEqual({ cells: ['CD4_Treg', 'CD8_Treg'], })
+    expect(ref.diff).toStrictEqual({cells: ['CD4_Treg', 'CD8_Treg']})
   })
 
   test('can access specific tumor filters when tumor selected', async () => {
@@ -237,15 +236,15 @@ describe(form.TwoForms, () => {
     const [a, b] = setup()
 
     click(screen.getAllByLabelText('high')[0])
-    expect(a.diff).toStrictEqual({'Diff_grade': ['low', 'missing']})
+    expect(a.diff).toStrictEqual({Diff_grade: ['low', 'missing']})
     expect(b.diff).toStrictEqual({})
 
     click(screen.getAllByLabelText('low')[1])
     expect(a.diff).toStrictEqual({})
-    expect(b.diff).toStrictEqual({'Diff_grade': ['high', 'missing']})
+    expect(b.diff).toStrictEqual({Diff_grade: ['high', 'missing']})
 
     click(screen.getByText(/reset/i))
-    expect(a.diff).toStrictEqual({'Diff_grade': ['high', 'low', 'missing']})
-    expect(b.diff).toStrictEqual({'Diff_grade': ['high', 'low', 'missing']})
+    expect(a.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
+    expect(b.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
   })
 })

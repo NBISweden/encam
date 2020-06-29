@@ -1,4 +1,3 @@
-
 import * as React from 'react'
 import {BoxplotWithControls} from '../src/BoxplotWithControls'
 
@@ -15,7 +14,7 @@ async function wait_for_visualization() {
 }
 
 test('can change visible cells', async () => {
-  render(<BoxplotWithControls data={boxplot_test_data} facet="cell"/>)
+  render(<BoxplotWithControls data={boxplot_test_data} facet="cell" />)
 
   async function axis_titles() {
     const svg = await wait_for_visualization()
@@ -36,7 +35,7 @@ test('can change visible cells', async () => {
 })
 
 test('visible cells can be hidden', async () => {
-  const BP = render(<BoxplotWithControls data={boxplot_test_data} facet="cell"/>)
+  const BP = render(<BoxplotWithControls data={boxplot_test_data} facet="cell" />)
 
   expect(getByLabelText('CD4')).toBeTruthy()
 
@@ -54,7 +53,7 @@ test('visible cells can be hidden', async () => {
 })
 
 test('can change range', async () => {
-  render(<BoxplotWithControls data={boxplot_test_data} facet="cell"/>)
+  render(<BoxplotWithControls data={boxplot_test_data} facet="cell" />)
 
   await wait_for_visualization()
 
@@ -72,4 +71,3 @@ test('can change range', async () => {
 
   expect(screen.getByText('550')).toBeTruthy()
 })
-

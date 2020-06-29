@@ -13,25 +13,25 @@ describe(ui.useCheckboxes, () => {
         return dom
       }
 
-      render(<Component/>)
+      render(<Component />)
 
-      expect($selected).toStrictEqual({'a': true})
+      expect($selected).toStrictEqual({a: true})
 
       fireEvent.click(screen.getByLabelText('c'))
 
-      expect($selected).toStrictEqual({'a': true, 'c': true})
+      expect($selected).toStrictEqual({a: true, c: true})
 
       fireEvent.click(screen.getByLabelText('a'))
 
-      expect($selected).toStrictEqual({'a': false, 'c': true})
+      expect($selected).toStrictEqual({a: false, c: true})
 
       fireEvent.click(screen.getByLabelText('a'), {[key]: true})
 
-      expect($selected).toStrictEqual({'a': true})
+      expect($selected).toStrictEqual({a: true})
 
       fireEvent.click(screen.getByLabelText('a'), {[key]: true})
 
-      expect($selected).toStrictEqual({'a': true, 'b': true, 'c': true})
+      expect($selected).toStrictEqual({a: true, b: true, c: true})
     })
   })
 
@@ -46,15 +46,15 @@ describe(ui.useCheckboxes, () => {
       return dom
     }
 
-    render(<Component/>)
+    render(<Component />)
 
-    expect($selected).toStrictEqual({'a': true})
+    expect($selected).toStrictEqual({a: true})
 
     act(() => {
       $set_alts('x y'.split(' '))
     })
 
-    expect($selected).toStrictEqual({'x': true})
+    expect($selected).toStrictEqual({x: true})
   })
 })
 
@@ -64,7 +64,7 @@ describe(ui.useStateWithUpdate, () => {
     function Component() {
       const [state, update_state] = ui.useStateWithUpdate({a: 1, b: 2})
       $state = {...state}
-      const on_click =() => {
+      const on_click = () => {
         if (state.a < 2) {
           update_state({a: 2})
         } else {
@@ -73,7 +73,7 @@ describe(ui.useStateWithUpdate, () => {
       }
       return <div onClick={on_click}>hit me</div>
     }
-    render(<Component/>)
+    render(<Component />)
     expect($state).toStrictEqual({a: 1, b: 2})
 
     fireEvent.click(screen.getByText('hit me'))

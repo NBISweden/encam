@@ -47,70 +47,37 @@ function orient(options: Options) {
 
 export type Points = [number, number][][]
 
-export const VegaKMPlot = React.memo(
-  function VegaKMPlot({points, options}: {points: Points, options?: Partial<Options>}) {
-    ui.useWhyChanged('VegaKMPlot', {points, options})
-    return kmplot(points, options)
-  }
-)
+export const VegaKMPlot = React.memo(function VegaKMPlot({
+  points,
+  options,
+}: {
+  points: Points
+  options?: Partial<Options>
+}) {
+  ui.useWhyChanged('VegaKMPlot', {points, options})
+  return kmplot(points, options)
+})
 
 function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
+  const options = {...default_options, ...opts}
 
-  const options = { ...default_options, ...opts }
-
-  const { column, row, height, width, x, y, y2 } = orient(options)
+  const {column, row, height, width, x, y, y2} = orient(options)
 
   const size = 8
 
   const tooltip = [
-    { field: 'cell',
-      type: 'nominative',
-      title: 'Cell type'
-    },
-    { field: 'group',
-      type: 'nominative',
-      title: 'Group'
-    },
-    { field: 'tumor',
-      type: 'nominative',
-      title: 'Tumor type'
-    },
-    { field: 'location_lowercase',
-      type: 'nominative',
-      title: 'Location'
-    },
-    { field: 'max',
-      type: 'quantitative', format: '.1f',
-      title: 'Max'
-    },
-    { field: 'upper_outliers',
-      type: 'quantitative', format: '.1f',
-      title: 'Upper outlier count'
-    },
-    { field: 'q3',
-      type: 'quantitative', format: '.1f',
-      title: 'Q3'
-    },
-    { field: 'mean',
-      type: 'quantitative', format: '.1f',
-      title: 'Mean',
-    },
-    { field: 'median',
-      type: 'quantitative', format: '.1f',
-      title: 'Median'
-    },
-    { field: 'q1',
-      type: 'quantitative', format: '.1f',
-      title: 'Q1'
-    },
-    { field: 'lower_outliers',
-      type: 'quantitative', format: '.1f',
-      title: 'Lower outlier count'
-    },
-    { field: 'min',
-      type: 'quantitative', format: '.1f',
-      title: 'Min'
-    }
+    {field: 'cell', type: 'nominative', title: 'Cell type'},
+    {field: 'group', type: 'nominative', title: 'Group'},
+    {field: 'tumor', type: 'nominative', title: 'Tumor type'},
+    {field: 'location_lowercase', type: 'nominative', title: 'Location'},
+    {field: 'max', type: 'quantitative', format: '.1f', title: 'Max'},
+    {field: 'upper_outliers', type: 'quantitative', format: '.1f', title: 'Upper outlier count'},
+    {field: 'q3', type: 'quantitative', format: '.1f', title: 'Q3'},
+    {field: 'mean', type: 'quantitative', format: '.1f', title: 'Mean'},
+    {field: 'median', type: 'quantitative', format: '.1f', title: 'Median'},
+    {field: 'q1', type: 'quantitative', format: '.1f', title: 'Q1'},
+    {field: 'lower_outliers', type: 'quantitative', format: '.1f', title: 'Lower outlier count'},
+    {field: 'min', type: 'quantitative', format: '.1f', title: 'Min'},
   ]
 
   const num_groups = points.length
@@ -127,11 +94,13 @@ function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
     }
   }
 
-  const data = points.flatMap((group, index) => group.map(([time, prob]) => ({time, prob, group: group_name(index)})))
+  const data = points.flatMap((group, index) =>
+    group.map(([time, prob]) => ({time, prob, group: group_name(index)}))
+  )
 
   const spec: VL.TopLevelSpec = {
-    $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-    data: { name: 'data' },
+    $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+    data: {name: 'data'},
     [height]: 350,
     [width]: 500,
     mark: {
@@ -152,11 +121,11 @@ function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
       color: {
         title: 'group',
         field: 'group',
-        type: 'nominal'
-      }
+        type: 'nominal',
+      },
     },
     config: {
-      view: { stroke: "transparent" },
+      view: {stroke: 'transparent'},
       // axis: { grid: true },
       // axis: { domainWidth: 1 },
       // facet: { spacing: 6 },

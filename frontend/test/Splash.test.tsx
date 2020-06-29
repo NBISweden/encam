@@ -1,4 +1,3 @@
-
 import * as React from 'react'
 
 import {Splash} from '../src/Splash'
@@ -11,14 +10,15 @@ import {MockBackend} from '../src/backend'
 
 const {click} = fireEvent
 
-const MockSplash = () =>
+const MockSplash = () => (
   <MockBackend request={splash_test_data.request}>
-    <Splash/>
+    <Splash />
   </MockBackend>
+)
 
 describe(Splash, () => {
   test('draws plots and one tumor type at a time can be selected', async () => {
-    render(<MockSplash/>)
+    render(<MockSplash />)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
 
@@ -46,7 +46,7 @@ describe(Splash, () => {
   })
 
   test('draws plots and up to three cell types can be selected', async () => {
-    render(<MockSplash/>)
+    render(<MockSplash />)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
 
@@ -98,4 +98,3 @@ describe(Splash, () => {
     expect(screen.queryAllByText('BRCA')).toHaveLength(3)
   })
 })
-

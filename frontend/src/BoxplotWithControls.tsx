@@ -25,7 +25,7 @@ type Options = Partial<VB.Options<keyof Row>>
 
 const useStyles = makeStyles({
   BoxPlotWithControls: {
-    ...ui.flex_row
+    ...ui.flex_row,
   },
   VisibleSidebar: {
     ...ui.flex_column,
@@ -36,7 +36,7 @@ const useStyles = makeStyles({
     '& .MuiFormControlLabel-root': {
       whiteSpace: 'pre',
       cursor: 'pointer',
-      marginBottom: 2
+      marginBottom: 2,
     },
     '& .MuiCheckbox-root': {
       padding: 4,
@@ -45,7 +45,7 @@ const useStyles = makeStyles({
   },
   VisibleSidebarIcon: {
     marginLeft: -8,
-    transform: 'translateY(7px)'
+    transform: 'translateY(7px)',
   },
   Main: {
     ...ui.flex_column,
@@ -53,7 +53,7 @@ const useStyles = makeStyles({
     // Radio buttons:
     '& .MuiFormGroup-root': {
       ...ui.flex_row,
-    }
+    },
   },
 })
 
@@ -64,16 +64,15 @@ function useOptions(facet: keyof Row) {
   const radicals = ['√', '∛', '∜']
   const [scale, scale_radio] = ui.useRadio('scale', ['linear', ...radicals], radicals[0])
   const [mode, mode_radio] = ui.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
-  const opposite = (x: keyof Row) => x === 'cell' ? 'tumor' : 'cell'
-  const options: Partial<Options> =
-    split
-      ? {
+  const opposite = (x: keyof Row) => (x === 'cell' ? 'tumor' : 'cell')
+  const options: Partial<Options> = split
+    ? {
         inner: [opposite(facet), 'group'],
         facet: facet,
         split: 'location',
         color: [opposite(facet), 'group'],
       }
-      : {
+    : {
         inner: [opposite(facet), 'location', 'group'],
         facet: facet,
         color: [opposite(facet), 'group'],
@@ -81,7 +80,7 @@ function useOptions(facet: keyof Row) {
   options.stripes = 'location'
   options.landscape = orientation == 'landscape'
   options.scale = {
-    type: scale === 'linear' ? 'linear' : 'semilog'
+    type: scale === 'linear' ? 'linear' : 'semilog',
   }
   options.mode = mode === 'min-max' ? 'min-max' : 'default'
   options.show_mean = mean
@@ -89,7 +88,7 @@ function useOptions(facet: keyof Row) {
   if (r != -1) {
     options.scale = {
       type: 'pow',
-      exponent: 1 / (2 + r)
+      exponent: 1 / (2 + r),
     }
   }
   return utils.tuple(
@@ -104,7 +103,6 @@ function useOptions(facet: keyof Row) {
   )
 }
 
-
 function useVisibleSidebar(facet: string, facet_vals: string[]) {
   const all_selected = Object.fromEntries(facet_vals.map(v => [v, true]))
 
@@ -118,39 +116,51 @@ function useVisibleSidebar(facet: string, facet_vals: string[]) {
     <div className={classes.VisibleSidebar}>
       <FormControl>
         <FormLabel onClick={() => set_show(b => !b)}>
-          {
-            show
-              ? <> <ExpandLessIcon className={classes.VisibleSidebarIcon}/>{`visible ${facet}s`} </>
-              : <ExpandMoreIcon className={classes.VisibleSidebarIcon}/>
-          }
+          {show ? (
+            <>
+              {' '}
+              <ExpandLessIcon className={classes.VisibleSidebarIcon} />
+              {`visible ${facet}s`}{' '}
+            </>
+          ) : (
+            <ExpandMoreIcon className={classes.VisibleSidebarIcon} />
+          )}
         </FormLabel>
-        <FormGroup>
-          {show && facet_boxes}
-        </FormGroup>
+        <FormGroup>{show && facet_boxes}</FormGroup>
       </FormControl>
     </div>
   )
 }
 
-export function BoxplotWithControls({data, facet}: { data: (Row & VB.Precalc)[], facet: 'cell' | 'tumor' }) {
+export function BoxplotWithControls({
+  data,
+  facet,
+}: {
+  data: (Row & VB.Precalc)[]
+  facet: 'cell' | 'tumor'
+}) {
   const [options, Options] = useOptions(facet)
 
   const facet_vals = utils.uniq(data.map(x => x[facet]))
 
   const [visible_facets, VisibleSidebar] = useVisibleSidebar(facet, facet_vals)
 
-  const plot_data = React.useMemo(
-    () => data.filter(x => visible_facets[x[facet]]),
-    [data, utils.str(visible_facets)]
-  )
+  const plot_data = React.useMemo(() => data.filter(x => visible_facets[x[facet]]), [
+    data,
+    utils.str(visible_facets),
+  ])
 
-  const plot_options = React.useMemo(
-    () => ({...options, trimmable: {group: true}}),
-    [utils.str(options)]
-  )
+  const plot_options = React.useMemo(() => ({...options, trimmable: {group: true}}), [
+    utils.str(options),
+  ])
 
   ui.useWhyChanged('BoxplotWithControls', {
-    data, facet, ...options, visible_facets, plot_data, plot_options
+    data,
+    facet,
+    ...options,
+    visible_facets,
+    plot_data,
+    plot_options,
   })
 
   const classes = useStyles()
@@ -158,10 +168,9 @@ export function BoxplotWithControls({data, facet}: { data: (Row & VB.Precalc)[],
     <div className={classes.BoxPlotWithControls}>
       {VisibleSidebar}
       <div className={classes.Main}>
-        <VB.VegaBoxplot data={plot_data} options={plot_options}/>
+        <VB.VegaBoxplot data={plot_data} options={plot_options} />
         {Options}
       </div>
     </div>
   )
 }
-

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 
-export function dummy_keys(xs: React.ReactNode[], prefix=';'): React.ReactNode[] {
+export function dummy_keys(xs: React.ReactNode[], prefix = ';'): React.ReactNode[] {
   return xs.map((x, i) => {
     if (x && typeof x == 'object' && '$$typeof' in x) {
       let child = x as any
@@ -27,7 +27,8 @@ export function css(xs: TemplateStringsArray | string, ...more: string[]): {css:
   return {css}
 }
 
-export type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
+export type DivProps = {key?: string} & {css?: string} & React.HTMLAttributes<HTMLDivElement> &
+  React.RefAttributes<HTMLDivElement>
 
 const Div = styled.div`${(props: any) => props.css}`
 
@@ -77,4 +78,3 @@ export function div(...args: (DivProps | {css: string} | React.ReactNode)[]) {
   props.children = dummy_keys(props.children, ':')
   return React.createElement(Div, props)
 }
-

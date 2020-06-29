@@ -7,10 +7,8 @@ import {Views} from './Views'
 
 const root = document.querySelector('#root')
 
-const view = <Views/>
+const view = <Views />
 
 import * as R from 'react-router-dom'
 
 ReactDOM.render(<R.BrowserRouter>{view}</R.BrowserRouter>, root)
-
-
