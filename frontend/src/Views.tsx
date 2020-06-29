@@ -56,6 +56,15 @@ export function Views() {
       component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms} />,
     },
     {
+      label: 'KMForm',
+      path: '/KMForm',
+      component: (
+        <ui.InlinePaper>
+          <form.KMForm conf={form_test_conf} />
+        </ui.InlinePaper>
+      ),
+    },
+    {
       label: 'Form',
       path: '/Form',
       component: (
