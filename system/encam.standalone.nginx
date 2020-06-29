@@ -5,16 +5,15 @@
 
         ssl_certificate /code/cert.pem;
         ssl_certificate_key /code/key.pem;
-        ssl_dhparam /code/dhparam.pem;
-        root /app/dist/browser/;
+        root /app/dist/;
 
         location / {
             try_files $uri $uri/ @wsgi =404;
         }
 
         location /api/ {
-                # There were issues using the wsgi transport for uwsgi, 
-                # use its built in http server. 
+                # There were issues using the wsgi transport for uwsgi,
+                # use its built in http server.
                 proxy_pass http://127.0.0.1:9090/;
         }
     }

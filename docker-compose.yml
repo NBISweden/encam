@@ -9,20 +9,22 @@ services:
         build:
             context: ./frontend
         volumes:
-           - ./frontend:/app
+            - ./frontend:/app
         working_dir: /
     main:
-      image: encam_main:latest
-      build:
-        context: ./
-      ports:
-            - "8080:8080"
-            - "8443:8443"
-            - "1235:1235"
-      volumes:
-          - type: bind
-            source: ./api
-            target: /api_src
-          - type: bind
-            source: ./config
-            target: /config
+        image: encam_main:latest
+        build:
+            context: ./
+        ports:
+            - 8080:8080
+            - 8443:8443
+            - 1235:1235
+        volumes:
+            - type: bind
+              source: ./api
+              target: /api_src
+            - type: bind
+              source: ./config
+              target: /config
+        depends_on:
+            - encam-frontend-devel
