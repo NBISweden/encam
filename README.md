@@ -17,7 +17,13 @@ To run the tests for the encam project
 ```
 python test.py
 ```
-in the `api` folder.
+in the `api` folder. The expected output is no assertion errors.
+
+This can be run in a virtualenv or with
+```
+docker-compose exec api python test.py
+```
+
 To get the code coverage
 ```
 coverage run test.py
@@ -29,4 +35,4 @@ coverage report -m
 and the annotated HTML listings detailing missed lines
 ```
 coverage html
-``` 
+```
