@@ -34,12 +34,7 @@ type State = Record<string, string[]> & {
   cells: string[]
 }
 
-type KMState = Record<string, string[]> & {
-  tumor: string
-  cell: string
-}
-
-function calculate_state0(conf: Conf, key_prefix: string) {
+function calculate_state0(conf: Conf, key_prefix: string): State {
   const state0 = {} as State
   conf.variant_values.forEach(v => {
     state0[v.column] = v.values
@@ -57,7 +52,14 @@ function calculate_state0(conf: Conf, key_prefix: string) {
   return state0
 }
 
-function calculate_KMstate0(conf: Conf) {
+type KMState = Record<string, string[]> & {
+  location: string
+  tumor: string
+  cell: string
+  num_groups: number
+}
+
+function calculate_KMstate0(conf: Conf): KMState {
   const state0 = {} as KMState
   conf.variant_values.forEach(v => {
     state0[v.column] = v.values
@@ -67,6 +69,8 @@ function calculate_KMstate0(conf: Conf) {
   })
   state0.cell = conf.cells[0]
   state0.tumor = conf.tumors[0]
+  state0.location = 'TUMOR'
+  state0.num_groups = 2
   return state0
 }
 
@@ -300,15 +304,16 @@ function Variants(props: VariantsProps) {
   )
 }
 
-interface SelectManyProps {
+interface SelectProps<Multi extends boolean, Selection = Multi extends true ? string [] : string> {
   options: string[]
   codeFor?: (option: string) => string
-  value: string[]
+  value: Selection
   label: string
-  onChange: (ev: React.ChangeEvent<{}>, value: string[]) => void
+  defaultValue?: Selection
+  onChange: (ev: React.ChangeEvent<{}>, value: Selection) => void
 }
 
-function SelectMany(props: SelectManyProps) {
+function SelectMany(props: SelectProps<true>) {
   return (
     <Autocomplete
       multiple
@@ -341,21 +346,12 @@ function SelectMany(props: SelectManyProps) {
   )
 }
 
-interface SelectOneProps {
-  options: string[]
-  codeFor?: (option: string) => string
-  value: string
-  label: string
-  defaultValue: string
-  onChange: (ev: React.ChangeEvent<{}>, value: string) => void
-}
-
-function SelectOne(props: SelectOneProps) {
+function SelectOne(props: SelectProps<false>) {
   return (
     <Autocomplete
       renderOption={(option, {selected}) => (
-        <>
-          <label>
+        <div style={{display: 'flex', alignItems: 'center'}}>
+          <label style={{display: 'flex'}}>
             <Radio
               size="small"
               style={{marginRight: 8, padding: 0}}
@@ -369,13 +365,13 @@ function SelectOne(props: SelectOneProps) {
               ({props.codeFor(option)})
             </i>
           )}
-        </>
+        </div>
       )}
       fullWidth={true}
       renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
       style={{minWidth: 500}}
       options={props.options}
-      onChange={(ev, maybe_value) => props.onChange(ev, maybe_value ?? props.defaultValue)}
+      onChange={(ev, maybe_value) => props.onChange(ev, maybe_value ?? props.defaultValue ?? '')}
       value={props.value}
     />
   )
@@ -465,6 +461,45 @@ function useKMForm(conf: Conf) {
     />
   ))
 
+  const location =
+    <Grid container spacing={3} key="location">
+      <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
+        <span>location</span>
+      </Grid>
+      <Grid item xs={9}>
+        {['TUMOR', 'STROMA'].map(value => (
+          <FormControlLabel
+            label={value[0] + value.slice(1).toLowerCase()}
+            key={value}
+            style={{minWidth: '5em'}}
+            checked={state.location == value}
+            onChange={(_, checked) => checked && store.update({location: value} as Partial<KMState>)}
+            control={<Radio size="small" color="primary" />}
+          />
+        ))}
+      </Grid>
+    </Grid>
+
+  const num_groups =
+    <Grid container spacing={3} key="num_groups">
+      <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
+        <span>groups</span>
+      </Grid>
+      <Grid item xs={9}>
+        {[2, 3, 4].map(value => (
+          <FormControlLabel
+            label={value}
+            key={value}
+            style={{minWidth: '5em'}}
+            checked={state.num_groups == value}
+            onChange={(_, checked) => checked && store.update({num_groups: value} as Partial<KMState>)}
+            control={<Radio size="small" color="primary" />}
+          />
+        ))}
+      </Grid>
+    </Grid>
+
+
   const specifics = (
     <Specifics
       key="specifics"
@@ -479,7 +514,7 @@ function useKMForm(conf: Conf) {
   return {
     state,
     reset: () => update_state(state0),
-    form: [tumor_type, cell_type, specifics, variants],
+    form: [tumor_type, cell_type, specifics, location, variants, num_groups],
   }
 }
 
@@ -488,9 +523,16 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
-  const get_form_values = () => [utils.expand(state)]
+  const get_form_values = () => {
+    const expanded = utils.expand(state)
+    return {
+      ...expanded,
+      tumors: [expanded.tumor],
+      cell_full: expanded.cell + '_' + expanded.location,
+    }
+  }
 
-  onState && onState(...get_form_values())
+  onState && onState(get_form_values())
 
   ui.useWhyChanged('KMForm', {conf, state})
 
@@ -498,7 +540,7 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
   return (
     <div className={classes.Form}>
       {form}
-      <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(...get_form_values())} />
+      <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(get_form_values())} />
     </div>
   )
 }

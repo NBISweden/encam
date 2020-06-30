@@ -22,8 +22,7 @@ import {kmplot_test_data} from '../test/data/kmplot'
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
-import {FormAndBoxPlot} from './FormAndBoxPlot'
-
+import {FormAndBoxPlot, FormAndKMPlot, FormAndPlotUI} from './FormAndPlot'
 import * as ui from './ui_utils'
 
 import {VegaBoxplot} from './VegaBoxplot'
@@ -46,14 +45,19 @@ export function Views() {
       component: <Splash />,
     },
     {
-      label: 'Form&Plot',
-      path: '/FormAndPlot',
+      label: 'Box Plot',
+      path: '/BoxPlot',
       component: <FormAndBoxPlot key="Form" />,
     },
     {
-      label: 'Group Form&Plot',
-      path: '/GroupFormAndPlot',
+      label: 'Group Box Plot',
+      path: '/GroupBoxPlot',
       component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms} />,
+    },
+    {
+      label: 'KMPlot',
+      path: '/KMPlot',
+      component: <FormAndKMPlot />,
     },
     {
       label: 'KMForm',
@@ -92,8 +96,8 @@ export function Views() {
       ),
     },
     {
-      label: 'Boxplot',
-      path: '/Boxplot',
+      label: 'Mock Boxplot',
+      path: '/MockBoxplot',
       component: (
         <ui.InlinePaper>
           <VegaBoxplot
@@ -108,8 +112,8 @@ export function Views() {
       ),
     },
     {
-      label: 'Kaplan-Meier plot',
-      path: '/KMPlot',
+      label: 'Mock KMPlot',
+      path: '/MockKMPlot',
       component: (
         <ui.InlinePaper>
           <VegaKMPlot points={kmplot_test_data.points} />
@@ -126,7 +130,7 @@ export function Views() {
       ),
     },
     {
-      label: 'Domplots demo mock data',
+      label: 'Domplots mock',
       path: '/DomplotsMock',
       component: (
         <ui.InlinePaper>
@@ -137,12 +141,27 @@ export function Views() {
       ),
     },
     {
-      label: 'Splash mock backend',
+      label: 'Splash mock',
       path: '/SplashMock',
       component: (
         <MockBackend request={splash_test_data.request}>
           <Splash key="mock" />
         </MockBackend>
+      ),
+    },
+    {
+      label: 'Form and Plot UI',
+      path: '/FormAndPlotUI',
+      component: (
+
+      <div>
+          <FormAndPlotUI/>
+          <FormAndPlotUI form={<h2>Form</h2>}/>
+          <FormAndPlotUI form={<h2>Form</h2>} loading={true} />
+          <FormAndPlotUI form={<h2>Form</h2>} plot={<h2>Example plot view</h2>} />
+          <FormAndPlotUI form={<h2>Form</h2>} plot={<h2>Example plot view</h2>} loading={true} />
+        </div>
+
       ),
     },
   ])
