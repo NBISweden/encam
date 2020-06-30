@@ -43,6 +43,10 @@ export function useStore<S>(init: S | (() => S)) {
   return [store, state, update_state] as const
 }
 
+export function useIntern<A>(a: A): A {
+  return React.useMemo(() => a, [utils.str(a)])
+}
+
 import {
   Checkbox,
   FormControlLabel,
@@ -52,6 +56,25 @@ import {
   Radio,
 } from '@material-ui/core'
 
+export function container() {
+  const children: JSX.Element[] = []
+  function add<A>([a, x]: readonly [A, JSX.Element, ...any[]]) {
+    children.push(x)
+    return a
+  }
+  function wrap<A, Args extends any[]>(f: (...args: Args) => readonly [A, JSX.Element, ...any[]]) {
+    return (...args: Args) => add(f(...args))
+  }
+  return {
+    add,
+    wrap,
+    collect: () => dummy_keys(children),
+    addCheckbox: wrap(useCheckbox),
+    addCheckboxes: wrap(useCheckboxes),
+    addRadio: wrap(useRadio),
+  }
+}
+
 export function useCheckboxes(labels: string[], init?: Record<string, boolean>) {
   const init_value = init === undefined ? {} : init
   const [value, set_value] = React.useState(init_value)
@@ -60,7 +83,7 @@ export function useCheckboxes(labels: string[], init?: Record<string, boolean>) 
       set_value(init_value)
     }
   }, [utils.str(labels)])
-  return utils.tuple(
+  return [
     value,
     <>
       {labels.map(label => (
@@ -85,13 +108,13 @@ export function useCheckboxes(labels: string[], init?: Record<string, boolean>) 
         />
       ))}
     </>,
-    set_value
-  )
+    set_value,
+  ] as const
 }
 
 export function useRadio<K extends string>(label: string, options: K[], init?: K) {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
-  return utils.tuple(
+  return [
     value,
     <FormControl component="fieldset">
       <FormLabel component="legend">{label}</FormLabel>
@@ -106,13 +129,13 @@ export function useRadio<K extends string>(label: string, options: K[], init?: K
         ))}
       </RadioGroup>
     </FormControl>,
-    set_value
-  )
+    set_value,
+  ] as const
 }
 
 export function useCheckbox(label: string, init?: boolean) {
   const [value, set_value] = React.useState(init === undefined ? true : init)
-  return utils.tuple(
+  return [
     value,
     React.useMemo(
       () => (
@@ -126,8 +149,8 @@ export function useCheckbox(label: string, init?: boolean) {
       ),
       [value]
     ),
-    set_value
-  )
+    set_value,
+  ] as const
 }
 
 declare const process: {env: {NODE_ENV: string}}
