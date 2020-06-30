@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import {FormAndBoxPlot} from '../src/FormAndBoxPlot'
+import {FormAndBoxPlot} from '../src/FormAndPlot'
 
 import {MockBackend} from '../src/backend'
 
