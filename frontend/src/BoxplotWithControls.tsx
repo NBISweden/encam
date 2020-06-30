@@ -58,12 +58,14 @@ const useStyles = makeStyles({
 })
 
 function useOptions(facet: keyof Row) {
-  const [split, split_checkbox] = ui.useCheckbox('split tumor and stroma', false)
-  const [mean, mean_checkbox] = ui.useCheckbox('show mean', false)
-  const [orientation, orientation_radio] = ui.useRadio('orientation', ['landscape', 'portrait'])
   const radicals = ['√', '∛', '∜']
-  const [scale, scale_radio] = ui.useRadio('scale', ['linear', ...radicals], radicals[0])
-  const [mode, mode_radio] = ui.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
+
+  const C = ui.container()
+  const split = C.addCheckbox('split tumor and stroma', false)
+  const mean = C.addCheckbox('show mean', false)
+  const orientation = C.addRadio('orientation', ['landscape', 'portrait'])
+  const scale = C.addRadio('scale', ['linear', ...radicals], radicals[0])
+  const mode = C.addRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
   const opposite = (x: keyof Row) => (x === 'cell' ? 'tumor' : 'cell')
   const options: Partial<Options> = split
     ? {
@@ -91,16 +93,7 @@ function useOptions(facet: keyof Row) {
       exponent: 1 / (2 + r),
     }
   }
-  return utils.tuple(
-    React.useMemo(() => options, [utils.str(options)]),
-    <>
-      {split_checkbox}
-      {orientation_radio}
-      {scale_radio}
-      {mode_radio}
-      {mean_checkbox}
-    </>
-  )
+  return [ui.useIntern(options), C.collect()] as const
 }
 
 function useVisibleSidebar(facet: string, facet_vals: string[]) {
@@ -111,7 +104,7 @@ function useVisibleSidebar(facet: string, facet_vals: string[]) {
   const [show, set_show] = React.useState(true)
 
   const classes = useStyles()
-  return utils.tuple(
+  return [
     visible_facets,
     <div className={classes.VisibleSidebar}>
       <FormControl>
@@ -128,8 +121,8 @@ function useVisibleSidebar(facet: string, facet_vals: string[]) {
         </FormLabel>
         <FormGroup>{show && facet_boxes}</FormGroup>
       </FormControl>
-    </div>
-  )
+    </div>,
+  ] as const
 }
 
 export function BoxplotWithControls({
