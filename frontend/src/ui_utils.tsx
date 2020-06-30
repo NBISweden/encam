@@ -1,9 +1,47 @@
 export * from './ui_utils/useRoutedTabs'
 export * from './ui_utils/div'
+import {dummy_keys} from './ui_utils/div'
 // export * from './ui_utils/incubator'
 
 import * as React from 'react'
 import * as utils from './utils'
+
+export type OnChangeSecondArgument<T> = (_: any, t: T) => void
+
+export interface Store<S> {
+  get(): S
+  update(s: Partial<S>): void
+  at<K extends keyof S, T>(
+    k: K,
+    f?: (t: T, s: S) => Partial<S>
+  ): {
+    value: S[K]
+    checked: S[K]
+    onChange: OnChangeSecondArgument<T>
+  }
+}
+
+export function useStore<S>(init: S | (() => S)) {
+  const [state, update_state] = useStateWithUpdate(init)
+  const store: Store<S> = {
+    get: () => state,
+    update: update_state,
+    at(k, f) {
+      return {
+        value: state[k],
+        checked: state[k],
+        onChange(_, t) {
+          if (f) {
+            update_state(state => f(t, state))
+          } else {
+            update_state(({[k]: t} as any) as Partial<S>)
+          }
+        },
+      }
+    },
+  }
+  return [store, state, update_state] as const
+}
 
 import {
   Checkbox,

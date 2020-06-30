@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom'
 import * as utils from './utils'
 
 import * as ui from './ui_utils'
+import {Store} from './ui_utils'
 
 import {makeStyles} from '@material-ui/core/styles'
 import {FormControlLabel, Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
@@ -190,7 +191,9 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
         ? stitch(forms.map(form => form.form))
         : forms.map((form, i) => [<h2 key={names[i]}>Group {names[i]}</h2>, form.form])}
       <Buttons onReset={reset} onSubmit={on_submit}>
-        <Grid item>{box_stitch}</Grid>
+        <Grid item style={{display: 'none'}}>
+          {box_stitch}
+        </Grid>
       </Buttons>
     </div>
   )
@@ -199,19 +202,18 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 interface SpecificsProps {
   options: SpecificOption[]
   visible: (option: SpecificOption) => boolean
-  state: Record<string, string[]>
-  onChange: (key: string, selected: string[]) => void
+  store: Store<Record<string, string[]>>
 }
 
 function Specifics(props: SpecificsProps) {
-  const state = props.state
+  const state = props.store.get()
   return (
     <>
       {props.options.map(option => {
         const {column, tumor, values} = option
         const key = column + ',' + tumor
         const visible = props.visible(option)
-        return memo([state[key], visible], () =>
+        return memo([state[key], visible, values], () =>
           visible ? (
             <Autocomplete
               key={key}
@@ -242,7 +244,7 @@ function Specifics(props: SpecificsProps) {
                 )
               }}
               size="small"
-              onChange={(_, selected) => props.onChange(key, selected)}
+              onChange={(_, selected) => props.store.update({[key]: selected})}
               value={state[key] || values}
             />
           ) : (
@@ -256,16 +258,15 @@ function Specifics(props: SpecificsProps) {
 
 interface VariantsProps {
   options: VariantOption[]
-  state: Record<string, string[]>
-  onChange: (column: string, selected: string[]) => void
+  store: Store<Record<string, string[]>>
 }
 
 function Variants(props: VariantsProps) {
-  const state = props.state
+  const state = props.store.get()
   return (
     <>
       {props.options.map(({column, values}) =>
-        memo([state[column]], () => (
+        memo([state[column], values], () => (
           <Grid container spacing={3} key={column}>
             <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
               <span>{column.replace(/(_|yesno)/g, ' ').trim()}:</span>
@@ -286,7 +287,7 @@ function Variants(props: VariantsProps) {
                     const new_value = selected.length
                       ? selected
                       : values.filter(x => !prev.includes(x))
-                    props.onChange(column, new_value)
+                    props.store.update({[column]: new_value})
                   }}
                   control={<Checkbox size="small" color="primary" />}
                 />
@@ -304,7 +305,7 @@ interface SelectManyProps {
   codeFor?: (option: string) => string
   value: string[]
   label: string
-  onChange: (value: string[]) => void
+  onChange: (ev: React.ChangeEvent<{}>, value: string[]) => void
 }
 
 function SelectMany(props: SelectManyProps) {
@@ -334,7 +335,7 @@ function SelectMany(props: SelectManyProps) {
       fullWidth={true}
       renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
       style={{minWidth: 500}}
-      onChange={(_, selected) => props.onChange(selected)}
+      onChange={(ev, selected) => props.onChange(ev, selected)}
       value={props.value}
     />
   )
@@ -345,13 +346,13 @@ interface SelectOneProps {
   codeFor?: (option: string) => string
   value: string
   label: string
-  onChange: (value: string | null) => void
+  defaultValue: string
+  onChange: (ev: React.ChangeEvent<{}>, value: string) => void
 }
 
 function SelectOne(props: SelectOneProps) {
   return (
     <Autocomplete
-      options={props.options}
       renderOption={(option, {selected}) => (
         <>
           <label>
@@ -373,30 +374,30 @@ function SelectOne(props: SelectOneProps) {
       fullWidth={true}
       renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
       style={{minWidth: 500}}
-      onChange={(_, selected) => props.onChange(selected)}
+      options={props.options}
+      onChange={(ev, maybe_value) => props.onChange(ev, maybe_value ?? props.defaultValue)}
       value={props.value}
     />
   )
 }
 
 function useForm(conf: Conf, key_prefix = '') {
-  const state0 = () => calculate_state0(conf, key_prefix)
-  const [state, update_state] = ui.useStateWithUpdate(state0)
+  const state0 = React.useMemo(() => calculate_state0(conf, key_prefix), [conf, key_prefix])
+
+  const [store, state, update_state] = ui.useStore(state0)
+
   const {tumors, cells} = state
 
   const tumor_type = memo([tumors, cells], () => (
     <SelectMany
       key={key_prefix + ':tumors'}
       options={conf.tumors}
-      value={tumors}
       codeFor={tumor => conf.tumor_codes[tumor]}
       label={'Tumor types' + (cells.length ? ' (cells selected, comparing across all tumors)' : '')}
-      onChange={selected =>
-        update_state({
-          tumors: utils.last(3, selected),
-          cells: [],
-        })
-      }
+      {...store.at('tumors', (selected: string[]) => ({
+        tumors: utils.last(3, selected),
+        cells: [],
+      }))}
     />
   ))
 
@@ -404,16 +405,13 @@ function useForm(conf: Conf, key_prefix = '') {
     <SelectMany
       key={key_prefix + ':cells'}
       options={conf.cells}
-      value={cells}
       label={
         'Cell types' + (tumors.length ? ' (tumors selected, comparing across all tumors)' : '')
       }
-      onChange={selected =>
-        update_state({
-          tumors: [],
-          cells: utils.last(3, selected),
-        })
-      }
+      {...store.at('cells', (selected: string[]) => ({
+        tumors: [],
+        cells: utils.last(3, selected),
+      }))}
     />
   ))
 
@@ -422,76 +420,65 @@ function useForm(conf: Conf, key_prefix = '') {
       key={key_prefix + 'specifics'}
       options={conf.tumor_specific_values}
       visible={t => !!cells.length || tumors.includes(t.tumor)}
-      state={state}
-      onChange={(key, selected) => update_state({[key]: selected})}
+      store={store}
     />
   )
 
   const variants = (
-    <Variants
-      key={key_prefix + 'variants'}
-      options={conf.variant_values}
-      state={state}
-      onChange={(key, selected) => update_state({[key]: selected})}
-    />
+    <Variants key={key_prefix + 'variants'} options={conf.variant_values} store={store} />
   )
 
   return {
     state,
-    reset: () => update_state(state0()),
+    reset: () => update_state(state0),
     form: [tumor_type, cell_type, specifics, variants],
   }
 }
 
 function useKMForm(conf: Conf) {
-  const key_prefix = ''
-  const state0 = () => calculate_KMstate0(conf)
-  const [state, update_state] = ui.useStateWithUpdate(state0)
+  const state0 = React.useMemo(() => calculate_KMstate0(conf), [conf])
+
+  const [store, state, update_state] = ui.useStore(state0)
+
   const {tumor, cell} = state
 
   const tumor_type = memo([tumor], () => (
     <SelectOne
-      key={key_prefix + ':tumors'}
+      key="tumors"
       options={conf.tumors}
-      value={tumor}
       codeFor={tumor => conf.tumor_codes[tumor]}
       label="Tumor type"
-      onChange={selected => update_state({tumor: selected || state0().tumor} as Partial<KMState>)}
+      defaultValue={state0.tumor}
+      {...store.at('tumor')}
     />
   ))
 
   const cell_type = memo([cell], () => (
     <SelectOne
-      key={key_prefix + ':cells'}
+      key="cells"
       options={conf.cells}
-      value={cell}
+      // options={conf.cells.map(utils.pretty)} // hmm??
+
       label="Cell type"
-      onChange={selected => update_state({cell: selected || state0().cell} as Partial<KMState>)}
+      defaultValue={state0.cell}
+      {...store.at('cell')}
     />
   ))
 
   const specifics = (
     <Specifics
-      key={key_prefix + ':specifics'}
+      key="specifics"
       options={conf.tumor_specific_values}
       visible={t => tumor == t.tumor}
-      state={state}
-      onChange={(key, selected) => update_state({[key]: selected})}
+      store={store}
     />
   )
 
-  const variants = (
-    <Variants
-      key={key_prefix + ':variants'}
-      options={conf.variant_values}
-      state={state}
-      onChange={(key, selected) => update_state({[key]: selected})}
-    />
-  )
+  const variants = <Variants key="variants" options={conf.variant_values} store={store} />
 
   return {
     state,
-    reset: () => update_state(state0()),
+    reset: () => update_state(state0),
     form: [tumor_type, cell_type, specifics, variants],
   }
 }
