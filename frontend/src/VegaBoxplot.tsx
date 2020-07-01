@@ -214,7 +214,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
           mark: {type: 'rule'},
           encoding: {
             [y]: {
-              axis: {title: 'expression'},
+              axis: {title: 'cell density (1/mm²)'},
               field: options.mode == 'min-max' ? 'min' : 'lower',
               type: 'quantitative',
               scale: scale,
