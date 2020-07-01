@@ -304,7 +304,7 @@ function Variants(props: VariantsProps) {
   )
 }
 
-interface SelectProps<Multi extends boolean, Selection = Multi extends true ? string [] : string> {
+interface SelectProps<Multi extends boolean, Selection = Multi extends true ? string[] : string> {
   options: string[]
   codeFor?: (option: string) => string
   value: Selection
@@ -461,7 +461,7 @@ function useKMForm(conf: Conf) {
     />
   ))
 
-  const location =
+  const location = (
     <Grid container spacing={3} key="location">
       <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
         <span>location</span>
@@ -473,14 +473,17 @@ function useKMForm(conf: Conf) {
             key={value}
             style={{minWidth: '5em'}}
             checked={state.location == value}
-            onChange={(_, checked) => checked && store.update({location: value} as Partial<KMState>)}
+            onChange={(_, checked) =>
+              checked && store.update({location: value} as Partial<KMState>)
+            }
             control={<Radio size="small" color="primary" />}
           />
         ))}
       </Grid>
     </Grid>
+  )
 
-  const num_groups =
+  const num_groups = (
     <Grid container spacing={3} key="num_groups">
       <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
         <span>groups</span>
@@ -492,13 +495,15 @@ function useKMForm(conf: Conf) {
             key={value}
             style={{minWidth: '5em'}}
             checked={state.num_groups == value}
-            onChange={(_, checked) => checked && store.update({num_groups: value} as Partial<KMState>)}
+            onChange={(_, checked) =>
+              checked && store.update({num_groups: value} as Partial<KMState>)
+            }
             control={<Radio size="small" color="primary" />}
           />
         ))}
       </Grid>
     </Grid>
-
+  )
 
   const specifics = (
     <Specifics

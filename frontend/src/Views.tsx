@@ -153,15 +153,13 @@ export function Views() {
       label: 'Form and Plot UI',
       path: '/FormAndPlotUI',
       component: (
-
-      <div>
-          <FormAndPlotUI/>
-          <FormAndPlotUI form={<h2>Form</h2>}/>
+        <div>
+          <FormAndPlotUI />
+          <FormAndPlotUI form={<h2>Form</h2>} />
           <FormAndPlotUI form={<h2>Form</h2>} loading={true} />
           <FormAndPlotUI form={<h2>Form</h2>} plot={<h2>Example plot view</h2>} />
           <FormAndPlotUI form={<h2>Form</h2>} plot={<h2>Example plot view</h2>} loading={true} />
         </div>
-
       ),
     },
   ])

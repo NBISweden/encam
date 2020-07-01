@@ -27,10 +27,14 @@ const useStyles = makeStyles({
     margin: 20,
     background: '#fffe',
     boxShadow: '0 0 8px 8px #fffe',
-  }
+  },
 })
 
-export function FormAndPlotUI(props: {form?: React.ReactNode, plot?: React.ReactNode, loading?: boolean}) {
+export function FormAndPlotUI(props: {
+  form?: React.ReactNode
+  plot?: React.ReactNode
+  loading?: boolean
+}) {
   const {form, plot, loading} = props
   const classes = useStyles()
   return (
@@ -41,7 +45,7 @@ export function FormAndPlotUI(props: {form?: React.ReactNode, plot?: React.React
       {(plot || loading) && (
         <ui.Paper key="plot" style={{width: 'fit-content', position: 'relative'}}>
           {loading && (
-            <div className={plot && classes.Reloading || ''}>
+            <div className={(plot && classes.Reloading) || ''}>
               <CircularProgress />
             </div>
           )}
@@ -49,14 +53,15 @@ export function FormAndPlotUI(props: {form?: React.ReactNode, plot?: React.React
         </ui.Paper>
       )}
     </div>
-  )}
+  )
+}
 
 export function FormAndKMPlot() {
   const conf = backend.useRequest('configuration')
 
   const [plot_data, set_plot_data] = React.useState(undefined as any)
   const [loading, set_loading] = React.useState(false)
-  const plot = plot_data && ( <VegaKMPlot points={plot_data} /> )
+  const plot = plot_data && <VegaKMPlot points={plot_data} />
   const request = backend.useRequestFn()
   const onSubmit = React.useCallback(filter => {
     set_loading(true)
@@ -70,11 +75,13 @@ export function FormAndKMPlot() {
     })
   }, [])
   ui.useWhyChanged('FormAndKMBoxPlot', {conf, plot_data, loading, plot})
-  return <FormAndPlotUI
-    form={conf && <form.KMForm conf={conf} onSubmit={onSubmit} />}
-    plot={plot}
-    loading={loading}
-  />
+  return (
+    <FormAndPlotUI
+      form={conf && <form.KMForm conf={conf} onSubmit={onSubmit} />}
+      plot={plot}
+      loading={loading}
+    />
+  )
 }
 
 export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
@@ -84,9 +91,7 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
   const [loading, set_loading] = React.useState(false)
-  const plot = filter && plot_data && (
-    <BoxplotWithControls data={plot_data} facet={filter.facet} />
-  )
+  const plot = filter && plot_data && <BoxplotWithControls data={plot_data} facet={filter.facet} />
   const request = backend.useRequestFn()
   const onSubmit = React.useCallback((...filters) => {
     set_loading(true)
@@ -108,9 +113,11 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
     })
   }, [])
   ui.useWhyChanged('FormAndBoxPlot', {conf, filter, plot_data, loading, plot})
-  return <FormAndPlotUI
-    form={conf && <Form key="form" conf={conf} onSubmit={onSubmit} />}
-    plot={plot}
-    loading={loading}
-  />
+  return (
+    <FormAndPlotUI
+      form={conf && <Form key="form" conf={conf} onSubmit={onSubmit} />}
+      plot={plot}
+      loading={loading}
+    />
+  )
 }
