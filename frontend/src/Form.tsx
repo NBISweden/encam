@@ -6,6 +6,8 @@ import * as utils from './utils'
 import * as ui from './ui_utils'
 import {Store} from './ui_utils'
 
+import {cellOrder} from './db'
+
 import {makeStyles} from '@material-ui/core/styles'
 import {FormControlLabel, Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
 import {Autocomplete} from '@material-ui/lab'
@@ -400,7 +402,7 @@ function useForm(conf: Conf, key_prefix = '') {
   const cell_type = memo([tumors, cells], () => (
     <SelectMany
       key={key_prefix + ':cells'}
-      options={conf.cells}
+      options={cellOrder.filter(cell => conf.cells.includes(cell))}
       label={
         'Cell types' + (tumors.length ? ' (tumors selected, comparing across all tumors)' : '')
       }
@@ -452,8 +454,9 @@ function useKMForm(conf: Conf) {
   const cell_type = memo([cell], () => (
     <SelectOne
       key="cells"
-      options={conf.cells}
-      // options={conf.cells.map(utils.pretty)} // hmm??
+
+      options={cellOrder.filter(cell => conf.cells.includes(cell))}
+      // map(utils.pretty) // hmm??
 
       label="Cell type"
       defaultValue={state0.cell}

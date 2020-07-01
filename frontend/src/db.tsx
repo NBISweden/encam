@@ -16,3 +16,21 @@ export interface Row {
 export type DB = Row[]
 
 export type DBRange = utils.RowRange<Row>
+
+// Artur's preferred cell order
+export const cellOrder = [
+  'CD4',
+  'CD4_Treg',
+  'CD8',
+  'CD8_Treg',
+  'B_cells',
+  'NK',
+  'NKT',
+  'M1',
+  'M2',
+  'Myeloid cell',
+  'iDC',
+  'mDC',
+  'pDC',
+  'Granulocyte',
+]
