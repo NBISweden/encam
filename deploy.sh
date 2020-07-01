@@ -4,7 +4,7 @@ test -n "$VERSION" || {
     exit 1
 }
 TAG="docker.pkg.github.com/nbisweden/encam/test:$VERSION"
-docker-compose build --compress --parallel --build-arg "VERSION=$VERSION"
+docker-compose build --compress --build-arg "VERSION=$VERSION"
 docker tag encam_main "$TAG"
 docker push "$TAG"
 ssh ubuntu@130.238.28.162 '
