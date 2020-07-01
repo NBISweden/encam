@@ -84,34 +84,70 @@ interface SplashProps {
 
 const useStyles = makeStyles({
   Splash: {
+    userSelect: 'none',
     '& label': {
       cursor: 'pointer',
-      paddingTop: 2,
-      paddingBottom: 2,
     },
     '& h2': {
       margin: '10 auto',
       fontSize: '1.1em',
     },
   },
-  Right: {
-    ...ui.flex_column,
-    width: 200,
-    '& > div': {
-      margin: '10px auto',
-    },
-  },
   Left: {
     ...ui.flex_column,
-    width: 200,
-    padding: '0 1em',
+    width: 165,
+  },
+  LeftLabel: {
+    ...ui.flex_row,
+
+    border: '2px var(--cell-color) solid',
+    borderRadius: 4,
+    background: 'white',
+    color: 'black',
+    '&.Checked': {
+      background: 'var(--cell-color)',
+      color: 'white',
+    },
+
+    '& > *': {
+      ...ui.flex_row,
+      '& > *': {
+        margin: 'auto',
+      },
+    },
+
+    margin: '2 0',
+    padding: '3 0',
+    // sizes are adapted to iDC being 45 px (100%)
+    height: 55,
+    '& > .has-img': {
+      width: 66,
+      height: '100%',
+      '& > img': {
+        maxHeight: '100%',
+      },
+    },
+    '& > .has-span': {
+      flex: 1,
+      '& > span': {
+        fontSize: '0.9em',
+      },
+    },
   },
   Center: {
     width: 750,
-    borderRight: '8px #eee solid',
-    borderLeft: '8px #eee solid',
+    borderWidth: '0 2',
+    border: '#eee solid',
+    margin: '0 8',
     minHeight: 680,
     position: 'relative',
+  },
+  Right: {
+    ...ui.flex_column,
+    width: 165,
+    '& > div': {
+      marginLeft: 10,
+    },
   },
 })
 
@@ -252,6 +288,8 @@ function Center({state, dispatch, codes, db}: SplashProps) {
   )
 }
 
+const clsx = (...xs: any[]) => xs.filter(x => typeof x === 'string').join(' ')
+
 function Left({state, dispatch, range}: SplashProps) {
   const classes = useStyles()
   return (
@@ -272,35 +310,17 @@ function Left({state, dispatch, range}: SplashProps) {
           const img = cell_png && <img src={cell_png} {...img_props} />
           const color = cell_color(x.text)
           return (
-            <label key={i} id={cell} htmlFor={cell} onClick={x.onClick}>
-              {div(
-                {
-                  style: {
-                    border: `1.5px ${color} solid`,
-                    background: x.checked ? color : 'white',
-                    color: x.checked ? 'white' : 'black',
-                  },
-                },
-                css`
-                display: flex;
-                flex-direction: row;
-                border-radius: 15px;
-                font-size: 0.8em;
-              `,
-                css`& > * {
-                margin: auto 0;
-                padding: 2px;
-                flex: 1;
-              }`,
-                div(css`display: flex;`, css`& > * { margin: auto; flex-grow: 0; }`, img),
-                div(
-                  css`
-                  display: inline;
-                  text-align: center;
-                `,
-                  utils.pretty(cell)
-                )
-              )}
+            <label
+              key={i}
+              id={cell}
+              htmlFor={cell}
+              onClick={x.onClick}
+              style={{'--cell-color': color} as any}
+              className={clsx(classes.LeftLabel, x.checked && 'Checked')}>
+              <div className="has-img">{img}</div>
+              <div className="has-span">
+                <span>{utils.pretty(cell)}</span>
+              </div>
             </label>
           )
         })}
