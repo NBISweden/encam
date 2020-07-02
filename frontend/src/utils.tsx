@@ -62,10 +62,14 @@ export function pretty(s: string | number): string {
   }
   const s2 = s.replace('_', ' ')
   if (s2.toLowerCase() == s2) {
-    return s2[0].toUpperCase() + s2.slice(1)
+    return Aa(s2)
   } else {
     return s2
   }
+}
+
+export function Aa(s: string): string {
+  return s[0].toUpperCase() + s.slice(1).toLowerCase()
 }
 
 export function expand(
