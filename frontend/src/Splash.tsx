@@ -21,7 +21,8 @@ import * as ui from './ui_utils'
 
 declare const require: (s: string) => string
 
-const IN_JEST = typeof process !== 'undefined' && process.env.JEST_WORKER_ID ? 'dummy.png' : undefined
+const IN_JEST =
+  typeof process !== 'undefined' && process.env.JEST_WORKER_ID ? 'dummy.png' : undefined
 
 const cell_pngs: Record<string, string> = {
   B_cells: IN_JEST || require('../img/B_cells.png'),

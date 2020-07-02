@@ -454,7 +454,6 @@ function useKMForm(conf: Conf) {
   const cell_type = memo([cell], () => (
     <SelectOne
       key="cells"
-
       options={cellOrder.filter(cell => conf.cells.includes(cell))}
       // map(utils.pretty) // hmm??
 
@@ -463,50 +462,6 @@ function useKMForm(conf: Conf) {
       {...store.at('cell')}
     />
   ))
-
-  const location = (
-    <Grid container spacing={3} key="location">
-      <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
-        <span>location</span>
-      </Grid>
-      <Grid item xs={9}>
-        {['TUMOR', 'STROMA'].map(value => (
-          <FormControlLabel
-            label={value[0] + value.slice(1).toLowerCase()}
-            key={value}
-            style={{minWidth: '5em'}}
-            checked={state.location == value}
-            onChange={(_, checked) =>
-              checked && store.update({location: value} as Partial<KMState>)
-            }
-            control={<Radio size="small" color="primary" />}
-          />
-        ))}
-      </Grid>
-    </Grid>
-  )
-
-  const num_groups = (
-    <Grid container spacing={3} key="num_groups">
-      <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
-        <span>groups</span>
-      </Grid>
-      <Grid item xs={9}>
-        {[2, 3, 4].map(value => (
-          <FormControlLabel
-            label={value}
-            key={value}
-            style={{minWidth: '5em'}}
-            checked={state.num_groups == value}
-            onChange={(_, checked) =>
-              checked && store.update({num_groups: value} as Partial<KMState>)
-            }
-            control={<Radio size="small" color="primary" />}
-          />
-        ))}
-      </Grid>
-    </Grid>
-  )
 
   const specifics = (
     <Specifics
@@ -522,7 +477,7 @@ function useKMForm(conf: Conf) {
   return {
     state,
     reset: () => update_state(state0),
-    form: [tumor_type, cell_type, specifics, location, variants, num_groups],
+    form: [tumor_type, cell_type, specifics, variants],
   }
 }
 
@@ -536,13 +491,12 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
     return {
       ...expanded,
       tumors: [expanded.tumor],
-      cell_full: expanded.cell + '_' + expanded.location,
     }
   }
 
   onState && onState(get_form_values())
 
-  ui.useWhyChanged('KMForm', {conf, state})
+  ui.useWhyChanged('KMForm', {conf, state, onSubmit})
 
   const classes = useStyles()
   return (
