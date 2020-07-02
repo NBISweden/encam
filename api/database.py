@@ -234,7 +234,6 @@ def filter(filter_id):
     response = response.drop(columns='cell_full')
     return response
 
-
 def binning(data_filtered, cell, groups):
     acculated_groups = list(accumulate(groups))
     groups_values = [0]
@@ -285,6 +284,14 @@ def filter_survival(filter_id):
 def calculate_size(filter_id):
     data_filtered = filtering(filter_id)
     return { 'size': data_filtered.shape[0]}
+
+# Returns the expression levels for the specified cell type
+# There should only be one cell type, therefore using [0]
+def expression(filter_id):
+    response = filtering(filter_id)
+    response = response.sort_values(by=filter_id['cells'][0])
+    return response[filter_id['cells'][0]]
+
 
 def filter_to_tukey(body):
     df_long = filter(body)
