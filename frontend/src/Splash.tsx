@@ -139,17 +139,19 @@ const useStyles = makeStyles({
   },
   Center: {
     width: 750,
-    borderWidth: '0 2',
-    border: '#eee solid',
-    margin: '0 8',
+    marginTop: 40,
     minHeight: 680,
     position: 'relative',
   },
   Right: {
     ...ui.flex_column,
-    width: 165,
+    borderLeft: '1px #ddd solid',
+    paddingTop: 10,
+    paddingLeft: 15,
+    paddingRight: 15,
+    width: 175,
     '& > div': {
-      marginLeft: 10,
+      marginBottom: 15,
     },
   },
 })
