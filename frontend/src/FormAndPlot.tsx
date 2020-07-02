@@ -14,7 +14,7 @@ import {CircularProgress} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 
 const useStyles = makeStyles({
-  FormAndBoxPlot: {
+  FormAndPlot: {
     ...ui.flex_row,
     alignItems: 'flex-start',
     '& > :not(:first-child)': {
@@ -69,7 +69,7 @@ export function FormAndPlotUI({
 }) {
   const classes = useStyles()
   return (
-    <div className={classes.FormAndBoxPlot}>
+    <div className={classes.FormAndPlot}>
       <ui.Paper key="form" style={form ? {width: '15cm', flexShrink: 0} : {}}>
         {form || <CircularProgress />}
       </ui.Paper>
@@ -77,8 +77,6 @@ export function FormAndPlotUI({
     </div>
   )
 }
-
-const locations = ['TUMOR', 'STROMA'] as const
 
 export function FormAndKMPlot() {
   const conf = backend.useRequest('configuration')
@@ -96,7 +94,7 @@ export function FormAndKMPlot() {
 
 export function KMPlotWithControls({filter = undefined as any}) {
   const B = ui.container()
-  const location = B.addRadio('Location', locations.map(utils.Aa))
+  const location = B.addRadio('Location', ['Tumor', 'Stroma'])
   const num_groups = B.addRadio('Groups', ['2', '3', '4'])
 
   const [plot_data, set_plot_data] = React.useState(undefined as any)
