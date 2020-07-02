@@ -257,3 +257,9 @@ export const flex_row: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'row',
 }
+
+export function useAsync(p: () => Promise<any>, deps?: React.DependencyList) {
+  return React.useEffect(() => {
+    p()
+  }, deps)
+}

@@ -92,7 +92,7 @@ export function FormAndKMPlot() {
   )
 }
 
-export function KMPlotWithControls({filter = undefined as any}) {
+export function KMPlotWithControls({filter = undefined as undefined | Record<string, any>}) {
   const B = ui.container()
   const location = B.addRadio('Location', ['Tumor', 'Stroma'])
   const num_groups = B.addRadio('Groups', ['2', '3', '4'])
@@ -101,24 +101,25 @@ export function KMPlotWithControls({filter = undefined as any}) {
   const [loading, set_loading] = React.useState(false)
 
   const request = backend.useRequestFn()
-  React.useEffect(() => {
-    if (filter) {
-      set_loading(true)
-      const filter_full = {
-        ...filter,
-        group_sizes: null,
-        cell_full: filter.cell + '_' + location.toUpperCase(),
-        num_groups: Number(num_groups),
-      }
-      console.time('request')
-      request('survival', filter_full).then((res: {points: any}) => {
-        console.timeEnd('request')
-        ReactDOM.unstable_batchedUpdates(() => {
-          set_loading(false)
-          set_plot_data(res.points)
-        })
-      })
+
+  ui.useAsync(async () => {
+    if (!filter) {
+      return
     }
+    set_loading(true)
+    const filter_full = {
+      ...filter,
+      group_sizes: null,
+      cell_full: filter.cell + '_' + location.toUpperCase(),
+      num_groups: Number(num_groups),
+    }
+    console.time('request')
+    const res = await request('survival', filter_full)
+    console.timeEnd('request')
+    ReactDOM.unstable_batchedUpdates(() => {
+      set_loading(false)
+      set_plot_data(res.points)
+    })
   }, [filter, location, num_groups])
 
   const classes = useStyles()
@@ -142,23 +143,22 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   const [loading, set_loading] = React.useState(false)
   const plot = filter && plot_data && <BoxplotWithControls data={plot_data} facet={filter.facet} />
   const request = backend.useRequestFn()
-  const onSubmit = React.useCallback((...filters) => {
+  const onSubmit = React.useCallback(async (...filters) => {
     set_loading(true)
     // console.time('request')
-    request('tukey', filters).then((res: any[][]) => {
-      // console.timeEnd('request')
-      const names = ['A', 'B']
-      const res_with_named_groups = res.flatMap((r, i) =>
-        r.map(row => ({
-          ...row,
-          group: names[i],
-        }))
-      )
-      ReactDOM.unstable_batchedUpdates(() => {
-        set_loading(false)
-        set_filter(filters[0])
-        set_plot_data(res_with_named_groups)
-      })
+    const res: any[][] = await request('tukey', filters)
+    // console.timeEnd('request')
+    const names = ['A', 'B']
+    const res_with_named_groups = res.flatMap((r, i) =>
+      r.map(row => ({
+        ...row,
+        group: names[i],
+      }))
+    )
+    ReactDOM.unstable_batchedUpdates(() => {
+      set_loading(false)
+      set_filter(filters[0])
+      set_plot_data(res_with_named_groups)
     })
   }, [])
   ui.useWhyChanged(FormAndBoxPlot, {conf, filter, plot_data, loading, plot})
