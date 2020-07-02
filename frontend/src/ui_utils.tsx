@@ -161,7 +161,6 @@ export function useWhyChanged(name: string, props: Record<string, any>) {
       if (r.current !== undefined) {
         const changed: string[] = []
         for (let k in props) {
-          console.log(k, r.current[k], props[k])
           if (!Object.is(r.current[k], props[k])) {
             changed.push(k)
           }

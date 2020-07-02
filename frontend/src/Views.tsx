@@ -22,7 +22,7 @@ import {kmplot_test_data} from '../test/data/kmplot'
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
-import {FormAndBoxPlot, FormAndKMPlot, FormAndPlotUI} from './FormAndPlot'
+import {FormAndBoxPlot, FormAndKMPlot, FormAndPlotUI, LoadingPlot} from './FormAndPlot'
 import * as ui from './ui_utils'
 
 import {VegaBoxplot} from './VegaBoxplot'
@@ -156,9 +156,15 @@ export function Views() {
         <div>
           <FormAndPlotUI />
           <FormAndPlotUI form={<h2>Form</h2>} />
-          <FormAndPlotUI form={<h2>Form</h2>} loading={true} />
-          <FormAndPlotUI form={<h2>Form</h2>} plot={<h2>Example plot view</h2>} />
-          <FormAndPlotUI form={<h2>Form</h2>} plot={<h2>Example plot view</h2>} loading={true} />
+          <FormAndPlotUI form={<h2>Form</h2>} plot={<LoadingPlot loading={true} />} />
+          <FormAndPlotUI
+            form={<h2>Form</h2>}
+            plot={<LoadingPlot plot={<h2>Example plot view</h2>} />}
+          />
+          <FormAndPlotUI
+            form={<h2>Form</h2>}
+            plot={<LoadingPlot plot={<h2>Example plot view</h2>} loading={true} />}
+          />
         </div>
       ),
     },

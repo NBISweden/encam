@@ -22,12 +22,14 @@ const useStyles = makeStyles({
     },
   },
   Reloading: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    margin: 20,
-    background: '#fffe',
-    boxShadow: '0 0 8px 8px #fffe',
+    position: 'relative',
+    '& > *': {
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      background: '#fffe',
+      boxShadow: '0 0 8px 8px #fffe',
+    },
   },
   KMPlotWithControls: {
     ...ui.flex_column,
@@ -39,28 +41,39 @@ const useStyles = makeStyles({
   },
 })
 
-export function FormAndPlotUI(props: {
-  form?: React.ReactNode
-  plot?: React.ReactNode
-  loading?: boolean
+export function Loading({reloading = false}) {
+  const classes = useStyles()
+  return (
+    <div className={reloading ? classes.Reloading : undefined}>
+      <div>
+        <CircularProgress />
+      </div>
+    </div>
+  )
+}
+
+export function LoadingPlot({plot = undefined as React.ReactNode, loading = false}) {
+  return (
+    (plot || loading) && (
+      <ui.Paper key="plot" style={{width: 'fit-content'}}>
+        {loading && <Loading reloading={!!plot} />}
+        {plot}
+      </ui.Paper>
+    )
+  )
+}
+
+export function FormAndPlotUI({
+  form = undefined as React.ReactNode,
+  plot = undefined as React.ReactNode,
 }) {
-  const {form, plot, loading} = props
   const classes = useStyles()
   return (
     <div className={classes.FormAndBoxPlot}>
       <ui.Paper key="form" style={form ? {width: '15cm', flexShrink: 0} : {}}>
         {form || <CircularProgress />}
       </ui.Paper>
-      {(plot || loading) && (
-        <ui.Paper key="plot" style={{width: 'fit-content', position: 'relative'}}>
-          {loading && (
-            <div className={(plot && classes.Reloading) || ''}>
-              <CircularProgress />
-            </div>
-          )}
-          {plot}
-        </ui.Paper>
-      )}
+      {plot}
     </div>
   )
 }
@@ -70,27 +83,29 @@ const locations = ['TUMOR', 'STROMA'] as const
 export function FormAndKMPlot() {
   const conf = backend.useRequest('configuration')
 
-  const [plot_data, set_plot_data] = React.useState(undefined as any)
-  const [loading, set_loading] = React.useState(false)
   const [filter, set_filter] = React.useState(undefined as any)
 
+  ui.useWhyChanged('FormAndKMPlot', {conf, filter})
+  return (
+    <FormAndPlotUI
+      form={conf && <form.KMForm conf={conf} onSubmit={set_filter} />}
+      plot={<KMPlotWithControls filter={filter} />}
+    />
+  )
+}
+
+export function KMPlotWithControls({filter = undefined as any}) {
   const B = ui.container()
   const location = B.addRadio('Location', locations.map(utils.Aa))
   const num_groups = B.addRadio('Groups', ['2', '3', '4'])
 
-  const classes = useStyles()
-  const plot = plot_data && (
-    <div className={classes.KMPlotWithControls}>
-      <VegaKMPlot points={plot_data} />
-      {B.collect()}
-    </div>
-  )
+  const [plot_data, set_plot_data] = React.useState(undefined as any)
+  const [loading, set_loading] = React.useState(false)
 
   const request = backend.useRequestFn()
-  const onSubmit = React.useCallback(
-    filter => {
+  React.useEffect(() => {
+    if (filter) {
       set_loading(true)
-      set_filter(filter)
       const filter_full = {
         ...filter,
         group_sizes: null,
@@ -105,22 +120,19 @@ export function FormAndKMPlot() {
           set_plot_data(res.points)
         })
       })
-    },
-    [location, num_groups]
+    }
+  }, [filter, location, num_groups])
+
+  const classes = useStyles()
+  const plot = plot_data && (
+    <div className={classes.KMPlotWithControls}>
+      <VegaKMPlot points={plot_data} />
+      {B.collect()}
+    </div>
   )
 
-  React.useEffect(() => {
-    filter && onSubmit(filter)
-  }, [location, num_groups])
-
-  ui.useWhyChanged('FormAndKMBoxPlot', {conf, plot_data, loading, plot})
-  return (
-    <FormAndPlotUI
-      form={conf && <form.KMForm conf={conf} onSubmit={onSubmit} />}
-      plot={plot}
-      loading={loading}
-    />
-  )
+  ui.useWhyChanged('KMPlotWithControls', {filter, plot_data, loading, location, num_groups})
+  return <LoadingPlot loading={loading} plot={plot} />
 }
 
 export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
@@ -155,8 +167,7 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   return (
     <FormAndPlotUI
       form={conf && <Form key="form" conf={conf} onSubmit={onSubmit} />}
-      plot={plot}
-      loading={loading}
+      plot={<LoadingPlot plot={plot} loading={loading} />}
     />
   )
 }
