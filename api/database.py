@@ -238,7 +238,8 @@ def binning(data_filtered, cell, groups):
     acculated_groups = list(accumulate(groups))
     groups_values = [0]
     for num in acculated_groups:
-        groups_values.append(data_filtered[cell].iloc[num - 1])
+        # In order to create the liits of the groups, a small number is added to the expression level
+        groups_values.append(data_filtered[cell].iloc[num - 1] + 0.00000001)
     return pd.cut(data_filtered[cell], bins=groups_values, include_lowest=True, labels=False) + 1
     
 
@@ -247,8 +248,11 @@ def filter_survival(filter_id):
     data_filtered = filtering(filter_id)
 
     # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
-    data_filtered['rank'] = binning(data_filtered.sort_values(by=filter_id['cell_full']), filter_id['cell_full'], filter_id['group_sizes'])
-    #data_filtered['rank'] = ntiles(data_filtered[filter_id['cell_full']], filter_id['num_groups'])
+    # If the group_sizes are provided, use the binning function, otherwise the general ntiles
+    if filter_id['group_sizes'] != None:
+        data_filtered['rank'] = binning(data_filtered.sort_values(by=filter_id['cell_full']), filter_id['cell_full'], filter_id['group_sizes'])
+    else:
+        data_filtered['rank'] = ntiles(data_filtered[filter_id['cell_full']], filter_id['num_groups'])
     points = []
     for g in range(filter_id['num_groups']):
         kmf = KaplanMeierFitter()
