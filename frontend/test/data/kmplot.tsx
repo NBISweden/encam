@@ -305,3 +305,98 @@ export const kmplot_test_data: Data = {
     p: 0.11764257950548528,
   },
 }
+
+export const kmplot_test_filter = {
+  clinical_stage: [
+    "0",
+    "I",
+    "II",
+    "III",
+    "IV"
+  ],
+  pT_stage: [
+    "T0",
+    "T1",
+    "T2",
+    "T3",
+    "T4"
+  ],
+  pN_stage: [
+    "N0",
+    "N1",
+    "N2"
+  ],
+  pM_stage: [
+    "M0",
+    "M1"
+  ],
+  Diff_grade: [
+    "high",
+    "low",
+    "missing"
+  ],
+  Neuralinv: [
+    "No",
+    "Yes",
+    "missing"
+  ],
+  Vascinv: [
+    "No",
+    "Yes",
+    "missing"
+  ],
+  PreOp_treatment_yesno: [
+    "No",
+    "Yes"
+  ],
+  PostOp_type_treatment: [
+    "Chemotherapy only",
+    "no"
+  ],
+  Anatomical_location: {
+    COAD: [
+      "Appendix",
+      "Ascendens",
+      "Caecum",
+      "Descendens",
+      "Flexura hepatica",
+      "Flexura lienalis",
+      "Rectum",
+      "Sigmoideum",
+      "Transversum"
+    ],
+    READ: [
+      "Appendix",
+      "Rectum"
+    ]
+  },
+  Morphological_type: {
+    COAD: [
+      "mucinon-mucinousus",
+      "non-mucinous",
+      "missing"
+    ],
+    READ: [
+      "mucinon-mucinousus",
+      "non-mucinous",
+      "missing"
+    ]
+  },
+  MSI_ARTUR: {
+    COAD: [
+      "MSI",
+      "MSS"
+    ],
+    READ: [
+      "MSI",
+      "MSS"
+    ]
+  },
+  cell: "B_cells",
+  tumor: "COAD",
+  location: "TUMOR",
+  num_groups: 2,
+  tumors: [
+    "COAD"
+  ]
+}

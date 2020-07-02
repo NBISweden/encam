@@ -18,11 +18,11 @@ export const GlobalStyle = sc.createGlobalStyle`
 `
 
 import {boxplot_test_data} from '../test/data/boxplot'
-import {kmplot_test_data} from '../test/data/kmplot'
+import {kmplot_test_data, kmplot_test_filter} from '../test/data/kmplot'
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
-import {FormAndBoxPlot, FormAndKMPlot, FormAndPlotUI, LoadingPlot} from './FormAndPlot'
+import {FormAndBoxPlot, FormAndKMPlot, FormAndPlotUI, LoadingPlot, KMPlotWithControls} from './FormAndPlot'
 import * as ui from './ui_utils'
 
 import {VegaBoxplot} from './VegaBoxplot'
@@ -45,28 +45,19 @@ export function Views() {
       component: <Splash />,
     },
     {
-      label: 'Box Plot',
-      path: '/BoxPlot',
+      label: 'Form & BoxPlot',
+      path: '/FormAndBoxPlot',
       component: <FormAndBoxPlot key="Form" />,
     },
     {
-      label: 'Group Box Plot',
-      path: '/GroupBoxPlot',
+      label: 'Group Form & BoxPlot',
+      path: '/GroupFormAndBoxPlot',
       component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms} />,
     },
     {
-      label: 'KMPlot',
-      path: '/KMPlot',
+      label: 'KM Form & Plot',
+      path: '/FormAndKMPlot',
       component: <FormAndKMPlot />,
-    },
-    {
-      label: 'KMForm',
-      path: '/KMForm',
-      component: (
-        <ui.InlinePaper>
-          <form.KMForm conf={form_test_conf} />
-        </ui.InlinePaper>
-      ),
     },
     {
       label: 'Form',
@@ -87,6 +78,15 @@ export function Views() {
       ),
     },
     {
+      label: 'KMForm',
+      path: '/KMForm',
+      component: (
+        <ui.InlinePaper>
+          <form.KMForm conf={form_test_conf} />
+        </ui.InlinePaper>
+      ),
+    },
+    {
       label: 'Boxplot with Controls',
       path: '/BoxplotWithControls',
       component: (
@@ -96,8 +96,13 @@ export function Views() {
       ),
     },
     {
-      label: 'Mock Boxplot',
-      path: '/MockBoxplot',
+      label: 'KMPlot With Controls',
+      path: '/KMPlotWithControls',
+      component: <KMPlotWithControls filter={kmplot_test_filter} />,
+    },
+    {
+      label: 'Boxplot',
+      path: '/Boxplot',
       component: (
         <ui.InlinePaper>
           <VegaBoxplot
@@ -112,8 +117,8 @@ export function Views() {
       ),
     },
     {
-      label: 'Mock KMPlot',
-      path: '/MockKMPlot',
+      label: 'KMPlot',
+      path: '/KMPlot',
       component: (
         <ui.InlinePaper>
           <VegaKMPlot points={kmplot_test_data.points} />
@@ -121,7 +126,7 @@ export function Views() {
       ),
     },
     {
-      label: 'Domplots demo',
+      label: 'Domplots',
       path: '/Domplots',
       component: (
         <ui.InlinePaper>
@@ -130,7 +135,7 @@ export function Views() {
       ),
     },
     {
-      label: 'Domplots mock',
+      label: 'Domplots Mock',
       path: '/DomplotsMock',
       component: (
         <ui.InlinePaper>
@@ -141,7 +146,7 @@ export function Views() {
       ),
     },
     {
-      label: 'Splash mock',
+      label: 'Splash Mock',
       path: '/SplashMock',
       component: (
         <MockBackend request={splash_test_data.request}>
@@ -184,18 +189,18 @@ export function Views() {
     <>
       <CssBaseline />
       <GlobalStyle />
-      <AppBar position="static" color="default">
-        <Tabs />
-      </AppBar>
-      <Switch>{TabbedRoutes}</Switch>
-      {div(
-        css`
-        position: fixed;
-        bottom: 15px;
-        right: 30px;
-      `,
-        `version: ${version}`
-      )}
+      <div style={{...ui.flex_row, minHeight: '100%'}}>
+        <div style={{...ui.flex_column, flexShrink: 0, borderRight: '1px #ddd solid'}} >
+          <Tabs variant="scrollable" orientation="vertical" />
+          <div style={{flexGrow: 1, borderBottom: '1px #ddd solid'}}/>
+          <div style={{margin:15, alignSelf:"center"}}>
+            version: {version}
+          </div>
+        </div>
+        <div>
+          <Switch>{TabbedRoutes}</Switch>
+        </div>
+      </div>
     </>
   )
 }
