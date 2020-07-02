@@ -141,3 +141,28 @@ def survival():
         return jsonify(response)
     else:
         return jsonify({"error": "Body must be JSON"})
+
+@app.route('/size', methods=['OPTIONS', 'POST'])
+def size():
+    if request.method == 'OPTIONS':
+        # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
+        # https://github.com/github/fetch/issues/143
+        return jsonify({})
+    elif request.is_json:
+        body = request.json
+        response = database_lib.calculate_size(body)
+        return jsonify(response)
+    else:
+        return jsonify({"error": "Body must be JSON"})
+
+
+@app.route('/expression', methods=['OPTIONS', 'POST'])
+def expression():
+    if request.method == 'OPTIONS':
+        # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
+        # https://github.com/github/fetch/issues/143
+        return jsonify({})
+    elif request.is_json:
+        body = request.json
+        response = database_lib.expression(body).to_list()
+        return jsonify(response)

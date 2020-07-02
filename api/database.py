@@ -2,6 +2,7 @@ from lifelines import CoxPHFitter, KaplanMeierFitter
 from lifelines.statistics import multivariate_logrank_test
 import pandas as pd
 import json
+from itertools import accumulate
 
 def uniq(xs):
     seen = set()
@@ -233,13 +234,25 @@ def filter(filter_id):
     response = response.drop(columns='cell_full')
     return response
 
+def binning(data_filtered, cell, groups):
+    acculated_groups = list(accumulate(groups))
+    groups_values = [0]
+    for num in acculated_groups:
+        # In order to create the liits of the groups, a small number is added to the expression level
+        groups_values.append(data_filtered[cell].iloc[num - 1] + 0.00000001)
+    return pd.cut(data_filtered[cell], bins=groups_values, include_lowest=True, labels=False) + 1
+    
 
 def filter_survival(filter_id):
 
     data_filtered = filtering(filter_id)
 
     # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
-    data_filtered['rank'] = ntiles(data_filtered[filter_id['cell_full']], filter_id['num_groups'])
+    # If the group_sizes are provided, use the binning function, otherwise the general ntiles
+    if filter_id['group_sizes'] != None:
+        data_filtered['rank'] = binning(data_filtered.sort_values(by=filter_id['cell_full']), filter_id['cell_full'], filter_id['group_sizes'])
+    else:
+        data_filtered['rank'] = ntiles(data_filtered[filter_id['cell_full']], filter_id['num_groups'])
     points = []
     for g in range(filter_id['num_groups']):
         kmf = KaplanMeierFitter()
@@ -271,6 +284,17 @@ def filter_survival(filter_id):
     }
     responses = {'points': points, 'log_rank': log, 'cox_regression': cox}
     return responses
+
+def calculate_size(filter_id):
+    data_filtered = filtering(filter_id)
+    return { 'size': data_filtered.shape[0]}
+
+# Returns the expression levels for the specified cell type
+# There should only be one cell type, therefore using [0]
+def expression(filter_id):
+    response = filtering(filter_id)
+    response = response.sort_values(by=filter_id['cells'][0])
+    return response[filter_id['cells'][0]]
 
 
 def filter_to_tukey(body):
