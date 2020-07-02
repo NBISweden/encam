@@ -71,7 +71,7 @@ export const VegaBoxplot = React.memo(function VegaBoxplot<
   K extends string,
   Row extends Record<K, any> & Precalc
 >({data, options}: {data: Row[]; options?: Partial<Options<K>>}) {
-  ui.useWhyChanged('VegaBoxplot', {data, options})
+  ui.useWhyChanged(VegaBoxplot, {data, options})
   return precalc_boxplot(data, options)
 })
 

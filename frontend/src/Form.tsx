@@ -152,7 +152,7 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 
   onState && onState(...get_form_values())
 
-  ui.useWhyChanged('Form', {conf, state})
+  ui.useWhyChanged(Form, {conf, state})
 
   const classes = useStyles()
   return (
@@ -183,7 +183,7 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 
   const [do_stitch, box_stitch] = ui.useCheckbox('stitch', false)
 
-  ui.useWhyChanged('Form', {conf, A_state: A.state, B_state: B.state, do_stitch})
+  ui.useWhyChanged(Form, {conf, A_state: A.state, B_state: B.state, do_stitch})
 
   function stitch<A>(xs: A[][]): A[] {
     const [y, ...ys] = xs
@@ -496,7 +496,7 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
 
   onState && onState(get_form_values())
 
-  ui.useWhyChanged('KMForm', {conf, state, onSubmit})
+  ui.useWhyChanged(KMForm, {conf, state, onSubmit})
 
   const classes = useStyles()
   return (

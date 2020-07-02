@@ -147,7 +147,7 @@ export function BoxplotWithControls({
     utils.str(options),
   ])
 
-  ui.useWhyChanged('BoxplotWithControls', {
+  ui.useWhyChanged(BoxplotWithControls, {
     data,
     facet,
     ...options,

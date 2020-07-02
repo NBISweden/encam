@@ -154,8 +154,9 @@ export function useCheckbox(label: string, init?: boolean) {
 }
 
 declare const process: {env: {NODE_ENV: string}}
-export function useWhyChanged(name: string, props: Record<string, any>) {
+export function useWhyChanged(name_or_fun: string | Function, props: Record<string, any>) {
   if (process.env.NODE_ENV === 'development') {
+    const name = typeof name_or_fun === 'function' ? name_or_fun.name : name_or_fun
     const r = React.useRef<Record<string, any>>()
     React.useEffect(() => {
       if (r.current !== undefined) {

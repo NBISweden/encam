@@ -85,7 +85,7 @@ export function FormAndKMPlot() {
 
   const [filter, set_filter] = React.useState(undefined as any)
 
-  ui.useWhyChanged('FormAndKMPlot', {conf, filter})
+  ui.useWhyChanged(FormAndKMPlot, {conf, filter})
   return (
     <FormAndPlotUI
       form={conf && <form.KMForm conf={conf} onSubmit={set_filter} />}
@@ -131,7 +131,7 @@ export function KMPlotWithControls({filter = undefined as any}) {
     </div>
   )
 
-  ui.useWhyChanged('KMPlotWithControls', {filter, plot_data, loading, location, num_groups})
+  ui.useWhyChanged(KMPlotWithControls, {filter, plot_data, loading, location, num_groups})
   return <LoadingPlot loading={loading} plot={plot} />
 }
 
@@ -163,7 +163,7 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
       })
     })
   }, [])
-  ui.useWhyChanged('FormAndBoxPlot', {conf, filter, plot_data, loading, plot})
+  ui.useWhyChanged(FormAndBoxPlot, {conf, filter, plot_data, loading, plot})
   return (
     <FormAndPlotUI
       form={conf && <Form key="form" conf={conf} onSubmit={onSubmit} />}
