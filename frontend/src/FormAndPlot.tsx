@@ -66,7 +66,7 @@ export function FormAndKMPlot() {
   const onSubmit = React.useCallback(filter => {
     set_loading(true)
     console.time('request')
-    request('survival', filter).then((res: {points: any}) => {
+    request('survival', {...filter, group_sizes: null}).then((res: {points: any}) => {
       console.timeEnd('request')
       ReactDOM.unstable_batchedUpdates(() => {
         set_loading(false)
