@@ -54,7 +54,7 @@ export const VegaKMPlot = React.memo(function VegaKMPlot({
   points: Points
   options?: Partial<Options>
 }) {
-  ui.useWhyChanged('VegaKMPlot', {points, options})
+  ui.useWhyChanged(VegaKMPlot, {points, options})
   return kmplot(points, options)
 })
 
