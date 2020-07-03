@@ -176,16 +176,17 @@ export function useWhyChanged(name_or_fun: string | Function, props: Record<stri
 }
 
 export function useDebounce(ms: number, k: Function) {
-  const [block, set_block] = React.useState(false)
+  // const [block, set_block] = React.useState(false)
+  const [timer, set_timer] = React.useState(undefined as undefined | number)
   const [res, set_res] = React.useState(undefined)
   React.useEffect(() => {
-    if (!block) {
-      const timer = setTimeout(() => set_block(false), ms)
-      set_res(k())
-      set_block(true)
-      return () => clearTimeout(timer)
+    if (timer !== undefined) {
+      clearTimeout(timer)
     }
-  })
+    const new_timer = setTimeout(() => set_res(k()), ms)
+    set_timer(new_timer)
+    return () => clearTimeout(new_timer)
+  }, [k])
   return res
 }
 

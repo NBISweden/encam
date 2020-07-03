@@ -69,7 +69,7 @@ function calculate_KMstate0(conf: Conf): KMState {
   conf.tumor_specific_values.forEach(v => {
     state0[v.column + ',' + v.tumor] = v.values
   })
-  state0.cell = conf.cells[0]
+  state0.cell = conf.cells.includes('CD4') ? 'CD4' : conf.cells[0]
   state0.tumor = conf.tumors[0]
   state0.location = 'TUMOR'
   state0.num_groups = 2
