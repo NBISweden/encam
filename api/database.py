@@ -289,12 +289,10 @@ def calculate_size(filter_id):
     data_filtered = filtering(filter_id)
     return { 'size': data_filtered.shape[0]}
 
-# Returns the expression levels for the specified cell type
-# There should only be one cell type, therefore using [0]
 def expression(filter_id):
     response = filtering(filter_id)
-    response = response.sort_values(by=filter_id['cells'][0])
-    return response[filter_id['cells'][0]]
+    response = response.sort_values(by=filter_id['cell_full'])
+    return response[filter_id['cell_full']]
 
 
 def filter_to_tukey(body):
