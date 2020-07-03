@@ -7,6 +7,7 @@ import * as utils from './utils'
 
 import {BoxplotWithControls} from './BoxplotWithControls'
 import {VegaKMPlot, Points} from './VegaKMPlot'
+import {VegaCumulativeCount, cucount, Row} from './VegaCumulativeCount'
 import * as form from './Form'
 
 import {CircularProgress} from '@material-ui/core'
@@ -81,7 +82,7 @@ export function FormAndPlotUI({
 export function FormAndKMPlot() {
   const conf = backend.useRequest('configuration')
 
-  const [filter, set_filter] = React.useState(undefined as any)
+  const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
 
   ui.useWhyChanged(FormAndKMPlot, {conf, filter})
   return (
@@ -92,41 +93,130 @@ export function FormAndKMPlot() {
   )
 }
 
+import {Slider} from '@material-ui/core'
+
 export function KMPlotWithControls({filter = undefined as undefined | Record<string, any>}) {
+  const A = ui.container()
   const B = ui.container()
-  const location = B.addRadio('Location', ['Tumor', 'Stroma'])
-  const num_groups = B.addRadio('Groups', ['2', '3', '4'])
+  const location = A.addRadio('Location', ['Tumor', 'Stroma'])
+  const num_groups = Number(B.addRadio('Groups', ['2', '3', '4']))
 
   const [plot_data, set_plot_data] = React.useState(undefined as any)
+  const [expr_data, set_expr_data] = React.useState(undefined as undefined | number[])
   const [loading, set_loading] = React.useState(false)
 
   const request = backend.useRequestFn()
 
+  const [cutoffs, set_cutoffs] = React.useState([] as number[])
+
+  const cu_max = (cu_data: Row[]) => cu_data.slice(-1)[0].cucount
+
   ui.useAsync(async () => {
-    if (!filter) {
-      return
+    if (filter) {
+      const filter_full = {
+        ...filter,
+        group_sizes: null,
+        cell_full: filter.cell + '_' + location.toUpperCase(),
+        // num_groups,
+      }
+      console.time('expression')
+      const next_expr_data = await request('expression', filter_full)
+      console.timeEnd('expression')
+      ReactDOM.unstable_batchedUpdates(() => {
+        set_expr_data(next_expr_data)
+        if (!expr_data || expr_data.length != next_expr_data) {
+          set_cutoffs([])
+        }
+      })
     }
-    set_loading(true)
-    const filter_full = {
-      ...filter,
-      group_sizes: null,
-      cell_full: filter.cell + '_' + location.toUpperCase(),
-      num_groups: Number(num_groups),
+  }, [filter, location])
+
+  React.useLayoutEffect(() => {
+    if (expr_data) {
+      const cu_data = cucount(expr_data, cutoffs)
+      const max = cu_max(cu_data)
+      const cutoff = (i: number) => {
+        const r = (i + 1) / num_groups
+        return Math.round(r * max)
+      }
+      const next_cutoffs = utils.enumTo(num_groups - 1).map(cutoff)
+      if (!cu_data || num_groups - 1 != cutoffs.length) {
+        set_cutoffs(next_cutoffs)
+      }
     }
-    console.time('request')
-    const res = await request('survival', filter_full)
-    console.timeEnd('request')
-    ReactDOM.unstable_batchedUpdates(() => {
-      set_loading(false)
-      set_plot_data(res.points)
-    })
-  }, [filter, location, num_groups])
+  }, [expr_data, num_groups])
+
+  ui.useDebounce(
+    400,
+    React.useCallback(async () => {
+      if (filter && cutoffs.length && expr_data) {
+        const cu_data = cucount(expr_data, cutoffs)
+        set_loading(true)
+        const cutoffs_sorted = [...cutoffs.sort(utils.by(x => x)), cu_max(cu_data)]
+        // [100, 120, max]
+        // [0 - 100, 120 - 20, max - 120]
+        const group_sizes = cutoffs_sorted.map((v, i, a) => v - (a[i - 1] || 0))
+        console.time('survival')
+        console.log(cutoffs_sorted)
+        console.log(group_sizes)
+        const filter_full = {
+          ...filter,
+          group_sizes,
+          cell_full: filter.cell + '_' + location.toUpperCase(),
+          num_groups: group_sizes.length,
+        }
+        let res = undefined as any
+        try {
+          res = await request('survival', {
+            ...filter_full,
+            group_sizes,
+          })
+        } catch {
+          ReactDOM.unstable_batchedUpdates(() => {
+            set_loading(false)
+            set_plot_data(undefined)
+          })
+          return
+        }
+        console.timeEnd('survival')
+        console.log({res})
+        ReactDOM.unstable_batchedUpdates(() => {
+          set_loading(false)
+          set_plot_data(res.points)
+        })
+      } else {
+        set_loading(false)
+      }
+    }, [filter, location, utils.str(cutoffs)])
+  )
+
+  const cu_data = expr_data && cucount(expr_data, cutoffs)
 
   const classes = useStyles()
-  const plot = plot_data && (
+  const plot = (plot_data || cu_data) && (
     <div className={classes.KMPlotWithControls}>
-      <VegaKMPlot points={plot_data} />
-      {B.collect()}
+      <div style={{marginLeft: 30}}>{A.collect()}</div>
+      {plot_data && <VegaKMPlot points={plot_data} />}
+      {cu_data && (
+        <div>
+          <VegaCumulativeCount data={cu_data} />
+          <div style={{marginLeft: 40, width: 400}}>
+            <p id="cutoffs-slider" style={{fontWeight: 700}}>
+              cumulative count cutoffs:
+            </p>
+            <Slider
+              style={{marginTop: 30}}
+              aria-labelledby="cutoffs-slider"
+              min={0}
+              max={cu_max(cu_data)}
+              value={cutoffs}
+              onChange={(_, vs) => Array.isArray(vs) && set_cutoffs(vs)}
+              valueLabelDisplay="on"
+            />
+            {B.collect()}
+          </div>
+        </div>
+      )}
     </div>
   )
 

@@ -18,11 +18,17 @@ export const GlobalStyle = sc.createGlobalStyle`
 `
 
 import {boxplot_test_data} from '../test/data/boxplot'
-import {kmplot_test_data, kmplot_test_filter} from '../test/data/kmplot'
+import {kmplot_test_data, kmplot_test_filter, kmplot_test_request} from '../test/data/kmplot'
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
-import {FormAndBoxPlot, FormAndKMPlot, FormAndPlotUI, LoadingPlot, KMPlotWithControls} from './FormAndPlot'
+import {
+  FormAndBoxPlot,
+  FormAndKMPlot,
+  FormAndPlotUI,
+  LoadingPlot,
+  KMPlotWithControls,
+} from './FormAndPlot'
 import * as ui from './ui_utils'
 
 import {VegaBoxplot} from './VegaBoxplot'
@@ -37,7 +43,7 @@ import {Switch} from 'react-router-dom'
 import {version} from './version'
 
 export function Views() {
-  const {Tabs, TabbedRoutes, set_tab} = ui.useRoutedTabs([
+  const {Tabs, TabbedRoutes, set_tab, tab} = ui.useRoutedTabs([
     {
       label: 'Splash',
       path: '/',
@@ -98,7 +104,11 @@ export function Views() {
     {
       label: 'KMPlot With Controls',
       path: '/KMPlotWithControls',
-      component: <KMPlotWithControls filter={kmplot_test_filter} />,
+      component: (
+        <MockBackend request={kmplot_test_request}>
+          <KMPlotWithControls filter={kmplot_test_filter} />,
+        </MockBackend>
+      ),
     },
     {
       label: 'Boxplot',
@@ -185,17 +195,18 @@ export function Views() {
     },
     [set_tab]
   )
+  React.useEffect(() => {
+    document.title = `encima: ${tab.label}`
+  }, [tab.label])
   return (
     <>
       <CssBaseline />
       <GlobalStyle />
       <div style={{...ui.flex_row, minHeight: '100%'}}>
-        <div style={{...ui.flex_column, flexShrink: 0, borderRight: '1px #ddd solid'}} >
+        <div style={{...ui.flex_column, flexShrink: 0, borderRight: '1px #ddd solid'}}>
           <Tabs variant="scrollable" orientation="vertical" />
-          <div style={{flexGrow: 1, borderBottom: '1px #ddd solid'}}/>
-          <div style={{margin:15, alignSelf:"center"}}>
-            version: {version}
-          </div>
+          <div style={{flexGrow: 1, borderBottom: '1px #ddd solid'}} />
+          <div style={{margin: 15, alignSelf: 'center'}}>version: {version}</div>
         </div>
         <div>
           <Switch>{TabbedRoutes}</Switch>

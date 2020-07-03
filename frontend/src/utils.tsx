@@ -141,3 +141,9 @@ export function simple_object_diff<A extends Record<string, any>, B extends Reco
 }
 
 export const str = (a: any) => JSON.stringify(a)
+
+export function splice<A>(xs: A[], start: number, delete_count: number, ...items: A[]): A[] {
+  const ys = xs.slice()
+  ys.splice(start, delete_count, ...items)
+  return ys
+}

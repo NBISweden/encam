@@ -84,7 +84,8 @@ export function useRoutedTabs(
         )
     ),
     tab_index,
-    set_tab,
+    tab: routed_tabs[tab_index],
+    set_tab: set_tab,
   }
 }
 

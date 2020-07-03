@@ -84,7 +84,7 @@ export function Embed({spec, data}: {spec: VL.TopLevelSpec; data?: any[]}): Reac
       const view = new V.View(runtime)
       data && view.data('data', data)
       view
-        .logLevel(V.None)
+        .logLevel(V.Warn)
         .renderer('svg')
         .initialize(el)
         .tooltip((...args) => console.log(args))
