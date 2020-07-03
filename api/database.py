@@ -238,8 +238,10 @@ def binning(data_filtered, cell, groups):
     acculated_groups = list(accumulate(groups))
     groups_values = [0]
     for num in acculated_groups:
-        # In order to create the liits of the groups, a small number is added to the expression level
-        groups_values.append(data_filtered[cell].iloc[num - 1] + 0.00000001)
+        # OBS: not adding a small number to the expression level
+        groups_values.append(data_filtered[cell].iloc[num - 1])
+    # OBS: removing duplicate groups
+    groups_values = uniq(groups_values)
     return pd.cut(data_filtered[cell], bins=groups_values, include_lowest=True, labels=False) + 1
     
 
@@ -254,7 +256,11 @@ def filter_survival(filter_id):
     else:
         data_filtered['rank'] = ntiles(data_filtered[filter_id['cell_full']], filter_id['num_groups'])
     points = []
-    for g in range(filter_id['num_groups']):
+    # OBS: checking the number of groups after filtering
+    num_groups = len(uniq(data_filtered['rank']))
+    if num_groups < 2:
+        raise ValueError('Number of groups must be at least two.')
+    for g in range(num_groups):
         kmf = KaplanMeierFitter()
         data = data_filtered[lambda row: row['rank'] == g+1]
         kmf.fit(
