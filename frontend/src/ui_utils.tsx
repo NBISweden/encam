@@ -56,23 +56,17 @@ import {
   Radio,
 } from '@material-ui/core'
 
-export function container() {
-  const children: JSX.Element[] = []
-  function add<A>([a, x]: readonly [A, JSX.Element, ...any[]]) {
-    children.push(x)
-    return a
-  }
-  function wrap<A, Args extends any[]>(f: (...args: Args) => readonly [A, JSX.Element, ...any[]]) {
-    return (...args: Args) => add(f(...args))
-  }
-  return {
-    add,
-    wrap,
-    collect: () => dummy_keys(children),
-    addCheckbox: wrap(useCheckbox),
-    addCheckboxes: wrap(useCheckboxes),
-    addRadio: wrap(useRadio),
-  }
+type UseComponent<A> = readonly [A, React.ReactNode, (v: A) => void]
+
+export function record<A extends Record<string, any>>(x: {[K in keyof A]: UseComponent<A[K]>}): UseComponent<A> {
+  const elems = [] as React.ReactNode[]
+  const setters = [] as ((v: A) => void)[]
+  const value = utils.mapObject(x, ([value, elem, set], k) => {
+    elems.push(elem)
+    setters.push(v => set(v[k]))
+    return value
+  })
+  return [value, dummy_keys(elems), (v: A) => setters.forEach(s => s(v))] as const
 }
 
 export function useCheckboxes(labels: string[], init?: Record<string, boolean>) {

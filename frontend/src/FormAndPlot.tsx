@@ -96,10 +96,8 @@ export function FormAndKMPlot() {
 import {Slider} from '@material-ui/core'
 
 export function KMPlotWithControls({filter = undefined as undefined | Record<string, any>}) {
-  const A = ui.container()
-  const B = ui.container()
-  const location = A.addRadio('Location', ['Tumor', 'Stroma'])
-  const num_groups = Number(B.addRadio('Groups', ['2', '3', '4']))
+  const [location, location_node] = ui.useRadio('Location', ['Tumor', 'Stroma'])
+  const [num_groups, num_groups_node] = ui.useRadio('Groups', [2, 3, 4])
 
   const [plot_data, set_plot_data] = React.useState(undefined as any)
   const [expr_data, set_expr_data] = React.useState(undefined as undefined | number[])
@@ -195,7 +193,7 @@ export function KMPlotWithControls({filter = undefined as undefined | Record<str
   const classes = useStyles()
   const plot = (plot_data || cu_data) && (
     <div className={classes.KMPlotWithControls}>
-      <div style={{marginLeft: 30}}>{A.collect()}</div>
+      <div style={{marginLeft: 30}}>{location_node}</div>
       {plot_data && <VegaKMPlot points={plot_data} />}
       {cu_data && (
         <div>
@@ -213,7 +211,7 @@ export function KMPlotWithControls({filter = undefined as undefined | Record<str
               onChange={(_, vs) => Array.isArray(vs) && set_cutoffs(vs)}
               valueLabelDisplay="on"
             />
-            {B.collect()}
+            {num_groups_node}
           </div>
         </div>
       )}
