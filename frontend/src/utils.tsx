@@ -119,6 +119,10 @@ export function Memoizer<K, V>() {
   }
 }
 
+export function mapObject<A extends Record<string, any>, B extends Record<keyof A, any>>(
+  m: A,
+  f: <K extends keyof A>(a: A[K], k: K, i: number) => B[K]
+): B
 export function mapObject<K extends string, A, B>(
   m: Record<K, A>,
   f: (a: A, k: K, i: number) => B

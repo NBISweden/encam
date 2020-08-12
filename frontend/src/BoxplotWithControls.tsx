@@ -60,14 +60,16 @@ const useStyles = makeStyles({
 function useOptions(facet: keyof Row) {
   const radicals = ['√', '∛', '∜']
 
-  const C = ui.container()
-  const split = C.addCheckbox('split tumor and stroma', false)
-  const mean = C.addCheckbox('show mean', false)
-  const orientation = C.addRadio('orientation', ['landscape', 'portrait'])
-  const scale = C.addRadio('scale', ['linear', ...radicals], radicals[0])
-  const mode = C.addRadio('box plot settings', ['default (1.5*IQR)', 'min-max'])
+  const [opts, nodes]  = ui.record({
+    split: ui.useCheckbox('split tumor and stroma', false),
+    mean: ui.useCheckbox('show mean', false),
+    orientation: ui.useRadio('orientation', ['landscape', 'portrait']),
+    scale: ui.useRadio('scale', ['linear', ...radicals], radicals[0]),
+    mode: ui.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max']),
+  })
+
   const opposite = (x: keyof Row) => (x === 'cell' ? 'tumor' : 'cell')
-  const options: Partial<Options> = split
+  const options: Partial<Options> = opts.split
     ? {
         inner: [opposite(facet), 'group'],
         facet: facet,
@@ -80,20 +82,20 @@ function useOptions(facet: keyof Row) {
         color: [opposite(facet), 'group'],
       }
   options.stripes = 'location'
-  options.landscape = orientation == 'landscape'
+  options.landscape = opts.orientation == 'landscape'
   options.scale = {
-    type: scale === 'linear' ? 'linear' : 'semilog',
+    type: opts.scale === 'linear' ? 'linear' : 'semilog',
   }
-  options.mode = mode === 'min-max' ? 'min-max' : 'default'
-  options.show_mean = mean
-  const r = radicals.indexOf(scale)
+  options.mode = opts.mode === 'min-max' ? 'min-max' : 'default'
+  options.show_mean = opts.mean
+  const r = radicals.indexOf(opts.scale)
   if (r != -1) {
     options.scale = {
       type: 'pow',
       exponent: 1 / (2 + r),
     }
   }
-  return [ui.useIntern(options), C.collect()] as const
+  return [ui.useIntern(options), nodes] as const
 }
 
 function useVisibleSidebar(facet: string, facet_vals: string[]) {
