@@ -4,7 +4,6 @@ import * as VB from './VegaBoxplot'
 
 import * as utils from './utils'
 
-import {div, css} from './ui_utils'
 import * as ui from './ui_utils'
 
 import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
@@ -60,7 +59,7 @@ const useStyles = makeStyles({
 function useOptions(facet: keyof Row) {
   const radicals = ['√', '∛', '∜']
 
-  const [opts, nodes]  = ui.record({
+  const [opts, nodes] = ui.record({
     split: ui.useCheckbox('split tumor and stroma', false),
     mean: ui.useCheckbox('show mean', false),
     orientation: ui.useRadio('orientation', ['landscape', 'portrait']),
@@ -87,8 +86,9 @@ function useOptions(facet: keyof Row) {
     type: opts.scale === 'linear' ? 'linear' : 'semilog',
   }
   options.mode = opts.mode === 'min-max' ? 'min-max' : 'default'
-  options.show_mean = opts.mean
-  const r = radicals.indexOf(opts.scale)
+  // `tsc` is confused an thinks these are `SetStateAction`s without the `as`
+  options.show_mean = opts.mean as boolean
+  const r = radicals.indexOf(opts.scale as string)
   if (r != -1) {
     options.scale = {
       type: 'pow',
