@@ -121,7 +121,7 @@ function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
       color: {
         title: 'group',
         field: 'group',
-        type: 'nominal',
+        type: 'ordinal',
       },
     },
     config: {
