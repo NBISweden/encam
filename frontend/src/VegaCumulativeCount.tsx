@@ -111,7 +111,44 @@ export function cucount(values: number[], cutoffs: number[]): Row[] {
   })
 }
 
-export const VegaCumulativeCount = React.memo(function VegaKMPlot({
+/**
+  since we round upwards we need to skip one
+  since we don't want to select the last one we need to skip another one
+
+  slider_max(cucount([100,200,300,400,500], [1])) // => 3
+  slider_max(cucount([100,200,200,300,    400,    500    ], [1])) // => 4
+  slider_max(cucount([100,200,    300,300,400,    500    ], [1])) // => 4
+  slider_max(cucount([100,200,    300,    400,400,500    ], [1])) // => 3
+  slider_max(cucount([100,200,    300,    400,    500,500], [1])) // => 3
+*/
+export function slider_max(rows: Row[]): number {
+  const rrows = rows.slice().reverse()
+  if (rrows.length < 2) {
+    return 0
+  } else {
+    return rrows[2].cucount
+  }
+}
+
+/*
+
+  bin_sizes(cucount([10,10,11,11], [0])) // => [0, 4]
+  bin_sizes(cucount([10,10,11,11], [1])) // => [2, 2]
+  bin_sizes(cucount([10,10,11,11], [2])) // => [2, 2]
+  bin_sizes(cucount([10,10,11,11], [3])) // => [4, 0]
+  bin_sizes(cucount([10,10,11,11], [4])) // => [4, 0]
+
+  bin_sizes(cucount([4,5,6,7,8], [1,2,3,4])) // => [1,1,1,1,1]
+
+*/
+export function bin_sizes(rows: Row[]): number[] {
+  const N = Math.max(0, ...rows.map(row => row.bin))
+  return utils
+    .enumTo(1 + N)
+    .map(bin => utils.sum(rows.map(row => (row.bin == bin ? row.count : 0))))
+}
+
+export const VegaCumulativeCount = React.memo(function VegaCumulativeCount({
   data,
   options,
 }: {
