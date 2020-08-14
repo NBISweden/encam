@@ -159,7 +159,16 @@ export const VegaCumulativeCount = React.memo(function VegaCumulativeCount({
   return vega_cumulative_count(data, options)
 })
 
-function vega_cumulative_count(data: Row[], opts?: Partial<Options>): React.ReactElement {
+function vega_cumulative_count(data0: Row[], opts?: Partial<Options>): React.ReactElement {
+  const sizes = bin_sizes(data0)
+  const acc_sizes = sizes.map((s, i) => s + utils.sum(sizes.filter((_, j) => j < i)))
+  const data = data0.flatMap(obj => {
+    const cucount = obj.cucount - (obj.bin == 0 ? 0 : acc_sizes[obj.bin - 1])
+    const new_obj = {...obj, cucount}
+    const below = acc_sizes.flatMap((size, bin) => size < obj.cucount ? [{...obj, bin, cucount: sizes[bin]}] : [])
+    return [new_obj, ...below]
+  })
+
   const options = {...default_options, ...opts}
 
   const {column, row, height, width, x, y, y2} = orient(options)
@@ -185,9 +194,14 @@ function vega_cumulative_count(data: Row[], opts?: Partial<Options>): React.Reac
           },
           [y]: {
             field: 'cucount',
+            stack: true,
             axis: {title: 'cumulative record count'},
             type: 'quantitative',
             // scale: {type: 'pow', exponent: 2}
+          },
+          order: {
+            field: 'bin',
+            type: 'quantitative',
           },
           color: {
             field: 'bin',
