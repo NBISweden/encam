@@ -390,3 +390,36 @@ def test_results_number():
     assert len(c) == 124
 
 test_results_number()
+
+
+import pandas as pd
+import database as db
+from collections import Counter
+
+def test_binning(values, bin_sizes):
+    bin_sizes = [s for s in bin_sizes if s != 0]
+    data = {'T-cells': values}
+    df = pd.DataFrame(data=data)
+    res = db.binning(df, 'T-cells', bin_sizes)
+    res_sizes = Counter(res)
+    assert len(res_sizes) == len(bin_sizes)
+    for i, bin_size in enumerate(bin_sizes):
+        assert res_sizes[i+1] == bin_size
+
+
+test_binning([0,100,200,300,400,500],[2,1,3])
+test_binning([0,0,200,300,400,500],[2,1,3])
+test_binning([0,0,200,300,300,300],[2,1,3])
+
+test_binning([0,100,200,300,400,500],[4,1,1])
+test_binning([0,100,200,300,400,500],[1,4,1])
+test_binning([0,100,200,300,400,500],[1,1,4])
+
+test_binning([0,100,200,300,400,500],[2,0,4])
+
+try:
+    test_binning([0,0,0,100,200,300],[2,2,2])
+except AssertionError as e:
+    pass
+else:
+    raise RuntimeError("Should fail, group sizes not on boundary")

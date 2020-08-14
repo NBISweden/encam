@@ -234,16 +234,17 @@ def filter(filter_id):
     response = response.drop(columns='cell_full')
     return response
 
-def binning(data_filtered, cell, groups):
-    acculated_groups = list(accumulate(groups))
-    groups_values = [0]
-    for num in acculated_groups:
-        # OBS: not adding a small number to the expression level
-        groups_values.append(data_filtered[cell].iloc[num - 1])
+
+def binning(data_filtered, cell, group_sizes):
+    acc_group_sizes = list(accumulate(group_sizes))
+    group_values = [0]
+    for num in acc_group_sizes[:-1]:
+        group_values.append(data_filtered[cell].iloc[num])
+    group_values.append(float('inf'))
     # OBS: removing duplicate groups
-    groups_values = uniq(groups_values)
-    return pd.cut(data_filtered[cell], bins=groups_values, include_lowest=True, labels=False) + 1
-    
+    group_values = uniq(group_values)
+    return pd.cut(data_filtered[cell], bins=group_values, include_lowest=True, right=False, labels=False) + 1
+
 
 def filter_survival(filter_id):
 

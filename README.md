@@ -29,7 +29,7 @@ github package and then tell our running SNIC machine to pull it and restart:
 VERSION=0.0.12 ./deploy.sh
 ```
 
-## Testing
+## Testing the backend
 To run the tests for the encam project
 ```
 python test.py
@@ -38,7 +38,7 @@ in the `api` folder. The expected output is no assertion errors.
 
 This can be run in a virtualenv or with
 ```
-docker-compose exec api python test.py
+docker-compose run api python test.py
 ```
 
 To get the code coverage, install the coverage package with pip and run
