@@ -97,7 +97,8 @@ import {Slider} from '@material-ui/core'
 
 export function KMPlotWithControls({filter = undefined as undefined | Record<string, any>}) {
   const [location, location_node] = ui.useRadio('Location', ['Tumor', 'Stroma'])
-  const [num_groups, num_groups_node] = ui.useRadio('Groups', [2, 3, 4])
+  const [num_groups_str, num_groups_node] = ui.useRadio('Groups', ['2', '3', '4'])
+  const num_groups = Number(num_groups_str)
 
   const [plot_data, set_plot_data] = React.useState(undefined as any)
   const [expr_data, set_expr_data] = React.useState(undefined as undefined | number[])
