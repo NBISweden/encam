@@ -18,6 +18,7 @@
     "babel-jest": "^26.0.1",
     "canvas": "^2.6.1",
     "colorthief": "^2.3.0",
+    "doctest-ts": "^0.5.0",
     "esbuild": "^0.5.12",
     "jest": "^26.0.1",
     "parcel": "2.0.0-alpha.3.2",
@@ -28,9 +29,11 @@
   "scripts": {
     "start": "parcel serve index.html --hmr-port 1235",
     "build": "rm -rf dist; esbuild --bundle src/main.tsx --outdir=dist --loader:.png=file --loader:.svg=file --minify --target=es6 \"--define:VERSION='${VERSION:-unspecified}'\" \"--define:process.env.NODE_ENV='production'\"; cd dist; mv main.js \"main.$(md5sum main.js | head -c 20).js\"; sed \"s,src/main.tsx,$(echo main.*.js),\" < ../index.html > index.html",
-    "typecheck": "tsc **/*.tsx --noEmit --jsx react --lib es2019,dom --skipLibCheck",
+    "typecheck": "tsc {src,test}/*.tsx --noEmit --jsx react --lib es2019,dom --skipLibCheck",
     "pretty": "yarn run prettier --list-different --write src test",
-    "test": "jest"
+    "doctests:gen": "doctest-ts --jest src/*ts* src/**/*ts*",
+    "doctests:watch": "ls src/**/* | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose'",
+    "test": "yarn run doctests:gen; jest"
   },
   "dependencies": {
     "@material-ui/core": "^4.0.0",
