@@ -112,7 +112,7 @@ export function useCheckboxes(
   ] as const
 }
 
-export function useRadio<K extends string | number>(label: string, options: K[], init?: K) {
+export function useRadio<K extends string>(label: string, options: K[], init?: K) {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
   return [
     value,
