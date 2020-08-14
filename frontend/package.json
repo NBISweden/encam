@@ -32,7 +32,7 @@
     "typecheck": "tsc {src,test}/*.tsx --noEmit --jsx react --lib es2019,dom --skipLibCheck",
     "pretty": "yarn run prettier --list-different --write src test",
     "doctests:gen": "doctest-ts --jest src/*ts* src/**/*ts*",
-    "doctests:watch": "ls src/**/* | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose'",
+    "doctests:watch": "ls src src/** | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose'",
     "test": "yarn run doctests:gen; jest"
   },
   "dependencies": {

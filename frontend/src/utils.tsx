@@ -283,3 +283,45 @@ export function splice<A>(xs: A[], start: number, delete_count: number, ...items
   ys.splice(start, delete_count, ...items)
   return ys
 }
+
+
+/** Snap to closest points.
+
+  Note: very inefficiently implemented, O(|xs|^2|dests|)
+
+  snap([1], [0, 10]) // => [0]
+  snap([5], [0, 10]) // => [0]
+  snap([6], [0, 10]) // => [10]
+  snap([9], [0, 10]) // => [10]
+
+  snap([10, 11],     [0, 10, 20, 30]) // => [10, 20]
+  snap([10, 11, 12], [0, 10, 20, 30]) // => [10, 0, 20]
+
+  snap([1,2,3,4,5], [1,2,3,4,5]) // => [1,2,3,4,5]
+  snap([1,2,3,4,5], [5,4,3,2,1]) // => [1,2,3,4,5]
+  snap([5,4,3,2,1], [1,2,3,4,5]) // => [5,4,3,2,1]
+  snap([5,4,3,2,1], [5,4,3,2,1]) // => [5,4,3,2,1]
+
+  snap([1, 2], []) // => [1, 2]
+
+  snap([1, 2], [0]) // => [0, 2]
+
+*/
+export function snap(xs: number[], dests: number[]) {
+  let shortest = Infinity
+  let ret = () => xs
+  xs.forEach((x, i) =>
+    dests.forEach((dest, j) => {
+      const dist = Math.abs(x - dest)
+      if (dist < shortest) {
+        shortest = dist
+        ret = () => {
+          const xs_2 = splice(xs, i, 1)
+          const dests_2 = splice(dests, j, 1)
+          const res = snap(xs_2, dests_2)
+          return splice(res, i, 0, dest)
+        }
+      }
+    }))
+  return ret()
+}
