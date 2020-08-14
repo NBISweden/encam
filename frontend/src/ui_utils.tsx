@@ -58,7 +58,9 @@ import {
 
 type UseComponent<A> = readonly [A, React.ReactNode, (v: A) => void]
 
-export function record<A extends Record<string, any>>(x: {[K in keyof A]: UseComponent<A[K]>}): UseComponent<A> {
+export function record<A extends Record<string, any>>(
+  x: {[K in keyof A]: UseComponent<A[K]>}
+): UseComponent<A> {
   const elems = [] as React.ReactNode[]
   const setters = [] as ((v: A) => void)[]
   const value = utils.mapObject(x, ([value, elem, set], k) => {
@@ -69,7 +71,11 @@ export function record<A extends Record<string, any>>(x: {[K in keyof A]: UseCom
   return [value, dummy_keys(elems), (v: A) => setters.forEach(s => s(v))] as const
 }
 
-export function useCheckboxes(labels: string[], init?: Record<string, boolean>) {
+export function useCheckboxes(
+  labels: string[],
+  init?: Record<string, boolean>,
+  label_string = (s: string) => s
+) {
   const init_value = init === undefined ? {} : init
   const [value, set_value] = React.useState(init_value)
   React.useLayoutEffect(() => {
@@ -82,7 +88,7 @@ export function useCheckboxes(labels: string[], init?: Record<string, boolean>) 
     <>
       {labels.map(label => (
         <FormControlLabel
-          label={label}
+          label={label_string(label)}
           key={label}
           checked={value[label] || false}
           onChange={(e, checked) => {

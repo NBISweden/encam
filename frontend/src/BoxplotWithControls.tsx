@@ -101,7 +101,7 @@ function useOptions(facet: keyof Row) {
 function useVisibleSidebar(facet: string, facet_vals: string[]) {
   const all_selected = Object.fromEntries(facet_vals.map(v => [v, true]))
 
-  const [visible_facets, facet_boxes] = ui.useCheckboxes(facet_vals, all_selected)
+  const [visible_facets, facet_boxes] = ui.useCheckboxes(facet_vals, all_selected, utils.pretty)
 
   const [show, set_show] = React.useState(true)
 
