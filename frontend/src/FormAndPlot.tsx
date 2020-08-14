@@ -136,13 +136,18 @@ export function KMPlotWithControls({filter = undefined as undefined | Record<str
     // update cutoffs if num_groups or the data was changed
     if (cu_data) {
       const wrong_length = num_groups - 1 != cutoffs.length
-      const too_large = cutoffs.some(c => c > slider_max(cu_data))
-      if (wrong_length || too_large) {
+      const aligned = cutoffs.every(c => cu_data.some(d => d.cucount === c))
+      if (wrong_length || !aligned) {
         const cutoff = (i: number) => {
           const r = (i + 1) / num_groups
-          return Math.round(r * slider_max(cu_data))
+          return r * cu_data.slice(-1)[0].cucount
         }
-        const next_cutoffs = utils.enumTo(num_groups - 1).map(cutoff)
+        const proto = wrong_length ? utils.enumTo(num_groups - 1).map(cutoff) : cutoffs
+        const max = slider_max(cu_data)
+        const next_cutoffs = utils.snap(
+          proto,
+          cu_data.map(d => d.cucount).filter(cucount => cucount > 0 && cucount <= max)
+        )
         set_cutoffs(next_cutoffs)
       }
     }
@@ -213,11 +218,14 @@ export function KMPlotWithControls({filter = undefined as undefined | Record<str
             <Slider
               style={{marginTop: 30}}
               aria-labelledby="cutoffs-slider"
-              min={1}
-              max={slider_max(cu_data)}
+              min={0}
+              max={cu_data.slice(-1)[0].cucount}
               value={cutoffs}
               onChange={(_, vs) => Array.isArray(vs) && set_cutoffs(vs)}
               valueLabelDisplay="on"
+              marks={cu_data.slice(0, -2).map(x => ({value: x.cucount}))}
+              step={null}
+              track={false}
             />
             {num_groups_node}
           </div>
