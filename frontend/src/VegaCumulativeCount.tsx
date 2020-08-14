@@ -1,8 +1,8 @@
-import * as ui from './ui_utils'
 import * as VL from 'vega-lite'
 
 import * as React from 'react'
 import * as utils from './utils'
+import {unzip} from './utils'
 
 import {Embed} from './vega_utils'
 
@@ -42,30 +42,73 @@ function orient(options: Options) {
   }
 }
 
-interface Row {
+export interface Row {
   value: number
   count: number
   cucount: number
   bin: number
 }
 
+/**
+
+  const rows = cucount([5,6,7,8], [2])
+  unzip(rows).value   // => [5,6,7,8]
+  unzip(rows).bin     // => [0,0,1,1]
+  unzip(rows).cucount // => [1,2,3,4]
+
+  const rows = cucount([5,6,7,7,8], [2,4])
+  unzip(rows).value   // => [5,6,7,8]
+  unzip(rows).bin     // => [0,0,1,2]
+  unzip(rows).cucount // => [1,2,4,5]
+
+  const rows = cucount([5,6,7,7,7,8], [2,3])
+  rows   // => cucount([5,6,7,7,7,8], [2,4])
+  rows   // => cucount([5,6,7,7,7,8], [2,5])
+
+  unzip(cucount([10,10,11,11], [0])).bin // => [1,1]
+  unzip(cucount([10,10,11,11], [1])).bin // => [0,1]
+  unzip(cucount([10,10,11,11], [2])).bin // => [0,1]
+  unzip(cucount([10,10,11,11], [3])).bin // => [0,0]
+  unzip(cucount([10,10,11,11], [4])).bin // => [0,0]
+
+  unzip(cucount([10,10,11,11], [0])).value // => [10,11]
+  unzip(cucount([10,10,11,11], [1])).value // => [10,11]
+  unzip(cucount([10,10,11,11], [2])).value // => [10,11]
+  unzip(cucount([10,10,11,11], [3])).value // => [10,11]
+  unzip(cucount([10,10,11,11], [4])).value // => [10,11]
+
+  unzip(cucount([10,10,11,11], [0])).cucount // => [2,4]
+  unzip(cucount([10,10,11,11], [1])).cucount // => [2,4]
+  unzip(cucount([10,10,11,11], [2])).cucount // => [2,4]
+  unzip(cucount([10,10,11,11], [3])).cucount // => [2,4]
+  unzip(cucount([10,10,11,11], [4])).cucount // => [2,4]
+
+  unzip(cucount([10,10,11,11], [0])).count // => [2,2]
+  unzip(cucount([10,10,11,11], [1])).count // => [2,2]
+  unzip(cucount([10,10,11,11], [2])).count // => [2,2]
+  unzip(cucount([10,10,11,11], [3])).count // => [2,2]
+  unzip(cucount([10,10,11,11], [4])).count // => [2,2]
+
+*/
 export function cucount(values: number[], cutoffs: number[]): Row[] {
-  const bin = (x: number) => cutoffs.filter(y => x > y).length
+  const bin = (x: number) => cutoffs.filter(y => x >= y).length
   const points = {} as Record<number, number>
-  for (let value of values.sort(utils.by(x => x))) {
+  const sorted_values = values.sort(utils.by(x => x))
+  for (let value of sorted_values) {
     points[value] = (points[value] ?? 0) + 1
   }
   let counts = 0
-  const data = Object.entries(points).map(([value, count]) => {
+  return utils.uniq(sorted_values).map(value => {
+    const count = points[value]
+    const precounts = counts
     counts += count
     return {
       value: Number(value),
-      count: count,
       cucount: counts,
-      bin: bin(counts),
+      count: count,
+      bin: bin(precounts),
     }
   })
-  return data
 }
 
 export const VegaCumulativeCount = React.memo(function VegaKMPlot({
