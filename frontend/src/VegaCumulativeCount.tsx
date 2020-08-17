@@ -155,7 +155,7 @@ export const VegaCumulativeCount = React.memo(function VegaCumulativeCount({
   data: Row[]
   options?: Partial<Options>
 }) {
-  ui.useWhyChanged(VegaKMPlot, {data, options})
+  // ui.useWhyChanged(VegaCumulativeCount, {data, options})
   return vega_cumulative_count(data, options)
 })
 

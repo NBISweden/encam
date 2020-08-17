@@ -77,7 +77,7 @@ export function Embed({spec, data}: {spec: VL.TopLevelSpec; data?: any[]}): Reac
   const runtime: V.Runtime = memo(spec, () => {
     return V.parse(VL.compile(spec).spec)
   })
-  ui.useWhyChanged(Embed, {spec, data, el, runtime})
+  // ui.useWhyChanged(Embed, {spec, data, el, runtime})
   React.useEffect(() => {
     if (el) {
       // console.time('plot')
