@@ -207,6 +207,9 @@ function vega_cumulative_count(data0: Row[], opts?: Partial<Options>): React.Rea
             field: 'bin',
             legend: null,
             type: 'ordinal',
+            scale: {
+              scheme: 'viridis'
+            }
           },
         },
       },
