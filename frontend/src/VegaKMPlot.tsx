@@ -122,6 +122,9 @@ function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
         title: 'group',
         field: 'group',
         type: 'ordinal',
+        scale: {
+          scheme: 'viridis'
+        }
       },
     },
     config: {
