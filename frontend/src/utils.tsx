@@ -269,7 +269,26 @@ export function simple_object_diff<A extends Record<string, any>, B extends Reco
   return diff
 }
 
+/** JSON string representation of a value */
 export const str = (a: any) => JSON.stringify(a)
+
+/** Equality by comparing JSON string representation
+
+  equal([], []) // => true
+
+  equal({x: 1}, {x: 1}) // => true
+
+  equal({x: 1}, {x: 2}) // => false
+
+  Note: keys are not sorted
+
+  equal({x: 1, y: 2}, {y: 2, x: 1}) // => false
+
+
+*/
+export function equal(x: any, y: any): boolean {
+  return str(x) === str(y)
+}
 
 /**
 
@@ -283,7 +302,6 @@ export function splice<A>(xs: A[], start: number, delete_count: number, ...items
   ys.splice(start, delete_count, ...items)
   return ys
 }
-
 
 /** Snap to closest points.
 
@@ -322,6 +340,7 @@ export function snap(xs: number[], dests: number[]) {
           return splice(res, i, 0, dest)
         }
       }
-    }))
+    })
+  )
   return ret()
 }

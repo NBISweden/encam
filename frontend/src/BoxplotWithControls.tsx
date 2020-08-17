@@ -62,9 +62,9 @@ function useOptions(facet: keyof Row) {
   const [opts, nodes] = ui.record({
     split: ui.useCheckbox('split tumor and stroma', false),
     mean: ui.useCheckbox('show mean', false),
-    orientation: ui.useRadio('orientation', ['landscape', 'portrait']),
     scale: ui.useRadio('scale', ['linear', ...radicals], radicals[0]),
     mode: ui.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max']),
+    orientation: ui.useRadio('orientation', ['landscape', 'portrait']),
   })
 
   const opposite = (x: keyof Row) => (x === 'cell' ? 'tumor' : 'cell')

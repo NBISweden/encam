@@ -22,18 +22,14 @@ import {kmplot_test_data, kmplot_test_filter, kmplot_test_request} from '../test
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
-import {
-  FormAndBoxPlot,
-  FormAndKMPlot,
-  FormAndPlotUI,
-  LoadingPlot,
-  KMPlotWithControls,
-} from './FormAndPlot'
+import {FormAndBoxPlot, FormAndKMPlot} from './FormAndPlot'
+import {FormAndPlotUI, LoadingPlot} from './FormAndPlotUI'
 import * as ui from './ui_utils'
 
 import {VegaBoxplot} from './VegaBoxplot'
 import {VegaKMPlot} from './VegaKMPlot'
 import {BoxplotWithControls} from './BoxplotWithControls'
+import {KMPlotWithControls} from './KMPlotWithControls'
 import {Splash} from './Splash'
 import * as splash_test_data from '../test/data/splash'
 import {MockBackend} from './backend'

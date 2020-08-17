@@ -165,7 +165,9 @@ function vega_cumulative_count(data0: Row[], opts?: Partial<Options>): React.Rea
   const data = data0.flatMap(obj => {
     const cucount = obj.cucount - (obj.bin == 0 ? 0 : acc_sizes[obj.bin - 1])
     const new_obj = {...obj, cucount}
-    const below = acc_sizes.flatMap((size, bin) => size < obj.cucount ? [{...obj, bin, cucount: sizes[bin]}] : [])
+    const below = acc_sizes.flatMap((size, bin) =>
+      size < obj.cucount ? [{...obj, bin, cucount: sizes[bin]}] : []
+    )
     return [new_obj, ...below]
   })
 
@@ -208,8 +210,8 @@ function vega_cumulative_count(data0: Row[], opts?: Partial<Options>): React.Rea
             legend: null,
             type: 'ordinal',
             scale: {
-              scheme: 'viridis'
-            }
+              scheme: 'viridis',
+            },
           },
         },
       },

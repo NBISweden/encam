@@ -264,3 +264,5 @@ export function useAsync(p: () => Promise<any>, deps?: React.DependencyList) {
     p()
   }, deps)
 }
+
+export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))

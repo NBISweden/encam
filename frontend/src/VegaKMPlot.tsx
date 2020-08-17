@@ -59,6 +59,8 @@ export const VegaKMPlot = React.memo(function VegaKMPlot({
 })
 
 function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
+  // console.log('making a kmplot!')
+
   const options = {...default_options, ...opts}
 
   const {column, row, height, width, x, y, y2} = orient(options)
@@ -123,8 +125,8 @@ function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
         field: 'group',
         type: 'ordinal',
         scale: {
-          scheme: 'viridis'
-        }
+          scheme: 'viridis',
+        },
       },
     },
     config: {
