@@ -29,10 +29,10 @@
   "scripts": {
     "start": "parcel serve index.html --hmr-port 1235",
     "build": "rm -rf dist; esbuild --bundle src/main.tsx --outdir=dist --loader:.png=file --loader:.svg=file --minify --target=es6 \"--define:VERSION='${VERSION:-unspecified}'\" \"--define:process.env.NODE_ENV='production'\"; cd dist; mv main.js \"main.$(md5sum main.js | head -c 20).js\"; sed \"s,src/main.tsx,$(echo main.*.js),\" < ../index.html > index.html",
-    "typecheck": "tsc {src,test}/*.tsx --noEmit --jsx react --lib es2019,dom --skipLibCheck",
     "pretty": "yarn run prettier --list-different --write src test",
-    "doctests:gen": "doctest-ts --jest src/*ts* src/**/*ts*",
-    "doctests:watch": "ls src src/** | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose'",
+    "typecheck": "find src test -name '*ts*' | xargs tsc --noEmit --jsx react --lib es2019,dom --skipLibCheck",
+    "doctests:gen": "find src test -name '*ts*' | xargs doctest-ts --jest",
+    "doctests:watch": "find src test -name '*ts*' | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose'",
     "test": "yarn run doctests:gen; jest"
   },
   "dependencies": {
