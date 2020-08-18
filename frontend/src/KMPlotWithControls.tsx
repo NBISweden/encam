@@ -5,8 +5,8 @@ import * as backend from './backend'
 import * as ui from './ui_utils'
 import * as utils from './utils'
 
-import {VegaKMPlot, Points} from './VegaKMPlot'
-import {VegaCumulativeCount, cucount, slider_max, bin_sizes, Row} from './VegaCumulativeCount'
+import {VegaKMPlot} from './VegaKMPlot'
+import {VegaCumulativeCount, cucount, slider_max, bin_sizes} from './VegaCumulativeCount'
 
 import {Slider} from '@material-ui/core'
 
@@ -158,6 +158,10 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
     }, [cu_data])
   )
 
+  const [options, opt_nodes] = ui.record({
+    ci: ui.useCheckbox('show confidence intervals (95%)', true),
+  })
+
   ui.useWhyChanged(KMPlotWithControls, {
     filter,
     plot_data,
@@ -166,6 +170,7 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
     num_groups,
     cutoffs,
     cu_data,
+    options,
   })
 
   const classes = useStyles()
@@ -174,8 +179,11 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
       <>No records with the given filter.</>
     ) : (
       <div className={classes.KMPlotWithControls}>
-        <div style={{marginLeft: 30}}>{location_node}</div>
-        {plot_data && <VegaKMPlot points={plot_data} />}
+        <div style={{marginLeft: 30, ...ui.flex_column}}>
+          {location_node}
+          {plot_data && opt_nodes}
+        </div>
+        {plot_data && <VegaKMPlot data={plot_data} options={options} />}
         {cu_data && cu_data.length > 0 && (
           <div>
             <VegaCumulativeCount data={cu_data} />
