@@ -4,6 +4,7 @@ import {dummy_keys} from './ui_utils/div'
 // export * from './ui_utils/incubator'
 
 import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import * as utils from './utils'
 
 export type OnChangeSecondArgument<T> = (_: any, t: T) => void
@@ -112,6 +113,8 @@ export function useCheckboxes(
   ] as const
 }
 
+export type Setter<A> = (next: A) => void
+
 export function useRadio<K extends string>(label: string, options: K[], init?: K): UseComponent<K> {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
   return [
@@ -176,7 +179,6 @@ export function useWhyChanged(name_or_fun: string | Function, props: Record<stri
 }
 
 export function useDebounce(ms: number, k: Function) {
-  // const [block, set_block] = React.useState(false)
   const [timer, set_timer] = React.useState(undefined as undefined | number)
   const [res, set_res] = React.useState(undefined)
   React.useEffect(() => {
@@ -186,8 +188,18 @@ export function useDebounce(ms: number, k: Function) {
     const new_timer = setTimeout(() => set_res(k()), ms)
     set_timer(new_timer)
     return () => clearTimeout(new_timer)
-  }, [k])
+  }, [ms, k])
   return res
+}
+
+export function useDelayed<A>(ms: number, init_value: A): [A, Setter<A>] {
+  const [inter, set_inter] = React.useState(init_value)
+  const [value, set_value] = React.useState(init_value)
+  useDebounce(
+    ms,
+    React.useCallback(() => set_value(inter), [inter])
+  )
+  return [value, set_inter]
 }
 
 import {Paper as MuiPaper, PaperProps} from '@material-ui/core'

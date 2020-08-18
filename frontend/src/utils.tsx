@@ -258,7 +258,7 @@ export function mapObject<K extends string, A, B>(
 export function simple_object_diff<A extends Record<string, any>, B extends Record<string, any>>(
   prev: A,
   now: B
-): Partial<A & B> {
+): Partial<B> {
   const diff = {} as any
   const keys = [...Object.keys(prev), ...Object.keys(now)]
   uniq(keys).map(k => {
