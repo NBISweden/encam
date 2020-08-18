@@ -199,7 +199,6 @@ function vega_cumulative_count(data0: Row[], opts?: Partial<Options>): React.Rea
             stack: true,
             axis: {title: 'cumulative record count'},
             type: 'quantitative',
-            // scale: {type: 'pow', exponent: 2}
           },
           order: {
             field: 'bin',

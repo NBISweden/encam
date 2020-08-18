@@ -86,9 +86,8 @@ function useOptions(facet: keyof Row) {
     type: opts.scale === 'linear' ? 'linear' : 'semilog',
   }
   options.mode = opts.mode === 'min-max' ? 'min-max' : 'default'
-  // `tsc` is confused an thinks these are `SetStateAction`s without the `as`
-  options.show_mean = opts.mean as boolean
-  const r = radicals.indexOf(opts.scale as string)
+  options.show_mean = opts.mean
+  const r = radicals.indexOf(opts.scale)
   if (r != -1) {
     options.scale = {
       type: 'pow',

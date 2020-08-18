@@ -56,12 +56,12 @@ import {
   Radio,
 } from '@material-ui/core'
 
-type UseComponent<A> = readonly [A, React.ReactNode, (v: A) => void]
+type UseComponent<A> = readonly [A, React.ReactElement, (v: A) => void]
 
-export function record<A extends Record<string, any>>(
+export function record<A extends Record<keyof A, any>>(
   x: {[K in keyof A]: UseComponent<A[K]>}
 ): UseComponent<A> {
-  const elems = [] as React.ReactNode[]
+  const elems = [] as React.ReactElement[]
   const setters = [] as ((v: A) => void)[]
   const value = utils.mapObject(x, ([value, elem, set], k) => {
     elems.push(elem)
@@ -75,7 +75,7 @@ export function useCheckboxes(
   labels: string[],
   init?: Record<string, boolean>,
   label_string = (s: string) => s
-) {
+): UseComponent<Record<string, boolean>> {
   const init_value = init === undefined ? {} : init
   const [value, set_value] = React.useState(init_value)
   React.useLayoutEffect(() => {
@@ -112,7 +112,7 @@ export function useCheckboxes(
   ] as const
 }
 
-export function useRadio<K extends string>(label: string, options: K[], init?: K) {
+export function useRadio<K extends string>(label: string, options: K[], init?: K): UseComponent<K> {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
   return [
     value,
@@ -133,7 +133,7 @@ export function useRadio<K extends string>(label: string, options: K[], init?: K
   ] as const
 }
 
-export function useCheckbox(label: string, init?: boolean) {
+export function useCheckbox(label: string, init?: boolean): UseComponent<boolean> {
   const [value, set_value] = React.useState(init === undefined ? true : init)
   return [
     value,

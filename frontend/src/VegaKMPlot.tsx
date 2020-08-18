@@ -11,12 +11,12 @@ import {cell_color} from './cell_colors'
 
 export interface Options {
   landscape: boolean
-  legend: boolean
+  ci: boolean
 }
 
 const default_options: Options = {
   landscape: true,
-  legend: true,
+  ci: true,
 }
 
 function orient(options: Options) {
@@ -45,96 +45,110 @@ function orient(options: Options) {
   }
 }
 
-export type Points = [number, number][][]
+export interface KMRow {
+  time: number
+  group: number
+  fit: number
+  lower: number
+  upper: number
+}
 
 export const VegaKMPlot = React.memo(function VegaKMPlot({
-  points,
+  data,
   options,
 }: {
-  points: Points
+  data: KMRow[]
   options?: Partial<Options>
 }) {
-  // ui.useWhyChanged(VegaKMPlot, {points, options})
-  return kmplot(points, options)
+  // ui.useWhyChanged(VegaKMPlot, {rows, options})
+  return kmplot(data, options)
 })
 
-function kmplot(points: Points, opts?: Partial<Options>): React.ReactElement {
-  // console.log('making a kmplot!')
-
+function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
   const options = {...default_options, ...opts}
 
   const {column, row, height, width, x, y, y2} = orient(options)
 
-  const size = 8
+  // const groups = utils.row_range(rows).group
+  // const group_names = {
+  //   [Math.max(...groups)]: 'low',
+  //   [Math.min(...groups)]: 'high',
+  // }
 
-  const tooltip = [
-    {field: 'cell', type: 'nominative', title: 'Cell type'},
-    {field: 'group', type: 'nominative', title: 'Group'},
-    {field: 'tumor', type: 'nominative', title: 'Tumor type'},
-    {field: 'location_lowercase', type: 'nominative', title: 'Location'},
-    {field: 'max', type: 'quantitative', format: '.1f', title: 'Max'},
-    {field: 'upper_outliers', type: 'quantitative', format: '.1f', title: 'Upper outlier count'},
-    {field: 'q3', type: 'quantitative', format: '.1f', title: 'Q3'},
-    {field: 'mean', type: 'quantitative', format: '.1f', title: 'Mean'},
-    {field: 'median', type: 'quantitative', format: '.1f', title: 'Median'},
-    {field: 'q1', type: 'quantitative', format: '.1f', title: 'Q1'},
-    {field: 'lower_outliers', type: 'quantitative', format: '.1f', title: 'Lower outlier count'},
-    {field: 'min', type: 'quantitative', format: '.1f', title: 'Min'},
-  ]
+  // function group_name(g: number) {
+  //   const name = group_names[g]
+  //   return g = (name ? ' ' + name : '')
+  // }
 
-  const num_groups = points.length
-
-  function group_name(x: number) {
-    if (x == 0) {
-      return x + ' (low)'
-    } else if (x == num_groups - 1) {
-      return x + ' (high)'
-    } else if (x == Math.floor(num_groups / 2)) {
-      return x + ' (mid)'
-    } else {
-      return x + ''
-    }
+  function group_name(g: number) {
+    return g + ''
   }
 
-  const data = points.flatMap((group, index) =>
-    group.map(([time, prob]) => ({time, prob, group: group_name(index)}))
-  )
+  const data = rows.map(row => ({...row, group_name: group_name(row.group)}))
 
   const spec: VL.TopLevelSpec = {
     $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
     data: {name: 'data'},
     [height]: 350,
     [width]: 500,
-    mark: {
-      type: 'line',
-      interpolate: 'step-after',
-    },
-    encoding: {
-      [x]: {
-        axis: {title: 'time (weeks)'},
-        field: 'time',
-        type: 'quantitative',
-      },
-      [y]: {
-        axis: {title: 'probability'},
-        field: 'prob',
-        type: 'quantitative',
-      },
-      color: {
-        title: 'group',
-        field: 'group',
-        type: 'ordinal',
-        scale: {
-          scheme: 'viridis',
+    layer: [
+      {
+        mark: {
+          type: 'line',
+          interpolate: 'step-after',
+        },
+        encoding: {
+          [x]: {
+            axis: {title: 'time (weeks)'},
+            field: 'time',
+            type: 'quantitative',
+          },
+          [y]: {
+            axis: {title: 'probability'},
+            field: 'fit',
+            type: 'quantitative',
+          },
+          color: {
+            title: 'group',
+            field: 'group_name',
+            type: 'ordinal',
+            scale: {scheme: 'viridis'},
+          },
         },
       },
-    },
-    config: {
-      view: {stroke: 'transparent'},
-      // axis: { grid: true },
-      // axis: { domainWidth: 1 },
-      // facet: { spacing: 6 },
-    },
+      {
+        mark: {
+          type: 'area',
+          interpolate: 'step-after',
+        },
+        encoding: {
+          [x]: {
+            axis: {title: 'time (weeks)'},
+            field: 'time',
+            type: 'quantitative',
+          },
+          [y]: {
+            axis: {title: 'probability (upper 95% CI)'},
+            field: 'upper',
+            type: 'quantitative',
+          },
+          [y2]: {
+            axis: {title: 'probability (lower 95% CI)'},
+            field: 'lower',
+            type: 'quantitative',
+          },
+          fill: {
+            title: 'group',
+            field: 'group_name',
+            type: 'ordinal',
+            scale: {scheme: 'viridis'},
+          },
+          fillOpacity: {
+            value: options.ci ? 0.3 : 0.0,
+          },
+        },
+      },
+    ],
   }
   return Embed({spec, data})
 }

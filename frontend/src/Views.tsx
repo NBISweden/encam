@@ -18,7 +18,7 @@ export const GlobalStyle = sc.createGlobalStyle`
 `
 
 import {boxplot_test_data} from '../test/data/boxplot'
-import {kmplot_test_data, kmplot_test_filter, kmplot_test_request} from '../test/data/kmplot'
+import {kmplot_test_points, kmplot_test_filter, kmplot_test_request} from '../test/data/kmplot'
 import {form_test_conf} from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
@@ -127,7 +127,7 @@ export function Views() {
       path: '/KMPlot',
       component: (
         <ui.InlinePaper>
-          <VegaKMPlot points={kmplot_test_data.points} />
+          <VegaKMPlot data={kmplot_test_points(4)} />
         </ui.InlinePaper>
       ),
     },
