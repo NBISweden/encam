@@ -2,22 +2,23 @@ import * as React from 'react'
 import styled from 'styled-components'
 
 export function dummy_keys(xs: React.ReactNode[], prefix = ';'): React.ReactElement {
-  return <>
-    {
-    xs.map((x, i) => {
-    if (x && typeof x == 'object' && '$$typeof' in x) {
-      let child = x as any
-      if (!child.key) {
-        const key = prefix + i
-        const ref = child.ref
-        child = React.createElement(child.type, {key, ref, ...child.props})
-      }
-      return child
-    } else {
-      return x
-    }
-  })}
-  </>
+  return (
+    <>
+      {xs.map((x, i) => {
+        if (x && typeof x == 'object' && '$$typeof' in x) {
+          let child = x as any
+          if (!child.key) {
+            const key = prefix + i
+            const ref = child.ref
+            child = React.createElement(child.type, {key, ref, ...child.props})
+          }
+          return child
+        } else {
+          return x
+        }
+      })}
+    </>
+  )
 }
 
 export function css(xs: TemplateStringsArray | string, ...more: string[]): {css: string} {

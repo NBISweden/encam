@@ -9,15 +9,18 @@ interface Data {
 }
 
 export const kmplot_test_data: Data = {
-  points:
-    utils.enumTo(4).map(g => g + 1).flatMap(group =>
+  points: utils
+    .enumTo(4)
+    .map(g => g + 1)
+    .flatMap(group =>
       utils.enumTo(460).map(t => ({
         group,
         time: t,
-        upper: 1 - 0.9 * t / 460 / group,
-        fit:   1 - 0.8 * t / 460 / group,
-        lower: 1 - 0.55 * t / 460 / group,
-      }))),
+        upper: 1 - (0.9 * t) / 460 / group,
+        fit: 1 - (0.8 * t) / 460 / group,
+        lower: 1 - (0.55 * t) / 460 / group,
+      }))
+    ),
   log_rank: {
     test_statistic_logrank: 2.3392174425317878,
     p_logrank: 0.12615291394526454,
@@ -31,9 +34,7 @@ export const kmplot_test_data: Data = {
 }
 
 export function kmplot_test_points(num_groups: number) {
-  return kmplot_test_data
-    .points
-    .filter(p => Math.random() > 0.75 && p.group <= num_groups)
+  return kmplot_test_data.points.filter(p => Math.random() > 0.75 && p.group <= num_groups)
 }
 
 export const kmplot_test_filter = {

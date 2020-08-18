@@ -5,8 +5,8 @@ import * as backend from './backend'
 import * as ui from './ui_utils'
 import * as utils from './utils'
 
-import {VegaKMPlot} from './VegaKMPlot'
-import {VegaCumulativeCount, cucount, slider_max, bin_sizes} from './VegaCumulativeCount'
+import {VegaKMPlot, KMRow} from './VegaKMPlot'
+import {VegaCumulativeCount, cucount, slider_max, bin_sizes, Row} from './VegaCumulativeCount'
 
 import {Slider} from '@material-ui/core'
 
@@ -27,160 +27,218 @@ const useStyles = makeStyles({
   },
 })
 
+interface State {
+  expr_data: undefined | number[]
+  cu_data: undefined | Row[]
+  plot_data: undefined | KMRow[]
+  cutoffs: number[]
+  filter: Record<string, any>
+  location: string
+  num_groups: number
+  loading: boolean
+}
+
+const init_state: State = {
+  expr_data: undefined,
+  cu_data: undefined,
+  plot_data: undefined,
+  cutoffs: [],
+  filter: {},
+  location: 'Tumor',
+  num_groups: 2,
+  loading: false,
+}
+
+type Message =
+  | {type: 'update'; values: Partial<State>}
+  | {type: 'reply'; endpoint: 'expression'; value: any}
+  | {type: 'reply'; endpoint: 'survival'; value: any}
+
+type Request = [string, any]
+
+export function next(start: State, msg: Message): readonly [State, ...Request[]] {
+  const reqs = [] as Request[]
+
+  let next = {...start}
+
+  if (msg.type === 'update') {
+    next = {...next, ...msg.values}
+  }
+
+  {
+    const diff = utils.simple_object_diff(start, next)
+
+    if (diff.filter || diff.location) {
+      const filter_full = {
+        ...next.filter,
+        cell_full: next.filter.cell + '_' + next.location.toUpperCase(),
+      }
+      reqs.push(['expression', filter_full])
+      next.loading = true
+    }
+    if (msg.type === 'reply' && msg.endpoint === 'expression') {
+      next.loading = false
+      const next_expr_data = msg.value
+      if (!next_expr_data.length) {
+        next.plot_data = undefined
+      }
+      if (!next.expr_data || next.expr_data.length !== next_expr_data.length) {
+        next.cutoffs = []
+      }
+      next.expr_data = next_expr_data
+    }
+  }
+
+  {
+    const diff = utils.simple_object_diff(start, next)
+
+    if (start.expr_data !== next.expr_data || diff.cutoffs) {
+      if (next.expr_data) {
+        next.cu_data = cucount(next.expr_data, next.cutoffs)
+      } else {
+        next.cu_data = undefined
+      }
+    }
+  }
+
+  {
+    const diff = utils.simple_object_diff(start, next)
+
+    // update cutoffs if num_groups or the data was changed
+
+    if (diff.cu_data || diff.num_groups) {
+      const {cu_data, num_groups, cutoffs, expr_data} = next
+      if (expr_data && cu_data && cu_data.length) {
+        const wrong_length = num_groups - 1 != cutoffs.length
+        const aligned = cutoffs.every(c => cu_data.some(d => d.cucount === c))
+        if (wrong_length || !aligned) {
+          const cutoff = (i: number) => {
+            const r = (i + 1) / num_groups
+            return r * cu_data.slice(-1)[0].cucount
+          }
+          const proto = wrong_length ? utils.enumTo(num_groups - 1).map(cutoff) : cutoffs
+          const max = slider_max(cu_data)
+          const next_cutoffs = utils.snap(
+            proto,
+            cu_data.map(d => d.cucount).filter(cucount => cucount > 0 && cucount <= max)
+          )
+          if (!utils.equal(cutoffs, next_cutoffs)) {
+            next.cutoffs = next_cutoffs
+            next.cu_data = cucount(expr_data, next_cutoffs)
+          }
+        }
+      }
+    }
+  }
+
+  if (start.cu_data !== next.cu_data) {
+    const {cu_data, filter, location} = next
+    if (cu_data && cu_data.length) {
+      // when we slide around the cutoffs request new survival calculation
+      const group_sizes = bin_sizes(cu_data)
+      const filter_full = {
+        ...filter,
+        cell_full: filter.cell + '_' + location.toUpperCase(),
+        group_sizes,
+        num_groups: group_sizes.length,
+      }
+      next.loading = true
+      reqs.push(['survival', {...filter_full, group_sizes}])
+    }
+  }
+
+  if (msg.type === 'reply' && msg.endpoint === 'survival') {
+    next.loading = false
+    next.plot_data = msg.value.points
+  }
+
+  const ret = [next, ...reqs] as const
+  console.group(msg.type)
+  console.log(start)
+  console.log(msg)
+  console.log(next)
+  console.log(...reqs)
+  console.groupEnd()
+  return ret
+}
+
 export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
+  const [state, set_state] = React.useState(init_state as State)
+
+  const request_fn = backend.useRequestFn()
+
+  function request(endpoint: string, body: any) {
+    request_fn(endpoint, body).then(value =>
+      dispatch({type: 'reply', endpoint: endpoint as any, value})
+    )
+  }
+
+  const [surv, enqueue_surv] = ui.useDelayed(400, undefined as any)
+
+  function dispatch(m: Message) {
+    set_state(state => {
+      const [next_state, ...reqs] = next(state, m)
+      reqs.forEach(([endpoint, body]) => {
+        if (endpoint === 'survival') {
+          enqueue_surv({body})
+        } else {
+          request(endpoint, body)
+        }
+      })
+      return next_state
+    })
+  }
+
+  React.useEffect(() => {
+    if (surv) {
+      enqueue_surv(undefined)
+      request('survival', surv.body)
+    }
+  }, [surv])
+
   const [location, location_node] = ui.useRadio('Location', ['Tumor', 'Stroma'])
   const [num_groups_str, num_groups_node] = ui.useRadio('Groups', ['2', '3', '4'])
   const num_groups = Number(num_groups_str)
 
-  const [plot_data, set_plot_data] = React.useState(undefined as any)
-  const [expr_data, set_expr_data] = React.useState(undefined as undefined | number[])
-  const [loading, set_loading] = React.useState(false)
+  React.useLayoutEffect(() => dispatch({type: 'update', values: {location, num_groups, filter}}), [
+    location,
+    num_groups,
+    filter,
+  ])
 
-  const request = backend.useRequestFn()
+  const set_cutoffs: ui.Setter<number[]> = cutoffs => dispatch({type: 'update', values: {cutoffs}})
 
-  const [cutoffs, set_cutoffs] = React.useState([] as number[])
+  return <KMPlotWithControlsUI {...{location_node, num_groups_node, set_cutoffs, ...state}} />
+}
 
-  ui.useAsync(async () => {
-    // Get the expression levels when filter or location changes
-    const filter_full = {
-      ...filter,
-      cell_full: filter.cell + '_' + location.toUpperCase(),
-    }
-    console.time('expression')
-    set_loading(true)
-    const next_expr_data = [...(await request('expression', filter_full))]
-    console.timeEnd('expression')
-    ReactDOM.unstable_batchedUpdates(() => {
-      set_expr_data(next_expr_data)
-      if (!next_expr_data.length) {
-        set_plot_data(undefined)
-      }
-      if (!expr_data || expr_data.length !== next_expr_data.length) {
-        set_cutoffs([])
-      }
-    })
-  }, [filter, location])
+interface PropsUI {
+  cu_data: undefined | Row[]
+  plot_data: undefined | KMRow[]
 
-  const cu_data = React.useMemo(() => {
-    if (expr_data) {
-      return cucount(expr_data, cutoffs)
-    } else {
-      return undefined
-    }
-  }, [expr_data, cutoffs])
+  cutoffs: number[]
+  set_cutoffs: ui.Setter<number[]>
 
-  React.useLayoutEffect(() => {
-    // update cutoffs if num_groups or the data was changed
-    if (cu_data && cu_data.length) {
-      const wrong_length = num_groups - 1 != cutoffs.length
-      const aligned = cutoffs.every(c => cu_data.some(d => d.cucount === c))
-      if (wrong_length || !aligned) {
-        const cutoff = (i: number) => {
-          const r = (i + 1) / num_groups
-          return r * cu_data.slice(-1)[0].cucount
-        }
-        const proto = wrong_length ? utils.enumTo(num_groups - 1).map(cutoff) : cutoffs
-        const max = slider_max(cu_data)
-        const next_cutoffs = utils.snap(
-          proto,
-          cu_data.map(d => d.cucount).filter(cucount => cucount > 0 && cucount <= max)
-        )
-        if (!utils.equal(cutoffs, next_cutoffs)) {
-          set_cutoffs(next_cutoffs)
-        }
-      }
-    }
-  }, [cu_data, num_groups])
+  location_node: React.ReactNode
+  num_groups_node: React.ReactNode
+  loading: boolean
+}
 
-  const [fired, set_fired] = React.useState(false)
-  if (false) {
-    // testing
-    React.useEffect(() => {
-      if (cu_data && cu_data.length && !fired) {
-        set_fired(true)
-        setTimeout(() => {
-          console.log('fire₁!')
-          fireEvent.click(screen.getByLabelText('Stroma'))
-          // fireEvent.keyDown(screen.getByRole('slider'), {key: 'ArrowRight', code: 'ArrowRight'})
-        }, 200)
-        setTimeout(() => {
-          console.log('fire₂!')
-          fireEvent.click(screen.getByLabelText('Tumor'))
-          // fireEvent.keyDown(screen.getByRole('slider'), {key: 'ArrowRight', code: 'ArrowRight'})
-        }, 800)
-      }
-    }, [cu_data])
-  }
-
-  React.useLayoutEffect(() => {
-    // when we slide around the cutoffs there will be a request scheduled by the debounce
-    if (cu_data) {
-      if (cu_data.length) {
-        set_loading(true)
-      } else {
-        // unless there was no data
-        set_loading(false)
-      }
-    }
-  }, [cu_data])
-
-  ui.useDebounce(
-    400,
-    React.useCallback(async () => {
-      // after a little while of no changes to the slider request new survival calculation
-      if (cu_data && cu_data.length) {
-        const group_sizes = bin_sizes(cu_data)
-        const filter_full = {
-          ...filter,
-          cell_full: filter.cell + '_' + location.toUpperCase(),
-          group_sizes,
-          num_groups: group_sizes.length,
-        }
-        console.time('survival')
-        const next_plot_data = await (async () => {
-          try {
-            const res = await request('survival', {
-              ...filter_full,
-              group_sizes,
-            })
-            return res.points
-          } catch (e) {
-            console.error(e)
-            return undefined
-          }
-        })()
-        console.timeEnd('survival')
-        ReactDOM.unstable_batchedUpdates(() => {
-          set_loading(false)
-          set_plot_data(next_plot_data)
-        })
-      }
-    }, [cu_data])
-  )
+export function KMPlotWithControlsUI(props: PropsUI) {
+  const {cu_data, plot_data, cutoffs, set_cutoffs, loading} = props
 
   const [options, opt_nodes] = ui.record({
     ci: ui.useCheckbox('show confidence intervals (95%)', true),
   })
 
-  ui.useWhyChanged(KMPlotWithControls, {
-    filter,
-    plot_data,
-    loading,
-    location,
-    num_groups,
-    cutoffs,
-    cu_data,
-    options,
-  })
-
   const classes = useStyles()
+
   const plot =
     cu_data && cu_data.length == 0 ? (
       <>No records with the given filter.</>
     ) : (
       <div className={classes.KMPlotWithControls}>
         <div style={{marginLeft: 30, ...ui.flex_column}}>
-          {location_node}
+          {props.location_node}
           {plot_data && opt_nodes}
         </div>
         {plot_data && <VegaKMPlot data={plot_data} options={options} />}
@@ -203,7 +261,7 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
                 step={null}
                 track={false}
               />
-              {num_groups_node}
+              {props.num_groups_node}
               {utils.equal(utils.uniq(cutoffs), cutoffs) || (
                 <div>Warning: overlapping cutoffs</div>
               )}{' '}
