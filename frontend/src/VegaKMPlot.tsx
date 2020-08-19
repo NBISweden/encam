@@ -123,17 +123,14 @@ function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
         },
         encoding: {
           [x]: {
-            axis: {title: 'time (weeks)'},
             field: 'time',
             type: 'quantitative',
           },
           [y]: {
-            axis: {title: 'probability (upper 95% CI)'},
             field: 'upper',
             type: 'quantitative',
           },
           [y2]: {
-            axis: {title: 'probability (lower 95% CI)'},
             field: 'lower',
             type: 'quantitative',
           },
