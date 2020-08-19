@@ -6,30 +6,19 @@ import * as ui from './ui_utils'
 import * as utils from './utils'
 
 import {VegaKMPlot, KMRow} from './VegaKMPlot'
-import {VegaCumulativeCount, cucount, slider_max, bin_sizes, Row} from './VegaCumulativeCount'
+import {VegaCumulativeCount, cucount, slider_max, bin_sizes, CuRow} from './VegaCumulativeCount'
 
 import {Slider} from '@material-ui/core'
 
 import {makeStyles} from '@material-ui/core/styles'
 
-import {LoadingPlot} from './FormAndPlotUI'
+import {LoadingPlot} from './FormAndPlotView'
 
 import {within, render, fireEvent, screen} from '@testing-library/react'
 
-const useStyles = makeStyles({
-  KMPlotWithControls: {
-    ...ui.flex_column,
-
-    // Radio buttons:
-    '& .MuiFormGroup-root': {
-      ...ui.flex_row,
-    },
-  },
-})
-
-interface State {
+export interface State {
   expr_data: undefined | number[]
-  cu_data: undefined | Row[]
+  cu_data: undefined | CuRow[]
   plot_data: undefined | KMRow[]
   cutoffs: number[]
   filter: Record<string, any>
@@ -38,7 +27,7 @@ interface State {
   loading: boolean
 }
 
-const init_state: State = {
+export const init_state: State = {
   expr_data: undefined,
   cu_data: undefined,
   plot_data: undefined,
@@ -49,23 +38,31 @@ const init_state: State = {
   loading: false,
 }
 
-type Message =
-  | {type: 'update'; values: Partial<State>}
-  | {type: 'reply'; endpoint: 'expression'; value: any}
-  | {type: 'reply'; endpoint: 'survival'; value: any}
+export interface Survival {
+  points: KMRow[]
+  log_rank: Record<string, number>
+  cox_regression: Record<string, number>
+}
 
-type Request = [string, any]
+export type Message =
+  | {type: 'update'; values: Partial<State>}
+  | {type: 'reply'; endpoint: 'expression'; value: number[]}
+  | {type: 'reply'; endpoint: 'survival'; value: Survival}
+
+export type Request = [string, any]
 
 export function next(start: State, msg: Message): readonly [State, ...Request[]] {
   const reqs = [] as Request[]
 
-  let next = {...start}
+  let next: State = {...start}
 
+  // Update the state directly when the user has changes some input
   if (msg.type === 'update') {
     next = {...next, ...msg.values}
   }
 
   {
+    // Request new expression levels when the filter or location changes
     const diff = utils.simple_object_diff(start, next)
 
     if (diff.filter || diff.location) {
@@ -89,22 +86,19 @@ export function next(start: State, msg: Message): readonly [State, ...Request[]]
     }
   }
 
-  {
-    const diff = utils.simple_object_diff(start, next)
-
-    if (start.expr_data !== next.expr_data || diff.cutoffs) {
-      if (next.expr_data) {
-        next.cu_data = cucount(next.expr_data, next.cutoffs)
-      } else {
-        next.cu_data = undefined
-      }
+  // Memoize the cumulative count data when the expression levels change
+  if (start.expr_data !== next.expr_data || start.cutoffs !== next.cutoffs) {
+    if (next.expr_data) {
+      next.cu_data = cucount(next.expr_data, next.cutoffs)
+    } else {
+      next.cu_data = undefined
     }
   }
 
   {
-    const diff = utils.simple_object_diff(start, next)
+    // Snap cutoffs when the data or the number of groups change
 
-    // update cutoffs if num_groups or the data was changed
+    const diff = utils.simple_object_diff(start, next)
 
     if (diff.cu_data || diff.num_groups) {
       const {cu_data, num_groups, cutoffs, expr_data} = next
@@ -134,7 +128,7 @@ export function next(start: State, msg: Message): readonly [State, ...Request[]]
   if (start.cu_data !== next.cu_data) {
     const {cu_data, filter, location} = next
     if (cu_data && cu_data.length) {
-      // when we slide around the cutoffs request new survival calculation
+      // Request new survival calculation when the cuttoffs have changed
       const group_sizes = bin_sizes(cu_data)
       const filter_full = {
         ...filter,
@@ -208,11 +202,11 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
 
   const set_cutoffs: ui.Setter<number[]> = cutoffs => dispatch({type: 'update', values: {cutoffs}})
 
-  return <KMPlotWithControlsUI {...{location_node, num_groups_node, set_cutoffs, ...state}} />
+  return <KMPlotWithControlsView {...{location_node, num_groups_node, set_cutoffs, ...state}} />
 }
 
-interface PropsUI {
-  cu_data: undefined | Row[]
+interface ViewProps {
+  cu_data: undefined | CuRow[]
   plot_data: undefined | KMRow[]
 
   cutoffs: number[]
@@ -223,7 +217,18 @@ interface PropsUI {
   loading: boolean
 }
 
-export function KMPlotWithControlsUI(props: PropsUI) {
+const useStyles = makeStyles({
+  KMPlotWithControlsView: {
+    ...ui.flex_column,
+
+    // Radio buttons:
+    '& .MuiFormGroup-root': {
+      ...ui.flex_row,
+    },
+  },
+})
+
+export function KMPlotWithControlsView(props: ViewProps) {
   const {cu_data, plot_data, cutoffs, set_cutoffs, loading} = props
 
   const [options, opt_nodes] = ui.record({
@@ -236,7 +241,7 @@ export function KMPlotWithControlsUI(props: PropsUI) {
     cu_data && cu_data.length == 0 ? (
       <>No records with the given filter.</>
     ) : (
-      <div className={classes.KMPlotWithControls}>
+      <div className={classes.KMPlotWithControlsView}>
         <div style={{marginLeft: 30, ...ui.flex_column}}>
           {props.location_node}
           {plot_data && opt_nodes}

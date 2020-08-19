@@ -8,7 +8,7 @@ import {BoxplotWithControls} from './BoxplotWithControls'
 import {KMPlotWithControls} from './KMPlotWithControls'
 import * as form from './Form'
 
-import {LoadingPlot, FormAndPlotUI} from './FormAndPlotUI'
+import {LoadingPlot, FormAndPlotView} from './FormAndPlotView'
 
 export function FormAndKMPlot() {
   const conf = backend.useRequest('configuration')
@@ -17,7 +17,7 @@ export function FormAndKMPlot() {
 
   ui.useWhyChanged(FormAndKMPlot, {conf, filter})
   return (
-    <FormAndPlotUI
+    <FormAndPlotView
       form={conf && <form.KMForm conf={conf} onSubmit={set_filter} />}
       plot={filter && <KMPlotWithControls filter={filter} />}
     />
@@ -53,7 +53,7 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   }, [])
   ui.useWhyChanged(FormAndBoxPlot, {conf, filter, plot_data, loading, plot})
   return (
-    <FormAndPlotUI
+    <FormAndPlotView
       form={conf && <Form key="form" conf={conf} onSubmit={onSubmit} />}
       plot={<LoadingPlot plot={plot} loading={loading} />}
     />

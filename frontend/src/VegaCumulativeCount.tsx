@@ -42,7 +42,7 @@ function orient(options: Options) {
   }
 }
 
-export interface Row {
+export interface CuRow {
   value: number
   count: number
   cucount: number
@@ -90,7 +90,7 @@ export interface Row {
   unzip(cucount([10,10,11,11], [4])).count // => [2,2]
 
 */
-export function cucount(values: number[], cutoffs: number[]): Row[] {
+export function cucount(values: number[], cutoffs: number[]): CuRow[] {
   const bin = (x: number) => cutoffs.filter(y => x >= y).length
   const points = {} as Record<number, number>
   const sorted_values = values.sort(utils.by(x => x))
@@ -121,7 +121,7 @@ export function cucount(values: number[], cutoffs: number[]): Row[] {
   slider_max(cucount([100,200,    300,    400,400,500    ], [1])) // => 3
   slider_max(cucount([100,200,    300,    400,    500,500], [1])) // => 3
 */
-export function slider_max(rows: Row[]): number {
+export function slider_max(rows: CuRow[]): number {
   const rrows = rows.slice().reverse()
   if (rrows.length < 2) {
     return 0
@@ -141,7 +141,7 @@ export function slider_max(rows: Row[]): number {
   bin_sizes(cucount([4,5,6,7,8], [1,2,3,4])) // => [1,1,1,1,1]
 
 */
-export function bin_sizes(rows: Row[]): number[] {
+export function bin_sizes(rows: CuRow[]): number[] {
   const N = Math.max(0, ...rows.map(row => row.bin))
   return utils
     .enumTo(1 + N)
@@ -152,14 +152,14 @@ export const VegaCumulativeCount = React.memo(function VegaCumulativeCount({
   data,
   options,
 }: {
-  data: Row[]
+  data: CuRow[]
   options?: Partial<Options>
 }) {
   // ui.useWhyChanged(VegaCumulativeCount, {data, options})
   return vega_cumulative_count(data, options)
 })
 
-function vega_cumulative_count(data0: Row[], opts?: Partial<Options>): React.ReactElement {
+function vega_cumulative_count(data0: CuRow[], opts?: Partial<Options>): React.ReactElement {
   const sizes = bin_sizes(data0)
   const acc_sizes = sizes.map((s, i) => s + utils.sum(sizes.filter((_, j) => j < i)))
   const data = data0.flatMap(obj => {
