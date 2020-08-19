@@ -5,7 +5,7 @@ import {FormAndBoxPlot} from '../src/FormAndPlot'
 import {MockBackend} from '../src/backend'
 
 import {form_test_conf} from './data/form'
-import {boxplot_test_data_grouped} from './data/boxplot'
+import {grouped_rows} from './data/boxplot'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 
@@ -23,7 +23,7 @@ describe(FormAndBoxPlot, () => {
         return form_test_conf
       } else if (endpoint == 'tukey') {
         expect(body).toBeDefined()
-        return boxplot_test_data_grouped
+        return grouped_rows
       }
       throw new Error(`Unsupported endpoint ${endpoint}`)
     }

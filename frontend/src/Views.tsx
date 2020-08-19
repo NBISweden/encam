@@ -17,21 +17,23 @@ export const GlobalStyle = sc.createGlobalStyle`
   }
 `
 
-import {boxplot_test_data} from '../test/data/boxplot'
-import {kmplot_test_points, kmplot_test_filter, kmplot_test_request} from '../test/data/kmplot'
-import {form_test_conf} from '../test/data/form'
+import * as boxplot_data from '../test/data/boxplot'
+import * as km_data from '../test/data/kmplot'
+import * as form_data from '../test/data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
 import {FormAndBoxPlot, FormAndKMPlot} from './FormAndPlot'
-import {FormAndPlotUI, LoadingPlot} from './FormAndPlotUI'
+import {FormAndPlotView, LoadingPlot} from './FormAndPlotView'
 import * as ui from './ui_utils'
+
+import {cucount} from './VegaCumulativeCount'
 
 import {VegaBoxplot} from './VegaBoxplot'
 import {VegaKMPlot} from './VegaKMPlot'
 import {BoxplotWithControls} from './BoxplotWithControls'
-import {KMPlotWithControls} from './KMPlotWithControls'
+import {KMPlotWithControls, KMPlotWithControlsView} from './KMPlotWithControls'
 import {Splash} from './Splash'
-import * as splash_test_data from '../test/data/splash'
+import * as splash_data from '../test/data/splash'
 import {MockBackend} from './backend'
 
 import {Switch} from 'react-router-dom'
@@ -66,7 +68,7 @@ export function Views() {
       path: '/Form',
       component: (
         <ui.InlinePaper>
-          <form.Form conf={form_test_conf} />
+          <form.Form conf={form_data.form_test_conf} />
         </ui.InlinePaper>
       ),
     },
@@ -75,7 +77,7 @@ export function Views() {
       path: '/TwoForms',
       component: (
         <ui.InlinePaper>
-          <form.TwoForms conf={form_test_conf} />
+          <form.TwoForms conf={form_data.form_test_conf} />
         </ui.InlinePaper>
       ),
     },
@@ -84,7 +86,7 @@ export function Views() {
       path: '/KMForm',
       component: (
         <ui.InlinePaper>
-          <form.KMForm conf={form_test_conf} />
+          <form.KMForm conf={form_data.form_test_conf} />
         </ui.InlinePaper>
       ),
     },
@@ -93,7 +95,7 @@ export function Views() {
       path: '/BoxplotWithControls',
       component: (
         <ui.InlinePaper>
-          <BoxplotWithControls data={boxplot_test_data} facet="cell" />
+          <BoxplotWithControls data={boxplot_data.rows} facet="cell" />
         </ui.InlinePaper>
       ),
     },
@@ -101,9 +103,26 @@ export function Views() {
       label: 'KMPlot With Controls',
       path: '/KMPlotWithControls',
       component: (
-        <MockBackend request={kmplot_test_request}>
-          <KMPlotWithControls filter={kmplot_test_filter} />,
+        <MockBackend request={km_data.request}>
+          <KMPlotWithControls filter={km_data.filter} />,
         </MockBackend>
+      ),
+    },
+    {
+      label: 'KMPlot With Controls View',
+      path: '/KMPlotWithControlsView',
+      component: (
+        <>
+          <KMPlotWithControlsView
+            plot_data={km_data.make_points(2)}
+            cu_data={cucount(km_data.expression, [26])}
+            cutoffs={[26]}
+            set_cutoffs={() => 0}
+            location_node={'location: stroma'}
+            num_groups_node={'groups: 2'}
+            loading={false}
+          />
+        </>
       ),
     },
     {
@@ -112,7 +131,7 @@ export function Views() {
       component: (
         <ui.InlinePaper>
           <VegaBoxplot
-            data={boxplot_test_data}
+            data={boxplot_data.rows}
             options={{
               facet: 'cell',
               inner: ['tumor', 'group', 'location'],
@@ -127,7 +146,7 @@ export function Views() {
       path: '/KMPlot',
       component: (
         <ui.InlinePaper>
-          <VegaKMPlot data={kmplot_test_points(4)} />
+          <VegaKMPlot data={km_data.make_points(4)} />
         </ui.InlinePaper>
       ),
     },
@@ -145,7 +164,7 @@ export function Views() {
       path: '/DomplotsMock',
       component: (
         <ui.InlinePaper>
-          <MockBackend request={splash_test_data.request}>
+          <MockBackend request={splash_data.request}>
             <domplots.Demo />
           </MockBackend>
         </ui.InlinePaper>
@@ -155,7 +174,7 @@ export function Views() {
       label: 'Splash Mock',
       path: '/SplashMock',
       component: (
-        <MockBackend request={splash_test_data.request}>
+        <MockBackend request={splash_data.request}>
           <Splash key="mock" />
         </MockBackend>
       ),
@@ -165,14 +184,14 @@ export function Views() {
       path: '/FormAndPlotUI',
       component: (
         <div>
-          <FormAndPlotUI />
-          <FormAndPlotUI form={<h2>Form</h2>} />
-          <FormAndPlotUI form={<h2>Form</h2>} plot={<LoadingPlot loading={true} />} />
-          <FormAndPlotUI
+          <FormAndPlotView />
+          <FormAndPlotView form={<h2>Form</h2>} />
+          <FormAndPlotView form={<h2>Form</h2>} plot={<LoadingPlot loading={true} />} />
+          <FormAndPlotView
             form={<h2>Form</h2>}
             plot={<LoadingPlot plot={<h2>Example plot view</h2>} />}
           />
-          <FormAndPlotUI
+          <FormAndPlotView
             form={<h2>Form</h2>}
             plot={<LoadingPlot plot={<h2>Example plot view</h2>} loading={true} />}
           />

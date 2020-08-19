@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import {FormAndKMPlot} from '../src/FormAndPlot'
 
-import {kmplot_test_data, kmplot_test_expressions} from '../test/data/kmplot'
+import * as km_data from '../test/data/kmplot'
 
 import {MockBackend} from '../src/backend'
 
@@ -25,10 +25,10 @@ describe(FormAndKMPlot, () => {
         return form_test_conf
       } else if (endpoint == 'expression') {
         expect(body).toBeDefined()
-        return kmplot_test_expressions
+        return km_data.expression
       } else if (endpoint == 'survival') {
         expect(body).toBeDefined()
-        return kmplot_test_data
+        return km_data.survival
       } else {
         throw new Error(`Unsupported endpoint ${endpoint}`)
       }

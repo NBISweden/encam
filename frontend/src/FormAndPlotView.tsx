@@ -8,7 +8,7 @@ import {CircularProgress} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 
 const useStyles = makeStyles({
-  FormAndPlot: {
+  FormAndPlotView: {
     ...ui.flex_row,
     alignItems: 'flex-start',
     '& > :not(:first-child)': {
@@ -49,13 +49,13 @@ export function LoadingPlot({plot = undefined as React.ReactNode, loading = fals
   )
 }
 
-export function FormAndPlotUI({
+export function FormAndPlotView({
   form = undefined as React.ReactNode,
   plot = undefined as React.ReactNode,
 }) {
   const classes = useStyles()
   return (
-    <div className={classes.FormAndPlot}>
+    <div className={classes.FormAndPlotView}>
       <ui.Paper key="form" style={form ? {width: '15cm', flexShrink: 0} : {}}>
         {form || <CircularProgress />}
       </ui.Paper>

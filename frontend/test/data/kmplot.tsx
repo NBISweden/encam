@@ -1,14 +1,9 @@
 import * as ui from '../../src/ui_utils'
 import * as utils from '../../src/utils'
 import type {KMRow} from '../../src/VegaKMPlot'
+import type {Survival} from '../../src/KMPlotWithControls'
 
-interface Data {
-  points: KMRow[]
-  log_rank: Record<string, number>
-  cox_regression: Record<string, number>
-}
-
-export const kmplot_test_data: Data = {
+export const survival: Survival = {
   points: utils
     .enumTo(4)
     .map(g => g + 1)
@@ -33,11 +28,11 @@ export const kmplot_test_data: Data = {
   },
 }
 
-export function kmplot_test_points(num_groups: number) {
-  return kmplot_test_data.points.filter(p => Math.random() > 0.75 && p.group <= num_groups)
+export function make_points(num_groups: number) {
+  return survival.points.filter(p => Math.random() > 0.75 && p.group <= num_groups)
 }
 
-export const kmplot_test_filter = {
+export const filter = {
   clinical_stage: ['0', 'I', 'II', 'III', 'IV'],
   pT_stage: ['T0', 'T1', 'T2', 'T3', 'T4'],
   pN_stage: ['N0', 'N1', 'N2'],
@@ -76,7 +71,7 @@ export const kmplot_test_filter = {
   tumors: ['COAD'],
 }
 
-export const kmplot_test_expressions = [
+export const expression = [
   0,
   0,
   0,
@@ -122,15 +117,15 @@ export const kmplot_test_expressions = [
   424.18447500676905,
 ]
 
-export const kmplot_test_request = async (endpoint: string, args: any) => {
+export const request = async (endpoint: string, args: any) => {
   if (endpoint.includes('expression')) {
     await ui.sleep(100)
-    return kmplot_test_expressions.filter(() => Math.random() > 0.1)
+    return expression.filter(() => Math.random() > 0.1)
   } else {
     await ui.sleep(200)
     return {
-      ...kmplot_test_data,
-      points: kmplot_test_points(args.num_groups),
+      ...survival,
+      points: make_points(args.num_groups),
     }
   }
 }

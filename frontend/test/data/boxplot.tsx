@@ -20,7 +20,7 @@ interface Row {
 const NaN = ('NaN' as any) as number
 
 // CD4, CD4_Treg, CD8 for BRCA and groups A, B
-export const boxplot_test_data: Row[] = [
+export const rows: Row[] = [
   {
     cell: 'CD4',
     location: 'STROMA',
@@ -215,6 +215,4 @@ export const boxplot_test_data: Row[] = [
   },
 ]
 
-export const boxplot_test_data_grouped: Row[][] = Object.values(
-  utils.groupBy('group', boxplot_test_data)
-)
+export const grouped_rows: Row[][] = Object.values(utils.groupBy('group', rows))
