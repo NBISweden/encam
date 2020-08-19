@@ -7,6 +7,7 @@
   "license": "GPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.9.6",
+    "@babel/plugin-transform-runtime": "^7.11.0",
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
@@ -32,8 +33,8 @@
     "pretty": "yarn run prettier --list-different --write src test",
     "typecheck": "find src test -name '*ts*' | xargs tsc --noEmit --jsx react --lib es2019,dom --skipLibCheck",
     "doctests:gen": "find src test -name '*ts*' | xargs doctest-ts --jest",
-    "doctests:watch": "find src test -name '*ts*' | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose'",
-    "test": "yarn run doctests:gen; jest"
+    "doctests:watch": "find src test -name '*ts*' | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose --testEnvironment node'",
+    "test": "yarn run doctests:gen && jest"
   },
   "dependencies": {
     "@material-ui/core": "^4.0.0",
@@ -49,14 +50,6 @@
     "vega-lite": "^4.7.0",
     "vega-tooltip": "^0.22.1"
   },
-  "targets": {
-    "browser": {
-      "publicUrl": "./"
-    }
-  },
-  "browserslist": [
-    "since 2017-06"
-  ],
   "prettier": {
     "printWidth": 100,
     "semi": false,
@@ -66,5 +59,24 @@
     "bracketSpacing": false,
     "arrowParens": "avoid",
     "embeddedLanguageFormatting": "off"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-transform-runtime"
+    ],
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react",
+      "@babel/preset-typescript"
+    ]
+  },
+  "jest": {
+    "clearMocks": true,
+    "testMatch": [
+      "**/__tests__/**/*.[jt]s?(x)",
+      "**/?(*)(spec|test).[tj]s?(x)"
+    ],
+    "forceCoverageMatch": ["**/*doctest*"],
+    "testEnvironment": "jest-environment-jsdom"
   }
 }
