@@ -1,7 +1,7 @@
-import * as ui from '../../src/ui_utils'
-import * as utils from '../../src/utils'
-import type {KMRow} from '../../src/VegaKMPlot'
-import type {Survival} from '../../src/KMPlotWithControls'
+import * as ui from '../ui_utils'
+import * as utils from '../utils'
+import type {KMRow} from '../Vega/KMPlot'
+import type {Survival} from '../KMPlotWithControls'
 
 export const survival: Survival = {
   points: utils

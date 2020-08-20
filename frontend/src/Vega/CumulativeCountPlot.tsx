@@ -1,10 +1,10 @@
 import * as VL from 'vega-lite'
 
 import * as React from 'react'
-import * as utils from './utils'
-import {unzip} from './utils'
+import * as utils from '../utils'
+import {unzip} from '../utils'
 
-import {Embed} from './vega_utils'
+import {Embed} from './Embed'
 
 export interface Options {
   landscape: boolean
@@ -148,14 +148,14 @@ export function bin_sizes(rows: CuRow[]): number[] {
     .map(bin => utils.sum(rows.map(row => (row.bin == bin ? row.count : 0))))
 }
 
-export const VegaCumulativeCount = React.memo(function VegaCumulativeCount({
+export const CumulativeCountPlot = React.memo(function CumulativeCountPlot({
   data,
   options,
 }: {
   data: CuRow[]
   options?: Partial<Options>
 }) {
-  // ui.useWhyChanged(VegaCumulativeCount, {data, options})
+  // ui.useWhyChanged(CumulativeCountPlot, {data, options})
   return vega_cumulative_count(data, options)
 })
 

@@ -25,6 +25,17 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {"~*": ["./*"]},
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src",
+    "test"
+  ],
+  "exclude": [
+    "src/thief.tsx",
+    "coverage",
+    "node_modules"
+  ]
 }

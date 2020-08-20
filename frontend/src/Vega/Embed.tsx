@@ -2,10 +2,10 @@ import * as React from 'react'
 import * as VL from 'vega-lite'
 import * as V from 'vega'
 
-import * as stripes from './stripes'
+import * as stripes from '../stripes'
 
-import * as utils from './utils'
-import * as ui from './ui_utils'
+import * as utils from '../utils'
+import * as ui from '../ui_utils'
 
 import vegaTooltip from 'vega-tooltip'
 

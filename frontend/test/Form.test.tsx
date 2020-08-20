@@ -3,7 +3,7 @@ import * as form from '../src/Form'
 
 import * as utils from '../src/utils'
 
-import {form_test_conf} from './data/form'
+import {form_test_conf} from '../src/data/form'
 
 import {within, render, fireEvent, screen} from '@testing-library/react'
 import * as q from '@testing-library/react'

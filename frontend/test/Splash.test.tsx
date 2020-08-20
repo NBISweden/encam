@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import {Splash} from '../src/Splash'
 
-import * as splash_test_data from './data/splash'
+import * as splash_test_data from '../src/data/splash'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 
