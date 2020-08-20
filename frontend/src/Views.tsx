@@ -17,23 +17,23 @@ export const GlobalStyle = sc.createGlobalStyle`
   }
 `
 
-import * as boxplot_data from '../test/data/boxplot'
-import * as km_data from '../test/data/kmplot'
-import * as form_data from '../test/data/form'
+import * as boxplot_data from './data/boxplot'
+import * as km_data from './data/kmplot'
+import * as form_data from './data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
 import {FormAndBoxPlot, FormAndKMPlot} from './FormAndPlot'
 import {FormAndPlotView, LoadingPlot} from './FormAndPlotView'
 import * as ui from './ui_utils'
 
-import {cucount} from './VegaCumulativeCount'
+import {cucount} from './Vega/CumulativeCountPlot'
 
-import {VegaBoxplot} from './VegaBoxplot'
-import {VegaKMPlot} from './VegaKMPlot'
+import {Boxplot} from './Vega/Boxplot'
+import {KMPlot} from './Vega/KMPlot'
 import {BoxplotWithControls} from './BoxplotWithControls'
 import {KMPlotWithControls, KMPlotWithControlsView} from './KMPlotWithControls'
 import {Splash} from './Splash'
-import * as splash_data from '../test/data/splash'
+import * as splash_data from './data/splash'
 import {MockBackend} from './backend'
 
 import {Switch} from 'react-router-dom'
@@ -130,7 +130,7 @@ export function Views() {
       path: '/Boxplot',
       component: (
         <ui.InlinePaper>
-          <VegaBoxplot
+          <Boxplot
             data={boxplot_data.rows}
             options={{
               facet: 'cell',
@@ -146,7 +146,7 @@ export function Views() {
       path: '/KMPlot',
       component: (
         <ui.InlinePaper>
-          <VegaKMPlot data={km_data.make_points(4)} />
+          <KMPlot data={km_data.make_points(4)} />
         </ui.InlinePaper>
       ),
     },

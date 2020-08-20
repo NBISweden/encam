@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import * as VB from './VegaBoxplot'
+import {Boxplot, Options as BoxplotOptions, Precalc} from './Vega/Boxplot'
 
 import * as utils from './utils'
 
@@ -20,7 +20,7 @@ export interface Row {
   group: string
 }
 
-type Options = Partial<VB.Options<keyof Row>>
+type Options = Partial<BoxplotOptions<keyof Row>>
 
 const useStyles = makeStyles({
   BoxPlotWithControls: {
@@ -97,10 +97,10 @@ function useOptions(facet: keyof Row) {
   return [ui.useIntern(options), nodes] as const
 }
 
-function useVisibleSidebar(facet: string, facet_vals: string[]) {
-  const all_selected = Object.fromEntries(facet_vals.map(v => [v, true]))
+function useVisibleSidebar(facet: string, facet_values: string[]) {
+  const all_selected = Object.fromEntries(facet_values.map(v => [v, true]))
 
-  const [visible_facets, facet_boxes] = ui.useCheckboxes(facet_vals, all_selected, utils.pretty)
+  const [visible_facets, facet_boxes] = ui.useCheckboxes(facet_values, all_selected, utils.pretty)
 
   const [show, set_show] = React.useState(true)
 
@@ -130,14 +130,14 @@ export function BoxplotWithControls({
   data,
   facet,
 }: {
-  data: (Row & VB.Precalc)[]
+  data: (Row & Precalc)[]
   facet: 'cell' | 'tumor'
 }) {
   const [options, Options] = useOptions(facet)
 
-  const facet_vals = utils.uniq(data.map(x => x[facet]))
+  const facet_values = utils.uniq(data.map(x => x[facet]))
 
-  const [visible_facets, VisibleSidebar] = useVisibleSidebar(facet, facet_vals)
+  const [visible_facets, VisibleSidebar] = useVisibleSidebar(facet, facet_values)
 
   const plot_data = React.useMemo(() => data.filter(x => visible_facets[x[facet]]), [
     data,
@@ -162,7 +162,7 @@ export function BoxplotWithControls({
     <div className={classes.BoxPlotWithControls}>
       {VisibleSidebar}
       <div className={classes.Main}>
-        <VB.VegaBoxplot data={plot_data} options={plot_options} />
+        <Boxplot data={plot_data} options={plot_options} />
         {Options}
       </div>
     </div>

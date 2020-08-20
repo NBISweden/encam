@@ -2,11 +2,11 @@ import * as React from 'react'
 
 import {FormAndKMPlot} from '../src/FormAndPlot'
 
-import * as km_data from '../test/data/kmplot'
+import * as km_data from '../src/data/kmplot'
 
 import {MockBackend} from '../src/backend'
 
-import {form_test_conf} from './data/form'
+import {form_test_conf} from '../src/data/form'
 
 import {render, act, fireEvent, screen, waitFor} from '@testing-library/react'
 

@@ -1,13 +1,13 @@
 /** KMPlot = Kaplan-Meier plot, a type of survival plot */
-import * as ui from './ui_utils'
-import * as utils from './utils'
+import * as ui from '../ui_utils'
+import * as utils from '../utils'
 import * as VL from 'vega-lite'
 
 import * as React from 'react'
 
-import {Embed} from './vega_utils'
+import {Embed} from './Embed'
 
-import {cell_color} from './cell_colors'
+import {cell_color} from '../cell_colors'
 
 export interface Options {
   landscape: boolean
@@ -53,14 +53,14 @@ export interface KMRow {
   upper: number
 }
 
-export const VegaKMPlot = React.memo(function VegaKMPlot({
+export const KMPlot = React.memo(function KMPlot({
   data,
   options,
 }: {
   data: KMRow[]
   options?: Partial<Options>
 }) {
-  // ui.useWhyChanged(VegaKMPlot, {rows, options})
+  // ui.useWhyChanged(KMPlot, {rows, options})
   return kmplot(data, options)
 })
 

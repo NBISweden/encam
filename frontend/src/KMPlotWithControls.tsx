@@ -5,8 +5,8 @@ import * as backend from './backend'
 import * as ui from './ui_utils'
 import * as utils from './utils'
 
-import {VegaKMPlot, KMRow} from './VegaKMPlot'
-import {VegaCumulativeCount, cucount, slider_max, bin_sizes, CuRow} from './VegaCumulativeCount'
+import {KMPlot, KMRow} from './Vega/KMPlot'
+import {CumulativeCountPlot, cucount, slider_max, bin_sizes, CuRow} from './Vega/CumulativeCountPlot'
 
 import {Slider} from '@material-ui/core'
 
@@ -204,7 +204,6 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
 
   return <KMPlotWithControlsView {...{location_node, num_groups_node, set_cutoffs, ...state}} />
 }
-
 interface ViewProps {
   cu_data: undefined | CuRow[]
   plot_data: undefined | KMRow[]
@@ -246,10 +245,10 @@ export function KMPlotWithControlsView(props: ViewProps) {
           {props.location_node}
           {plot_data && opt_nodes}
         </div>
-        {plot_data && <VegaKMPlot data={plot_data} options={options} />}
+        {plot_data && <KMPlot data={plot_data} options={options} />}
         {cu_data && cu_data.length > 0 && (
           <div>
-            <VegaCumulativeCount data={cu_data} />
+            <CumulativeCountPlot data={cu_data} />
             <div style={{marginLeft: 40, width: 400}}>
               <p id="cutoffs-slider" style={{fontWeight: 700}}>
                 cumulative count cutoffs:

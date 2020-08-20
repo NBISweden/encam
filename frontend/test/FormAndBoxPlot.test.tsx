@@ -4,8 +4,8 @@ import {FormAndBoxPlot} from '../src/FormAndPlot'
 
 import {MockBackend} from '../src/backend'
 
-import {form_test_conf} from './data/form'
-import {grouped_rows} from './data/boxplot'
+import {form_test_conf} from '../src/data/form'
+import {grouped_rows} from '../src/data/boxplot'
 
 import {render, fireEvent, screen, waitFor} from '@testing-library/react'
 

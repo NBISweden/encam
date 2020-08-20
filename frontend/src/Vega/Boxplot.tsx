@@ -1,12 +1,12 @@
-import * as ui from './ui_utils'
-import * as utils from './utils'
+import * as ui from '../ui_utils'
+import * as utils from '../utils'
 import * as VL from 'vega-lite'
 
 import * as React from 'react'
 
-import {Embed} from './vega_utils'
+import {Embed} from './Embed'
 
-import {cell_color} from './cell_colors'
+import {cell_color} from '../cell_colors'
 
 export interface Options<K extends string> {
   inner: K | K[]
@@ -67,11 +67,11 @@ function orient(options: Options<any>) {
   }
 }
 
-export const VegaBoxplot = React.memo(function VegaBoxplot<
+export const Boxplot = React.memo(function Boxplot<
   K extends string,
   Row extends Record<K, any> & Precalc
 >({data, options}: {data: Row[]; options?: Partial<Options<K>>}) {
-  ui.useWhyChanged(VegaBoxplot, {data, options})
+  ui.useWhyChanged(Boxplot, {data, options})
   return precalc_boxplot(data, options)
 })
 
