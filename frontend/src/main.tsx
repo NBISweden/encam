@@ -2,9 +2,9 @@ declare const module: {hot?: {accept: Function}}
 module.hot && module.hot.accept()
 
 if (typeof process === 'undefined') {
+  // https://github.com/rexxars/react-markdown/issues/339
   window.process = {
     cwd: () => '',
-    platform: 'linux',
   } as any
 }
 
