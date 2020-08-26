@@ -1,5 +1,4 @@
 import * as React from 'react'
-import * as stripes from './stripes'
 
 import {div, css} from './ui_utils'
 
@@ -11,11 +10,9 @@ import styled, * as sc from 'styled-components'
 
 import {cell_color} from './cell_colors'
 
-export const DomplotCSS = sc.createGlobalStyle`
-  .striped {
-    background-image: url('data:image/svg+xml;base64,${btoa(stripes.patternSVG)}')
-  }
-`
+import {DomplotCSS} from './DomplotCSS'
+
+export {DomplotCSS} from './DomplotCSS'
 
 interface Rect {
   width: number

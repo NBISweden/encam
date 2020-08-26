@@ -87,13 +87,20 @@ interface SplashProps {
 
 const useStyles = makeStyles({
   Splash: {
+    ...ui.flex_row,
+    // background: 'white',
+    // display: 'inline-flex',
+    '& > *': {
+      flexShrink: 0,
+      flexGrow: 0,
+    },
     userSelect: 'none',
     '& label': {
       cursor: 'pointer',
     },
     '& h2': {
       margin: '10 auto',
-      fontSize: '1.1em',
+      fontSize: '1.2em',
     },
   },
   Left: {
@@ -146,12 +153,16 @@ const useStyles = makeStyles({
   Right: {
     ...ui.flex_column,
     borderLeft: '1px #ddd solid',
-    paddingTop: 10,
+    paddingTop: 0,
     paddingLeft: 15,
     paddingRight: 15,
+    overflowY: 'overlay',
+    overflowX: 'hidden',
+    height: 900,
     width: 175,
     '& > div': {
       marginBottom: 15,
+      flexShrink: 0,
     },
   },
 })
@@ -338,6 +349,13 @@ function Right({state, db}: SplashProps) {
 
   const out: React.ReactNode[] = []
 
+  const renames = {
+    'Myeloid cell': 'Myeloid',
+    Granulocyte: 'Gran...',
+  }
+
+  const rename_row = row => ({...row, cell: renames[row.cell] || row.cell})
+
   if (db) {
     const {tumor, cell} = state
     const tumors = utils.selected(tumor)
@@ -345,8 +363,20 @@ function Right({state, db}: SplashProps) {
     const opts = {orientation: 'portrait' as 'portrait', axis_right: true}
     for (const t of tumors) {
       out.push(<h2>{utils.pretty(t)}</h2>)
-      out.push(<Domplot rows={db.filter(row => row.tumor == t)} kind="bar" options={opts} />)
-      out.push(<Domplot rows={db.filter(row => row.tumor == t)} kind="forest" options={opts} />)
+      out.push(
+        <Domplot
+          rows={db.filter(row => row.tumor == t).map(rename_row)}
+          kind="bar"
+          options={opts}
+        />
+      )
+      out.push(
+        <Domplot
+          rows={db.filter(row => row.tumor == t).map(rename_row)}
+          kind="forest"
+          options={opts}
+        />
+      )
     }
     for (const c of cells) {
       out.push(<h2>{utils.pretty(c)}</h2>)
@@ -381,11 +411,11 @@ export function Splash() {
 
   const classes = useStyles()
   return (
-    <ui.InlinePaper className={classes.Splash}>
+    <div className={classes.Splash}>
       <DomplotCSS />
       <Left {...splash_props} />
       <Center {...splash_props} />
       <Right {...splash_props} />
-    </ui.InlinePaper>
+    </div>
   )
 }
