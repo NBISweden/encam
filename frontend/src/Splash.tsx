@@ -156,7 +156,7 @@ const useStyles = makeStyles({
     paddingTop: 0,
     paddingLeft: 15,
     paddingRight: 15,
-    overflowY: 'overlay',
+    overflowY: 'auto',
     overflowX: 'hidden',
     height: 900,
     width: 175,
