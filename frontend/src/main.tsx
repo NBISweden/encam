@@ -1,6 +1,13 @@
 declare const module: {hot?: {accept: Function}}
 module.hot && module.hot.accept()
 
+if (typeof process === 'undefined') {
+  window.process = {
+    cwd: () => '',
+    platform: 'linux',
+  } as any
+}
+
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {Views} from './Views'

@@ -197,8 +197,7 @@ export function Main(props = {version: <span />}) {
         </div>
         <div style={{flexGrow: 1}} />
         <footer>
-          Contact details: Artur Mazheyeuski IGP UU, Patrick Micke IGP UU
-          {props.version}
+          Contact details: Artur Mezheyeuski IGP UU, Patrick Micke IGP UU {props.version}
         </footer>
       </div>
     </>
