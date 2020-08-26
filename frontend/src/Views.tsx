@@ -8,17 +8,12 @@ import {CssBaseline} from '@material-ui/core'
 
 import {AppBar} from '@material-ui/core'
 
-export const GlobalStyle = sc.createGlobalStyle`
-  * {
-    user-select: none;
-  }
-  html {
-    width: fit-content;
-  }
-`
+import ReactMarkdown from 'react-markdown'
 
 import * as boxplot_data from './data/boxplot'
 import * as km_data from './data/kmplot'
+
+import {DomplotCSS} from './DomplotCSS'
 import * as form_data from './data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
@@ -40,13 +35,202 @@ import {Switch} from 'react-router-dom'
 
 import {version} from './version'
 
+import {makeStyles} from '@material-ui/core/styles'
+
+import {GlobalStyle, MainGlobalStyle} from './GlobalStyle'
+
+import {cell_color} from './cell_colors'
+
+const main = `
+  # Encyclopedia of Cancer Microenvironment
+  A database of histological and multiplex fluorescensens pictures with an
+  enormous amount of digital high resolution images (>10000). The aim is to
+  generate a immune cell encyclopedia in cancer.
+`
+
+const useStyles = makeStyles({
+  Main: {
+    background: '#fff',
+    boxShadow: '0 0 14 0 #0002',
+    margin: '0 auto',
+    width: 1100,
+    // width: 'fit-content',
+    // border: '1px black solid',
+    ...ui.flex_column,
+    '& > *': {
+      margin: '0 auto',
+    },
+    '& h1, & h2, & h3': {
+      fontFamily: '"Merriweather Sans", sans',
+      fontWeight: 300,
+    },
+    '& > header': {
+      paddingLeft: 20,
+      paddingTop: 40,
+      paddingBottom: 100,
+    },
+    '& > footer': {
+      padding: 20,
+      // marginTop: 40,
+    },
+    '& > header, & > footer': {
+      '& h1': {fontSize: 32},
+      '& h2': {fontSize: 22},
+      '& h3': {fontSize: 18},
+      width: 1100,
+      color: '#f8f8f8',
+      background: cell_color('iDC'),
+      '& > :not(nav)': {
+        maxWidth: 800,
+        paddingLeft: 10,
+        userSelect: 'text',
+      },
+      '& > nav': {
+        marginLeft: 'auto',
+        marginRight: 0,
+        paddingBottom: 20,
+        ...ui.flex_row,
+        '& > ul': {
+          marginLeft: 'auto',
+          marginRight: 40,
+          textTransform: 'uppercase',
+          fontSize: '0.96em',
+          fontWeight: 100,
+          ...ui.flex_row,
+          listStyleType: 'none',
+          '& > li:not(:first-child)': {
+            marginLeft: 15,
+          },
+          '& > li': {
+            cursor: 'pointer',
+            '&:hover': {
+              color: '#ffffff',
+            },
+          },
+        },
+      },
+    },
+  },
+  Modules: {
+    width: 1100,
+    color: '#f8f8f8',
+    marginTop: 40,
+    ...ui.flex_row,
+    '& > div': {
+      flexGrow: 1,
+      flexBasis: 0,
+      ...ui.flex_row,
+      margin: 'auto',
+      '& > div': {
+        margin: 'auto',
+      },
+      cursor: 'pointer',
+      background: cell_color('iDC'),
+      '&:hover': {
+        background: cell_color('mDC'),
+        color: '#fff',
+      },
+      '&.selected:not(:hover)': {
+        color: '#222',
+        background: cell_color('pDC'),
+      },
+    },
+  },
+})
+
+export function Main(props = {version: <span />}) {
+  const classes = useStyles()
+  const Modules = [
+    {
+      name: 'Box plot',
+      component: <FormAndBoxPlot key="Form" />,
+    },
+    {
+      name: 'Grouped box plots',
+      component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms} />,
+    },
+    {
+      name: 'Kaplan-Meier plots',
+      component: <FormAndKMPlot />,
+    },
+    {
+      name: 'Clustering',
+      component: <h3 style={{margin: '20 20'}}>Module still under construction!</h3>,
+    },
+  ]
+  const [Module, set_Module] = React.useState(undefined as undefined | typeof Modules[0])
+  return (
+    <>
+      <CssBaseline />
+      <MainGlobalStyle />
+      <div className={classes.Main}>
+        <header onClick={() => set_Module(undefined)}>
+          <nav>
+            <ul>
+              <li>About</li>
+              <li>Links</li>
+              <li>References</li>
+            </ul>
+          </nav>
+          <ReactMarkdown source={main} />
+        </header>
+        <Splash />
+        <div className={classes.Modules}>
+          {Modules.map(M => (
+            <div
+              onClick={() => {
+                set_Module(M)
+                window.setTimeout(() => document.querySelector('#Module').scrollIntoView(), 100)
+              }}
+              key={M.name}
+              className={Module && M.name == Module.name ? 'selected' : undefined}>
+              <div>
+                <h3>{M.name}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div
+          style={{overflowX: 'auto', ...ui.flex_row, marginLeft: 0, width: '100%', minHeight: 20}}
+          id="Module">
+          {Module && Module.component}
+        </div>
+        <div style={{flexGrow: 1}} />
+        <footer>
+          Contact details: Artur Mazheyeuski IGP UU, Patrick Micke IGP UU
+          {props.version}
+        </footer>
+      </div>
+    </>
+  )
+}
+
 export function Views() {
   const {Tabs, TabbedRoutes, set_tab, tab} = ui.useRoutedTabs([
     {
-      label: 'Splash',
+      label: 'Main',
       path: '/',
       exact: true,
-      component: <Splash />,
+      component: (
+        <Main
+          version={
+            <div
+              onClick={() => set_tab(index => index + 1)}
+              style={{cursor: 'pointer', float: 'right'}}>
+              version: {version}
+            </div>
+          }
+        />
+      ),
+    },
+    {
+      label: 'Splash',
+      path: '/Splash',
+      component: (
+        <ui.InlinePaper>
+          <Splash />
+        </ui.InlinePaper>
+      ),
     },
     {
       label: 'Form & BoxPlot',
@@ -213,7 +397,9 @@ export function Views() {
   React.useEffect(() => {
     document.title = `encima: ${tab.label}`
   }, [tab.label])
-  return (
+  return tab.label === 'Main' ? (
+    <Switch>{TabbedRoutes}</Switch>
+  ) : (
     <>
       <CssBaseline />
       <GlobalStyle />

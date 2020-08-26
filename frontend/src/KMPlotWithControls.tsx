@@ -6,7 +6,13 @@ import * as ui from './ui_utils'
 import * as utils from './utils'
 
 import {KMPlot, KMRow} from './Vega/KMPlot'
-import {CumulativeCountPlot, cucount, slider_max, bin_sizes, CuRow} from './Vega/CumulativeCountPlot'
+import {
+  CumulativeCountPlot,
+  cucount,
+  slider_max,
+  bin_sizes,
+  CuRow,
+} from './Vega/CumulativeCountPlot'
 
 import {Slider} from '@material-ui/core'
 

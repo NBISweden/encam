@@ -9,10 +9,12 @@ const colors: Record<string, string> = {
   NKT: 'rgb(140,67,10)',
   M2: 'rgb(100,132,58)',
   'Myeloid cell': 'rgb(119,148,4)',
+  Myeloid: 'rgb(119,148,4)',
   iDC: 'rgb(70,105,164)',
   mDC: 'rgb(100,148,202)',
   pDC: 'rgb(147,170,218)',
   Granulocyte: 'rgb(170,108,28)',
+  'Gran...': 'rgb(170,108,28)',
 }
 
 export const cell_color = (cell: string) => {
