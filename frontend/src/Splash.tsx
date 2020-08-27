@@ -71,7 +71,7 @@ interface Action {
 function reduce(state: State, action: Action): State {
   switch (action.kind) {
     case 'cell':
-      return {tumor: {}, cell: utils.cap(3, {...state.cell, [action.value]: action.checked})}
+      return {tumor: {}, cell: utils.cap(2, {...state.cell, [action.value]: action.checked})}
     case 'tumor':
       return {cell: {}, tumor: utils.cap(1, {...state.tumor, [action.value]: action.checked})}
   }
