@@ -45,7 +45,7 @@ describe(Splash, () => {
     expect(screen.queryAllByText('NKT')).toHaveLength(3)
   })
 
-  test('draws plots and up to three cell types can be selected', async () => {
+  test('draws plots and up to two cell types can be selected', async () => {
     render(<MockSplash />)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
@@ -66,35 +66,35 @@ describe(Splash, () => {
 
     click(screen.getByLabelText('NK'))
 
-    // CD4, CD4_Treg, NK
+    // CD4_Treg, NK
     await waitFor(() => {
       expect(screen.queryAllByText('NK')).toHaveLength(4)
     })
-    expect(screen.queryAllByText('CD4')).toHaveLength(4)
+    expect(screen.queryAllByText('CD4')).toHaveLength(1)
     expect(screen.queryAllByText('CD4 Treg')).toHaveLength(4)
     expect(screen.queryAllByText('NKT')).toHaveLength(1)
-    expect(screen.queryAllByText('BRCA')).toHaveLength(4)
+    expect(screen.queryAllByText('BRCA')).toHaveLength(3)
 
     click(screen.getByLabelText('NKT'))
 
-    // CD4_Treg, NK, NKT
+    // NK, NKT
     await waitFor(() => {
       expect(screen.queryAllByText('NKT')).toHaveLength(4)
     })
-    expect(screen.queryAllByText('CD4 Treg')).toHaveLength(4)
+    expect(screen.queryAllByText('CD4 Treg')).toHaveLength(1)
     expect(screen.queryAllByText('NK')).toHaveLength(4)
     expect(screen.queryAllByText('CD4')).toHaveLength(1)
-    expect(screen.queryAllByText('BRCA')).toHaveLength(4)
+    expect(screen.queryAllByText('BRCA')).toHaveLength(3)
 
     click(screen.getByLabelText('NK'))
 
-    // CD4_Treg, NKT
+    // NKT
     await waitFor(() => {
       expect(screen.queryAllByText('NK')).toHaveLength(1)
     })
-    expect(screen.queryAllByText('CD4 Treg')).toHaveLength(4)
+    expect(screen.queryAllByText('CD4 Treg')).toHaveLength(1)
     expect(screen.queryAllByText('NKT')).toHaveLength(4)
     expect(screen.queryAllByText('CD4')).toHaveLength(1)
-    expect(screen.queryAllByText('BRCA')).toHaveLength(3)
+    expect(screen.queryAllByText('BRCA')).toHaveLength(2)
   })
 })

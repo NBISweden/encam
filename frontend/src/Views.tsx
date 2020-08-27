@@ -41,11 +41,11 @@ import {GlobalStyle, MainGlobalStyle} from './GlobalStyle'
 
 import {cell_color} from './cell_colors'
 
+import {ThemeProvider, createMuiTheme} from '@material-ui/core/styles'
+
 const main = `
-  # Encyclopedia of Cancer Microenvironment
-  A database of histological and multiplex fluorescensens pictures with an
-  enormous amount of digital high resolution images (>10000). The aim is to
-  generate a immune cell encyclopedia in cancer.
+  # Encyclopedia of Cancer (Immune) Microenvironment
+  Web portal of cell-resolution data of the tumor microenvironment in human cancer.
 `
 
 const useStyles = makeStyles({
@@ -66,12 +66,21 @@ const useStyles = makeStyles({
     },
     '& > header': {
       paddingLeft: 20,
-      paddingTop: 40,
-      paddingBottom: 100,
+      paddingTop: 20,
+      paddingBottom: 65,
     },
     '& > footer': {
       padding: 20,
       // marginTop: 40,
+      '& a': {
+        padding: 0,
+        color: '#f8f8f8',
+        textDecoration: 'none',
+        '&:hover': {
+          color: '#ffffff',
+          textDecoration: 'underline',
+        },
+      },
     },
     '& > header, & > footer': {
       '& h1': {fontSize: 32},
@@ -81,19 +90,19 @@ const useStyles = makeStyles({
       color: '#f8f8f8',
       background: cell_color('iDC'),
       '& > :not(nav)': {
-        maxWidth: 800,
+        maxWidth: 900,
         paddingLeft: 10,
         userSelect: 'text',
       },
       '& > nav': {
         marginLeft: 'auto',
         marginRight: 0,
-        paddingBottom: 20,
+        paddingBottom: 0,
         ...ui.flex_row,
         '& > ul': {
           marginLeft: 'auto',
           marginRight: 40,
-          textTransform: 'uppercase',
+          // textTransform: 'uppercase',
           fontSize: '0.96em',
           fontWeight: 100,
           ...ui.flex_row,
@@ -105,6 +114,7 @@ const useStyles = makeStyles({
             cursor: 'pointer',
             '&:hover': {
               color: '#ffffff',
+              textDecoration: 'underline',
             },
           },
         },
@@ -138,6 +148,17 @@ const useStyles = makeStyles({
   },
 })
 
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: cell_color('iDC'),
+    },
+    secondary: {
+      main: cell_color('CD8_Treg'),
+    },
+  },
+})
+
 export function Main(props = {version: <span />}) {
   const classes = useStyles()
   const Modules = [
@@ -160,7 +181,7 @@ export function Main(props = {version: <span />}) {
   ]
   const [Module, set_Module] = React.useState(undefined as undefined | typeof Modules[0])
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <MainGlobalStyle />
       <div className={classes.Main}>
@@ -197,10 +218,13 @@ export function Main(props = {version: <span />}) {
         </div>
         <div style={{flexGrow: 1}} />
         <footer>
-          Contact details: Artur Mezheyeuski IGP UU, Patrick Micke IGP UU {props.version}
+          Contact details:{' '}
+          <a href="https://katalog.uu.se/profile/?id=N16-2052">Artur Mezheyeuski</a>,{' '}
+          <a href="https://katalog.uu.se/empinfo/?id=N5-811">Patrick Micke</a>
+          {props.version}
         </footer>
       </div>
-    </>
+    </ThemeProvider>
   )
 }
 
