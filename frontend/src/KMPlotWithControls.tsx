@@ -26,6 +26,7 @@ export interface State {
   expr_data: undefined | number[]
   cu_data: undefined | CuRow[]
   plot_data: undefined | KMRow[]
+  statistics: undefined | Statistics
   cutoffs: number[]
   filter: Record<string, any>
   location: string
@@ -37,6 +38,7 @@ export const init_state: State = {
   expr_data: undefined,
   cu_data: undefined,
   plot_data: undefined,
+  statistics: undefined,
   cutoffs: [],
   filter: {},
   location: 'Tumor',
@@ -44,10 +46,18 @@ export const init_state: State = {
   loading: false,
 }
 
-export interface Survival {
+export interface Statistics {
+  log_rank: {
+    p_logrank: number
+    test_statistic_logrank: number
+  }
+  cox_regression: {
+    p: number
+  }
+}
+
+export interface Survival extends Statistics {
   points: KMRow[]
-  log_rank: Record<string, number>
-  cox_regression: Record<string, number>
 }
 
 export type Message =
@@ -149,7 +159,9 @@ export function next(start: State, msg: Message): readonly [State, ...Request[]]
 
   if (msg.type === 'reply' && msg.endpoint === 'survival') {
     next.loading = false
-    next.plot_data = msg.value.points
+    const {points, ...statistics} = msg.value
+    next.plot_data = points
+    next.statistics = statistics
   }
 
   const ret = [next, ...reqs] as const
@@ -210,9 +222,11 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
 
   return <KMPlotWithControlsView {...{location_node, num_groups_node, set_cutoffs, ...state}} />
 }
+
 interface ViewProps {
   cu_data: undefined | CuRow[]
   plot_data: undefined | KMRow[]
+  statistics: undefined | Statistics
 
   cutoffs: number[]
   set_cutoffs: ui.Setter<number[]>
@@ -233,28 +247,78 @@ const useStyles = makeStyles({
   },
 })
 
+const schemes = `
+  blues greens greys oranges purples reds blueGreen bluePurple greenBlue
+  orangeRed purpleBlue purpleBlueGreen purpleRed redPurple yellowGreen
+  yellowOrangeBrown yellowOrangeRed blueOrange brownBlueGreen purpleGreen
+  purpleOrange redBlue redGrey yellowGreenBlue redYellowBlue redYellowGreen
+  pinkYellowGreen spectral viridis magma inferno plasma rainbow sinebow
+  browns tealBlues teals warmGreys goldGreen goldOrange goldRed lightGreyRed
+  lightGreyTeal lightMulti lightOrange lightTealBlue darkBlue darkGold
+  darkGreen darkMulti darkRed category10 category20 category20b category20c
+  tableau10 tableau20 accent dark2 paired pastel1 pastel2 set1 set2 set3
+`
+  .trim()
+  .split(/\s+/g)
+
 export function KMPlotWithControlsView(props: ViewProps) {
-  const {cu_data, plot_data, cutoffs, set_cutoffs, loading} = props
+  const {cu_data, plot_data, cutoffs, set_cutoffs, loading, statistics} = props
 
   const [options, opt_nodes] = ui.record({
+    color_scheme: ui.map(ui.useNativeSelect(schemes, 'viridis', 'Color scheme'), e => (
+      <div style={{marginBottom: 4}}>{e}</div>
+    )),
+    color_scheme_reverse: ui.useCheckbox('reverse', false),
     ci: ui.useCheckbox('show confidence intervals (95%)', true),
   })
 
   const classes = useStyles()
+
+  const round = (x: number) => Math.round(x * 1000) / 1000
 
   const plot =
     cu_data && cu_data.length == 0 ? (
       <>No records with the given filter.</>
     ) : (
       <div className={classes.KMPlotWithControlsView}>
-        <div style={{marginLeft: 30, ...ui.flex_column}}>
+        <div style={{marginLeft: 40, ...ui.flex_column}}>
           {props.location_node}
-          {plot_data && opt_nodes}
+          {plot_data && (
+            <div style={{...ui.flex_row, justifyContent: 'space-between', alignItems: 'flex-end'}}>
+              {opt_nodes}
+            </div>
+          )}
         </div>
         {plot_data && <KMPlot data={plot_data} options={options} />}
+        {statistics && (
+          <table
+            style={{
+              marginLeft: 'auto',
+              marginRight: 50,
+              marginTop: -20,
+              marginBottom: 20,
+              fontSize: '0.9em',
+              width: 'max-content',
+            }}>
+            <tbody>
+              <tr>
+                <td>Logrank test statistic:</td>
+                <td>{round(statistics.log_rank.test_statistic_logrank)}</td>
+              </tr>
+              <tr>
+                <td>Logrank test p-value:</td>
+                <td>{round(statistics.log_rank.p_logrank)}</td>
+              </tr>
+              <tr>
+                <td>Cox regression p-value:</td>
+                <td>{round(statistics.cox_regression.p)}</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
         {cu_data && cu_data.length > 0 && (
           <div>
-            <CumulativeCountPlot data={cu_data} />
+            <CumulativeCountPlot data={cu_data} options={options} />
             <div style={{marginLeft: 40, width: 400}}>
               <p id="cutoffs-slider" style={{fontWeight: 700}}>
                 cumulative count cutoffs:

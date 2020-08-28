@@ -35,7 +35,7 @@ export function useRequestFn(): typeof request_by_fetch {
 export function useRequest<A = any>(endpoint: string, argument?: any) {
   const [resp, set_resp] = React.useState(undefined as undefined | A)
   const request = useRequestFn()
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     request(endpoint, argument).then(set_resp)
   }, [])
   return resp

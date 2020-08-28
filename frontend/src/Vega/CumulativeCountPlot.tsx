@@ -9,11 +9,15 @@ import {Embed} from './Embed'
 export interface Options {
   landscape: boolean
   legend: boolean
+  color_scheme: string
+  color_scheme_reverse: boolean
 }
 
 const default_options: Options = {
   landscape: true,
   legend: true,
+  color_scheme: 'viridis',
+  color_scheme_reverse: false,
 }
 
 function orient(options: Options) {
@@ -209,7 +213,8 @@ function vega_cumulative_count(data0: CuRow[], opts?: Partial<Options>): React.R
             legend: null,
             type: 'ordinal',
             scale: {
-              scheme: 'viridis',
+              scheme: options.color_scheme,
+              reverse: options.color_scheme_reverse,
             },
           },
         },

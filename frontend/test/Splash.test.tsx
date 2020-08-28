@@ -16,7 +16,7 @@ const MockSplash = () => (
   </MockBackend>
 )
 
-describe(Splash, () => {
+describe('Splash', () => {
   test('draws plots and one tumor type at a time can be selected', async () => {
     render(<MockSplash />)
 

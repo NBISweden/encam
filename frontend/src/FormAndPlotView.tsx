@@ -12,6 +12,7 @@ const useStyles = makeStyles({
     ...ui.flex_row,
     alignItems: 'flex-start',
     '& > :not(:first-child)': {
+      flexGrow: 1,
       marginLeft: 0,
     },
   },
@@ -56,7 +57,7 @@ export function FormAndPlotView({
   const classes = useStyles()
   return (
     <div className={classes.FormAndPlotView}>
-      <ui.Paper key="form" style={form ? {width: '15cm', flexShrink: 0} : {}}>
+      <ui.Paper key="form" style={form ? {width: 440, flexShrink: 0} : {}}>
         {form || <CircularProgress />}
       </ui.Paper>
       {plot}

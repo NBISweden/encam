@@ -12,11 +12,15 @@ import {cell_color} from '../cell_colors'
 export interface Options {
   landscape: boolean
   ci: boolean
+  color_scheme: string
+  color_scheme_reverse: boolean
 }
 
 const default_options: Options = {
   landscape: true,
   ci: true,
+  color_scheme: 'viridis',
+  color_scheme_reverse: false,
 }
 
 function orient(options: Options) {
@@ -69,20 +73,20 @@ function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
 
   const {column, row, height, width, x, y, y2} = orient(options)
 
-  // const groups = utils.row_range(rows).group
-  // const group_names = {
-  //   [Math.max(...groups)]: 'low',
-  //   [Math.min(...groups)]: 'high',
-  // }
-
-  // function group_name(g: number) {
-  //   const name = group_names[g]
-  //   return g = (name ? ' ' + name : '')
-  // }
+  const groups = utils.row_range(rows).group
+  const group_names = {
+    [Math.min(...groups)]: '(low)',
+    [Math.max(...groups)]: '(high)',
+  }
 
   function group_name(g: number) {
-    return g + ''
+    const name = group_names[g]
+    return g + (name ? ' ' + name : '')
   }
+
+  // function group_name(g: number) {
+  //   return g + ''
+  // }
 
   const data = rows.map(row => ({...row, group_name: group_name(row.group)}))
 
@@ -112,7 +116,7 @@ function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
             title: 'group',
             field: 'group_name',
             type: 'ordinal',
-            scale: {scheme: 'viridis'},
+            scale: {scheme: options.color_scheme, reverse: options.color_scheme_reverse},
           },
         },
       },
@@ -138,7 +142,7 @@ function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
             title: 'group',
             field: 'group_name',
             type: 'ordinal',
-            scale: {scheme: 'viridis'},
+            scale: {scheme: options.color_scheme, reverse: options.color_scheme_reverse},
           },
           fillOpacity: {
             value: options.ci ? 0.3 : 0.0,

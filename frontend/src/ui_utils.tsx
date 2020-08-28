@@ -59,6 +59,14 @@ import {
 
 type UseComponent<A> = readonly [A, React.ReactElement, (v: A) => void]
 
+export function map<A>(
+  c: UseComponent<A>,
+  k: (e: React.ReactElement) => React.ReactElement
+): UseComponent<A> {
+  const [v, e, s] = c
+  return [v, k(e), s] as const
+}
+
 export function record<A extends Record<keyof A, any>>(
   x: {[K in keyof A]: UseComponent<A[K]>}
 ): UseComponent<A> {
@@ -70,6 +78,51 @@ export function record<A extends Record<keyof A, any>>(
     return value
   })
   return [value, dummy_keys(elems), (v: A) => setters.forEach(s => s(v))] as const
+}
+
+import NativeSelect from '@material-ui/core/NativeSelect'
+import InputLabel from '@material-ui/core/InputLabel'
+// import FormHelperText from '@material-ui/core/FormHelperText'
+
+export function useNativeSelect(
+  labels: string[],
+  init?: string,
+  label?: string
+): UseComponent<string> {
+  const init_value = init === undefined ? labels[0] : init
+  const [value, set_value] = React.useState(init_value)
+  React.useLayoutEffect(() => {
+    if (value !== init_value) {
+      set_value(init_value)
+    }
+  }, [utils.str(labels)])
+  return [
+    value,
+    <FormControl>
+      <InputLabel shrink htmlFor={label}>
+        {label}
+      </InputLabel>
+      <NativeSelect
+        value={value}
+        onChange={e => set_value(e.target.value)}
+        inputProps={{
+          name: 'age',
+          id: label,
+        }}>
+        {labels.map(label => (
+          <option key={label} value={label}>
+            {label}
+          </option>
+        ))}
+      </NativeSelect>
+      {
+        // <FormHelperText>
+        //   Label + placeholder
+        // </FormHelperText>
+      }
+    </FormControl>,
+    set_value,
+  ]
 }
 
 export function useCheckboxes(
@@ -209,8 +262,8 @@ import {styled} from '@material-ui/core/styles'
 const ElevatedPaper = (props?: PaperProps) => <MuiPaper elevation={2} {...props} />
 
 export const Paper = styled(ElevatedPaper)({
-  margin: 20,
-  padding: 20,
+  margin: 12,
+  padding: 12,
 })
 
 export const InlinePaper = styled(Paper)({
@@ -232,26 +285,6 @@ export function useEventListener<K extends keyof WindowEventMap>(
 
 export const useKeydown = (h: (e: KeyboardEvent) => void, deps?: React.DependencyList) =>
   useEventListener('keydown', h, undefined, deps)
-
-export function useRecord() {
-  useEventListener('click', e => {
-    let p = e.target as HTMLElement | null
-    let hits: HTMLElement[] = []
-    while (p) {
-      hits =
-        p.tagName == 'LABEL' || p.tagName == 'BUTTON'
-          ? [p]
-          : Array.from(p.querySelectorAll('label'))
-      if (hits.length > 0) break
-      p = p.parentElement
-    }
-    if (hits.length == 1) {
-      console.log(hits[0].innerText)
-    } else if (hits.length > 1) {
-      console.warn('Multiple hits:', hits.map(i => i.innerText).join(', '))
-    }
-  })
-}
 
 export function useStateWithUpdate<State>(init: State | (() => State)) {
   const [state, set_state] = React.useState(init)

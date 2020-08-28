@@ -111,7 +111,7 @@ type Action = () => void
 
 function Buttons(props: {onReset: Action; onSubmit: Action; children?: React.ReactNode}) {
   return (
-    <Grid item container justify="flex-end" spacing={2} style={{marginTop: 0}}>
+    <Grid item container justify="center" spacing={2} style={{marginTop: 6}}>
       {props.children}
       <Grid item>
         <Button variant="contained" onClick={props.onReset}>
@@ -267,39 +267,100 @@ interface VariantsProps {
   store: Store<Record<string, string[]>>
 }
 
+import {cell_color} from './cell_colors'
+
+const useVariantsStyles = makeStyles({
+  Checkbox: {
+    '& > label': {
+      textAlign: 'center',
+      cursor: 'pointer',
+      border: '2px #bbb solid',
+      background: '#fafafa',
+      display: 'block',
+      color: '#333',
+      borderRadius: 16,
+      padding: '3 8',
+      margin: '5 2',
+      minWidth: '3.5em',
+      '&:focus-within': {
+        borderColor: '#888',
+      },
+    },
+  },
+  Checked: {
+    '& > label': {
+      background: cell_color('iDC'),
+      borderColor: cell_color('iDC'),
+      color: '#fff',
+    },
+  },
+})
+
 function Variants(props: VariantsProps) {
   const state = props.store.get()
+  const classes = useVariantsStyles()
+  const [handled_at_mousedown, set_handled_at_mousedown] = React.useState(false)
   return (
     <>
       {props.options.map(({column, values}) =>
-        memo([state[column], values], () => (
-          <Grid container spacing={3} key={column}>
-            <Grid item xs={3} style={{marginTop: 10, fontWeight: 500}}>
-              <span>{column.replace(/(_|yesno)/g, ' ').trim()}:</span>
-            </Grid>
-            <Grid item xs={9}>
-              {values.map(value => (
-                <FormControlLabel
-                  label={value}
+        memo([state[column], values, handled_at_mousedown], () => (
+          <div key={column} style={{...ui.flex_row, alignItems: 'baseline'}}>
+            <div style={{width: '3.5cm'}}>
+              {column
+                .replace(/(_|yesno)/g, ' ')
+                .replace(/type/g, '')
+                .replace(/^p/, '')
+                .replace(/ +/, ' ')
+                .trim()}
+            </div>
+            {values.map(value => {
+              const checked = (state[column] || values).includes(value)
+              const h = (e: React.MouseEvent | React.ChangeEvent) => {
+                if (
+                  e.nativeEvent.type != 'click' &&
+                  'buttons' in e.nativeEvent &&
+                  !e.nativeEvent.buttons
+                ) {
+                  return
+                }
+                if (e.nativeEvent.type == 'mousedown') {
+                  if (!handled_at_mousedown) {
+                    set_handled_at_mousedown(true)
+                  }
+                }
+                if (e.nativeEvent.type == 'click') {
+                  if (handled_at_mousedown) {
+                    set_handled_at_mousedown(false)
+                    return
+                  }
+                }
+                const prev: string[] = state[column] || values
+                const checked = !prev.find(n => n == value)
+                const selected = prev
+                  .slice()
+                  .filter(x => x != value || checked)
+                  .concat(checked ? [value] : [])
+                const new_value = selected.length ? selected : prev
+                // : values.filter(x => !prev.includes(x))
+                props.store.update({[column]: new_value})
+              }
+              return (
+                <div
                   key={value}
-                  style={{minWidth: '5em'}}
-                  checked={(state[column] || values).includes(value)}
-                  onChange={(_, checked) => {
-                    const prev: string[] = state[column] || values
-                    const selected = prev
-                      .slice()
-                      .filter(x => x != value || checked)
-                      .concat(checked ? [value] : [])
-                    const new_value = selected.length
-                      ? selected
-                      : values.filter(x => !prev.includes(x))
-                    props.store.update({[column]: new_value})
-                  }}
-                  control={<Checkbox size="small" color="primary" />}
-                />
-              ))}
-            </Grid>
-          </Grid>
+                  className={classes.Checkbox + ' ' + (checked ? classes.Checked : '')}>
+                  <label onMouseEnter={h} onMouseDown={h}>
+                    <input
+                      type="checkbox"
+                      style={{position: 'absolute', left: -9999}}
+                      checked={checked}
+                      onChange={h}
+                    />
+                    {value}
+                  </label>
+                </div>
+              )
+            })}
+          </div>
         ))
       )}
     </>
@@ -341,7 +402,7 @@ function SelectMany(props: SelectProps<true>) {
       )}
       fullWidth={true}
       renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
-      style={{minWidth: 500}}
+      style={{width: '100%'}}
       onChange={(ev, selected) => props.onChange(ev, selected)}
       value={props.value}
     />
@@ -371,7 +432,7 @@ function SelectOne(props: SelectProps<false>) {
       )}
       fullWidth={true}
       renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
-      style={{minWidth: 500}}
+      style={{width: '100%'}}
       options={props.options}
       onChange={(ev, maybe_value) => props.onChange(ev, maybe_value ?? props.defaultValue ?? '')}
       value={props.value}
@@ -403,9 +464,7 @@ function useForm(conf: Conf, key_prefix = '') {
     <SelectMany
       key={key_prefix + ':cells'}
       options={cellOrder.filter(cell => conf.cells.includes(cell))}
-      label={
-        'Cell types' + (tumors.length ? ' (tumors selected, comparing across all tumors)' : '')
-      }
+      label={'Cell types' + (tumors.length ? ' (tumors selected, comparing across cells)' : '')}
       {...store.at('cells', (selected: string[]) => ({
         tumors: [],
         cells: utils.last(3, selected),
