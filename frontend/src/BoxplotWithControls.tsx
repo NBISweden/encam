@@ -64,7 +64,7 @@ function useOptions(facet: keyof Row) {
     mean: ui.useCheckbox('show mean', false),
     scale: ui.useRadio('scale', ['linear', ...radicals], radicals[0]),
     mode: ui.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max']),
-    orientation: ui.useRadio('orientation', ['landscape', 'portrait']),
+    orientation: ui.useRadio('orientation', ['landscape', 'portrait'], 'portrait'),
   })
 
   const opposite = (x: keyof Row) => (x === 'cell' ? 'tumor' : 'cell')

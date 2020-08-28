@@ -163,7 +163,7 @@ export function Main(props = {version: <span />}) {
   const classes = useStyles()
   const Modules = [
     {
-      name: 'Box plot',
+      name: 'Box plots',
       component: <FormAndBoxPlot key="Form" />,
     },
     {
@@ -323,6 +323,7 @@ export function Views() {
           <KMPlotWithControlsView
             plot_data={km_data.make_points(2)}
             cu_data={cucount(km_data.expression, [26])}
+            statistics={km_data.survival}
             cutoffs={[26]}
             set_cutoffs={() => 0}
             location_node={'location: stroma'}

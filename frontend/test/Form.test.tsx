@@ -89,15 +89,17 @@ describe(form.Form, () => {
     click(getByLabelText('high'))
     expect(ref.diff).toStrictEqual({Diff_grade: ['missing']})
 
-    // wrap-around
     click(screen.getAllByLabelText('missing')[0])
-    expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'low']})
+    // wrap-around removed, no change
+    // expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'low']})
+    expect(ref.diff).toStrictEqual({})
 
     click(screen.getAllByLabelText('missing')[1])
     expect(ref.diff).toStrictEqual({Neuralinv: ['No', 'Yes']})
 
     click(screen.getAllByLabelText('missing')[0])
-    expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
+    // expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
+    expect(ref.diff).toStrictEqual({})
   })
 
   test('can select up to 3 tumor types', async () => {

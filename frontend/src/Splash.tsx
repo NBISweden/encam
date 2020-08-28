@@ -105,13 +105,13 @@ const useStyles = makeStyles({
   },
   Left: {
     ...ui.flex_column,
-    width: 165,
+    width: 150,
   },
   LeftLabel: {
     ...ui.flex_row,
 
     border: '2px var(--cell-color) solid',
-    borderRadius: 4,
+    borderRadius: 15,
     background: 'white',
     color: 'black',
     '&.Checked': {
@@ -393,7 +393,7 @@ function Right({state, db}: SplashProps) {
   return <div className={classes.Right}>{ui.dummy_keys(out)}</div>
 }
 
-export function Splash() {
+export const Splash = React.memo(function Splash() {
   const db0 = backend.useRequest('database') as undefined | DB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
 
@@ -418,4 +418,4 @@ export function Splash() {
       <Right {...splash_props} />
     </div>
   )
-}
+})
