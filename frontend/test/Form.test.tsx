@@ -34,9 +34,7 @@ function make_setup(Form: typeof form.Form, N: number) {
     render(<Form conf={form_test_conf} onState={on_state} onSubmit={on_submit} />)
 
     refs.forEach(ref => {
-      expect(ref.prev).toBeUndefined()
       expect(ref.now).not.toBeUndefined()
-      expect(ref.diff).toStrictEqual(ref.now)
     })
 
     return refs
@@ -73,11 +71,13 @@ describe(form.Form, () => {
   test('can reset', async () => {
     const [ref] = setup()
 
+    const init = utils.copy(ref.now)
+
     click(getByLabelText('N0'))
     expect(ref.diff).toStrictEqual({pN_stage: ['N1', 'N2']})
 
     click(screen.getByText(/reset/i))
-    expect(ref.diff).toStrictEqual({pN_stage: ['N0', 'N1', 'N2']})
+    expect(ref.now).toStrictEqual(init)
   })
 
   test('can select and deselect options', async () => {
@@ -106,7 +106,6 @@ describe(form.Form, () => {
     const [ref] = setup()
 
     click_autocomplete(/Tumor types/)
-    expect(ref.prev).toBeUndefined()
 
     click(getByLabelText('COAD'))
     expect(ref.diff).toStrictEqual({tumors: ['BRCA', 'COAD']})
@@ -126,15 +125,14 @@ describe(form.Form, () => {
   test('can change to cell types', async () => {
     const [ref] = setup()
 
+    click(getByLabelText('cells'))
     click_autocomplete(/Cell types/)
-    expect(ref.prev).toBeUndefined()
 
     click(getByLabelText('CD4'))
-    expect(ref.diff).toStrictEqual({
-      tumors: form_test_conf.tumors,
-      cells: ['CD4'],
-      facet: 'tumor',
-    })
+
+    expect(ref.now!.tumors).toStrictEqual(form_test_conf.tumors)
+    expect(ref.now!.cells).toStrictEqual(['CD4'])
+    expect(ref.now!.facet).toStrictEqual('tumor')
 
     click(getByLabelText('CD4 Treg'))
     expect(ref.diff).toStrictEqual({cells: ['CD4', 'CD4_Treg']})
@@ -153,7 +151,6 @@ describe(form.Form, () => {
     const [ref] = setup()
 
     click_autocomplete(/Tumor types/)
-    expect(ref.prev).toBeUndefined()
 
     click(getByLabelText('COAD'))
     expect(ref.diff).toStrictEqual({tumors: ['BRCA', 'COAD']})
@@ -187,8 +184,8 @@ describe(form.Form, () => {
   test('can access specific tumor filters when cells selected', async () => {
     const [ref] = setup()
 
+    click(getByLabelText('cells'))
     click_autocomplete(/Cell types/)
-    expect(ref.prev).toBeUndefined()
 
     click(getByLabelText('CD4'))
     expect(ref.diff).toHaveProperty('cells', ['CD4'])
@@ -237,6 +234,8 @@ describe(form.TwoForms, () => {
   test('can reset', async () => {
     const [a, b] = setup()
 
+    const init = utils.copy({a, b})
+
     click(screen.getAllByLabelText('high')[0])
     expect(a.diff).toStrictEqual({Diff_grade: ['low', 'missing']})
     expect(b.diff).toStrictEqual({})
@@ -246,7 +245,7 @@ describe(form.TwoForms, () => {
     expect(b.diff).toStrictEqual({Diff_grade: ['high', 'missing']})
 
     click(screen.getByText(/reset/i))
-    expect(a.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
-    expect(b.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
+    expect(a.now).toStrictEqual(init.a.now)
+    expect(b.now).toStrictEqual(init.b.now)
   })
 })

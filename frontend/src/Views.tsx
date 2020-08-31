@@ -124,7 +124,7 @@ const useStyles = makeStyles({
   Modules: {
     width: 1100,
     color: '#f8f8f8',
-    marginTop: 40,
+    // marginTop: 40,
     ...ui.flex_row,
     '& > div': {
       flexGrow: 1,
@@ -179,29 +179,37 @@ export function Main(props = {version: <span />}) {
       component: <h3 style={{margin: '20 20'}}>Module still under construction!</h3>,
     },
   ]
-  const [Module, set_Module] = React.useState(undefined as undefined | typeof Modules[0])
+  // const mini = true
+  const mini = false
+  const [Module, set_Module] = React.useState(
+    mini ? Modules[0] : (undefined as undefined | typeof Modules[0])
+  )
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <MainGlobalStyle />
       <div className={classes.Main}>
-        <header onClick={() => set_Module(undefined)}>
-          <nav>
-            <ul>
-              <li>About</li>
-              <li>Links</li>
-              <li>References</li>
-            </ul>
-          </nav>
-          <ReactMarkdown source={main} />
-        </header>
-        <Splash />
+        {mini || (
+          <>
+            <header onClick={() => set_Module(undefined)}>
+              <nav>
+                <ul>
+                  <li>About</li>
+                  <li>Links</li>
+                  <li>References</li>
+                </ul>
+              </nav>
+              <ReactMarkdown source={main} />
+            </header>
+            <Splash />
+          </>
+        )}
         <div className={classes.Modules}>
           {Modules.map(M => (
             <div
               onClick={() => {
                 set_Module(M)
-                window.setTimeout(() => document.querySelector('#Module').scrollIntoView(), 100)
+                window.setTimeout(() => document.querySelector('#Module')?.scrollIntoView(), 100)
               }}
               key={M.name}
               className={Module && M.name == Module.name ? 'selected' : undefined}>

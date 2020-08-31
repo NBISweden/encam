@@ -24,34 +24,37 @@ type Options = Partial<BoxplotOptions<keyof Row>>
 
 const useStyles = makeStyles({
   BoxPlotWithControls: {
-    ...ui.flex_row,
-  },
-  VisibleSidebar: {
     ...ui.flex_column,
-    marginLeft: 2,
-    marginRight: 7,
-
-    // Checkboxes:
-    '& .MuiFormControlLabel-root': {
-      whiteSpace: 'pre',
-      cursor: 'pointer',
-      marginBottom: 2,
-    },
-    '& .MuiCheckbox-root': {
-      padding: 4,
-      paddingLeft: 9,
-    },
-  },
-  VisibleSidebarIcon: {
-    marginLeft: -8,
-    transform: 'translateY(7px)',
-  },
-  Main: {
-    ...ui.flex_column,
-
     // Radio buttons:
     '& .MuiFormGroup-root': {
       ...ui.flex_row,
+    },
+  },
+  VisibleSidebar: {
+    ...ui.flex_column,
+    marginTop: -4,
+    '--checkbox-bg': '#e0e0e0',
+    '--checkbox-fg': '#333',
+    marginBottom: 12,
+    '& .visible-label': {
+      fontSize: '0.85rem',
+      marginBottom: 3,
+    },
+    '& > .visible-checkboxes': {
+      ...ui.flex_row,
+      flexWrap: 'wrap',
+      marginLeft: 4,
+    },
+    '& .checkbox-label': {
+      margin: '2 2',
+      padding: '2 7',
+      fontSize: '0.73rem',
+      borderWidth: 1.5,
+    },
+    '& .visible-icon': {
+      // marginLeft: -8,
+      marginRight: 2,
+      transform: 'translateY(5px)',
     },
   },
 })
@@ -70,15 +73,15 @@ function useOptions(facet: keyof Row) {
   const opposite = (x: keyof Row) => (x === 'cell' ? 'tumor' : 'cell')
   const options: Partial<Options> = opts.split
     ? {
-        inner: [opposite(facet), 'group'],
+        inner: ['group', opposite(facet)],
         facet: facet,
         split: 'location',
-        color: [opposite(facet), 'group'],
+        color: ['group', opposite(facet)],
       }
     : {
-        inner: [opposite(facet), 'location', 'group'],
+        inner: ['location', 'group', opposite(facet)],
         facet: facet,
-        color: [opposite(facet), 'group'],
+        color: ['group', opposite(facet)],
       }
   options.stripes = 'location'
   options.landscape = opts.orientation == 'landscape'
@@ -97,31 +100,46 @@ function useOptions(facet: keyof Row) {
   return [ui.useIntern(options), nodes] as const
 }
 
-function useVisibleSidebar(facet: string, facet_values: string[]) {
-  const all_selected = Object.fromEntries(facet_values.map(v => [v, true]))
+import {CheckboxRow} from './Form'
+import {useStore} from './ui_utils'
 
-  const [visible_facets, facet_boxes] = ui.useCheckboxes(facet_values, all_selected, utils.pretty)
+function useVisibleSidebar(facet: string, facet_values: string[]) {
+  const [store] = useStore({visible: facet_values})
+
+  // React.useLayoutEffect(() => {
+  // store.update({visible: facet_values})
+  // }, [utils.str(facet_values)])
 
   const [show, set_show] = React.useState(true)
 
+  const facet_boxes = CheckboxRow(facet_values, 'visible', store, ...React.useState(false))
+
+  const value = Object.fromEntries(store.get().visible.map(v => [v, true]))
+
+  const [delayed_value, enqueue_delayed_value] = ui.useDelayed(400, value)
+
+  const loading = !utils.equal(value, delayed_value)
+
+  React.useEffect(() => {
+    enqueue_delayed_value(value)
+  }, [utils.str(value)])
+
   const classes = useStyles()
   return [
-    visible_facets,
+    {
+      visible_facets: delayed_value,
+      loading,
+    },
     <div className={classes.VisibleSidebar}>
-      <FormControl>
-        <FormLabel onClick={() => set_show(b => !b)}>
-          {show ? (
-            <>
-              {' '}
-              <ExpandLessIcon className={classes.VisibleSidebarIcon} />
-              {`visible ${facet}s`}{' '}
-            </>
-          ) : (
-            <ExpandMoreIcon className={classes.VisibleSidebarIcon} />
-          )}
-        </FormLabel>
-        <FormGroup>{show && facet_boxes}</FormGroup>
-      </FormControl>
+      <FormLabel className="visible-label" onClick={() => set_show(b => !b)}>
+        {!show ? (
+          <ExpandLessIcon className="visible-icon" fontSize="small" />
+        ) : (
+          <ExpandMoreIcon className="visible-icon" fontSize="small" />
+        )}
+        {`visible ${facet}s`}{' '}
+      </FormLabel>
+      <div className="visible-checkboxes">{show && facet_boxes}</div>
     </div>,
   ] as const
 }
@@ -129,30 +147,32 @@ function useVisibleSidebar(facet: string, facet_values: string[]) {
 export function BoxplotWithControls({
   data,
   facet,
+  set_loading,
 }: {
   data: (Row & Precalc)[]
   facet: 'cell' | 'tumor'
+  set_loading?: ui.Setter<boolean>
 }) {
   const [options, Options] = useOptions(facet)
 
   const facet_values = utils.uniq(data.map(x => x[facet]))
 
-  const [visible_facets, VisibleSidebar] = useVisibleSidebar(facet, facet_values)
+  const [{visible_facets, loading}, VisibleSidebar] = useVisibleSidebar(facet, facet_values)
 
-  const plot_data = React.useMemo(() => data.filter(x => visible_facets[x[facet]]), [
-    data,
-    utils.str(visible_facets),
-  ])
+  React.useLayoutEffect(() => {
+    set_loading && set_loading(loading)
+  }, [loading])
 
-  const plot_options = React.useMemo(() => ({...options, trimmable: {group: true}}), [
-    utils.str(options),
-  ])
+  const plot_data = ui.useIntern(data.filter(x => visible_facets[x[facet]]))
+
+  const plot_options = ui.useIntern({...options, trimmable: {group: true}})
 
   ui.useWhyChanged(BoxplotWithControls, {
     data,
     facet,
     ...options,
     visible_facets,
+    loading,
     plot_data,
     plot_options,
   })
@@ -161,10 +181,8 @@ export function BoxplotWithControls({
   return (
     <div className={classes.BoxPlotWithControls}>
       {VisibleSidebar}
-      <div className={classes.Main}>
-        <Boxplot data={plot_data} options={plot_options} />
-        {Options}
-      </div>
+      <Boxplot data={plot_data} options={plot_options} />
+      {Options}
     </div>
   )
 }

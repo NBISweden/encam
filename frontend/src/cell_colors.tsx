@@ -1,4 +1,5 @@
-const colors: Record<string, string> = {
+// const colors: Record<string, string> = {
+const colors = {
   CD4: 'rgb(237,175,127)',
   CD8: 'rgb(180,20,4)',
   CD8_Treg: 'rgb(134,72,89)',
@@ -18,8 +19,36 @@ const colors: Record<string, string> = {
 }
 
 export const cell_color = (cell: string) => {
-  if (!(cell in colors)) {
-    colors[cell] = '#dab'
+  if (cell in colors) {
+    return colors[cell as keyof typeof colors]
+  } else {
+    return '#dab'
   }
-  return colors[cell]
 }
+
+// This is category10 but colours replaced from the cell palette
+export const color_scheme = [
+  colors.iDC,
+  colors.B_cells,
+  colors.M2,
+  colors.CD8,
+  colors['CD8_Treg'],
+  colors.NKT,
+  colors.CD4,
+  colors.pDC,
+  colors.Myeloid,
+  colors.M1,
+]
+
+export const color_scheme_fg = [
+  'white', // colors.iDC,
+  'black', // colors.B_cells,
+  'black', // colors.M2,
+  'white', // colors.CD8,
+  'white', // colors['CD8_Treg'],
+  'white', // colors.NKT,
+  'black', // colors.CD4,
+  'black', // colors.pDC,
+  'black', // colors.Myeloid,
+  'black', // colors.M1,
+]

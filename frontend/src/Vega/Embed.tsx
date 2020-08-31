@@ -25,6 +25,23 @@ const TooltipCSS = sc.createGlobalStyle`
 
 const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
 
+function stroma_background_fixup(svg: SVGElement) {
+  svg.querySelectorAll('.role-legend [style*="#stripe"]').forEach(stripe => {
+    let node = stripe.parentElement
+    while (node) {
+      if (node.classList.contains('role-legend')) {
+        node.querySelectorAll('.role-legend-symbol > path').forEach(path => {
+          const copy = (path.cloneNode(true) as any) as SVGPathElement
+          path.parentElement!.prepend(copy)
+          copy.setAttribute('style', 'fill: #777')
+        })
+        return
+      }
+      node = node.parentElement
+    }
+  })
+}
+
 function facet_line_fixup(svg: SVGElement) {
   // Hack to fix facetted axis lines https://github.com/vega/vega-lite/issues/4703
   // console.time('facet fixup')
@@ -93,6 +110,7 @@ export function Embed({spec, data}: {spec: VL.TopLevelSpec; data?: any[]}): Reac
         const svg = el.querySelector('svg')
         if (!svg) return
         facet_line_fixup(svg)
+        stroma_background_fixup(svg)
         const defs = document.createElementNS(svg.namespaceURI, 'defs')
         defs.innerHTML = stripes.pattern
         svg.append(defs)

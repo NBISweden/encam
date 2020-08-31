@@ -151,5 +151,5 @@ function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
       },
     ],
   }
-  return Embed({spec, data})
+  return <Embed {...{spec, data}} />
 }

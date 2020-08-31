@@ -8,6 +8,8 @@ import {Store} from './ui_utils'
 
 import {cellOrder} from './db'
 
+import * as cell_colors from './cell_colors'
+
 import {makeStyles} from '@material-ui/core/styles'
 import {FormControlLabel, Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
 import {Autocomplete} from '@material-ui/lab'
@@ -44,35 +46,13 @@ function calculate_state0(conf: Conf, key_prefix: string): State {
   conf.tumor_specific_values.forEach(v => {
     state0[v.column + ',' + v.tumor] = v.values
   })
-  state0.cells = []
+  state0.cells = [conf.cells.includes('CD4') ? 'CD4' : conf.cells[0]]
   state0.tumors = ['BRCA']
-  if (key_prefix == 'A') {
-    state0.pN_stage = state0.pN_stage.slice(0, 1)
-  } else if (key_prefix == 'B') {
-    state0.pN_stage = state0.pN_stage.slice(1, 2)
-  }
-  return state0
-}
-
-type KMState = Record<string, string[]> & {
-  location: string
-  tumor: string
-  cell: string
-  num_groups: number
-}
-
-function calculate_KMstate0(conf: Conf): KMState {
-  const state0 = {} as KMState
-  conf.variant_values.forEach(v => {
-    state0[v.column] = v.values
-  })
-  conf.tumor_specific_values.forEach(v => {
-    state0[v.column + ',' + v.tumor] = v.values
-  })
-  state0.cell = conf.cells.includes('CD4') ? 'CD4' : conf.cells[0]
-  state0.tumor = conf.tumors[0]
-  state0.location = 'TUMOR'
-  state0.num_groups = 2
+  // if (key_prefix == 'A') {
+  //   state0.pN_stage = state0.pN_stage.slice(0, 1)
+  // } else if (key_prefix == 'B') {
+  //   state0.pN_stage = state0.pN_stage.slice(1, 2)
+  // }
   return state0
 }
 
@@ -134,17 +114,60 @@ function Buttons(props: {onReset: Action; onSubmit: Action; children?: React.Rea
 const useStyles = makeStyles({
   Form: {
     ...ui.flex_column,
-    '& > .MuiAutocomplete-root': {
-      paddingBottom: '1em',
+    '& .MuiAutocomplete-root': {
+      paddingBottom: 10,
     },
-    '& h2:first-child': {
+    '& h2:first-of-type': {
       marginTop: 0,
+    },
+    '& h2': {
+      fontSize: '1.1rem',
+      alignSelf: 'flex-end',
+      marginBottom: 5,
+    },
+  },
+  SelectRadio: {
+    margin: '5 0 15',
+    // alignSelf: 'flex-begin',
+    '& .MuiFormControl-root': {
+      ...ui.flex_row,
+      justifyContent: 'center',
+      paddingRight: 10,
+      alignItems: 'center',
+      '& *': {
+        verticalAlign: 'baseline',
+      },
+      '& label': {
+        lineHeight: 'unset',
+        color: 'rgba(0, 0, 0, 0.87)',
+      },
+      '& .MuiFormGroup-root': {
+        ...ui.flex_row,
+        '& label': {
+          ...ui.flex_row,
+          '& .MuiFormControlLabel-label': {},
+          margin: 0,
+          '& .MuiButtonBase-root': {
+            padding: '0 9',
+          },
+        },
+      },
     },
   },
 })
 
+function useSelectRadio() {
+  const classes = useStyles()
+  const [select_type, select_radio_inner] = ui.useRadio('Select', ['tumors', 'cells'])
+  const select_radio = <div className={classes.SelectRadio}>{select_radio_inner}</div>
+  const select_types = {[select_type]: true} as Record<typeof select_type, boolean>
+  return [select_types, select_radio] as const
+}
+
 export function Form({conf, onSubmit, onState}: FormProps) {
-  const {state, reset, form} = useForm(conf)
+  const [select_types, select_radio] = useSelectRadio()
+
+  const {state, reset, form} = useForm(conf, select_types, true)
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
@@ -157,6 +180,7 @@ export function Form({conf, onSubmit, onState}: FormProps) {
   const classes = useStyles()
   return (
     <div className={classes.Form}>
+      {select_radio}
       {form}
       <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(...get_form_values())} />
     </div>
@@ -164,10 +188,12 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 }
 
 export function TwoForms({conf, onSubmit, onState}: FormProps) {
+  const [select_types, select_radio] = useSelectRadio()
+
   const names = 'AB'
 
-  const A = useForm(conf, names[0])
-  const B = useForm(conf, names[1])
+  const A = useForm(conf, select_types, false, names[0])
+  const B = useForm(conf, select_types, false, names[1])
 
   const forms = [A, B]
 
@@ -193,9 +219,22 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
   const classes = useStyles()
   return (
     <div className={classes.Form}>
+      {select_radio}
       {do_stitch
         ? stitch(forms.map(form => form.form))
-        : forms.map((form, i) => [<h2 key={names[i]}>Group {names[i]}</h2>, form.form])}
+        : forms.map((form, i) => [
+            <h2 key={'h2' + names[i]}>Group {names[i]}</h2>,
+            <div
+              key={'div' + names[i]}
+              style={
+                {
+                  '--checkbox-bg': cell_colors.color_scheme[i],
+                  // '--checkbox-fg': cell_colors.color_scheme_fg[i],
+                } as any
+              }>
+              {form.form}
+            </div>,
+          ])}
       <Buttons onReset={reset} onSubmit={on_submit}>
         <Grid item style={{display: 'none'}}>
           {box_stitch}
@@ -267,11 +306,9 @@ interface VariantsProps {
   store: Store<Record<string, string[]>>
 }
 
-import {cell_color} from './cell_colors'
-
 const useVariantsStyles = makeStyles({
-  Checkbox: {
-    '& > label': {
+  CheckboxRow: {
+    '& .checkbox-label': {
       textAlign: 'center',
       cursor: 'pointer',
       border: '2px #bbb solid',
@@ -286,97 +323,114 @@ const useVariantsStyles = makeStyles({
         borderColor: '#888',
       },
     },
-  },
-  Checked: {
-    '& > label': {
-      background: cell_color('iDC'),
-      borderColor: cell_color('iDC'),
-      color: '#fff',
+    '&.checked .checkbox-label': {
+      background: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
+      borderColor: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
+      color: `var(--checkbox-fg, ${cell_colors.color_scheme_fg[0]})`,
     },
   },
 })
 
-function Variants(props: VariantsProps) {
-  const state = props.store.get()
-  const classes = useVariantsStyles()
+export function Variants(props: VariantsProps) {
   const [handled_at_mousedown, set_handled_at_mousedown] = React.useState(false)
   return (
     <>
-      {props.options.map(({column, values}) =>
-        memo([state[column], values, handled_at_mousedown], () => (
-          <div key={column} style={{...ui.flex_row, alignItems: 'baseline'}}>
-            <div style={{width: '3.5cm'}}>
-              {column
-                .replace(/(_|yesno)/g, ' ')
-                .replace(/type/g, '')
-                .replace(/^p/, '')
-                .replace(/ +/, ' ')
-                .trim()}
-            </div>
-            {values.map(value => {
-              const checked = (state[column] || values).includes(value)
-              const h = (e: React.MouseEvent | React.ChangeEvent) => {
-                if (
-                  e.nativeEvent.type != 'click' &&
-                  'buttons' in e.nativeEvent &&
-                  !e.nativeEvent.buttons
-                ) {
-                  return
-                }
-                if (e.nativeEvent.type == 'mousedown') {
-                  if (!handled_at_mousedown) {
-                    set_handled_at_mousedown(true)
-                  }
-                }
-                if (e.nativeEvent.type == 'click') {
-                  if (handled_at_mousedown) {
-                    set_handled_at_mousedown(false)
-                    return
-                  }
-                }
-                const prev: string[] = state[column] || values
-                const checked = !prev.find(n => n == value)
-                const selected = prev
-                  .slice()
-                  .filter(x => x != value || checked)
-                  .concat(checked ? [value] : [])
-                const new_value = selected.length ? selected : prev
-                // : values.filter(x => !prev.includes(x))
-                props.store.update({[column]: new_value})
-              }
-              return (
-                <div
-                  key={value}
-                  className={classes.Checkbox + ' ' + (checked ? classes.Checked : '')}>
-                  <label onMouseEnter={h} onMouseDown={h}>
-                    <input
-                      type="checkbox"
-                      style={{position: 'absolute', left: -9999}}
-                      checked={checked}
-                      onChange={h}
-                    />
-                    {value}
-                  </label>
-                </div>
-              )
-            })}
+      {props.options.map(({column, values}) => (
+        <div key={column} style={{...ui.flex_row, alignItems: 'baseline'}}>
+          <div style={{width: '3.5cm'}}>
+            {column
+              .replace(/(_|yesno)/g, ' ')
+              .replace(/type/g, '')
+              .replace(/^p/, '')
+              .replace(/ +/, ' ')
+              .trim()}
           </div>
-        ))
-      )}
+          {CheckboxRow(values, column, props.store, handled_at_mousedown, set_handled_at_mousedown)}
+        </div>
+      ))}
     </>
   )
 }
 
-interface SelectProps<Multi extends boolean, Selection = Multi extends true ? string[] : string> {
-  options: string[]
-  codeFor?: (option: string) => string
-  value: Selection
-  label: string
-  defaultValue?: Selection
-  onChange: (ev: React.ChangeEvent<{}>, value: Selection) => void
+export function CheckboxRow(
+  values: string[],
+  column: string,
+  store: Store<Record<string, string[]>>,
+  handled_at_mousedown: boolean,
+  set_handled_at_mousedown: (b: boolean) => void
+) {
+  const state = store.get()
+  const classes = useVariantsStyles()
+  return values.map(value => {
+    const checked = (state[column] || values).includes(value)
+    const h = (e: React.MouseEvent | React.ChangeEvent) => {
+      if (e.nativeEvent.type != 'click' && 'buttons' in e.nativeEvent && !e.nativeEvent.buttons) {
+        return
+      }
+      if (e.nativeEvent.type == 'mousedown') {
+        if (!handled_at_mousedown) {
+          set_handled_at_mousedown(true)
+        }
+      }
+      if (e.nativeEvent.type == 'click') {
+        if (handled_at_mousedown) {
+          set_handled_at_mousedown(false)
+          return
+        }
+      }
+      const prev: string[] = state[column] || values
+      const checked = !prev.find(n => n == value)
+      const selected = prev
+        .slice()
+        .filter(x => x != value || checked)
+        .concat(checked ? [value] : [])
+      const new_value = selected.length ? selected : prev
+      store.update({[column]: new_value})
+    }
+    return (
+      <div key={value} className={classes.CheckboxRow + ' ' + (checked ? 'checked' : '')}>
+        <label
+          className="checkbox-label"
+          onMouseEnter={h}
+          onMouseDown={h}
+          onDoubleClick={() => {
+            if (utils.equal(store.get()[column], [value])) {
+              store.update({[column]: values})
+            } else {
+              store.update({[column]: [value]})
+            }
+          }}>
+          <input
+            type="checkbox"
+            style={{position: 'absolute', left: -9999}}
+            checked={checked}
+            onChange={h}
+          />
+          {value}
+        </label>
+      </div>
+    )
+  })
 }
 
-function SelectMany(props: SelectProps<true>) {
+interface SelectProps {
+  options: string[]
+  codeFor?: (option: string) => string
+  value: string[]
+  label: string
+  defaultValue?: string[]
+  onChange: (ev: React.ChangeEvent<{}>, value: string[]) => void
+}
+
+function Select(props: SelectProps & {multi: boolean}) {
+  if (props.multi) {
+    return <SelectMany {...props} />
+  } else {
+    return <SelectOne {...props} />
+  }
+}
+
+function SelectMany(props: SelectProps) {
   return (
     <Autocomplete
       multiple
@@ -384,7 +438,7 @@ function SelectMany(props: SelectProps<true>) {
       disableCloseOnSelect
       renderOption={(option, {selected}) => (
         <>
-          <label>
+          <label style={{...ui.flex_row, minWidth: 100}}>
             <Checkbox
               size="small"
               style={{marginRight: 8, padding: 0}}
@@ -409,7 +463,7 @@ function SelectMany(props: SelectProps<true>) {
   )
 }
 
-function SelectOne(props: SelectProps<false>) {
+function SelectOne(props: SelectProps) {
   return (
     <Autocomplete
       renderOption={(option, {selected}) => (
@@ -434,42 +488,69 @@ function SelectOne(props: SelectProps<false>) {
       renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
       style={{width: '100%'}}
       options={props.options}
-      onChange={(ev, maybe_value) => props.onChange(ev, maybe_value ?? props.defaultValue ?? '')}
-      value={props.value}
+      onChange={(ev, maybe_value) =>
+        props.onChange(ev, maybe_value ? [maybe_value] : props.defaultValue ?? [])
+      }
+      value={props.value[0] ?? ''}
     />
   )
 }
 
-function useForm(conf: Conf, key_prefix = '') {
+function useForm(
+  conf: Conf,
+  select_types: Record<'tumors' | 'cells', boolean>,
+  multi: boolean,
+  key_prefix = ''
+) {
   const state0 = React.useMemo(() => calculate_state0(conf, key_prefix), [conf, key_prefix])
 
   const [store, state, update_state] = ui.useStore(state0)
 
   const {tumors, cells} = state
 
-  const tumor_type = memo([tumors, cells], () => (
-    <SelectMany
-      key={key_prefix + ':tumors'}
-      options={conf.tumors}
-      codeFor={tumor => conf.tumor_codes[tumor]}
-      label={'Tumor types' + (cells.length ? ' (cells selected, comparing across all tumors)' : '')}
-      {...store.at('tumors', (selected: string[]) => ({
-        tumors: utils.last(3, selected),
-        cells: [],
-      }))}
-    />
+  React.useLayoutEffect(() => {
+    const state = store.get()
+    if (!select_types.tumors && state.tumors.length) {
+      store.update({tumors: []})
+    }
+    if (!select_types.cells && state.cells.length) {
+      store.update({cells: []})
+    }
+  }, [select_types])
+
+  const numerus = (tumor: string) => tumor + (multi ? 's' : '')
+
+  const tumor_type = memo([select_types, tumors, cells], () => (
+    <React.Fragment key={key_prefix + ':tumors'}>
+      {select_types.tumors && (
+        <Select
+          multi={multi}
+          options={conf.tumors}
+          codeFor={tumor => conf.tumor_codes[tumor]}
+          label={numerus('Tumor type')}
+          {...store.at('tumors', (selected: string[]) => ({
+            tumors: utils.last(3, selected),
+            cells: select_types.cells ? store.get().cells : [],
+          }))}
+        />
+      )}
+    </React.Fragment>
   ))
 
-  const cell_type = memo([tumors, cells], () => (
-    <SelectMany
-      key={key_prefix + ':cells'}
-      options={cellOrder.filter(cell => conf.cells.includes(cell))}
-      label={'Cell types' + (tumors.length ? ' (tumors selected, comparing across cells)' : '')}
-      {...store.at('cells', (selected: string[]) => ({
-        tumors: [],
-        cells: utils.last(3, selected),
-      }))}
-    />
+  const cell_type = memo([select_types, tumors, cells], () => (
+    <React.Fragment key={key_prefix + ':cells'}>
+      {select_types.cells && (
+        <Select
+          multi={multi}
+          options={cellOrder.filter(cell => conf.cells.includes(cell))}
+          label={numerus('Cell type')}
+          {...store.at('cells', (selected: string[]) => ({
+            tumors: select_types.tumors ? store.get().tumors : [],
+            cells: utils.last(3, selected),
+          }))}
+        />
+      )}
+    </React.Fragment>
   ))
 
   const specifics = (
@@ -492,56 +573,8 @@ function useForm(conf: Conf, key_prefix = '') {
   }
 }
 
-function useKMForm(conf: Conf) {
-  const state0 = React.useMemo(() => calculate_KMstate0(conf), [conf])
-
-  const [store, state, update_state] = ui.useStore(state0)
-
-  const {tumor, cell} = state
-
-  const tumor_type = memo([tumor], () => (
-    <SelectOne
-      key="tumors"
-      options={conf.tumors}
-      codeFor={tumor => conf.tumor_codes[tumor]}
-      label="Tumor type"
-      defaultValue={state0.tumor}
-      {...store.at('tumor')}
-    />
-  ))
-
-  const cell_type = memo([cell], () => (
-    <SelectOne
-      key="cells"
-      options={cellOrder.filter(cell => conf.cells.includes(cell))}
-      // map(utils.pretty) // hmm??
-
-      label="Cell type"
-      defaultValue={state0.cell}
-      {...store.at('cell')}
-    />
-  ))
-
-  const specifics = (
-    <Specifics
-      key="specifics"
-      options={conf.tumor_specific_values}
-      visible={t => tumor == t.tumor}
-      store={store}
-    />
-  )
-
-  const variants = <Variants key="variants" options={conf.variant_values} store={store} />
-
-  return {
-    state,
-    reset: () => update_state(state0),
-    form: [tumor_type, cell_type, specifics, variants],
-  }
-}
-
 export function KMForm({conf, onSubmit, onState}: FormProps) {
-  const {state, reset, form} = useKMForm(conf)
+  const {state, reset, form} = useForm(conf, {cells: true, tumors: true}, false)
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
@@ -549,7 +582,7 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
     const expanded = utils.expand(state)
     return {
       ...expanded,
-      tumors: [expanded.tumor],
+      cell: (expanded.cells as any)[0],
     }
   }
 

@@ -4,10 +4,10 @@ import {BoxplotWithControls} from '../src/BoxplotWithControls'
 
 import * as boxplot_data from '../src/data/boxplot'
 
-import {render, fireEvent, screen, waitFor} from '@testing-library/react'
+import {act, render, fireEvent, screen, waitFor} from '@testing-library/react'
 import * as q from '@testing-library/react'
 
-const {click} = fireEvent
+const {click, doubleClick} = fireEvent
 const {getByLabelText} = screen
 
 async function wait_for_visualization() {
@@ -15,6 +15,7 @@ async function wait_for_visualization() {
 }
 
 test('can change visible cells', async () => {
+  jest.useFakeTimers()
   render(<BoxplotWithControls data={boxplot_data.rows} facet="cell" />)
 
   async function axis_titles() {
@@ -26,12 +27,24 @@ test('can change visible cells', async () => {
   expect(await axis_titles()).toEqual(['CD4', 'CD4_Treg', 'CD8'])
 
   click(getByLabelText('CD4'))
+  expect(await axis_titles()).toEqual(['CD4', 'CD4_Treg', 'CD8'])
+  act(() => {
+    jest.runAllTimers()
+  })
   expect(await axis_titles()).toEqual(['CD4_Treg', 'CD8'])
 
-  click(getByLabelText('CD4'), {ctrlKey: true})
+  doubleClick(getByLabelText('CD4'))
+  expect(await axis_titles()).toEqual(['CD4_Treg', 'CD8'])
+  act(() => {
+    jest.runAllTimers()
+  })
   expect(await axis_titles()).toEqual(['CD4'])
 
-  click(getByLabelText('CD4'), {ctrlKey: true})
+  doubleClick(getByLabelText('CD4'))
+  expect(await axis_titles()).toEqual(['CD4'])
+  act(() => {
+    jest.runAllTimers()
+  })
   expect(await axis_titles()).toEqual(['CD4', 'CD4_Treg', 'CD8'])
 })
 
@@ -46,11 +59,9 @@ test('visible cells can be hidden', async () => {
 
   expect(screen.queryByLabelText('CD4')).toBeFalsy()
 
-  expect(screen.queryByText(/visible cells/)).toBeFalsy()
   click(expand_less)
 
   expect(getByLabelText('CD4')).toBeTruthy()
-  expect(screen.queryByText(/visible cells/)).toBeTruthy()
 })
 
 test('can change range', async () => {
