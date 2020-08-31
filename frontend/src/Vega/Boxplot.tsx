@@ -6,7 +6,7 @@ import * as React from 'react'
 
 import {Embed} from './Embed'
 
-import {cell_color} from '../cell_colors'
+import {cell_color, color_scheme} from '../cell_colors'
 
 export interface Options<K extends string> {
   inner: K | K[]
@@ -110,12 +110,9 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   }
 
   data.map(datum => {
-    datum.fill = datum[options.stripes] == 'STROMA' ? 'url(#stripe)' : '#fff0'
-    datum.cell_color = cell_color(datum.cell) // [options.color])
-    datum.location_lowercase = datum.location.toLowerCase()
-
-    // put stroma after tumor
-    datum.location = datum.location == 'STROMA' ? 1 : 0
+    datum.cell_color = cell_color(datum.cell)
+    datum.location = datum.location.toLowerCase()
+    datum.loc_order = datum.location == 'stroma' ? 1 : 0
   })
 
   const prepare_option = (keys: K | K[], sep = ',') => {
@@ -128,7 +125,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
       // console.log(k, 'is', nontrivial ? 'nontrivial' : 'trivial', range)
       return nontrivial
     })
-    const key = array.join(',')
+    const key = array.join(', ')
     if (array.length) {
       data.forEach(datum => {
         datum[key] = array.map(field => datum[field]).join(sep)
@@ -142,13 +139,25 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   const split = prepare_option(options.split)
   const color = prepare_option(options.color, ' ')
 
-  const size = 8
+  data.map(datum => {
+    datum.order = ensure_array(options.inner)
+      .map(k => datum[k == 'location' ? 'loc_order' : k])
+      .join(',')
+  })
+
+  data.sort(utils.by(datum => datum.order))
+
+  data.forEach((datum, i) => {
+    datum.order = i
+  })
+
+  const size = 9
 
   const tooltip = [
     {field: 'cell', type: 'nominative', title: 'Cell type'},
     {field: 'group', type: 'nominative', title: 'Group'},
     {field: 'tumor', type: 'nominative', title: 'Tumor type'},
-    {field: 'location_lowercase', type: 'nominative', title: 'Location'},
+    {field: 'location', type: 'nominative', title: 'Location'},
     {field: 'max', type: 'quantitative', format: '.1f', title: 'Max'},
     {field: 'upper_outliers', type: 'quantitative', format: '.1f', title: 'Upper outlier count'},
     {field: 'q3', type: 'quantitative', format: '.1f', title: 'Q3'},
@@ -182,6 +191,12 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
             [row]: {
               field: split,
               type: 'ordinal',
+              sort:
+                split == 'location'
+                  ? {
+                      field: 'loc_order',
+                    }
+                  : {},
               header: {
                 // labelAngle:  options.landscape ? 0 : -45,
                 // labelAlign:  options.landscape ? "left" : "right",
@@ -196,11 +211,14 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     },
     spec: {
       [height]: 300,
-      [width]: {step: 12},
+      [width]: {step: 13},
       encoding: {
         [x]: {
           field: inner,
           type: 'nominal',
+          sort: {
+            field: 'order',
+          },
           axis: {
             title: null,
             labelExpr: '',
@@ -219,7 +237,9 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
               type: 'quantitative',
               scale: scale,
             },
-            color: {value: 'black'},
+            color: {
+              value: 'black',
+            },
             [y2]: {field: 'q1'},
           },
         },
@@ -236,10 +256,18 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
           encoding: {
             [y]: {field: 'q1', type: 'quantitative'},
             [y2]: {field: 'q3'},
+            stroke: {value: '#000', legend: null},
+            strokeWidth: {value: 1.5, legend: null},
+          },
+        },
+        {
+          mark: {type: 'bar', size},
+          encoding: {
+            [y]: {field: 'q1', type: 'quantitative'},
+            [y2]: {field: 'q3'},
             color: {
               field: color,
               type: 'nominal',
-              scale: {scheme: 'tableau10'},
               legend: options.legend ? {} : null,
             },
           },
@@ -249,16 +277,21 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
           encoding: {
             [y]: {field: 'q1', type: 'quantitative'},
             [y2]: {field: 'q3'},
-            fill: {field: 'fill', scale: null, type: 'nominal'},
-            stroke: {value: 'black'},
-            strokeWidth: {value: 1},
+            fill: {
+              field: 'location',
+              scale: {
+                domain: ['tumor', 'stroma'],
+                range: ['#fff0', 'url(#stripe)'],
+              },
+              type: 'nominal',
+              legend: options.legend ? {} : null,
+            },
           },
         },
         {
           mark: {type: 'tick', size},
           encoding: {
             [y]: {field: 'median', type: 'quantitative'},
-            // color: { value: 'white' },
             stroke: {value: 'black'},
             strokeWidth: {value: 1},
             opacity: {value: 1},
@@ -290,7 +323,10 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
       // axis: { grid: true },
       // axis: { domainWidth: 1 },
       facet: {spacing: 6},
+      range: {
+        category: color_scheme,
+      },
     },
   }
-  return Embed({spec, data})
+  return <Embed {...{spec, data}} />
 }

@@ -128,7 +128,8 @@ export function useNativeSelect(
 export function useCheckboxes(
   labels: string[],
   init?: Record<string, boolean>,
-  label_string = (s: string) => s
+  label_string = (s: string) => s,
+  label_placement = undefined as undefined | 'bottom' | 'top' | 'start' | 'end'
 ): UseComponent<Record<string, boolean>> {
   const init_value = init === undefined ? {} : init
   const [value, set_value] = React.useState(init_value)
@@ -145,6 +146,7 @@ export function useCheckboxes(
           label={label_string(label)}
           key={label}
           checked={value[label] || false}
+          labelPlacement={label_placement}
           onChange={(e, checked) => {
             const ev = e.nativeEvent as MouseEvent
             if (ev.ctrlKey || ev.shiftKey || ev.altKey) {
@@ -172,8 +174,8 @@ export function useRadio<K extends string>(label: string, options: K[], init?: K
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
   return [
     value,
-    <FormControl component="fieldset">
-      <FormLabel component="legend">{label}</FormLabel>
+    <FormControl component="div" role="group">
+      <FormLabel component="label">{label}</FormLabel>
       <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
         {options.map(option => (
           <FormControlLabel

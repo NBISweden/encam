@@ -344,3 +344,14 @@ export function snap(xs: number[], dests: number[]) {
   )
   return ret()
 }
+
+/**
+
+  const a = {x: 1}
+  copy(a) // => a
+  copy(a) === a // => false
+
+*/
+export function copy<A>(x: A): A {
+  return JSON.parse(str(x))
+}

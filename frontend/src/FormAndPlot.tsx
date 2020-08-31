@@ -30,11 +30,19 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
 
   const [filter, set_filter] = React.useState(undefined as undefined | Record<string, any>)
   const [plot_data, set_plot_data] = React.useState(undefined as any)
-  const [loading, set_loading] = React.useState(false)
-  const plot = filter && plot_data && <BoxplotWithControls data={plot_data} facet={filter.facet} />
+  const [loading_outer, set_loading_outer] = React.useState(false)
+  const [loading_inner, set_loading_inner] = React.useState(false)
+  const plot = filter && plot_data && (
+    <BoxplotWithControls
+      data={plot_data}
+      facet={filter.facet}
+      key={filter.facet}
+      set_loading={set_loading_inner}
+    />
+  )
   const request = backend.useRequestFn()
   const onSubmit = React.useCallback(async (...filters) => {
-    set_loading(true)
+    set_loading_outer(true)
     // console.time('request')
     const res: any[][] = await request('tukey', filters)
     // console.timeEnd('request')
@@ -46,11 +54,12 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
       }))
     )
     ReactDOM.unstable_batchedUpdates(() => {
-      set_loading(false)
+      set_loading_outer(false)
       set_filter(filters[0])
       set_plot_data(res_with_named_groups)
     })
   }, [])
+  const loading = loading_outer || (filter && plot_data && loading_inner)
   ui.useWhyChanged(FormAndBoxPlot, {conf, filter, plot_data, loading, plot})
   return (
     <FormAndPlotView
