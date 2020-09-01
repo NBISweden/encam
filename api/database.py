@@ -262,6 +262,7 @@ def filter_survival(filter_id):
     if num_groups < 2:
         raise ValueError('Number of groups must be at least two.')
     points_dfs = []
+    alive_dfs = []
     for g in range(num_groups):
         kmf = KaplanMeierFitter()
         data = data_filtered[lambda row: row['rank'] == g+1]
@@ -277,6 +278,11 @@ def filter_survival(filter_id):
         df['group'] = g+1
         points_dfs += [df]
 
+        alive_df = kmf.survival_function_at_times(data[data['E']==False]['T']).to_frame().reset_index()
+        alive_df['group'] = g+1
+        alive_dfs += [alive_df]
+
+    # Curate points and alive points
     points_df = pd.concat(points_dfs).reset_index().rename(columns={
         'index': 'time',
         'Kaplan_Meier': 'fit',
@@ -284,6 +290,13 @@ def filter_survival(filter_id):
         'Kaplan_Meier_upper_0.95': 'upper',
     })
     points = points_df.to_dict(orient='records')
+
+    alive_points_df = pd.concat(alive_dfs).rename(columns={
+        'index': 'time',
+        'Kaplan_Meier': 'fit',
+        'group': 'group',
+    })
+    alive_points = alive_points_df.to_dict(orient='records')
 
     # Run multivarate analysis
     log_rank = multivariate_logrank_test(data_filtered['T'], data_filtered['rank'], data_filtered['E'])
@@ -301,7 +314,7 @@ def filter_survival(filter_id):
         'upper': cph.summary['exp(coef) upper 95%'][0],
         'p': cph.summary['p'][0]
     }
-    return {'points': points, 'log_rank': log, 'cox_regression': cox}
+    return {'points': points, 'log_rank': log, 'cox_regression': cox, 'live_points': alive_points}
 
 def calculate_size(filter_id):
     data_filtered = filtering(filter_id)
