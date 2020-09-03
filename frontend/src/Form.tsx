@@ -14,6 +14,8 @@ import {makeStyles} from '@material-ui/core/styles'
 import {FormControlLabel, Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
 import {Autocomplete} from '@material-ui/lab'
 
+import {CheckboxRow} from './CheckboxRow'
+
 interface SpecificOption {
   column: string
   tumor: string
@@ -306,38 +308,23 @@ interface VariantsProps {
   store: Store<Record<string, string[]>>
 }
 
-const useVariantsStyles = makeStyles({
-  CheckboxRow: {
-    '& .checkbox-label': {
-      textAlign: 'center',
-      cursor: 'pointer',
-      border: '2px #bbb solid',
-      background: '#fafafa',
-      display: 'block',
-      color: '#333',
-      borderRadius: 16,
-      padding: '3 8',
-      margin: '5 2',
-      minWidth: '3.5em',
-      '&:focus-within': {
-        borderColor: '#888',
-      },
-    },
-    '&.checked .checkbox-label': {
-      background: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
-      borderColor: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
-      color: `var(--checkbox-fg, ${cell_colors.color_scheme_fg[0]})`,
+const useVariantStyles = makeStyles({
+  VariantRow: {
+    ...ui.flex_row,
+    alignItems: 'baseline',
+    '& .variant-label': {
+      width: 130,
     },
   },
 })
 
 export function Variants(props: VariantsProps) {
-  const [handled_at_mousedown, set_handled_at_mousedown] = React.useState(false)
+  const classes = useVariantStyles()
   return (
     <>
       {props.options.map(({column, values}) => (
-        <div key={column} style={{...ui.flex_row, alignItems: 'baseline'}}>
-          <div style={{width: '3.5cm'}}>
+        <div key={column} className={classes.VariantRow}>
+          <div className="variant-label">
             {column
               .replace(/(_|yesno)/g, ' ')
               .replace(/type/g, '')
@@ -345,72 +332,11 @@ export function Variants(props: VariantsProps) {
               .replace(/ +/, ' ')
               .trim()}
           </div>
-          {CheckboxRow(values, column, props.store, handled_at_mousedown, set_handled_at_mousedown)}
+          {CheckboxRow(values, column, props.store)}
         </div>
       ))}
     </>
   )
-}
-
-export function CheckboxRow(
-  values: string[],
-  column: string,
-  store: Store<Record<string, string[]>>,
-  handled_at_mousedown: boolean,
-  set_handled_at_mousedown: (b: boolean) => void
-) {
-  const state = store.get()
-  const classes = useVariantsStyles()
-  return values.map(value => {
-    const checked = (state[column] || values).includes(value)
-    const h = (e: React.MouseEvent | React.ChangeEvent) => {
-      if (e.nativeEvent.type != 'click' && 'buttons' in e.nativeEvent && !e.nativeEvent.buttons) {
-        return
-      }
-      if (e.nativeEvent.type == 'mousedown') {
-        if (!handled_at_mousedown) {
-          set_handled_at_mousedown(true)
-        }
-      }
-      if (e.nativeEvent.type == 'click') {
-        if (handled_at_mousedown) {
-          set_handled_at_mousedown(false)
-          return
-        }
-      }
-      const prev: string[] = state[column] || values
-      const checked = !prev.find(n => n == value)
-      const selected = prev
-        .slice()
-        .filter(x => x != value || checked)
-        .concat(checked ? [value] : [])
-      const new_value = selected.length ? selected : prev
-      store.update({[column]: new_value})
-    }
-    return (
-      <div key={value} className={classes.CheckboxRow + ' ' + (checked ? 'checked' : '')}>
-        <label
-          className="checkbox-label"
-          onMouseEnter={h}
-          onMouseDown={h}
-          onDoubleClick={() => {
-            if (utils.equal(store.get()[column], [value])) {
-              store.update({[column]: values})
-            } else {
-              store.update({[column]: [value]})
-            }
-          }}>
-          <input
-            type="checkbox"
-            style={{position: 'absolute', left: -9999}}
-            checked={checked}
-            onChange={h}
-          />
-          {value}
-        </label>
-      </div>
-    )
-  })
 }
 
 interface SelectProps {
