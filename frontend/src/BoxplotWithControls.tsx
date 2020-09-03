@@ -8,6 +8,9 @@ import * as ui from './ui_utils'
 
 import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
 
+import {CheckboxRow} from './CheckboxRow'
+import {useStore} from './ui_utils'
+
 import {makeStyles} from '@material-ui/core/styles'
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
@@ -47,9 +50,10 @@ const useStyles = makeStyles({
     },
     '& .checkbox-label': {
       margin: '2 2',
-      padding: '2 7',
+      padding: '3 8 1',
       fontSize: '0.73rem',
       borderWidth: 1.5,
+      minWidth: 'unset',
     },
     '& .visible-icon': {
       // marginLeft: -8,
@@ -100,9 +104,6 @@ function useOptions(facet: keyof Row) {
   return [ui.useIntern(options), nodes] as const
 }
 
-import {CheckboxRow} from './Form'
-import {useStore} from './ui_utils'
-
 function useVisibleSidebar(facet: string, facet_values: string[]) {
   const [store] = useStore({visible: facet_values})
 
@@ -112,7 +113,7 @@ function useVisibleSidebar(facet: string, facet_values: string[]) {
 
   const [show, set_show] = React.useState(true)
 
-  const facet_boxes = CheckboxRow(facet_values, 'visible', store, ...React.useState(false))
+  const facet_boxes = CheckboxRow(facet_values, 'visible', store)
 
   const value = Object.fromEntries(store.get().visible.map(v => [v, true]))
 
