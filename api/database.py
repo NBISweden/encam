@@ -301,6 +301,12 @@ def filter_survival(filter_id):
         'upper': cph.summary['exp(coef) upper 95%'][0],
         'p': cph.summary['p'][0]
     }
+
+    # Replace infinite values with max or min probabilities
+    if cox['upper'] == float('inf'):
+        cox['upper'] = 1.0
+    if cox['lower'] == float('-inf'):
+        cox['lower'] = 0.0
     return {'points': points, 'log_rank': log, 'cox_regression': cox}
 
 def calculate_size(filter_id):
