@@ -40,13 +40,15 @@ type State = Record<string, string[]> & {
   cells: string[]
 }
 
+const specific_key = (s: SpecificOption) => s.column + ',' + s.tumor
+
 function calculate_state0(conf: Conf, key_prefix: string): State {
   const state0 = {} as State
   conf.variant_values.forEach(v => {
     state0[v.column] = v.values
   })
   conf.tumor_specific_values.forEach(v => {
-    state0[v.column + ',' + v.tumor] = v.values
+    state0[specific_key(v)] = v.values
   })
   state0.cells = [conf.cells.includes('CD4') ? 'CD4' : conf.cells[0]]
   state0.tumors = ['BRCA']
@@ -58,7 +60,7 @@ function calculate_state0(conf: Conf, key_prefix: string): State {
   return state0
 }
 
-import BarChartIcon from '@material-ui/icons/BarChart'
+import BarChart from '@material-ui/icons/BarChart'
 
 function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
@@ -104,7 +106,7 @@ function Buttons(props: {onReset: Action; onSubmit: Action; children?: React.Rea
         <Button
           variant="contained"
           color="primary"
-          startIcon={<BarChartIcon />}
+          startIcon={<BarChart />}
           onClick={props.onSubmit}>
           Plot
         </Button>
@@ -115,6 +117,7 @@ function Buttons(props: {onReset: Action; onSubmit: Action; children?: React.Rea
 
 const useStyles = makeStyles({
   Form: {
+    width: 440,
     ...ui.flex_column,
     '& .MuiAutocomplete-root': {
       paddingBottom: 10,
@@ -252,53 +255,146 @@ interface SpecificsProps {
   store: Store<Record<string, string[]>>
 }
 
+import {
+  Accordion as MuiAccordion,
+  AccordionSummary as MuiAccordionSummary,
+  AccordionDetails,
+} from '@material-ui/core'
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+
+import {withStyles} from '@material-ui/core/styles'
+
+export const Accordion = withStyles(theme => {
+  const borderColor =
+    theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'
+
+  return {
+    root: {
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor,
+      borderRadius: 4,
+      marginBottom: '10',
+      marginTop: 0,
+      '&$expanded': {
+        marginBottom: '20',
+        marginTop: 0,
+      },
+      boxShadow: 'none',
+    },
+    expanded: {},
+  }
+})(MuiAccordion)
+
+export const AccordionSummary = withStyles({
+  root: {
+    margin: 'auto',
+    transition: 'none',
+    '&$expanded': {
+      minHeight: 48,
+    },
+  },
+  content: {
+    justifyContent: 'space-between',
+    margin: '12 0',
+    '&$expanded': {
+      margin: '12 0',
+    },
+  },
+  expanded: {},
+  expandIcon: {
+    padding: 2,
+    transition: 'none',
+  },
+})(MuiAccordionSummary)
+
+const useSpecificStyles = makeStyles(theme => ({
+  Table: {
+    fontSize: 'inherit',
+    '& td': {
+      padding: 0,
+    },
+    '& tr:not(:last-child) td': {
+      paddingBottom: 5,
+    },
+    '& td:first-child': {
+      minWidth: 60,
+      verticalAlign: 'baseline',
+    },
+    '& tr:hover': {
+      '& td:first-child': {
+        color: theme.palette.primary.main,
+      },
+    },
+    '& .checkbox-label': {
+      marginTop: 0,
+    },
+  },
+  AccordionDetails: {
+    paddingTop: 0,
+    paddingBottom: 8,
+  },
+}))
+
 function Specifics(props: SpecificsProps) {
+  const [expanded, update_expanded] = ui.useStateWithUpdate({} as Record<string, boolean>)
+  const classes = useSpecificStyles()
   const state = props.store.get()
+
+  const options_text = (options: SpecificOption[]) => {
+    const visible_options = options.filter(props.visible)
+
+    const edited = visible_options.some(
+      option => !utils.multiset_equal(state[specific_key(option)], option.values)
+    )
+    const edited_text = edited ? ', edited' : ''
+
+    const n = visible_options.length
+    if (n === 0) {
+      return '(no options)'
+    } else if (n === 1) {
+      return `(1 option${edited_text})`
+    } else {
+      return `(${n} options${edited_text})`
+    }
+  }
+
+  const grouped_options = Object.entries(utils.groupBy('column', props.options))
+
   return (
     <>
-      {props.options.map(option => {
-        const {column, tumor, values} = option
-        const key = column + ',' + tumor
-        const visible = props.visible(option)
-        return memo([state[key], visible, values], () =>
-          visible ? (
-            <Autocomplete
-              key={key}
-              multiple
-              options={values}
-              disableCloseOnSelect
-              renderOption={(option, {selected}) => (
-                <label>
-                  <Checkbox
-                    size="small"
-                    style={{marginRight: 8, padding: 0}}
-                    checked={selected}
-                    color="primary"
-                  />
-                  {utils.pretty(option)}
-                </label>
-              )}
-              renderInput={params => {
-                const error = !state[key].length
-                return (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label={key.replace(',', ' ')}
-                    error={error}
-                    helperText={error && 'Need at least one option'}
-                  />
-                )
-              }}
-              size="small"
-              onChange={(_, selected) => props.store.update({[key]: selected})}
-              value={state[key] || values}
-            />
-          ) : (
-            <React.Fragment key={key} />
-          )
-        )
-      })}
+      {grouped_options.map(([column, options]) => (
+        <Accordion
+          key={column}
+          expanded={(expanded[column] && options.some(props.visible)) || false}
+          onChange={(_, e) => update_expanded({[column]: e && options.some(props.visible)})}>
+          <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+            <span>{utils.pretty(column)}</span>
+            <span style={{fontSize: '0.95em', color: '#777'}}>{options_text(options)}</span>
+          </AccordionSummary>
+          <AccordionDetails className={classes.AccordionDetails}>
+            <table className={classes.Table}>
+              <tbody>
+                {options.map(
+                  option =>
+                    props.visible(option) && (
+                      <tr key={option.tumor}>
+                        <td>{option.tumor}</td>
+                        <td style={{...ui.flex_row, flexWrap: 'wrap'}}>
+                          <CheckboxRow
+                            values={option.values}
+                            column={specific_key(option)}
+                            store={props.store}
+                          />
+                        </td>
+                      </tr>
+                    )
+                )}
+              </tbody>
+            </table>
+          </AccordionDetails>
+        </Accordion>
+      ))}
     </>
   )
 }
@@ -313,13 +409,15 @@ const useVariantStyles = makeStyles({
     ...ui.flex_row,
     alignItems: 'baseline',
     '& .variant-label': {
-      width: 130,
+      paddingLeft: 8,
+      width: 145,
     },
   },
 })
 
 export function Variants(props: VariantsProps) {
   const classes = useVariantStyles()
+  const {store} = props
   return (
     <>
       {props.options.map(({column, values}) => (
@@ -332,7 +430,7 @@ export function Variants(props: VariantsProps) {
               .replace(/ +/, ' ')
               .trim()}
           </div>
-          {CheckboxRow(values, column, props.store)}
+          <CheckboxRow {...{values, column, store}} />
         </div>
       ))}
     </>
@@ -346,6 +444,7 @@ interface SelectProps {
   label: string
   defaultValue?: string[]
   onChange: (ev: React.ChangeEvent<{}>, value: string[]) => void
+  prefix: string
 }
 
 function Select(props: SelectProps & {multi: boolean}) {
@@ -364,20 +463,23 @@ function SelectMany(props: SelectProps) {
       disableCloseOnSelect
       renderOption={(option, {selected}) => (
         <>
-          <label style={{...ui.flex_row, minWidth: 100}}>
+          <div style={{...ui.flex_row}}>
             <Checkbox
               size="small"
               style={{marginRight: 8, padding: 0}}
               checked={selected}
               color="primary"
+              id={props.prefix + '-' + option}
             />
-            {utils.pretty(option)}
-          </label>
-          {props.codeFor && (
-            <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
-              ({props.codeFor(option)})
-            </i>
-          )}
+            <label htmlFor={props.prefix + '-' + option} style={{minWidth: 65, cursor: 'pointer'}}>
+              {utils.pretty(option)}
+            </label>
+            {props.codeFor && (
+              <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
+                ({props.codeFor(option)})
+              </i>
+            )}
+          </div>
         </>
       )}
       fullWidth={true}
@@ -394,20 +496,23 @@ function SelectOne(props: SelectProps) {
     <Autocomplete
       renderOption={(option, {selected}) => (
         <div style={{display: 'flex', alignItems: 'center'}}>
-          <label style={{display: 'flex'}}>
+          <div style={{...ui.flex_row}}>
             <Radio
               size="small"
               style={{marginRight: 8, padding: 0}}
               checked={selected}
               color="primary"
+              id={props.prefix + '-' + option}
             />
-            {utils.pretty(option)}
-          </label>
-          {props.codeFor && (
-            <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
-              ({props.codeFor(option)})
-            </i>
-          )}
+            <label htmlFor={props.prefix + '-' + option} style={{minWidth: 65, cursor: 'pointer'}}>
+              {utils.pretty(option)}
+            </label>
+            {props.codeFor && (
+              <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
+                ({props.codeFor(option)})
+              </i>
+            )}
+          </div>
         </div>
       )}
       fullWidth={true}
@@ -450,6 +555,7 @@ function useForm(
     <React.Fragment key={key_prefix + ':tumors'}>
       {select_types.tumors && (
         <Select
+          prefix={key_prefix + ':tumors'}
           multi={multi}
           options={conf.tumors}
           codeFor={tumor => conf.tumor_codes[tumor]}
@@ -467,6 +573,7 @@ function useForm(
     <React.Fragment key={key_prefix + ':cells'}>
       {select_types.cells && (
         <Select
+          prefix={key_prefix + ':cells'}
           multi={multi}
           options={cellOrder.filter(cell => conf.cells.includes(cell))}
           label={numerus('Cell type')}
@@ -483,7 +590,7 @@ function useForm(
     <Specifics
       key={key_prefix + 'specifics'}
       options={conf.tumor_specific_values}
-      visible={t => !!cells.length || tumors.includes(t.tumor)}
+      visible={t => (tumors.length ? tumors.includes(t.tumor) : cells.length > 0)}
       store={store}
     />
   )

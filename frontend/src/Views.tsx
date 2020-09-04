@@ -49,7 +49,17 @@ const main = `
 `
 
 const useStyles = makeStyles({
+  View: {
+    '& h1, & h2, & h3': {
+      fontFamily: '"Merriweather Sans", sans',
+      fontWeight: 300,
+    },
+  },
   Main: {
+    '& h1, & h2, & h3': {
+      fontFamily: '"Merriweather Sans", sans',
+      fontWeight: 300,
+    },
     background: '#fff',
     boxShadow: '0 0 14 0 #0002',
     margin: '0 auto',
@@ -59,10 +69,6 @@ const useStyles = makeStyles({
     ...ui.flex_column,
     '& > *': {
       margin: '0 auto',
-    },
-    '& h1, & h2, & h3': {
-      fontFamily: '"Merriweather Sans", sans',
-      fontWeight: 300,
     },
     '& > header': {
       paddingLeft: 20,
@@ -429,10 +435,11 @@ export function Views() {
   React.useEffect(() => {
     document.title = `encima: ${tab.label}`
   }, [tab.label])
+  const classes = useStyles()
   return tab.label === 'Main' ? (
     <Switch>{TabbedRoutes}</Switch>
   ) : (
-    <>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalStyle />
       <div style={{...ui.flex_row, minHeight: '100%'}}>
@@ -441,10 +448,10 @@ export function Views() {
           <div style={{flexGrow: 1, borderBottom: '1px #ddd solid'}} />
           <div style={{margin: 15, alignSelf: 'center'}}>version: {version}</div>
         </div>
-        <div>
+        <div className={classes.View}>
           <Switch>{TabbedRoutes}</Switch>
         </div>
       </div>
-    </>
+    </ThemeProvider>
   )
 }
