@@ -26,7 +26,7 @@ const useCheckboxRowStyles = makeStyles({
       minWidth: 50,
       '.small-checkbox-row &': {
         margin: '2 2',
-        padding: '2 8',
+        padding: '3 8 1',
         fontSize: '0.73rem',
         borderWidth: 1.5,
         minWidth: 'unset',
@@ -44,10 +44,12 @@ export function CheckboxRow({
   values,
   column,
   store,
+  labelBy,
 }: {
   values: string[]
   column: string
   store: Store<Record<string, string[]>>
+  labelBy?: (s: string) => string
 }) {
   const state = store.get()
   const [handled_at_mousedown, set_handled_at_mousedown] = React.useState(false)
@@ -103,7 +105,7 @@ export function CheckboxRow({
                 checked={checked}
                 onChange={h}
               />
-              {value}
+              {labelBy ? labelBy(value) : value}
             </label>
           </div>
         )

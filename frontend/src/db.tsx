@@ -29,6 +29,7 @@ export const cellOrder = [
   'M1',
   'M2',
   'Myeloid cell',
+  'Myeloid_cell',
   'iDC',
   'mDC',
   'pDC',
