@@ -1,3 +1,38 @@
+const renames: Record<string, string> = {
+  MSI_ARTUR: 'MSI status',
+}
+
+/**
+
+  pretty('CD4_Treg') // => 'CD4 Treg'
+  pretty('myeloid') // => 'Myeloid'
+  pretty('iDC') // => 'iDC'
+  pretty(3) // => '3'
+  pretty('Anatomical_location') // => 'Anatomical location'
+
+  There are also completely ad-hoc rules:
+
+  pretty('MSI_ARTUR') // => 'MSI status'
+
+*/
+export function pretty(s: string | number): string {
+  if (!s && s !== 0) {
+    return ''
+  }
+  if (renames[s]) {
+    return renames[s]
+  }
+  if (typeof s === 'number') {
+    return s + ''
+  }
+  const s2 = s.replace('_', ' ')
+  if (s2.toLowerCase() == s2) {
+    return Aa(s2)
+  } else {
+    return s2
+  }
+}
+
 /**
 
   const xs = [10,1,3]
@@ -119,26 +154,6 @@ export function unzip<A extends Record<string, any>>(xs: A[]): RowRange<A> {
 */
 export function row_range<A extends Record<string, any>>(xs: A[]): RowRange<A> {
   return mapObject(unzip(xs), uniq)
-}
-
-/**
-
-  pretty('CD4_Treg') // => 'CD4 Treg'
-  pretty('myeloid') // => 'Myeloid'
-  pretty('iDC') // => 'iDC'
-  pretty(3) // => '3'
-
-*/
-export function pretty(s: string | number): string {
-  if (typeof s === 'number') {
-    return s + ''
-  }
-  const s2 = s.replace('_', ' ')
-  if (s2.toLowerCase() == s2) {
-    return Aa(s2)
-  } else {
-    return s2
-  }
 }
 
 /**
@@ -288,6 +303,17 @@ export const str = (a: any) => JSON.stringify(a)
 */
 export function equal(x: any, y: any): boolean {
   return str(x) === str(y)
+}
+
+/**
+
+  multiset_equal([1,8], [8,1])   // => true
+  multiset_equal([1,8], [8,1,1]) // => false
+  multiset_equal([1,8], [8])     // => false
+
+*/
+export function multiset_equal(xs: any[], ys: any[]): boolean {
+  return equal(xs.slice().sort(), ys.slice().sort())
 }
 
 /**

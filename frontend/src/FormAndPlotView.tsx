@@ -57,9 +57,7 @@ export function FormAndPlotView({
   const classes = useStyles()
   return (
     <div className={classes.FormAndPlotView}>
-      <ui.Paper key="form" style={form ? {width: 440, flexShrink: 0} : {}}>
-        {form || <CircularProgress />}
-      </ui.Paper>
+      <ui.Paper key="form">{form || <CircularProgress />}</ui.Paper>
       {plot}
     </div>
   )

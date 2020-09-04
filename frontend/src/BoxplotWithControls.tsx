@@ -13,8 +13,8 @@ import {useStore} from './ui_utils'
 
 import {makeStyles} from '@material-ui/core/styles'
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import ExpandMore from '@material-ui/icons/ExpandMore'
+import ChevronRight from '@material-ui/icons/ChevronRight'
 
 export interface Row {
   cell: string
@@ -25,7 +25,7 @@ export interface Row {
 
 type Options = Partial<BoxplotOptions<keyof Row>>
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   BoxPlotWithControls: {
     ...ui.flex_column,
     // Radio buttons:
@@ -36,32 +36,32 @@ const useStyles = makeStyles({
   VisibleSidebar: {
     ...ui.flex_column,
     marginTop: -4,
-    '--checkbox-bg': '#e0e0e0',
-    '--checkbox-fg': '#333',
     marginBottom: 12,
     '& .visible-label': {
       fontSize: '0.85rem',
-      marginBottom: 3,
+      paddingBottom: 3,
+      paddingRight: 10,
+      marginRight: 'auto',
+      cursor: 'pointer',
     },
-    '& > .visible-checkboxes': {
+    '&:focus-within .visible-label span, & .visible-label:hover span': {
+      color: theme.palette.primary.main,
+    },
+    '& .visible-icon': {
+      marginRight: 2,
+      transform: 'translateY(5px)',
+    },
+    '& .visible-checkboxes': {
       ...ui.flex_row,
       flexWrap: 'wrap',
       marginLeft: 4,
     },
     '& .checkbox-label': {
-      margin: '2 2',
-      padding: '3 8 1',
-      fontSize: '0.73rem',
-      borderWidth: 1.5,
-      minWidth: 'unset',
-    },
-    '& .visible-icon': {
-      // marginLeft: -8,
-      marginRight: 2,
-      transform: 'translateY(5px)',
+      '--checkbox-bg': '#e0e0e0',
+      '--checkbox-fg': '#333',
     },
   },
-})
+}))
 
 function useOptions(facet: keyof Row) {
   const radicals = ['√', '∛', '∜']
@@ -113,7 +113,7 @@ function useVisibleSidebar(facet: string, facet_values: string[]) {
 
   const [show, set_show] = React.useState(true)
 
-  const facet_boxes = CheckboxRow(facet_values, 'visible', store)
+  const facet_boxes = <CheckboxRow store={store} values={facet_values} column="visible" />
 
   const value = Object.fromEntries(store.get().visible.map(v => [v, true]))
 
@@ -133,14 +133,14 @@ function useVisibleSidebar(facet: string, facet_values: string[]) {
     },
     <div className={classes.VisibleSidebar}>
       <FormLabel className="visible-label" onClick={() => set_show(b => !b)}>
-        {!show ? (
-          <ExpandLessIcon className="visible-icon" fontSize="small" />
+        {show ? (
+          <ExpandMore className="visible-icon" fontSize="small" />
         ) : (
-          <ExpandMoreIcon className="visible-icon" fontSize="small" />
+          <ChevronRight className="visible-icon" fontSize="small" />
         )}
-        {`visible ${facet}s`}{' '}
+        <span>{`visible ${facet}s`}</span>
       </FormLabel>
-      <div className="visible-checkboxes">{show && facet_boxes}</div>
+      <div className="visible-checkboxes small-checkbox-row">{show && facet_boxes}</div>
     </div>,
   ] as const
 }

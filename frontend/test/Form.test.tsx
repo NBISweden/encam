@@ -152,22 +152,35 @@ describe(form.Form, () => {
 
     click_autocomplete(/Tumor types/)
 
+    expect(screen.queryAllByText(/Appendix/)).toHaveLength(0)
+    expect(screen.queryAllByText(/Ascendens/)).toHaveLength(0)
+
+    expect(screen.queryAllByText(/no options/i)).toHaveLength(2)
+
     click(getByLabelText('COAD'))
+
     expect(ref.diff).toStrictEqual({tumors: ['BRCA', 'COAD']})
 
-    expect(screen.queryAllByLabelText(/Anatomical/)).toHaveLength(1)
-    expect(screen.queryAllByLabelText(/MSI/)).toHaveLength(0)
+    expect(screen.queryAllByText(/Appendix/)).toHaveLength(1)
+    expect(screen.queryAllByText(/Ascendens/)).toHaveLength(1)
+
+    expect(screen.queryAllByText(/no options\)/i)).toHaveLength(1)
+    expect(screen.queryAllByText(/1 option\)/i)).toHaveLength(1)
 
     click(getByLabelText('READ'))
     expect(ref.diff).toStrictEqual({tumors: ['BRCA', 'COAD', 'READ']})
 
-    expect(screen.queryAllByLabelText(/Anatomical/)).toHaveLength(2)
-    expect(screen.queryAllByLabelText(/MSI/)).toHaveLength(1)
+    expect(screen.queryAllByText(/Appendix/)).toHaveLength(2)
+    expect(screen.queryAllByText(/Ascendens/)).toHaveLength(1)
 
-    click_autocomplete(/MSI/)
+    expect(screen.queryAllByText(/2 options\)/i)).toHaveLength(1)
+    expect(screen.queryAllByText(/1 option\)/i)).toHaveLength(1)
 
     click(getByLabelText('MSS'))
     expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: ['MSI']}})
+
+    expect(screen.queryAllByText(/1 option\)/i)).toHaveLength(0)
+    expect(screen.queryAllByText(/1 option, edited\)/i)).toHaveLength(1)
 
     click(getByLabelText('MSS'))
     expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: ['MSI', 'MSS']}})
@@ -176,9 +189,7 @@ describe(form.Form, () => {
     expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: ['MSS']}})
 
     click(getByLabelText('MSS'))
-    expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: []}})
-
-    expect(screen.queryAllByText(/need at least one/i)).toHaveLength(1)
+    expect(ref.diff).toStrictEqual({})
   })
 
   test('can access specific tumor filters when cells selected', async () => {
@@ -187,29 +198,39 @@ describe(form.Form, () => {
     click(getByLabelText('cells'))
     click_autocomplete(/Cell types/)
 
+    expect(screen.queryAllByText(/Appendix/)).toHaveLength(0)
+    expect(screen.queryAllByText(/Ascendens/)).toHaveLength(0)
+
+    expect(screen.queryAllByText(/no options/i)).toHaveLength(2)
+
     click(getByLabelText('CD4'))
     expect(ref.diff).toHaveProperty('cells', ['CD4'])
 
-    expect(screen.queryAllByLabelText(/Anatomical/)).toHaveLength(2)
-    expect(screen.queryAllByLabelText(/MSI/)).toHaveLength(1)
+    expect(screen.queryAllByText(/Appendix/)).toHaveLength(2)
+    expect(screen.queryAllByText(/Ascendens/)).toHaveLength(1)
 
-    {
-      click_autocomplete(/MSI/)
-    }
+    expect(screen.queryAllByText(/no options\)/i)).toHaveLength(0)
+    expect(screen.queryAllByText(/1 option\)/i)).toHaveLength(1)
+    expect(screen.queryAllByText(/2 options\)/i)).toHaveLength(1)
 
-    click(getByLabelText('MSS'))
-    expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: ['MSI']}})
+    click(screen.getAllByLabelText('Appendix')[0])
+    expect(ref.diff).toStrictEqual({
+      Anatomical_location: {
+        COAD: ['Ascendens', 'Descendens', 'Rectum'],
+        READ: ['Appendix', 'Rectum'],
+      },
+    })
 
-    click(getByLabelText('MSS'))
-    expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: ['MSI', 'MSS']}})
+    expect(screen.queryAllByText(/2 options\)/i)).toHaveLength(0)
+    expect(screen.queryAllByText(/2 options, edited\)/i)).toHaveLength(1)
 
-    click(getByLabelText('MSI'))
-    expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: ['MSS']}})
+    click(screen.getAllByLabelText('Appendix')[1])
+    expect(ref.diff).toStrictEqual({
+      Anatomical_location: {COAD: ['Ascendens', 'Descendens', 'Rectum'], READ: ['Rectum']},
+    })
 
-    click(getByLabelText('MSS'))
-    expect(ref.diff).toStrictEqual({MSI_ARTUR: {READ: []}})
-
-    expect(screen.queryAllByText(/need at least one/i)).toHaveLength(1)
+    expect(screen.queryAllByText(/2 options\)/i)).toHaveLength(0)
+    expect(screen.queryAllByText(/2 options, edited\)/i)).toHaveLength(1)
   })
 })
 
