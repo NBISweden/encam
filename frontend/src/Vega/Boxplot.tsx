@@ -90,11 +90,13 @@ export interface Precalc {
   max: number
 }
 
+import {cellOrder} from './../db'
+
 function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>(
   data0: Row[],
   opts?: Partial<Options<K>>
 ): React.ReactElement {
-  const data = data0.map(x => ({...x} as Record<string, any>))
+  let data = data0.map(x => ({...x} as Record<string, any>))
 
   const options = {...(default_options as Options<K>), ...opts}
 
@@ -113,6 +115,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     datum.cell_color = cell_color(datum.cell)
     datum.location = datum.location.toLowerCase()
     datum.loc_order = datum.location == 'stroma' ? 1 : 0
+    datum.cell_order = cellOrder.indexOf(datum.cell)
   })
 
   const prepare_option = (keys: K | K[], sep = ',') => {
@@ -139,16 +142,20 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   const split = prepare_option(options.split)
   const color = prepare_option(options.color, ' ')
 
-  data.map(datum => {
-    datum.order = ensure_array(options.inner)
-      .map(k => datum[k == 'location' ? 'loc_order' : k])
-      .join(',')
+  data.forEach(datum => {
+    datum.order_tuple = [...ensure_array(options.facet), ...ensure_array(options.inner)].map(
+      k => datum[k == 'location' ? 'loc_order' : k == 'cell' ? 'cell_order' : k]
+    )
   })
 
-  data.sort(utils.by(datum => datum.order))
+  data.sort(utils.by_tuple(datum => datum.order_tuple))
 
   data.forEach((datum, i) => {
     datum.order = i
+  })
+
+  data.forEach(datum => {
+    datum.cell = utils.pretty(datum.cell)
   })
 
   const size = 9
@@ -175,6 +182,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
       [column]: {
         field: facet,
         type: 'ordinal',
+        sort: {field: 'order'},
         header: {
           labelAngle: options.landscape ? -90 : 0,
           labelAlign: options.landscape ? 'right' : 'left',

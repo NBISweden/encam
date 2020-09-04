@@ -311,6 +311,7 @@ export const AccordionSummary = withStyles({
 const useSpecificStyles = makeStyles(theme => ({
   Table: {
     fontSize: 'inherit',
+    borderSpacing: 0,
     '& td': {
       padding: 0,
     },
@@ -461,7 +462,8 @@ function SelectMany(props: SelectProps) {
       multiple
       options={props.options}
       disableCloseOnSelect
-      renderOption={(option, {selected}) => (
+      getOptionLabel={(s: string) => utils.pretty(s)}
+      renderOption={(option: string, {selected}) => (
         <>
           <div style={{...ui.flex_row}}>
             <Checkbox
@@ -494,7 +496,8 @@ function SelectMany(props: SelectProps) {
 function SelectOne(props: SelectProps) {
   return (
     <Autocomplete
-      renderOption={(option, {selected}) => (
+      getOptionLabel={(s: string) => utils.pretty(s)}
+      renderOption={(option: string, {selected}) => (
         <div style={{display: 'flex', alignItems: 'center'}}>
           <div style={{...ui.flex_row}}>
             <Radio
@@ -551,13 +554,15 @@ function useForm(
 
   const numerus = (tumor: string) => tumor + (multi ? 's' : '')
 
+  const sorted_tumors = React.useMemo(() => utils.sort_tumors(conf.tumors), [conf])
+
   const tumor_type = memo([select_types, tumors, cells], () => (
     <React.Fragment key={key_prefix + ':tumors'}>
       {select_types.tumors && (
         <Select
           prefix={key_prefix + ':tumors'}
           multi={multi}
-          options={conf.tumors}
+          options={sorted_tumors}
           codeFor={tumor => conf.tumor_codes[tumor]}
           label={numerus('Tumor type')}
           {...store.at('tumors', (selected: string[]) => ({
@@ -569,13 +574,15 @@ function useForm(
     </React.Fragment>
   ))
 
+  const sorted_cells = React.useMemo(() => utils.sort_cells(conf.cells), [conf])
+
   const cell_type = memo([select_types, tumors, cells], () => (
     <React.Fragment key={key_prefix + ':cells'}>
       {select_types.cells && (
         <Select
           prefix={key_prefix + ':cells'}
           multi={multi}
-          options={cellOrder.filter(cell => conf.cells.includes(cell))}
+          options={sorted_cells}
           label={numerus('Cell type')}
           {...store.at('cells', (selected: string[]) => ({
             tumors: select_types.tumors ? store.get().tumors : [],

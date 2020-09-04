@@ -33,6 +33,30 @@ export function pretty(s: string | number): string {
   }
 }
 
+import {cellOrder} from './db'
+
+export function sort_tumors(tumors: string[]): string[] {
+  return tumors.slice().sort()
+}
+
+/** Sort an array of cell names in Artur's favorite order
+
+  sort_cells(['B_cells', 'CD8_Treg', 'Granulocyte', 'Myeloid_cell'])
+   // => ['CD8_Treg', 'B_cells', 'Myeloid_cell', 'Granulocyte']
+
+  Unknown cells are put last:
+
+  sort_cells(['CD8', 'CD404', 'CD4'])
+   // => ['CD4', 'CD8', 'CD404']
+
+*/
+export function sort_cells(cells: string[]): string[] {
+  return [
+    ...cellOrder.filter(cell => cells.includes(cell)),
+    ...cells.filter(cell => !cellOrder.includes(cell)),
+  ]
+}
+
 /**
 
   const xs = [10,1,3]
@@ -45,6 +69,27 @@ export function by<A, B>(f: (a: A) => B) {
     const fx = f(x)
     const fy = f(y)
     return fx > fy ? 1 : fx == fy ? 0 : -1
+  }
+}
+
+/**
+
+  const xs = [[0,1],[1,0],[0,0],[1,1]]
+  xs.sort(by_tuple(x => x)) // => [[0,0],[0,1],[1,0],[1,1]]
+
+  const xs = [[], [0], [0,0], [0,0,0], [0,1,0]].reverse()
+  xs.sort(by_tuple(x => x)) // => [[], [0], [0,0], [0,0,0], [0,1,0]]
+
+*/
+export function by_tuple<A, B>(f: (a: A) => B[]) {
+  return (x: A, y: A) => {
+    const xs = f(x)
+    const ys = f(y)
+    let i = 0
+    while (xs[i] === ys[i] && i < xs.length && i < ys.length) {
+      i++
+    }
+    return xs[i] > ys[i] ? 1 : xs[i] === ys[i] ? 0 : -1
   }
 }
 

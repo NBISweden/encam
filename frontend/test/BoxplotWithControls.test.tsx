@@ -24,17 +24,17 @@ test('can change visible cells', async () => {
     return titles.map(t => t.textContent)
   }
 
-  expect(await axis_titles()).toEqual(['CD4', 'CD4_Treg', 'CD8'])
+  expect(await axis_titles()).toEqual(['CD4', 'CD4 Treg', 'CD8'])
 
   click(getByLabelText('CD4'))
-  expect(await axis_titles()).toEqual(['CD4', 'CD4_Treg', 'CD8'])
+  expect(await axis_titles()).toEqual(['CD4', 'CD4 Treg', 'CD8'])
   act(() => {
     jest.runAllTimers()
   })
-  expect(await axis_titles()).toEqual(['CD4_Treg', 'CD8'])
+  expect(await axis_titles()).toEqual(['CD4 Treg', 'CD8'])
 
   doubleClick(getByLabelText('CD4'))
-  expect(await axis_titles()).toEqual(['CD4_Treg', 'CD8'])
+  expect(await axis_titles()).toEqual(['CD4 Treg', 'CD8'])
   act(() => {
     jest.runAllTimers()
   })
@@ -45,7 +45,7 @@ test('can change visible cells', async () => {
   act(() => {
     jest.runAllTimers()
   })
-  expect(await axis_titles()).toEqual(['CD4', 'CD4_Treg', 'CD8'])
+  expect(await axis_titles()).toEqual(['CD4', 'CD4 Treg', 'CD8'])
 })
 
 test('visible cells can be hidden', async () => {

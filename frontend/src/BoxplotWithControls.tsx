@@ -104,7 +104,15 @@ function useOptions(facet: keyof Row) {
   return [ui.useIntern(options), nodes] as const
 }
 
-function useVisibleSidebar(facet: string, facet_values: string[]) {
+function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
+  const facet_values = React.useMemo(
+    () =>
+      facet.match(/cell/)
+        ? utils.sort_cells(facet_values_unsorted)
+        : utils.sort_tumors(facet_values_unsorted),
+    [facet, facet_values_unsorted]
+  )
+
   const [store] = useStore({visible: facet_values})
 
   // React.useLayoutEffect(() => {
@@ -113,7 +121,9 @@ function useVisibleSidebar(facet: string, facet_values: string[]) {
 
   const [show, set_show] = React.useState(true)
 
-  const facet_boxes = <CheckboxRow store={store} values={facet_values} column="visible" />
+  const facet_boxes = (
+    <CheckboxRow store={store} values={facet_values} column="visible" labelBy={utils.pretty} />
+  )
 
   const value = Object.fromEntries(store.get().visible.map(v => [v, true]))
 
