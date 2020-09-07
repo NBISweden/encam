@@ -14,3 +14,5 @@ jobs:
       run: docker-compose run -w /app encam-frontend-devel yarn run typecheck
     - name: Run frontend tests
       run: docker-compose run -w /app encam-frontend-devel yarn run test
+    - name: Run backend tests
+      run: docker-compose run -w /code main python3 test.py
