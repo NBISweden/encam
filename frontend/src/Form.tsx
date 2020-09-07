@@ -50,13 +50,9 @@ function calculate_state0(conf: Conf, key_prefix: string): State {
   conf.tumor_specific_values.forEach(v => {
     state0[specific_key(v)] = v.values
   })
-  state0.cells = [conf.cells.includes('CD4') ? 'CD4' : conf.cells[0]]
+  const default_cell = 'CD4'
+  state0.cells = [conf.cells.includes(default_cell) ? default_cell : conf.cells[0]]
   state0.tumors = ['BRCA']
-  // if (key_prefix == 'A') {
-  //   state0.pN_stage = state0.pN_stage.slice(0, 1)
-  // } else if (key_prefix == 'B') {
-  //   state0.pN_stage = state0.pN_stage.slice(1, 2)
-  // }
   return state0
 }
 
