@@ -5,7 +5,7 @@ import * as backend from './backend'
 import * as ui from './ui_utils'
 import * as utils from './utils'
 
-import {KMPlot, KMRow} from './Vega/KMPlot'
+import {KMPlot, KMLiveRow, KMRow} from './Vega/KMPlot'
 import {
   CumulativeCountPlot,
   cucount,
@@ -20,12 +20,11 @@ import {makeStyles} from '@material-ui/core/styles'
 
 import {LoadingPlot} from './FormAndPlotView'
 
-import {within, render, fireEvent, screen} from '@testing-library/react'
-
 export interface State {
   expr_data: undefined | number[]
   cu_data: undefined | CuRow[]
   plot_data: undefined | KMRow[]
+  live_rows: undefined | KMLiveRow[]
   statistics: undefined | Statistics
   cutoffs: number[]
   filter: Record<string, any>
@@ -38,6 +37,7 @@ export const init_state: State = {
   expr_data: undefined,
   cu_data: undefined,
   plot_data: undefined,
+  live_rows: undefined,
   statistics: undefined,
   cutoffs: [],
   filter: {},
@@ -58,6 +58,7 @@ export interface Statistics {
 
 export interface Survival extends Statistics {
   points: KMRow[]
+  live_points: KMLiveRow[]
 }
 
 export type Message =
@@ -159,8 +160,9 @@ export function next(start: State, msg: Message): readonly [State, ...Request[]]
 
   if (msg.type === 'reply' && msg.endpoint === 'survival') {
     next.loading = false
-    const {points, ...statistics} = msg.value
+    const {points, live_points, ...statistics} = msg.value
     next.plot_data = points
+    next.live_rows = live_points
     next.statistics = statistics
   }
 
@@ -226,6 +228,7 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
 interface ViewProps {
   cu_data: undefined | CuRow[]
   plot_data: undefined | KMRow[]
+  live_rows: undefined | KMLiveRow[]
   statistics: undefined | Statistics
 
   cutoffs: number[]
@@ -262,7 +265,7 @@ const schemes = `
   .split(/\s+/g)
 
 export function KMPlotWithControlsView(props: ViewProps) {
-  const {cu_data, plot_data, cutoffs, set_cutoffs, loading, statistics} = props
+  const {cu_data, plot_data, live_rows, cutoffs, set_cutoffs, loading, statistics} = props
 
   const [options, opt_nodes] = ui.record({
     color_scheme: ui.map(ui.useNativeSelect(schemes, 'viridis', 'Color scheme'), e => (
@@ -289,7 +292,7 @@ export function KMPlotWithControlsView(props: ViewProps) {
             </div>
           )}
         </div>
-        {plot_data && <KMPlot data={plot_data} options={options} />}
+        {plot_data && <KMPlot data={plot_data} live_rows={live_rows} options={options} />}
         {statistics && (
           <table
             style={{

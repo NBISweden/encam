@@ -336,6 +336,7 @@ export function Views() {
         <>
           <KMPlotWithControlsView
             plot_data={km_data.make_points(2)}
+            live_rows={km_data.make_points(2).filter((_, i) => i % 7 == 0)}
             cu_data={cucount(km_data.expression, [26])}
             statistics={km_data.survival}
             cutoffs={[26]}
@@ -368,7 +369,7 @@ export function Views() {
       path: '/KMPlot',
       component: (
         <ui.InlinePaper>
-          <KMPlot data={km_data.make_points(4)} />
+          <KMPlot data={km_data.make_points(4)} live_rows={km_data.survival.live_points} />
         </ui.InlinePaper>
       ),
     },

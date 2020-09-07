@@ -89,7 +89,15 @@ function facet_line_fixup(svg: SVGElement) {
   // console.timeEnd('facet fixup')
 }
 
-export function Embed({spec, data}: {spec: VL.TopLevelSpec; data?: any[]}): React.ReactElement {
+export function Embed({
+  spec,
+  data,
+  data2,
+}: {
+  spec: VL.TopLevelSpec
+  data?: any[]
+  data2?: any[]
+}): React.ReactElement {
   const [el, set_el] = React.useState(null as HTMLElement | null)
   const runtime: V.Runtime = memo(spec, () => {
     return V.parse(VL.compile(spec).spec)
@@ -100,6 +108,7 @@ export function Embed({spec, data}: {spec: VL.TopLevelSpec; data?: any[]}): Reac
       // console.time('plot')
       const view = new V.View(runtime)
       data && view.data('data', data)
+      data2 && view.data('data2', data2)
       view
         .logLevel(V.Warn)
         .renderer('svg')

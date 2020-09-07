@@ -57,18 +57,30 @@ export interface KMRow {
   upper: number
 }
 
+export interface KMLiveRow {
+  time: number
+  group: number
+  fit: number
+}
+
 export const KMPlot = React.memo(function KMPlot({
   data,
+  live_rows,
   options,
 }: {
   data: KMRow[]
+  live_rows?: KMLiveRow[]
   options?: Partial<Options>
 }) {
   // ui.useWhyChanged(KMPlot, {rows, options})
-  return kmplot(data, options)
+  return kmplot(data, live_rows, options)
 })
 
-function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
+function kmplot(
+  rows: KMRow[],
+  live_rows?: KMLiveRow[],
+  opts?: Partial<Options>
+): React.ReactElement {
   const options = {...default_options, ...opts}
 
   const {column, row, height, width, x, y, y2} = orient(options)
@@ -89,6 +101,7 @@ function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
   // }
 
   const data = rows.map(row => ({...row, group_name: group_name(row.group)}))
+  const data2 = (live_rows || []).map(row => ({...row, group_name: group_name(row.group)}))
 
   const spec: VL.TopLevelSpec = {
     $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
@@ -149,7 +162,37 @@ function kmplot(rows: KMRow[], opts?: Partial<Options>): React.ReactElement {
           },
         },
       },
+      {
+        data: {
+          name: 'data2',
+        },
+        mark: {
+          type: 'tick',
+          thickness: 0.5,
+          size: 10,
+        },
+        encoding: {
+          [x]: {
+            field: 'time',
+            type: 'quantitative',
+          },
+          [y]: {
+            field: 'fit',
+            type: 'quantitative',
+          },
+          stroke: {
+            title: 'group',
+            field: 'group_name',
+            type: 'ordinal',
+            scale: {scheme: options.color_scheme, reverse: options.color_scheme_reverse},
+            legend: null,
+          },
+          opacity: {
+            value: 1,
+          },
+        },
+      },
     ],
   }
-  return <Embed {...{spec, data}} />
+  return <Embed {...{spec, data, data2}} />
 }
