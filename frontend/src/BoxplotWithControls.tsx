@@ -115,10 +115,6 @@ function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
 
   const [store] = useStore({visible: facet_values})
 
-  // React.useLayoutEffect(() => {
-  // store.update({visible: facet_values})
-  // }, [utils.str(facet_values)])
-
   const [show, set_show] = React.useState(true)
 
   const facet_boxes = (
@@ -132,6 +128,10 @@ function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
   const loading = !utils.equal(value, delayed_value)
 
   React.useEffect(() => {
+    // Need to delay because making the vega plot takes some 100s of millis
+    // which makes the UI stutter. This stutter makes the user have to wait for
+    // an immediate repaint with an unresponsive UI. With the delay the user
+    // has a chance to deselect many cells in one go.
     enqueue_delayed_value(value)
   }, [utils.str(value)])
 
