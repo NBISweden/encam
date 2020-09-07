@@ -3,19 +3,22 @@ import * as utils from '../utils'
 import type {KMRow} from '../Vega/KMPlot'
 import type {Survival} from '../KMPlotWithControls'
 
+const points = utils
+  .enumTo(4)
+  .map(g => g + 1)
+  .flatMap(group =>
+    utils.enumTo(460).map(t => ({
+      group,
+      time: t,
+      upper: 1 - (0.9 * t) / 460 / group,
+      fit: 1 - (0.8 * t) / 460 / group,
+      lower: 1 - (0.55 * t) / 460 / group,
+    }))
+  )
+
 export const survival: Survival = {
-  points: utils
-    .enumTo(4)
-    .map(g => g + 1)
-    .flatMap(group =>
-      utils.enumTo(460).map(t => ({
-        group,
-        time: t,
-        upper: 1 - (0.9 * t) / 460 / group,
-        fit: 1 - (0.8 * t) / 460 / group,
-        lower: 1 - (0.55 * t) / 460 / group,
-      }))
-    ),
+  points,
+  live_points: points.filter((_, i) => i % 37 == 0),
   log_rank: {
     test_statistic_logrank: 2.3392174425317878,
     p_logrank: 0.12615291394526454,
