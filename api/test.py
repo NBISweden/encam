@@ -374,20 +374,20 @@ def test_results_number():
     ex = deepcopy(example_body)
 
     c = filter2_to_dict(ex)
-
-    assert len(c) == 27580
+    
+    assert len(c) == 35532
 
     # Filter out cell types
     ex['cells'] = ['CD4_Treg', 'CD4']
     c = filter2_to_dict(ex)
-
-    assert len(c) == 3940
+    
+    assert len(c) == 5076
 
     # Using second example data
     ex = deepcopy(example_body2)
     c = filter2_to_dict(ex)
 
-    assert len(c) == 124
+    assert len(c) == 128
 
 test_results_number()
 
