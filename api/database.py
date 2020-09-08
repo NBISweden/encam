@@ -172,6 +172,7 @@ def test_Tukey():
 def filter2(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
+    data_filtered = data_filtered.fillna('missing')
     for key in base_filters:
         data_filtered = data_filtered[data_filtered[key].isin(filter_id[key])]
 
@@ -207,7 +208,7 @@ def filter2(filter_id):
 def filtering(filter_id):
     base_filters = ['clinical_stage', 'pT_stage', 'pN_stage', 'pM_stage', 'Diff_grade', 'Neuralinv', 'Vascinv', 'PreOp_treatment_yesno', 'PostOp_type_treatment']
     data_filtered = db.data
-
+    data_filtered = data_filtered.fillna('missing')
     data_filtered = data_filtered[lambda row: row.Tumor_type_code.isin(filter_id['tumors'])]
 
     for key in base_filters:

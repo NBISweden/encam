@@ -167,7 +167,7 @@ def form_configuration():
     ]
 
     tumor_specific_values = []
-    for column in tumor_specific_column:
+    for column in tumor_specific_columns:
         # values = uniq(data[c][lambda x: ~pd.isnull(x)])
         # print(c, values)
         for tumor in tumor_types:
