@@ -168,7 +168,7 @@ function useSelectRadio() {
 export function Form({conf, onSubmit, onState}: FormProps) {
   const [select_types, select_radio] = useSelectRadio()
 
-  const {state, reset, form} = useForm(conf, select_types, true)
+  const {state, reset, valid, form} = useForm(conf, select_types, true)
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
@@ -183,7 +183,10 @@ export function Form({conf, onSubmit, onState}: FormProps) {
     <div className={classes.Form}>
       {select_radio}
       {form}
-      <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(...get_form_values())} />
+      <Buttons
+        onReset={reset}
+        onSubmit={() => valid && onSubmit && onSubmit(...get_form_values())}
+      />
     </div>
   )
 }
@@ -198,9 +201,11 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 
   const forms = [A, B]
 
+  const valid = forms.every(form => form.valid)
+
   const get_form_values = () => forms.map(form => prepare_state_for_backend(form.state, conf))
 
-  const on_submit = () => onSubmit && onSubmit(...get_form_values())
+  const on_submit = () => valid && onSubmit && onSubmit(...get_form_values())
 
   onState && onState(...get_form_values())
 
@@ -602,15 +607,20 @@ function useForm(
     <Variants key={key_prefix + 'variants'} options={conf.variant_values} store={store} />
   )
 
+  const valid =
+    (!select_types.tumors || state.tumors.length > 0) &&
+    (!select_types.cells || state.cells.length > 0)
+
   return {
     state,
+    valid,
     reset: () => update_state(state0),
     form: [tumor_type, cell_type, specifics, variants],
   }
 }
 
 export function KMForm({conf, onSubmit, onState}: FormProps) {
-  const {state, reset, form} = useForm(conf, {cells: true, tumors: true}, false)
+  const {state, reset, valid, form} = useForm(conf, {cells: true, tumors: true}, false)
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
@@ -630,7 +640,7 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
   return (
     <div className={classes.Form}>
       {form}
-      <Buttons onReset={reset} onSubmit={() => onSubmit && onSubmit(get_form_values())} />
+      <Buttons onReset={reset} onSubmit={() => valid && onSubmit && onSubmit(get_form_values())} />
     </div>
   )
 }
