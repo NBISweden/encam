@@ -107,7 +107,7 @@ function kmplot(
     $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
     data: {name: 'data'},
     [height]: 350,
-    [width]: 500,
+    [width]: 480,
     layer: [
       {
         mark: {

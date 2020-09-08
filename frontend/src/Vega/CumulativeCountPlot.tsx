@@ -184,7 +184,7 @@ function vega_cumulative_count(data0: CuRow[], opts?: Partial<Options>): React.R
     $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
     data: {name: 'data'},
     [height]: 350,
-    [width]: 500,
+    [width]: 480,
     layer: [
       {
         mark: {

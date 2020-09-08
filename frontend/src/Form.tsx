@@ -113,7 +113,7 @@ function Buttons(props: {onReset: Action; onSubmit: Action; children?: React.Rea
 
 const useStyles = makeStyles({
   Form: {
-    width: 440,
+    width: 420,
     ...ui.flex_column,
     '& .MuiAutocomplete-root': {
       paddingBottom: 10,
