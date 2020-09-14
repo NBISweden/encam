@@ -1,5 +1,7 @@
-declare const module: {hot?: {accept: Function}}
-module.hot && module.hot.accept()
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import {Views} from './Views'
+import {BrowserRouter} from 'react-router-dom'
 
 if (typeof process === 'undefined') {
   // https://github.com/rexxars/react-markdown/issues/339
@@ -8,14 +10,16 @@ if (typeof process === 'undefined') {
   } as any
 }
 
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
-import {Views} from './Views'
+const root = (
+  <BrowserRouter>
+    <Views />
+  </BrowserRouter>
+)
 
-const root = document.querySelector('#root')
+ReactDOM.render(root, document.getElementById('root'))
 
-const view = <Views />
-
-import * as R from 'react-router-dom'
-
-ReactDOM.render(<R.BrowserRouter>{view}</R.BrowserRouter>, root)
+if (import.meta.hot) {
+  // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
+  // Learn more: https://www.snowpack.dev/#hot-module-replacement
+  import.meta.hot.accept()
+}

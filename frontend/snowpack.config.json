@@ -1,0 +1,22 @@
+{
+  "extends": "@snowpack/app-scripts-react",
+  "installOptions": {
+    "polyfillNode": true
+  },
+  "devOptions": {
+    "port": 1234
+  },
+  "proxy": {
+    "/api": "http://main:8080/api"
+  },
+  "alias": {
+    "@app": "./src"
+  },
+  "exclude": [
+    "**/node_modules/**/*",
+    "**/__tests__/*",
+    "**/*.@(spec|test).@(js|mjs)",
+    "**/*doctest*"
+  ],
+  "plugins": []
+}

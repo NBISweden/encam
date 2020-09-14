@@ -1,4 +1,5 @@
 {
+  "extends": "@snowpack/app-scripts-react/tsconfig.base.json",
   "compilerOptions": {
     "target": "es5",
     "lib": ["es2019", "dom"],
@@ -23,8 +24,8 @@
     "noFallthroughCasesInSwitch": true,
 
     "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {"~*": ["./*"]},
+    "baseUrl": ".",
+    "paths": {"@app/*": ["./*"]},
     "esModuleInterop": true,
     "noEmit": true,
     "skipLibCheck": true

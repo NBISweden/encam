@@ -19,30 +19,39 @@ import * as backend from './backend'
 
 import * as ui from './ui_utils'
 
-declare const require: (s: string) => string
-
-const IN_JEST =
-  typeof process !== 'undefined' && process.env.JEST_WORKER_ID ? 'dummy.png' : undefined
+import B_cells from './img/B_cells.png'
+import CD4 from './img/CD4.png'
+import CD4_Treg from './img/CD4_Treg.png'
+import CD8 from './img/CD8.png'
+import CD8_Treg from './img/CD8_Treg.png'
+import M1 from './img/M1.png'
+import M2 from './img/M2.png'
+import NK from './img/NK.png'
+import NKT from './img/NKT.png'
+import mDC from './img/mDC.png'
+import pDC from './img/pDC.png'
+import iDC from './img/iDC.png'
+import Myeloid_cell from './img/Myeloid.png'
+import Granulocyte from './img/Granulocytes.png'
 
 const cell_pngs: Record<string, string> = {
-  B_cells: IN_JEST || require('../img/B_cells.png'),
-  CD4: IN_JEST || require('../img/CD4.png'),
-  CD4_Treg: IN_JEST || require('../img/CD4_Treg.png'),
-  CD8: IN_JEST || require('../img/CD8.png'),
-  CD8_Treg: IN_JEST || require('../img/CD8_Treg.png'),
-  M1: IN_JEST || require('../img/M1.png'),
-  M2: IN_JEST || require('../img/M2.png'),
-  NK: IN_JEST || require('../img/NK.png'),
-  NKT: IN_JEST || require('../img/NKT.png'),
-  mDC: IN_JEST || require('../img/mDC.png'),
-  pDC: IN_JEST || require('../img/pDC.png'),
-  iDC: IN_JEST || require('../img/iDC.png'),
-
-  'Myeloid cell': IN_JEST || require('../img/Myeloid.png'),
-  Granulocyte: IN_JEST || require('../img/Granulocytes.png'),
+  B_cells,
+  CD4,
+  CD4_Treg,
+  CD8,
+  CD8_Treg,
+  M1,
+  M2,
+  NK,
+  NKT,
+  mDC,
+  pDC,
+  iDC,
+  'Myeloid cell': Myeloid_cell,
+  Granulocyte,
 }
 
-const center_img = IN_JEST || require('../img/center-trimmed.svg')
+import center_img from './img/center-trimmed.svg'
 
 const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
 const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')

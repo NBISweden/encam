@@ -5,12 +5,9 @@ COPY ./ /app/
 WORKDIR /app
 RUN yarn install --frozen-lockfile
 
-
 VOLUME /app/node_modules
-VOLUME /app/.cache
-VOLUME /app/.parcel-cache
 
 ARG VERSION
 RUN echo $VERSION && yarn build
 
-CMD cd /app && yarn run parcel --version && yarn start
+CMD cd /app && yarn && yarn start
