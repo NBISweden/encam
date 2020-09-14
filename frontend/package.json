@@ -7,14 +7,16 @@
   "license": "GPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.9.6",
-    "@babel/plugin-transform-runtime": "^7.11.0",
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.10.4",
+    "@snowpack/app-scripts-react": "^1.10.0",
+    "@snowpack/plugin-webpack": "^2.0.12",
     "@testing-library/react": "^10.0.4",
     "@types/jest": "^25.2.2",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.9.5",
+    "@types/snowpack-env": "^2.3.0",
     "@types/styled-components": "^5.1.0",
     "babel-jest": "^26.0.1",
     "canvas": "^2.6.1",
@@ -22,23 +24,22 @@
     "doctest-ts": "^0.5.0",
     "esbuild": "0.6.27",
     "jest": "^26.0.1",
-    "parcel": "2.0.0-alpha.3.2",
     "path": "^0.12.7",
     "prettier": "^2.1.1",
     "react-test-renderer": "^16.13.1",
+    "snowpack": "^2.10.3",
     "typescript": "^4.0.2"
   },
   "scripts": {
-    "start": "parcel serve index.html --hmr-port 1235",
-    "build": "rm -rf dist; esbuild --bundle src/main.tsx --outdir=dist --loader:.png=file --loader:.svg=file --target=es6 --minify \"--define:VERSION='${VERSION:-unspecified}'\" \"--define:process.env.NODE_ENV='production'\" \"--define:process.platform='linux'\" --pure:console.log; cd dist; mv main.js \"main.$(md5sum main.js | head -c 20).js\"; sed \"s,src/main.tsx,$(echo main.*.js),\" < ../index.html > index.html",
+    "start": "snowpack dev",
+    "build": "./build.sh",
     "pretty": "yarn run prettier --list-different --write src test",
-    "typecheck": "find src test -name '*ts*' | xargs tsc --noEmit --jsx react --lib es2019,dom --skipLibCheck --esModuleInterop",
+    "typecheck": "find src test -name '*ts*' | xargs tsc --noEmit --jsx react --lib es2019,dom --skipLibCheck --esModuleInterop --module esnext --moduleResolution node",
     "doctests:gen": "find src test -name '*ts*' | xargs doctest-ts --jest",
     "doctests:watch": "find src test -name '*ts*' | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose --testEnvironment node'",
     "test": "yarn run doctests:gen && jest"
   },
   "dependencies": {
-    "@babel/runtime": "^7.11.2",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
@@ -62,26 +63,5 @@
     "bracketSpacing": false,
     "arrowParens": "avoid",
     "embeddedLanguageFormatting": "off"
-  },
-  "babel": {
-    "plugins": [
-      "@babel/plugin-transform-runtime"
-    ],
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-react",
-      "@babel/preset-typescript"
-    ]
-  },
-  "jest": {
-    "clearMocks": true,
-    "testMatch": [
-      "**/__tests__/**/*.[jt]s?(x)",
-      "**/?(*)(spec|test).[tj]s?(x)"
-    ],
-    "forceCoverageMatch": [
-      "**/*doctest*"
-    ],
-    "testEnvironment": "jest-environment-jsdom"
   }
 }

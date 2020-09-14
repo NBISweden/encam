@@ -2,9 +2,9 @@
 */dist
 */node_modules
 */.cache
-*/.parcel-cache
 */coverage
 */node_modules
 */htmlcov
 */__pycache__
+*/build
 docs

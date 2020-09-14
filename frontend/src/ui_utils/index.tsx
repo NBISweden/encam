@@ -1,10 +1,10 @@
-export * from './ui_utils/useRoutedTabs'
-export * from './ui_utils/div'
-import {dummy_keys} from './ui_utils/div'
+export * from './useRoutedTabs'
+export * from './div'
+import {dummy_keys} from './div'
 
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import * as utils from './utils'
+import * as utils from '../utils'
 
 export type OnChangeSecondArgument<T> = (_: any, t: T) => void
 
