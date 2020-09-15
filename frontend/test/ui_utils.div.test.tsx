@@ -1,60 +1,65 @@
 import * as React from 'react'
 import {div, css} from '../src/ui_utils'
 import {render, fireEvent, screen} from '@testing-library/react'
+// import serializer from 'jest-emotion'
+import renderer from 'react-test-renderer'
+// import styled from '@emotion/styled'
 
-const str = (s: TemplateStringsArray) => JSON.stringify(s[0])
+// expect.addSnapshotSerializer(serializer)
 
 describe('div, css', () => {
   test('strings', async () => {
     const el = render(div('hell', 'o'))
-    expect(el.container.innerHTML).toMatchInlineSnapshot(
-      str`<div class="sc-AxjAm StDqN">hello</div>`
-    )
+    expect(el.container.innerHTML).toMatchInlineSnapshot(`"<div>hello</div>"`)
   })
 
   test('elements', async () => {
     const el = render(div(<b>X</b>, <i>Y</i>))
-    expect(el.container.innerHTML).toMatchInlineSnapshot(
-      str`<div class="sc-AxjAm StDqN"><b>X</b><i>Y</i></div>`
-    )
+    expect(el.container.innerHTML).toMatchInlineSnapshot(`"<div><b>X</b><i>Y</i></div>"`)
   })
 
   test('children', async () => {
     const el = render(div({children: [<b>X</b>, <i>Y</i>]}))
-    expect(el.container.innerHTML).toMatchInlineSnapshot(
-      str`<div class="sc-AxjAm StDqN"><b>X</b><i>Y</i></div>`
-    )
+    expect(el.container.innerHTML).toMatchInlineSnapshot(`"<div><b>X</b><i>Y</i></div>"`)
   })
 
   test('nested', async () => {
     const el = render(div([['hell'], <i>o</i>, ['!']]))
-    expect(el.container.innerHTML).toMatchInlineSnapshot(
-      str`<div class="sc-AxjAm StDqN">hell<i>o</i>!</div>`
-    )
+    expect(el.container.innerHTML).toMatchInlineSnapshot(`"<div>hell<i>o</i>!</div>"`)
   })
 
   test('className', async () => {
     const el = render(div({className: 'bepa'}, {className: 'cepa'}))
-    expect(el.container.innerHTML).toMatchInlineSnapshot(
-      str`<div class="sc-AxjAm StDqN bepa cepa"></div>`
-    )
+    expect(el.container.innerHTML).toMatchInlineSnapshot(`"<div class=\\"bepa cepa\\"></div>"`)
   })
 
   test('css', async () => {
-    const el = render(div('x', css`color: ${'red'}`, css(`background: blue`)))
-    expect(el.container.innerHTML).toMatchInlineSnapshot(str`<div class="sc-AxjAm hFvGvL">x</div>`)
+    const node = div('x', css`color: ${'red'};`, css(`background: blue;`), css({display: 'inline'}))
+    expect(renderer.create(node).toJSON()).toMatchInlineSnapshot(`
+      .emotion-0 {
+        color: red;
+        background: blue;
+        display: inline;
+      }
+
+      <div
+        className="emotion-0"
+      >
+        x
+      </div>
+    `)
   })
 
   test('styles', async () => {
     const el = render(div({style: {color: 'red', background: 'green'}}, {style: {color: 'blue'}}))
     expect(el.container.innerHTML).toMatchInlineSnapshot(
-      str`<div style="color: blue; background: green;" class="sc-AxjAm StDqN"></div>`
+      `"<div style=\\"color: blue; background: green;\\"></div>"`
     )
   })
 
   test('nils', async () => {
     const el = render(div(true, false, null, undefined))
-    expect(el.container.innerHTML).toMatchInlineSnapshot(str`<div class="sc-AxjAm StDqN"></div>`)
+    expect(el.container.innerHTML).toMatchInlineSnapshot(`"<div></div>"`)
   })
 
   test('onClicks', async () => {
@@ -68,8 +73,6 @@ describe('div, css', () => {
     )
     fireEvent.click(screen.getByText('hit me'))
     expect(msgs).toStrictEqual(['one:', 'hit me', 'two:', 'hit me'])
-    expect(el.container.innerHTML).toMatchInlineSnapshot(
-      str`<div class="sc-AxjAm StDqN">hit me</div>`
-    )
+    expect(el.container.innerHTML).toMatchInlineSnapshot(`"<div>hit me</div>"`)
   })
 })

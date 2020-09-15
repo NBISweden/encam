@@ -10,5 +10,6 @@ module.exports = {
     "**/*doctest*"
   ],
   testEnvironment: "jest-environment-jsdom",
+  snapshotSerializers: ["jest-emotion"],
 }
 
