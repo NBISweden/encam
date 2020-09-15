@@ -1,6 +1,9 @@
-import * as sc from 'styled-components'
+import * as React from 'react'
+import {Global, css} from '@emotion/core'
 
-export const GlobalStyle = sc.createGlobalStyle`
+export const GlobalStyle = () => (
+  <Global
+    styles={css`
   * {
     user-select: inherit;
   }
@@ -8,9 +11,11 @@ export const GlobalStyle = sc.createGlobalStyle`
     width: fit-content;
     user-select: none;
   }
-`
+`}
+  />
+)
 
-export const MainGlobalStyle = sc.createGlobalStyle`
+const main = css`
   * {
     user-select: inherit;
   }
@@ -25,3 +30,5 @@ export const MainGlobalStyle = sc.createGlobalStyle`
     background-repeat: no-repeat;
   }
 `
+
+export const MainGlobalStyle = () => <Global styles={main} />

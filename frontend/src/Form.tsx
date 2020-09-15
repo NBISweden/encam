@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom'
 import * as utils from './utils'
 
 import * as ui from './ui_utils'
-import {Store} from './ui_utils'
+import type {Store} from './ui_utils'
 
 import {cellOrder} from './db'
 

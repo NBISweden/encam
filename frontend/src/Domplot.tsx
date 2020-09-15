@@ -6,8 +6,6 @@ import * as utils from './utils'
 
 import {DB, Row} from './db'
 
-import styled, * as sc from 'styled-components'
-
 import {cell_color} from './cell_colors'
 
 import {DomplotCSS} from './DomplotCSS'

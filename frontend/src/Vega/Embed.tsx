@@ -9,9 +9,11 @@ import * as ui from '../ui_utils'
 
 import vegaTooltip from 'vega-tooltip'
 
-import * as sc from 'styled-components'
+import {Global, css} from '@emotion/core'
 
-const TooltipCSS = sc.createGlobalStyle`
+const TooltipCSS = () => (
+  <Global
+    styles={css`
   #vg-tooltip-element {
     &, & * {
       font-family: inherit;
@@ -21,7 +23,9 @@ const TooltipCSS = sc.createGlobalStyle`
       text-align: right;
     }
   }
-`
+`}
+  />
+)
 
 const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
 

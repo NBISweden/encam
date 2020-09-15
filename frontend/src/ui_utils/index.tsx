@@ -233,7 +233,7 @@ export function useWhyChanged(name_or_fun: string | Function, props: Record<stri
 }
 
 export function useDebounce(ms: number, k: Function) {
-  const [timer, set_timer] = React.useState(undefined as undefined | number)
+  const [timer, set_timer] = React.useState(undefined as undefined | ReturnType<typeof setTimeout>)
   const [res, set_res] = React.useState(undefined)
   React.useEffect(() => {
     if (timer !== undefined) {
