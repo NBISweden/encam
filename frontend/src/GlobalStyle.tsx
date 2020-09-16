@@ -1,9 +1,8 @@
-import * as React from 'react'
-import {Global, css} from '@emotion/core'
+import {css, Global} from '@emotion/core'
 
-export const GlobalStyle = () => (
-  <Global
-    styles={css`
+import * as React from 'react'
+
+const styles = css`
   * {
     user-select: inherit;
   }
@@ -11,20 +10,22 @@ export const GlobalStyle = () => (
     width: fit-content;
     user-select: none;
   }
-`}
-  />
-)
+`
+
+export const GlobalStyle = () => <Global {...{styles}} />
 
 const main = css`
   * {
     user-select: inherit;
   }
-  html, body, #root {
+  html,
+  body,
+  #root {
     width: 100%;
     display: flex;
     user-select: none;
   }
-  html>body {
+  html > body {
     background: #eee;
     background: linear-gradient(0deg, #ddd 0%, #fafafa 100%);
     background-repeat: no-repeat;

@@ -295,15 +295,15 @@ export function useStateWithUpdate<State>(init: State | (() => State)) {
   return res
 }
 
-export const flex_column: React.CSSProperties = {
+export const flex_column = {
   display: 'flex',
   flexDirection: 'column',
-}
+} as const
 
-export const flex_row: React.CSSProperties = {
+export const flex_row = {
   display: 'flex',
   flexDirection: 'row',
-}
+} as const
 
 export function useAsync(p: () => Promise<any>, deps?: React.DependencyList) {
   return React.useEffect(() => {

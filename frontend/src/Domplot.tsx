@@ -375,8 +375,15 @@ export function Demo() {
     ? null
     : div(
         <DomplotCSS />,
-        css`width: 900; margin: 10 auto; background: white;`,
-        css`& > div { display: inline-block; margin: 30px; }`,
+        css`
+          width: 900;
+          margin: 10 auto;
+          background: white;
+          & > div {
+            display: inline-block;
+            margin: 30px;
+          }
+        `,
         plot(CD4s, 'bar', {facet_x: 'tumor'}),
         plot(CD4s, 'forest', {facet_x: 'tumor'}),
         plot(MELs, 'bar', {facet_x: 'location', x: 'cell', bar_width: 2, gap_width: 18}),

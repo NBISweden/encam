@@ -1,4 +1,3 @@
-import * as ReactDOM from 'react-dom'
 import * as React from 'react'
 import * as backend from './backend'
 
@@ -16,7 +15,7 @@ import {
 
 import {Slider} from '@material-ui/core'
 
-import {makeStyles} from '@material-ui/core/styles'
+import {css} from 'emotion'
 
 import {LoadingPlot} from './FormAndPlotView'
 
@@ -239,16 +238,16 @@ interface ViewProps {
   loading: boolean
 }
 
-const useStyles = makeStyles({
-  KMPlotWithControlsView: {
+const classes = {
+  KMPlotWithControlsView: css({
     ...ui.flex_column,
 
     // Radio buttons:
     '& .MuiFormGroup-root': {
       ...ui.flex_row,
     },
-  },
-})
+  }),
+}
 
 const schemes = `
   blues greens greys oranges purples reds blueGreen bluePurple greenBlue
@@ -274,8 +273,6 @@ export function KMPlotWithControlsView(props: ViewProps) {
     color_scheme_reverse: ui.useCheckbox('reverse', false),
     ci: ui.useCheckbox('show confidence intervals (95%)', true),
   })
-
-  const classes = useStyles()
 
   const round = (x: number) => Math.round(x * 1000) / 1000
 

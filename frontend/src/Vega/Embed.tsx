@@ -1,31 +1,27 @@
 import * as React from 'react'
 import * as VL from 'vega-lite'
 import * as V from 'vega'
+import {css, Global} from '@emotion/core'
 
 import * as stripes from '../stripes'
 
 import * as utils from '../utils'
-import * as ui from '../ui_utils'
 
 import vegaTooltip from 'vega-tooltip'
 
-import {Global, css} from '@emotion/core'
-
-const TooltipCSS = () => (
-  <Global
-    styles={css`
+const tooltip_styles = css`
   #vg-tooltip-element {
-    &, & * {
+    &,
+    & * {
       font-family: inherit;
     }
-    .key, .value {
+    .key,
+    .value {
       font-size: 0.8em;
       text-align: right;
     }
   }
-`}
-  />
-)
+`
 
 const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
 
@@ -134,7 +130,7 @@ export function Embed({
   return (
     <>
       <div ref={set_el} />
-      <TooltipCSS />
+      <Global styles={tooltip_styles} />
     </>
   )
 }

@@ -11,7 +11,7 @@ import {css, div} from './ui_utils'
 
 import {Domplot, DomplotCSS} from './Domplot'
 
-import {makeStyles} from '@material-ui/core/styles'
+import {css as emotion_css} from 'emotion'
 
 import {cell_color} from './cell_colors'
 
@@ -94,8 +94,8 @@ interface SplashProps {
   codes: Record<string, string>
 }
 
-const useStyles = makeStyles({
-  Splash: {
+const classes = {
+  Splash: emotion_css({
     ...ui.flex_row,
     // background: 'white',
     // display: 'inline-flex',
@@ -111,12 +111,12 @@ const useStyles = makeStyles({
       margin: '10 auto',
       fontSize: '1.2em',
     },
-  },
-  Left: {
+  }),
+  Left: emotion_css({
     ...ui.flex_column,
     width: 150,
-  },
-  LeftLabel: {
+  }),
+  LeftLabel: emotion_css({
     ...ui.flex_row,
 
     border: '2px var(--cell-color) solid',
@@ -152,14 +152,14 @@ const useStyles = makeStyles({
         fontSize: '0.9em',
       },
     },
-  },
-  Center: {
+  }),
+  Center: emotion_css({
     width: 750,
     marginTop: 40,
     minHeight: 680,
     position: 'relative',
-  },
-  Right: {
+  }),
+  Right: emotion_css({
     ...ui.flex_column,
     borderLeft: '1px #ddd solid',
     paddingTop: 0,
@@ -173,8 +173,8 @@ const useStyles = makeStyles({
       marginBottom: 15,
       flexShrink: 0,
     },
-  },
-})
+  }),
+}
 
 function Checkboxes(
   range: string[],
@@ -209,7 +209,6 @@ function Checkboxes(
 }
 
 function Center({state, dispatch, codes, db}: SplashProps) {
-  const classes = useStyles()
   const [hover, set_hover] = React.useState('')
   const tumor_labels = Checkboxes(
     both,
@@ -243,21 +242,43 @@ function Center({state, dispatch, codes, db}: SplashProps) {
       {key: i},
       {style},
       {style: {width: 50}},
-      css`border-bottom: 1px #666 solid`,
-      css`display: flex`,
-      left_side || css`padding-right: 7px`,
-      left_side || css`justify-content: flex-end`,
+      css`
+        border-bottom: 1px #666 solid;
+        display: flex;
+      `,
+      left_side ||
+        css`
+          padding-right: 7px;
+          justify-content: flex-end;
+        `,
       // css`& > label { padding: 0 8; }`,
-      div(css`position: absolute; top: 100%; margin-left: 6px`, x.label),
-      div(css`margin-bottom: 2px`, css`margin-left: 8px`, x.checkbox),
-      css`cursor: pointer`,
+      div(
+        css`
+          position: absolute;
+          top: 100%;
+          margin-left: 6px;
+        `,
+        x.label
+      ),
+      div(
+        css`
+          margin-bottom: 2px;
+          margin-left: 8px;
+        `,
+        x.checkbox
+      ),
+      css`
+        cursor: pointer;
+      `,
       {
         onClick: x.onClick,
         onMouseOver: () => set_hover(utils.pretty(codes[x.text])),
         onMouseOut: () => hover === utils.pretty(codes[x.text]) && set_hover(''),
       },
       div(
-        css`position: relative`,
+        css`
+          position: relative;
+        `,
         div(css`
               border-bottom: 1px #666 solid
               position: absolute
@@ -316,7 +337,6 @@ function Center({state, dispatch, codes, db}: SplashProps) {
 const clsx = (...xs: any[]) => xs.filter(x => typeof x === 'string').join(' ')
 
 function Left({state, dispatch, range}: SplashProps) {
-  const classes = useStyles()
   return (
     <div className={classes.Left}>
       <h2>Cell type</h2>
@@ -354,16 +374,14 @@ function Left({state, dispatch, range}: SplashProps) {
 }
 
 function Right({state, db}: SplashProps) {
-  const classes = useStyles()
-
   const out: React.ReactNode[] = []
 
-  const renames = {
+  const renames: Record<string, string> = {
     'Myeloid cell': 'Myeloid',
     Granulocyte: 'Gran...',
   }
 
-  const rename_row = row => ({...row, cell: renames[row.cell] || row.cell})
+  const rename_row = (row: Row): Row => ({...row, cell: renames[row.cell] || row.cell})
 
   if (db) {
     const {tumor, cell} = state
@@ -418,7 +436,6 @@ export const Splash = React.memo(function Splash() {
 
   const splash_props: SplashProps = {state, dispatch, range, codes, db}
 
-  const classes = useStyles()
   return (
     <div className={classes.Splash}>
       <DomplotCSS />

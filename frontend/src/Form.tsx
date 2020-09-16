@@ -6,15 +6,17 @@ import * as utils from './utils'
 import * as ui from './ui_utils'
 import type {Store} from './ui_utils'
 
-import {cellOrder} from './db'
-
 import * as cell_colors from './cell_colors'
 
 import {makeStyles} from '@material-ui/core/styles'
-import {FormControlLabel, Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
+import {Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
 import {Autocomplete} from '@material-ui/lab'
 
+import BarChart from '@material-ui/icons/BarChart'
+
 import {CheckboxRow} from './CheckboxRow'
+
+import {css} from 'emotion'
 
 interface SpecificOption {
   column: string
@@ -55,8 +57,6 @@ function calculate_state0(conf: Conf, key_prefix: string): State {
   state0.tumors = ['BRCA']
   return state0
 }
-
-import BarChart from '@material-ui/icons/BarChart'
 
 function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
   return React.useMemo(elem, deps)
@@ -111,8 +111,8 @@ function Buttons(props: {onReset: Action; onSubmit: Action; children?: React.Rea
   )
 }
 
-const useStyles = makeStyles({
-  Form: {
+const classes = {
+  Form: css({
     width: 420,
     ...ui.flex_column,
     '& .MuiAutocomplete-root': {
@@ -126,8 +126,8 @@ const useStyles = makeStyles({
       alignSelf: 'flex-end',
       marginBottom: 5,
     },
-  },
-  SelectRadio: {
+  }),
+  SelectRadio: css({
     margin: '5 0 15',
     // alignSelf: 'flex-begin',
     '& .MuiFormControl-root': {
@@ -154,11 +154,10 @@ const useStyles = makeStyles({
         },
       },
     },
-  },
-})
+  }),
+}
 
 function useSelectRadio() {
-  const classes = useStyles()
   const [select_type, select_radio_inner] = ui.useRadio('Select', ['tumors', 'cells'])
   const select_radio = <div className={classes.SelectRadio}>{select_radio_inner}</div>
   const select_types = {[select_type]: true} as Record<typeof select_type, boolean>
@@ -178,7 +177,6 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 
   ui.useWhyChanged(Form, {conf, state})
 
-  const classes = useStyles()
   return (
     <div className={classes.Form}>
       {select_radio}
@@ -222,7 +220,6 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
     return y.flatMap((a, i) => [a, ...ys.map(y => y[i])])
   }
 
-  const classes = useStyles()
   return (
     <div className={classes.Form}>
       {select_radio}
@@ -406,24 +403,23 @@ interface VariantsProps {
   store: Store<Record<string, string[]>>
 }
 
-const useVariantStyles = makeStyles({
-  VariantRow: {
+const variant_classes = {
+  VariantRow: css({
     ...ui.flex_row,
     alignItems: 'baseline',
     '& .variant-label': {
       paddingLeft: 8,
       width: 145,
     },
-  },
-})
+  }),
+}
 
 export function Variants(props: VariantsProps) {
-  const classes = useVariantStyles()
   const {store} = props
   return (
     <>
       {props.options.map(({column, values}) => (
-        <div key={column} className={classes.VariantRow}>
+        <div key={column} className={variant_classes.VariantRow}>
           <div className="variant-label">
             {column
               .replace(/(_|yesno)/g, ' ')
@@ -636,7 +632,6 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
 
   ui.useWhyChanged(KMForm, {conf, state, onSubmit})
 
-  const classes = useStyles()
   return (
     <div className={classes.Form}>
       {form}

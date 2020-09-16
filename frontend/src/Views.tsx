@@ -1,17 +1,12 @@
 import * as React from 'react'
 
-import {css, div} from './ui_utils'
-
 import {CssBaseline} from '@material-ui/core'
-
-import {AppBar} from '@material-ui/core'
 
 import ReactMarkdown from 'react-markdown'
 
 import * as boxplot_data from './data/boxplot'
 import * as km_data from './data/kmplot'
 
-import {DomplotCSS} from './DomplotCSS'
 import * as form_data from './data/form'
 import * as domplots from './Domplot'
 import * as form from './Form'
@@ -33,7 +28,7 @@ import {Switch} from 'react-router-dom'
 
 import {version} from './version'
 
-import {makeStyles} from '@material-ui/core/styles'
+import {css} from 'emotion'
 
 import {GlobalStyle, MainGlobalStyle} from './GlobalStyle'
 
@@ -46,14 +41,14 @@ const main = `
   Web portal of cell-resolution data of the tumor microenvironment in human cancer.
 `
 
-const useStyles = makeStyles({
-  View: {
+const classes = {
+  View: css({
     '& h1, & h2, & h3': {
       fontFamily: '"Merriweather Sans", sans',
       fontWeight: 300,
     },
-  },
-  Main: {
+  }),
+  Main: css({
     '& h1, & h2, & h3': {
       fontFamily: '"Merriweather Sans", sans',
       fontWeight: 300,
@@ -124,8 +119,8 @@ const useStyles = makeStyles({
         },
       },
     },
-  },
-  Modules: {
+  }),
+  Modules: css({
     width: 1100,
     color: '#f8f8f8',
     // marginTop: 40,
@@ -149,8 +144,8 @@ const useStyles = makeStyles({
         background: cell_color('pDC'),
       },
     },
-  },
-})
+  }),
+}
 
 const theme = createMuiTheme({
   palette: {
@@ -164,7 +159,6 @@ const theme = createMuiTheme({
 })
 
 export function Main(props = {version: <span />}) {
-  const classes = useStyles()
   const Modules = [
     {
       name: 'Box plots',
@@ -401,8 +395,8 @@ export function Views() {
       ),
     },
     {
-      label: 'Form and Plot UI',
-      path: '/FormAndPlotUI',
+      label: 'Form and Plot View',
+      path: '/FormAndPlotView',
       component: (
         <div>
           <FormAndPlotView />
@@ -434,7 +428,6 @@ export function Views() {
   React.useEffect(() => {
     document.title = `encima: ${tab.label}`
   }, [tab.label])
-  const classes = useStyles()
   return tab.label === 'Main' ? (
     <Switch>{TabbedRoutes}</Switch>
   ) : (
