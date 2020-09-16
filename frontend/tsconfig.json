@@ -1,12 +1,8 @@
 {
   "extends": "@snowpack/app-scripts-react/tsconfig.base.json",
   "compilerOptions": {
-    "target": "es5",
     "lib": ["es2019", "dom"],
-    "allowJs": true,
-    "checkJs": true,
     "sourceMap": true,
-    "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
@@ -14,7 +10,6 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "jsx": "react",
 
     "downlevelIteration": true,
 
@@ -23,20 +18,15 @@
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
 
-    "moduleResolution": "node",
-    "baseUrl": ".",
-    "paths": {"@app/*": ["./*"]},
+    "importsNotUsedAsValues": "remove",
+
     "esModuleInterop": true,
-    "noEmit": true,
-    "skipLibCheck": true
+
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["./*"]
+    }
   },
-  "include": [
-    "src",
-    "test"
-  ],
-  "exclude": [
-    "src/thief.tsx",
-    "coverage",
-    "node_modules"
-  ]
+  "include": ["src", "test"],
+  "exclude": ["src/thief.tsx", "coverage", "node_modules"]
 }

@@ -5,18 +5,18 @@ import * as utils from './utils'
 
 import {CircularProgress} from '@material-ui/core'
 
-import {makeStyles} from '@material-ui/core/styles'
+import {css} from 'emotion'
 
-const useStyles = makeStyles({
-  FormAndPlotView: {
+const classes = {
+  FormAndPlotView: css({
     ...ui.flex_row,
     alignItems: 'flex-start',
     '& > :not(:first-child)': {
       flexGrow: 1,
       marginLeft: 0,
     },
-  },
-  Reloading: {
+  }),
+  Reloading: css({
     position: 'relative',
     '& > *': {
       position: 'absolute',
@@ -25,11 +25,10 @@ const useStyles = makeStyles({
       background: '#fffe',
       boxShadow: '0 0 8px 8px #fffe',
     },
-  },
-})
+  }),
+}
 
 export function Loading({reloading = false}) {
-  const classes = useStyles()
   return (
     <div className={reloading ? classes.Reloading : undefined}>
       <div>
@@ -54,7 +53,6 @@ export function FormAndPlotView({
   form = undefined as React.ReactNode,
   plot = undefined as React.ReactNode,
 }) {
-  const classes = useStyles()
   return (
     <div className={classes.FormAndPlotView}>
       <ui.Paper key="form">{form || <CircularProgress />}</ui.Paper>

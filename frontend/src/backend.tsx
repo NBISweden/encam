@@ -1,7 +1,7 @@
 import * as React from 'react'
 
-const mem = {
-  configuration: null as any,
+const mem: Record<string, any> = {
+  configuration: null,
 }
 
 async function request_by_fetch(endpoint: string, body?: any) {

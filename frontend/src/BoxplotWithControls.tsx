@@ -11,7 +11,7 @@ import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
 import {CheckboxRow} from './CheckboxRow'
 import {useStore} from './ui_utils'
 
-import {makeStyles} from '@material-ui/core/styles'
+import {css} from 'emotion'
 
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import ChevronRight from '@material-ui/icons/ChevronRight'
@@ -25,15 +25,15 @@ export interface Row {
 
 type Options = Partial<BoxplotOptions<keyof Row>>
 
-const useStyles = makeStyles(theme => ({
-  BoxPlotWithControls: {
+const classes = {
+  BoxPlotWithControls: css({
     ...ui.flex_column,
     // Radio buttons:
     '& .MuiFormGroup-root': {
       ...ui.flex_row,
     },
-  },
-  VisibleSidebar: {
+  }),
+  VisibleSidebar: css({
     ...ui.flex_column,
     marginTop: -4,
     marginBottom: 12,
@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
       cursor: 'pointer',
     },
     '&:focus-within .visible-label span, & .visible-label:hover span': {
-      color: theme.palette.primary.main,
+      color: '#4669a4',
     },
     '& .visible-icon': {
       marginRight: 2,
@@ -55,13 +55,11 @@ const useStyles = makeStyles(theme => ({
       ...ui.flex_row,
       flexWrap: 'wrap',
       marginLeft: 4,
-    },
-    '& .checkbox-label': {
       '--checkbox-bg': '#e0e0e0',
       '--checkbox-fg': '#333',
     },
-  },
-}))
+  }),
+}
 
 function useOptions(facet: keyof Row) {
   const radicals = ['√', '∛', '∜']
@@ -135,7 +133,6 @@ function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
     enqueue_delayed_value(value)
   }, [utils.str(value)])
 
-  const classes = useStyles()
   return [
     {
       visible_facets: delayed_value,
@@ -188,7 +185,6 @@ export function BoxplotWithControls({
     plot_options,
   })
 
-  const classes = useStyles()
   return (
     <div className={classes.BoxPlotWithControls}>
       {VisibleSidebar}

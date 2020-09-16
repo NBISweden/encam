@@ -11,7 +11,6 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.10.4",
     "@snowpack/app-scripts-react": "^1.10.0",
-    "@snowpack/plugin-webpack": "^2.0.12",
     "@testing-library/react": "^10.0.4",
     "@types/jest": "^25.2.2",
     "@types/react": "^16.8.6",
@@ -35,8 +34,8 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "./build.sh",
-    "pretty": "yarn run prettier --list-different --write src test",
-    "typecheck": "find src test -name '*ts*' | xargs tsc --noEmit --jsx react --lib es2019,dom --skipLibCheck --esModuleInterop --module esnext --moduleResolution node",
+    "pretty": "yarn run prettier --list-different --write src test *json *js",
+    "typecheck": "yarn run tsc",
     "doctests:gen": "find src test -name '*ts*' | xargs doctest-ts --jest",
     "doctests:watch": "find src test -name '*ts*' | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose --testEnvironment node'",
     "test": "yarn run doctests:gen && jest"
@@ -47,6 +46,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@types/react-router-dom": "^5.1.5",
+    "emotion": "^10.0.27",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-is": ">= 16.8.0",
@@ -63,7 +63,6 @@
     "trailingComma": "es5",
     "jsxBracketSameLine": true,
     "bracketSpacing": false,
-    "arrowParens": "avoid",
-    "embeddedLanguageFormatting": "off"
+    "arrowParens": "avoid"
   }
 }

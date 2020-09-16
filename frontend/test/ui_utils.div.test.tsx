@@ -34,7 +34,14 @@ describe('div, css', () => {
   })
 
   test('css', async () => {
-    const node = div('x', css`color: ${'red'};`, css(`background: blue;`), css({display: 'inline'}))
+    const node = div(
+      'x',
+      css`
+        color: ${'red'};
+      `,
+      css(`background: blue;`),
+      css({display: 'inline'})
+    )
     expect(renderer.create(node).toJSON()).toMatchInlineSnapshot(`
       .emotion-0 {
         color: red;

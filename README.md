@@ -43,25 +43,33 @@ The server needs a token to pull the image. The permissions need to be:
 ## Running backend tests
 
 To run the tests for the encam project
+
 ```
 python test.py
 ```
+
 in the `api` folder. The expected output is no assertion errors.
 
 This can be run in a virtualenv or with
+
 ```
 docker-compose run api python test.py
 ```
 
 To get the code coverage, install the coverage package with pip and run
+
 ```
 coverage run test.py
 ```
+
 To get the report from the code coverage
+
 ```
 coverage report -m
 ```
+
 and the annotated HTML listings detailing missed lines
+
 ```
 coverage html
 ```

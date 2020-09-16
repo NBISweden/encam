@@ -1,16 +1,16 @@
+import {css, cx} from 'emotion'
+
 import * as React from 'react'
 
 import * as utils from './utils'
 
 import {Store} from './ui_utils'
 
-import {makeStyles} from '@material-ui/core/styles'
-
 import * as cell_colors from './cell_colors'
 
-const useCheckboxRowStyles = makeStyles({
-  CheckboxRow: {
-    '& .checkbox-label': {
+const classes = {
+  CheckboxRow: css({
+    '& label': {
       textAlign: 'center',
       cursor: 'pointer',
       border: '2px #bbb solid',
@@ -32,13 +32,13 @@ const useCheckboxRowStyles = makeStyles({
         minWidth: 'unset',
       },
     },
-    '&.checked .checkbox-label': {
+    '&.checked label': {
       background: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
       borderColor: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
       color: `var(--checkbox-fg, ${cell_colors.color_scheme_fg[0]})`,
     },
-  },
-})
+  }),
+}
 
 export function CheckboxRow({
   values,
@@ -53,7 +53,6 @@ export function CheckboxRow({
 }) {
   const state = store.get()
   const [handled_at_mousedown, set_handled_at_mousedown] = React.useState(false)
-  const classes = useCheckboxRowStyles()
   return (
     <>
       {values.map(value => {
@@ -87,9 +86,8 @@ export function CheckboxRow({
           store.update({[column]: new_value})
         }
         return (
-          <div key={value} className={classes.CheckboxRow + ' ' + (checked ? 'checked' : '')}>
+          <div key={value} className={cx(classes.CheckboxRow, {checked})}>
             <label
-              className="checkbox-label"
               onMouseEnter={h}
               onMouseDown={h}
               onDoubleClick={() => {
