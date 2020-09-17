@@ -36,6 +36,9 @@ import {cell_color} from './cell_colors'
 
 import {ThemeProvider, createMuiTheme} from '@material-ui/core/styles'
 
+import {Bodies} from './Bodies'
+import {Center} from './Center'
+
 const main = `
   # Encyclopedia of Cancer (Immune) Microenvironment
   Web portal of cell-resolution data of the tumor microenvironment in human cancer.
@@ -253,6 +256,16 @@ export function Views() {
       ),
     },
     {
+      label: 'Bodies',
+      path: '/Bodies',
+      component: <Bodies />,
+    },
+    {
+      label: 'Center',
+      path: '/Center',
+      component: <Center />,
+    },
+    {
       label: 'Splash',
       path: '/Splash',
       component: (
@@ -428,7 +441,7 @@ export function Views() {
   React.useEffect(() => {
     document.title = `encima: ${tab.label}`
   }, [tab.label])
-  return tab.label === 'Main' ? (
+  return tab.label === 'Main' || tab.label === 'Bodies' ? (
     <Switch>{TabbedRoutes}</Switch>
   ) : (
     <ThemeProvider theme={theme}>

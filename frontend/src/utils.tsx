@@ -93,15 +93,40 @@ export function by_tuple<A, B>(f: (a: A) => B[]) {
   }
 }
 
-/** Rounds down to one digit precision
+/** Rounds down to N digits of precision (default N=1)
 
-   roundDown(999)   // => 900
-   roundDown(0.123) // => 0.1
+   roundDown(999)      // => 900
+   roundDown(999, 2)   // => 990
+   roundDown(999, 3)   // => 999
+
+   roundDown(0.123)    // => 0.1
+   roundDown(0.123, 2) // => 0.12
+   roundDown(0.123, 3) // => 0.123
 
 */
-export function roundDown(x: number): number {
-  const d = Math.pow(10, Math.floor(Math.log10(x)))
+export function roundDown(x: number, p = 1): number {
+  const d = Math.pow(10, Math.floor(Math.log10(x)) - p + 1)
   return Math.floor(x / d) * d
+}
+
+/** Traverses a structure of pojos, arrays and primitives and applies to
+    function bottom-up to every substructure
+
+    traverse({x:[1,2,{y:3}]}, x => typeof x === 'number' ? (x + 1) : x)
+      // => {x:[2,3,{y:4}]}
+
+    traverse({x:[1,2,{y:[3,4]}]}, x => Array.isArray(x) ? x.slice().reverse() : x)
+      // => {x:[{y:[4,3]},2,1]}
+
+*/
+export function traverse(d: any, f: (x: any) => any): any {
+  if (Array.isArray(d)) {
+    return f(d.map(x => traverse(x, f)))
+  } else if (d && typeof d === 'object') {
+    return f(mapObject(d, x => traverse(x, f)))
+  } else {
+    return f(d)
+  }
 }
 
 /**
