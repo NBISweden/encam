@@ -34,6 +34,8 @@ import iDC from './img/iDC.png'
 import Myeloid_cell from './img/Myeloid.png'
 import Granulocyte from './img/Granulocytes.png'
 
+import * as c from './Center'
+
 const cell_pngs: Record<string, string> = {
   B_cells,
   CD4,
@@ -307,17 +309,26 @@ function Center({state, dispatch, codes, db}: SplashProps) {
 
   return (
     <div className={classes.Center}>
-      <img
-        src={center_img}
+      <div
+
         style={{
           // width: '24%',
           position: 'absolute',
-          width: '64%',
           left: '50%',
-          top: 50,
+          top: 0,
           transform: 'translate(-50%, 0)',
         }}
+
+      >
+      <c.Center   />
+      </div>
+
+      {
+
+      false && <img
+        src={center_img}
       />
+      }
       {tumor_labels}
       <div
         style={{
