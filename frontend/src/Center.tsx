@@ -16,7 +16,7 @@ import svg_kidney from './img/kidney.svg'
 import svg_stomach from './img/stomach.svg'
 import svg_skin from './img/skin.svg'
 
-const svgs = {
+const svgs: Record<string, string> = {
   bodies: svg_bodies,
   gut: svg_gut,
   lungs: svg_lungs,
@@ -31,6 +31,21 @@ const svgs = {
   skin: svg_skin,
 }
 
+const sizes: Record<string, {width: number, height: number}> = {
+  skin: {width: 97.4, height: 49.9},
+  lungs: {width: 81.6, height: 78.4},
+  stomach: {width: 60.8, height: 57.7},
+  kidney: {width: 79.3, height: 68.6},
+  bladder: {width: 59.7, height: 56.9},
+  prostate: {width: 53.8, height: 64.5},
+  bodies: {width: 174.6, height: 258.0},
+  breast: {width: 46.5, height: 56},
+  pancreas: {width: 99.9, height: 48.4},
+  gut: {width: 88.1, height: 103.2},
+  ovary: {width: 91.7, height: 47.2},
+  uterus: {width: 49.7, height: 57.0}
+}
+
 const positions = [
   {bodies: {x: 0.796, y: 0.461}, organ: {x: -0.011, y: 0.235}, id: 'gut'},
   {bodies: {x: 0.807, y: 0.511}, organ: {x: -0.01, y: 0.183}, id: 'ovary'},
@@ -43,6 +58,7 @@ const positions = [
   {bodies: {x: 0.285, y: 0.369}, organ: {x: 1.027, y: 0.565}, id: 'stomach'},
   {bodies: {x: 0.285, y: 0.293}, organ: {x: 0.458, y: 0.004}, id: 'stomach'},
   {bodies: {x: 0.122, y: 0.184}, organ: {x: 0.67, y: 0.936}, id: 'skin'},
+  {bodies: {x: 0.218, y: 0.23}, organ: {x: 0.956, y: 0.385}, id: 'lungs'},
 ]
 
 const left = {
@@ -63,8 +79,10 @@ const right = {
 }
 
 import * as ui from './ui_utils'
+import * as utils from './utils'
 
-const Svg = ({id}: {id: string}) => ( <img src={(svgs as any)[id]} id={id} /> )
+const Svg = ({id}: {id: string}) => ( <img src={svgs[id]} id={id}
+  {...utils.mapObject(sizes[id], (s: number) => id === 'bodies' ? s : s * 0.85)} /> )
 
 export function Center() {
   const [rects, set_rects] = React.useState({} as Record<string, DOMRect>)
@@ -75,12 +93,20 @@ export function Center() {
       ))
     )
 
-  console.log(rects)
+  console.log(JSON.stringify(
+    utils.mapObject(rects, d => ({width: d.width, height: d.height})))
+  )
 
   return <div id="center" css={css`display: flex; flex-direction: row; position: relative;
       &, & svg {
-        height: 520; width: 500;
+        height: 700; width: 350;
       }
+      margin: 10;
+      // border: 1px steelblue solid;
+      // & * {
+      //   border: 1px steelblue solid;
+      //   padding: 1px;
+      // }
     `}
       onLoad={React.useCallback(e => update_rects(e.currentTarget), [])}
       ref={React.useCallback(e => e && update_rects(e), [])}
@@ -106,7 +132,7 @@ export function Center() {
     </div>
     <div css={css`flex-grow: 1; display: flex; flex-direction: column; && * { margin: auto }`}>
       <div css={css`flex-grow: 1; display: flex;`}><Svg  id="bodies" /></div>
-      <div css={css`flex-grow: 1`}/>
+      <div css={css`flex-grow: 1.08`}/>
     </div>
     <div css={css`display: flex; flex-direction: column`}>
       {Object.entries(right).map(([k, v]) =>
