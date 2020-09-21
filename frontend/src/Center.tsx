@@ -55,7 +55,7 @@ const positions = [
   {bodies: {x: 0.295, y: 0.532}, organ: {x: 0.953, y: 0.536}, id: 'prostate'},
   {bodies: {x: 0.283, y: 0.517}, organ: {x: 0.907, y: 0.969}, id: 'bladder'},
   {bodies: {x: 0.252, y: 0.48}, organ: {x: 1.058, y: 0.321}, id: 'kidney'},
-  {bodies: {x: 0.285, y: 0.369}, organ: {x: 1.027, y: 0.565}, id: 'stomach'},
+  {bodies: {x: 0.285, y: 0.369}, organ: {x: 1.027, y: 0.565}, id: 'stomach', lower: true},
   {bodies: {x: 0.285, y: 0.293}, organ: {x: 0.458, y: 0.004}, id: 'stomach'},
   {bodies: {x: 0.122, y: 0.184}, organ: {x: 0.67, y: 0.936}, id: 'skin'},
   {bodies: {x: 0.218, y: 0.23}, organ: {x: 0.956, y: 0.385}, id: 'lungs'},
@@ -97,28 +97,53 @@ export function Center() {
     utils.mapObject(rects, d => ({width: d.width, height: d.height})))
   )
 
-  return <div id="center" css={css`display: flex; flex-direction: row; position: relative;
+  return <div id="center" css={css(`display: flex; flex-direction: row; position: relative;
       &, & svg {
-        height: 700; width: 350;
+        height: 700; width: 400;
       }
       margin: 10;
-      // border: 1px steelblue solid;
-      // & * {
-      //   border: 1px steelblue solid;
-      //   padding: 1px;
-      // }
-    `}
+    `, false && `
+      border: 1px steelblue solid;
+      & * {
+        border: 1px steelblue solid;
+        padding: 1px;
+      }
+    `)}
       onLoad={React.useCallback(e => update_rects(e.currentTarget), [])}
       ref={React.useCallback(e => e && update_rects(e), [])}
      >
-    <svg css={css`position: absolute; z-index: 1000`}>
-      {positions.map(({id, bodies, organ}) => {
+    <svg css={css`position: absolute; z-index: 1`}>
+      {positions.map(({id, bodies, organ, lower}) => {
         if (rects.bodies && rects[id] && rects.center) {
+          const weight: Record<string, number> = {
+            stomach: 1,
+            kidney: 2,
+            bladder: 3,
+            prostate: 4,
+            breast: 3,
+            pancreas: 1,
+            gut: 2,
+            ovary: 2.5,
+            uterus: 6,
+          }
           const sx = bodies.x * rects.bodies.width - rects.center.left + rects.bodies.left
           const sy = bodies.y * rects.bodies.height- rects.center.top + rects.bodies.top
           const tx = organ.x * rects[id].width - rects.center.left + rects[id].left
           const ty = organ.y * rects[id].height - rects.center.top + rects[id].top
-          return <path d={`M${sx} ${sy} L${tx} ${ty}`} stroke="black" fill="transparent"/>
+          const w = weight[id]
+          const hx = (tx + w * sx) / (w + 1) + (lower ? -10 : 0)
+          const hy = (ty + sy) / 2
+          let d = `M${sx} ${sy} Q${hx} ${sy} ${hx} ${hy} T${tx} ${ty}`
+          if (id === 'lungs') {
+            d = `M${sx} ${ty} L${tx} ${ty}`
+          }
+          if (id === 'skin') {
+            const w = 0.2
+            const hx = (tx + sx) / 2
+            const hy = (ty + w * sy) / (w + 1)
+            d = `M${sx} ${sy} Q${sx} ${hy} ${hx} ${hy} T${tx} ${ty}`
+          }
+          return <path note={id} d={d} stroke="black" fill="transparent"/>
         }
         })
       }

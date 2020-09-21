@@ -122,7 +122,7 @@ const classes = {
     ...ui.flex_row,
 
     border: '2px var(--cell-color) solid',
-    borderRadius: 15,
+    borderRadius: 4,
     background: 'white',
     color: 'black',
     '&.Checked': {
