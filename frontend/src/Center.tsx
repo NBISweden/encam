@@ -3,6 +3,10 @@
 import {jsx, css} from '@emotion/core'
 import * as React from 'react'
 
+import * as ui from './utils'
+import * as utils from './utils'
+
+
 import svg_bodies from './img/bodies.svg'
 import svg_gut from './img/gut.svg'
 import svg_lungs from './img/lungs.svg'
@@ -78,11 +82,32 @@ const right = {
   uterus: 1,
 }
 
-import * as ui from './ui_utils'
-import * as utils from './utils'
+const template = `
+  "MEL   skin     bodies breast   BRCA  "
+  "LUAD  lungs    bodies pancreas PPADpb"
+  "LUSC  lungs    bodies pancreas PPADi "
+  "ESCA  stomach  bodies gut      COAD  "
+  "STAD  stomach  bodies gut      READ  "
+  "KRCC  kidney   bodies ovary    OVSA  "
+  "BLCA  bladder  bodies ovary    OVNSA "
+  "PRAD  prostate bodies uterus   UCEC  "
+`
 
-const Svg = ({id}: {id: string}) => ( <img src={svgs[id]} id={id}
-  {...utils.mapObject(sizes[id], (s: number) => id === 'bodies' ? s : s * 0.85)} /> )
+const Svg = ({id, ...props}: {id: string} & React.HTMLProps<HTMLImageElement>) => ( <img
+  id={id}
+  {...utils.mapObject(sizes[id], (s: number) => Math.round(id === 'bodies' ? s : s * 0.85))}
+  {...props}
+  src={svgs[id]}
+    /> )
+
+const grid = template.replace('"', '').trim().split(/\n/).map(s => s.trim().split(/\s+/))
+
+const left_tumors = utils.uniq(grid.map(row => row[0]))
+const left_organs = utils.uniq(grid.map(row => row[1]))
+const right_tumors = utils.uniq(grid.map(row => row[4]))
+const right_organs = utils.uniq(grid.map(row => row[3]))
+
+console.log({left_organs, right_organs})
 
 export function Center() {
   const [rects, set_rects] = React.useState({} as Record<string, DOMRect>)
@@ -97,25 +122,24 @@ export function Center() {
     utils.mapObject(rects, d => ({width: d.width, height: d.height})))
   )
 
-  return <div id="center" css={css(`display: flex; flex-direction: row; position: relative;
-      &, & svg {
-        height: 700; width: 400;
-      }
-      margin: 10;
-    `, false && `
-      border: 1px steelblue solid;
-      & * {
-        border: 1px steelblue solid;
-        padding: 1px;
-      }
-    `)}
+  return <div id="center" css={css`
+    display: grid;
+    grid-template-areas: ${template.trim()};
+    grid-template-rows: repeat(${grid.length}, 102px);
+    grid-template-columns: 150px 1fr auto 1fr 150px;
+      align-items: center;
+    `}
       onLoad={React.useCallback(e => update_rects(e.currentTarget), [])}
       ref={React.useCallback(e => e && update_rects(e), [])}
      >
-    <svg css={css`position: absolute; z-index: 1`}>
-      {positions.map(({id, bodies, organ, lower}) => {
+    <Svg id="bodies" css={css`grid-area: bodies; margin: 0 10px 275px; justify-self: center;`} />
+    {left_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k};  margin-top: 10px; justify-self: start;`}/> )}
+    {right_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k}; margin-top: 10px; justify-self: end;`}/> )}
+    <svg key="svg" css={css`height: 100%; width: 100%; grid-area: 1 / 1 / -1 / -1`}>
+      {positions.map(({id, bodies, organ, lower}, i) => {
         if (rects.bodies && rects[id] && rects.center) {
           const weight: Record<string, number> = {
+            lungs: 1,
             stomach: 1,
             kidney: 2,
             bladder: 3,
@@ -131,40 +155,22 @@ export function Center() {
           const tx = organ.x * rects[id].width - rects.center.left + rects[id].left
           const ty = organ.y * rects[id].height - rects.center.top + rects[id].top
           const w = weight[id]
-          const hx = (tx + w * sx) / (w + 1) + (lower ? -10 : 0)
+          const hx = (tx + w * sx) / (w + 1) + (lower ? -12 : 0)
           const hy = (ty + sy) / 2
           let d = `M${sx} ${sy} Q${hx} ${sy} ${hx} ${hy} T${tx} ${ty}`
-          if (id === 'lungs') {
-            d = `M${sx} ${ty} L${tx} ${ty}`
-          }
+          // if (id === 'lungs') {
+          //   d = `M${sx} ${ty} L${tx} ${ty}`
+          // }
           if (id === 'skin') {
             const w = 0.2
             const hx = (tx + sx) / 2
             const hy = (ty + w * sy) / (w + 1)
             d = `M${sx} ${sy} Q${sx} ${hy} ${hx} ${hy} T${tx} ${ty}`
           }
-          return <path note={id} d={d} stroke="black" fill="transparent"/>
+          return <path key={i} d={d} stroke="black" fill="transparent"/>
         }
         })
       }
     </svg>
-    <div css={css`display: flex; flex-direction: column`}>
-      {Object.entries(left).map(([k, v]) =>
-        <div key={k} css={css`flex-grow: ${v}; flex-basis: 0; display: flex; && * { margin: auto; margin-left: 0 }`}>
-          <Svg id={k} />
-        </div>
-      )}
-    </div>
-    <div css={css`flex-grow: 1; display: flex; flex-direction: column; && * { margin: auto }`}>
-      <div css={css`flex-grow: 1; display: flex;`}><Svg  id="bodies" /></div>
-      <div css={css`flex-grow: 1.08`}/>
-    </div>
-    <div css={css`display: flex; flex-direction: column`}>
-      {Object.entries(right).map(([k, v]) =>
-        <div key={k} css={css`flex-grow: ${v}; flex-basis: 0; display: flex; && * { margin: auto; margin-right: 0 }`}>
-          <Svg id={k} />
-        </div>
-      )}
-    </div>
   </div>
 }
