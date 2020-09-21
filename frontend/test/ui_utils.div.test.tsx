@@ -1,11 +1,7 @@
 import * as React from 'react'
 import {div, css} from '../src/ui_utils'
 import {render, fireEvent, screen} from '@testing-library/react'
-// import serializer from 'jest-emotion'
 import renderer from 'react-test-renderer'
-// import styled from '@emotion/styled'
-
-// expect.addSnapshotSerializer(serializer)
 
 describe('div, css', () => {
   test('strings', async () => {
