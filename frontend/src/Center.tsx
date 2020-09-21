@@ -61,7 +61,7 @@ const positions = [
   {bodies: {x: 0.252, y: 0.48}, organ: {x: 1.058, y: 0.321}, id: 'kidney'},
   {bodies: {x: 0.285, y: 0.369}, organ: {x: 1.027, y: 0.565}, id: 'stomach', lower: true},
   {bodies: {x: 0.285, y: 0.293}, organ: {x: 0.458, y: 0.004}, id: 'stomach'},
-  {bodies: {x: 0.122, y: 0.184}, organ: {x: 0.67, y: 0.936}, id: 'skin'},
+  {bodies: {x: 0.128, y: 0.184}, organ: {x: 0.67, y: 0.936}, id: 'skin'},
   {bodies: {x: 0.218, y: 0.23}, organ: {x: 0.956, y: 0.385}, id: 'lungs'},
 ]
 
@@ -100,16 +100,18 @@ const Svg = ({id, ...props}: {id: string} & React.HTMLProps<HTMLImageElement>) =
   src={svgs[id]}
     /> )
 
-const grid = template.replace('"', '').trim().split(/\n/).map(s => s.trim().split(/\s+/))
+const grid = template.replace(/"/g, '').trim().split(/\n/).map(s => s.trim().split(/\s+/))
 
 const left_tumors = utils.uniq(grid.map(row => row[0]))
 const left_organs = utils.uniq(grid.map(row => row[1]))
 const right_tumors = utils.uniq(grid.map(row => row[4]))
 const right_organs = utils.uniq(grid.map(row => row[3]))
 
-console.log({left_organs, right_organs})
+export interface CenterProps {
+  withTumor?: (tumor_and_gridArea: string, side: 'left' | 'right') => React.ReactNode
+}
 
-export function Center() {
+export function Center({withTumor}: CenterProps) {
   const [rects, set_rects] = React.useState({} as Record<string, DOMRect>)
   const update_rects = (d: HTMLElement) =>
     set_rects(
@@ -117,10 +119,6 @@ export function Center() {
         [e.id, e.getBoundingClientRect()]
       ))
     )
-
-  console.log(JSON.stringify(
-    utils.mapObject(rects, d => ({width: d.width, height: d.height})))
-  )
 
   return <div id="center" css={css`
     display: grid;
@@ -133,8 +131,10 @@ export function Center() {
       ref={React.useCallback(e => e && update_rects(e), [])}
      >
     <Svg id="bodies" css={css`grid-area: bodies; margin: 0 10px 275px; justify-self: center;`} />
-    {left_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k};  margin-top: 10px; justify-self: start;`}/> )}
-    {right_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k}; margin-top: 10px; justify-self: end;`}/> )}
+    {left_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k};  z-index: 1; margin-top: 10px; justify-self: start;`}/> )}
+    {right_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k}; z-index: 1; margin-top: 10px; justify-self: end;`}/> )}
+    {withTumor && left_tumors.map(t => withTumor(t, 'left'))}
+    {withTumor && right_tumors.map(t => withTumor(t, 'right'))}
     <svg key="svg" css={css`height: 100%; width: 100%; grid-area: 1 / 1 / -1 / -1`}>
       {positions.map(({id, bodies, organ, lower}, i) => {
         if (rects.bodies && rects[id] && rects.center) {
