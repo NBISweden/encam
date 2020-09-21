@@ -17,6 +17,11 @@ flask process via the nginx server.
 ## Building and deploying
 
 Make a new access token on https://github.com/settings/tokens/new
+It needs these permissions:
+
+* `repo`
+* `write:packages`
+* `read:packages`
 
 Set up github credentials on docker using the token as password:
 
@@ -30,6 +35,10 @@ github package and then tell our running SNIC machine to pull it and restart:
 ```
 VERSION=0.0.12 ./deploy.sh
 ```
+
+The server needs a token to pull the image. The permissions need to be:
+
+* `read:packages`
 
 ## Running backend tests
 
