@@ -105,6 +105,9 @@ export function by_tuple<A, B>(f: (a: A) => B[]) {
 
 */
 export function roundDown(x: number, p = 1): number {
+  if (x === 0) {
+    return 0
+  }
   const d = Math.pow(10, Math.floor(Math.log10(x)) - p + 1)
   return Math.floor(x / d) * d
 }

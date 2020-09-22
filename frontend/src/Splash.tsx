@@ -36,6 +36,8 @@ import Granulocyte from './img/Granulocytes.png'
 
 import * as c from './Center'
 
+import {Dyn, useDyn} from './ui_utils/Dyn'
+
 const cell_pngs: Record<string, string> = {
   B_cells,
   CD4,
@@ -307,81 +309,90 @@ function Center({state, dispatch, codes, db}: SplashProps) {
     )
   })
 
-  const plot_height = 60
+  const dyn = useDyn()
 
   return (
-    <div className={classes.Center}>
-      <c.Center withTumor={(tumor: string, side: 'left' | 'right') => {
-        const flexDirection =  side === 'left' ? 'row-reverse' : 'row'
-        return <div
-          key={tumor}
-          style={{gridArea: tumor,
-          display: 'flex',
-          flexDirection,
-          justifySelf: side == 'left' ? 'end' : 'start',
-          justifyContent: 'space-between',
-          alignSelf: 'end',
-          alignItems: 'flex-end',
-          transform: 'translate(0, -20px)',
-          // boxShadow: ('0px 1px 0px black,'
-          //   + (tumor.match(/^(ovnsa|read|ppadi)/i) ? '-1px 0px 0px black,' : '')
-          //   + (tumor.match(/^(stad|lusc)/i) ? '1px 0px 0px black,' : '')
-          //   ).replace(/,$/, ''),
-            position: 'relative',
-        }}>
-        <svg
-          width="20"
-          height="100"
-          style={{
-            position: 'absolute',
-            [side === 'left' ? 'left' : 'right']: '100%',
-            bottom: -9,
-            transform: side === 'right' ? 'scaleX(-1)' : undefined,
-            zIndex: 0,
-          }}>
-          <path d={
-                tumor.match(/^(luad|esca|ppadpb|coad|ovsa)$/i)
-                ? 'M0 90 l6 6'
-                : tumor.match(/^(lusc|stad|ppadi|read|ovnsa)$/i)
-                ? 'M0 90 l6 -6 l0 -40'
-                : 'M0 90 l6 -6'
-                } stroke="#aaa" strokeWidth="2" fill="none"/>
+    <div className={classes.Center} style={{display: 'flex'}}>
+      <c.Center
+        withTumor={(tumor: string, side: 'left' | 'right') => {
+          const flexDirection = side === 'left' ? 'row-reverse' : 'row'
+          const plot_height = Math.round(dyn('plot height', 66, 20, 120))
+          return (
+            <div
+              key={tumor}
+              style={{
+                gridArea: tumor,
+                display: 'flex',
+                flexDirection,
+                justifySelf: side == 'left' ? 'end' : 'start',
+                justifyContent: 'space-between',
+                alignSelf: 'end',
+                alignItems: 'flex-end',
+                transform: `translate(0, -${dyn('label offset', 40, 0, 80) - 20}px)`,
+                // boxShadow: ('0px 1px 0px black,'
+                //   + (tumor.match(/^(ovnsa|read|ppadi)/i) ? '-1px 0px 0px black,' : '')
+                //   + (tumor.match(/^(stad|lusc)/i) ? '1px 0px 0px black,' : '')
+                //   ).replace(/,$/, ''),
+                position: 'relative',
+              }}>
+              <svg
+                width="20"
+                height="100"
+                style={{
+                  position: 'absolute',
+                  [side === 'left' ? 'left' : 'right']: '100%',
+                  bottom: -9,
+                  transform: side === 'right' ? 'scaleX(-1)' : undefined,
+                  zIndex: 0,
+                }}>
+                <path
+                  d={
+                    tumor.match(/^(luad|esca|ppadpb|coad|ovsa)$/i)
+                      ? 'M0 90 l6 6'
+                      : tumor.match(/^(lusc|stad|ppadi|read|ovnsa)$/i)
+                      ? 'M0 90 l6 -6 l0 -40'
+                      : 'M0 90 l6 -6'
+                  }
+                  stroke="#aaa"
+                  strokeWidth="2"
+                  fill="none"
+                />
+              </svg>
 
-        </svg>
-
-        <div
-          style={{
-            borderBottom: '2px #aaa solid',
-            margin: '0px 0px 0',
-            minWidth: 60,
-            // transform: 'translate(0, 5px)',
-            display: 'flex',
-            flexDirection,
-          }}
-        >
-        <span style={{marginLeft: 2, marginRight: 8}}>{tumor}</span>
-          </div>
-        <div>
-
-        {!db || !utils.selected(state.cell).length ? null : (
-          <Domplot
-            rows={db.filter(row => state.cell[row.cell] && row.tumor == tumor)}
-            kind="bar"
-            options={{
-              axis_right: side != 'left',
-              height: plot_height,
-              hulled: false,
-              x_axis: true, // (i + 1) % T == 0,
-              max: Math.max(...db.filter(row => state.cell[row.cell]).map(row => row.expression)),
-            }}
-          />
-        )}
-        </div>
-
-          </div>
-        }} />
+              <div
+                style={{
+                  borderBottom: '2px #aaa solid',
+                  margin: '0px 0px 0',
+                  minWidth: 60,
+                  // transform: 'translate(0, 5px)',
+                  display: 'flex',
+                  flexDirection,
+                }}>
+                <span style={{marginLeft: 2, marginRight: 8}}>{tumor}</span>
+              </div>
+              <div>
+                {!db || !utils.selected(state.cell).length ? null : (
+                  <Domplot
+                    rows={db.filter(row => state.cell[row.cell] && row.tumor == tumor)}
+                    kind="bar"
+                    options={{
+                      axis_right: side != 'left',
+                      height: plot_height,
+                      hulled: false,
+                      x_axis: true, // (i + 1) % T == 0,
+                      max: Math.max(
+                        ...db.filter(row => state.cell[row.cell]).map(row => row.expression)
+                      ),
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          )
+        }}
+      />
       {
-      //  tumor_labels
+        //  tumor_labels
       }
       <div
         style={{
@@ -501,11 +512,13 @@ export const Splash = React.memo(function Splash() {
   const splash_props: SplashProps = {state, dispatch, range, codes, db}
 
   return (
-    <div className={classes.Splash}>
-      <DomplotCSS />
-      <Left {...splash_props} />
-      <Center {...splash_props} />
-      <Right {...splash_props} />
-    </div>
+    <Dyn>
+      <div className={classes.Splash}>
+        <DomplotCSS />
+        <Left {...splash_props} />
+        <Center {...splash_props} />
+        <Right {...splash_props} />
+      </div>
+    </Dyn>
   )
 })

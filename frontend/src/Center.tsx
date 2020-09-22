@@ -6,7 +6,6 @@ import * as React from 'react'
 import * as ui from './utils'
 import * as utils from './utils'
 
-
 import svg_bodies from './img/bodies.svg'
 import svg_gut from './img/gut.svg'
 import svg_lungs from './img/lungs.svg'
@@ -35,7 +34,7 @@ const svgs: Record<string, string> = {
   skin: svg_skin,
 }
 
-const sizes: Record<string, {width: number, height: number}> = {
+const sizes: Record<string, {width: number; height: number}> = {
   skin: {width: 97.4, height: 49.9},
   lungs: {width: 81.6, height: 78.4},
   stomach: {width: 60.8, height: 57.7},
@@ -47,7 +46,7 @@ const sizes: Record<string, {width: number, height: number}> = {
   pancreas: {width: 99.9, height: 48.4},
   gut: {width: 88.1, height: 103.2},
   ovary: {width: 91.7, height: 47.2},
-  uterus: {width: 49.7, height: 57.0}
+  uterus: {width: 49.7, height: 57.0},
 }
 
 const positions = [
@@ -65,23 +64,6 @@ const positions = [
   {bodies: {x: 0.218, y: 0.23}, organ: {x: 0.956, y: 0.385}, id: 'lungs'},
 ]
 
-const left = {
-  skin: 1,
-  lungs: 2,
-  stomach: 2,
-  kidney: 1,
-  bladder: 1,
-  prostate: 1,
-}
-
-const right = {
-  breast: 1,
-  pancreas: 2,
-  gut: 2,
-  ovary: 2,
-  uterus: 1,
-}
-
 const template = `
   "MEL   skin     bodies breast   BRCA  "
   "LUAD  lungs    bodies pancreas PPADpb"
@@ -93,84 +75,151 @@ const template = `
   "PRAD  prostate bodies uterus   UCEC  "
 `
 
-const Svg = ({id, ...props}: {id: string} & React.HTMLProps<HTMLImageElement>) => ( <img
-  id={id}
-  {...utils.mapObject(sizes[id], (s: number) => Math.round(id === 'bodies' ? s : s * 0.85))}
-  {...props}
-  src={svgs[id]}
-    /> )
+const Svg = ({id, ...props}: {id: string} & React.HTMLProps<HTMLImageElement>) => (
+  <img
+    id={id}
+    {...utils.mapObject(sizes[id], (s: number) =>
+      Math.round(
+        s *
+          (id === 'bodies'
+            ? useDyn()('bodies size', 1, 0.5, 1.75)
+            : useDyn()('organ size', 0.85, 0.4, 1.5))
+      )
+    )}
+    {...props}
+    src={svgs[id]}
+  />
+)
 
-const grid = template.replace(/"/g, '').trim().split(/\n/).map(s => s.trim().split(/\s+/))
+const grid = template
+  .replace(/"/g, '')
+  .trim()
+  .split(/\n/)
+  .map(s => s.trim().split(/\s+/))
 
 const left_tumors = utils.uniq(grid.map(row => row[0]))
 const left_organs = utils.uniq(grid.map(row => row[1]))
 const right_tumors = utils.uniq(grid.map(row => row[4]))
 const right_organs = utils.uniq(grid.map(row => row[3]))
 
+import {Dyn, useDyn} from './ui_utils/Dyn'
+
 export interface CenterProps {
   withTumor?: (tumor_and_gridArea: string, side: 'left' | 'right') => React.ReactNode
+  dyn?: Dyn
 }
 
 export function Center({withTumor}: CenterProps) {
-  const [rects, set_rects] = React.useState({} as Record<string, DOMRect>)
-  const update_rects = (d: HTMLElement) =>
-    set_rects(
-      Object.fromEntries(Array.from(d.parentElement!.querySelectorAll('[id]')).map(e =>
-        [e.id, e.getBoundingClientRect()]
-      ))
+  const [rects, set_rects] = React.useState(
+    {} as Record<string, {width: number; height: number; top: number; left: number}>
+  )
+  const [ref, set_ref] = React.useState(undefined as any)
+  const update_rects = (d: HTMLElement) => {
+    const next = Object.fromEntries(
+      Array.from(d.parentElement!.querySelectorAll('[id]')).map(e => {
+        const {width, height, top, left} = e.getBoundingClientRect()
+        return [
+          e.id,
+          utils.traverse({width, height, top, left}, d =>
+            typeof d === 'number' ? Math.round(d) : d
+          ),
+        ]
+      })
     )
+    // console.log(next)
+    if (!utils.equal(next, rects)) {
+      set_rects(next)
+    }
+  }
 
-  return <div id="center" css={css`
-    display: grid;
-    grid-template-areas: ${template.trim()};
-    grid-template-rows: repeat(${grid.length}, 102px);
-    grid-template-columns: 150px 1fr auto 1fr 150px;
-      align-items: center;
-    `}
-      onLoad={React.useCallback(e => update_rects(e.currentTarget), [])}
-      ref={React.useCallback(e => e && update_rects(e), [])}
-     >
-    <Svg id="bodies" css={css`grid-area: bodies; margin: 0 10px 275px; justify-self: center;`} />
-    {left_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k};  z-index: 1; margin-top: 10px; justify-self: start;`}/> )}
-    {right_organs.map(k => <Svg id={k} key={k} css={css`grid-area: ${k}; z-index: 1; margin-top: 10px; justify-self: end;`}/> )}
-    {withTumor && left_tumors.map(t => withTumor(t, 'left'))}
-    {withTumor && right_tumors.map(t => withTumor(t, 'right'))}
-    <svg key="svg" css={css`height: 100%; width: 100%; grid-area: 1 / 1 / -1 / -1`}>
-      {positions.map(({id, bodies, organ, lower}, i) => {
-        if (rects.bodies && rects[id] && rects.center) {
-          const weight: Record<string, number> = {
-            lungs: 1,
-            stomach: 1,
-            kidney: 2,
-            bladder: 3,
-            prostate: 4,
-            breast: 3,
-            pancreas: 1,
-            gut: 2,
-            ovary: 2.5,
-            uterus: 6,
+  React.useEffect(() => {
+    // could be debounced
+    ref && update_rects(ref)
+  })
+
+  const dyn = useDyn()
+
+  return (
+    <div
+      id="center"
+      css={css`
+        margin: 0 auto;
+        display: grid;
+        grid-template-areas: ${template.trim()};
+        grid-template-rows: repeat(${grid.length}, ${dyn('organ sep', 100, 70, 110) + 2}px);
+        grid-template-columns:
+          150px
+          ${dyn('width', 75)}px
+          min-content
+          ${dyn('width', 75)}px
+          150px;
+        align-items: center;
+      `}
+      ref={set_ref}>
+      <Svg
+        id="bodies"
+        css={css`
+          grid-area: bodies;
+          margin: 0 10px ${dyn('bodies offset', 275, 0, 500)}px;
+          justify-self: center;
+        `}
+      />
+      {[...left_organs, ...right_organs].map(organ => (
+        <Svg
+          id={organ}
+          key={organ}
+          css={css`
+            grid-area: ${organ};
+            z-index: 1;
+            margin-top: 10px;
+            justify-self: ${left_organs.includes(organ) ? 'start' : 'end'};
+          `}
+        />
+      ))}
+      {withTumor && left_tumors.map(t => withTumor(t, 'left'))}
+      {withTumor && right_tumors.map(t => withTumor(t, 'right'))}
+      <svg
+        key="svg"
+        css={css`
+          height: 100%;
+          width: 100%;
+          grid-area: 1 / 1 / -1 / -1;
+        `}>
+        {positions.map(({id, bodies, organ, lower}, i) => {
+          if (rects.bodies && rects[id] && rects.center) {
+            const weight: Record<string, number> = {
+              lungs: 1,
+              stomach: 1,
+              kidney: 2,
+              bladder: 3,
+              prostate: 4,
+              breast: 3,
+              pancreas: 1,
+              gut: 2,
+              ovary: 2.5,
+              uterus: 6,
+            }
+            const sx = bodies.x * rects.bodies.width - rects.center.left + rects.bodies.left
+            const sy = bodies.y * rects.bodies.height - rects.center.top + rects.bodies.top
+            const tx = organ.x * rects[id].width - rects.center.left + rects[id].left
+            const ty = organ.y * rects[id].height - rects.center.top + rects[id].top
+            const w = weight[id]
+            const hx = (tx + w * sx) / (w + 1) + (lower ? -dyn('stomach wiggle', 10, 0, 20) : 0)
+            const hy = (ty + sy) / 2
+            let d = `M${sx} ${sy} Q${hx} ${sy} ${hx} ${hy} T${tx} ${ty}`
+            if (id === 'lungs' && Math.abs(sy - ty) < 3) {
+              d = `M${sx} ${ty} L${tx} ${ty}`
+            }
+            if (id === 'skin') {
+              const w = 0.2
+              const hx = (tx + sx) / 2
+              const hy = (ty + w * sy) / (w + 1)
+              d = `M${sx} ${sy} Q${sx} ${hy} ${hx} ${hy} T${tx} ${ty}`
+            }
+            return <path key={i} d={d} stroke="black" fill="transparent" />
           }
-          const sx = bodies.x * rects.bodies.width - rects.center.left + rects.bodies.left
-          const sy = bodies.y * rects.bodies.height- rects.center.top + rects.bodies.top
-          const tx = organ.x * rects[id].width - rects.center.left + rects[id].left
-          const ty = organ.y * rects[id].height - rects.center.top + rects[id].top
-          const w = weight[id]
-          const hx = (tx + w * sx) / (w + 1) + (lower ? -12 : 0)
-          const hy = (ty + sy) / 2
-          let d = `M${sx} ${sy} Q${hx} ${sy} ${hx} ${hy} T${tx} ${ty}`
-          // if (id === 'lungs') {
-          //   d = `M${sx} ${ty} L${tx} ${ty}`
-          // }
-          if (id === 'skin') {
-            const w = 0.2
-            const hx = (tx + sx) / 2
-            const hy = (ty + w * sy) / (w + 1)
-            d = `M${sx} ${sy} Q${sx} ${hy} ${hx} ${hy} T${tx} ${ty}`
-          }
-          return <path key={i} d={d} stroke="black" fill="transparent"/>
-        }
-        })
-      }
-    </svg>
-  </div>
+        })}
+      </svg>
+    </div>
+  )
 }
