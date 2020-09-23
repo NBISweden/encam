@@ -263,7 +263,23 @@ export function Views() {
     {
       label: 'Center With Prop',
       path: '/CenterWithProp',
-      component: <Center withTumor={(t, s) => <div key={t} style={{gridArea: t, justifySelf: s == 'left' ? 'end' : 'start', alignSelf: 'center', borderBottom: '2px steelblue solid', margin: '40px 8px 0'}}>{t}</div>} />,
+      component: (
+        <Center
+          withTumor={(t, s) => (
+            <div
+              key={t}
+              style={{
+                gridArea: t,
+                justifySelf: s == 'left' ? 'end' : 'start',
+                alignSelf: 'center',
+                borderBottom: '2px steelblue solid',
+                margin: '40px 8px 0',
+              }}>
+              {t}
+            </div>
+          )}
+        />
+      ),
     },
     {
       label: 'Bodies',
