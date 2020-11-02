@@ -1,3 +1,5 @@
+import 'core-js/features/array'
+
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 

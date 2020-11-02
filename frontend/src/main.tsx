@@ -1,3 +1,7 @@
+import 'core-js/features/array'
+import 'core-js/features/array/flat-map'
+import 'core-js/features/object'
+import 'core-js/features/set'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {Views} from './Views'
