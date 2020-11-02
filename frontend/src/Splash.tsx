@@ -522,3 +522,16 @@ export const Splash = React.memo(function Splash() {
     </Dyn>
   )
 })
+
+import stories from '@app/ui_utils/stories'
+import * as splash_data from './data/splash'
+import {MockBackend} from './backend'
+
+stories(import.meta, <Splash />, {
+  name: 'Splash/mock',
+  component: (
+    <MockBackend request={splash_data.request}>
+      <Splash />
+    </MockBackend>
+  ),
+})

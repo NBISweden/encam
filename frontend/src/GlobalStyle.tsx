@@ -10,6 +10,9 @@ const styles = css`
     width: fit-content;
     user-select: none;
   }
+  .MuiTab-root {
+    text-transform: unset;
+  }
 `
 
 export const GlobalStyle = () => <Global {...{styles}} />

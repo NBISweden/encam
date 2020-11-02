@@ -338,3 +338,18 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   }
   return <Embed {...{spec, data}} />
 }
+
+import stories from '@app/ui_utils/stories'
+import * as boxplot_data from '../data/boxplot'
+
+stories(
+  import.meta,
+  <Boxplot
+    data={boxplot_data.rows}
+    options={{
+      facet: 'cell',
+      inner: ['tumor', 'group', 'location'],
+      color: ['tumor', 'group'],
+    }}
+  />
+)

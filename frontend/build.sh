@@ -1,7 +1,7 @@
 #!/bin/sh
 rm -rf dist
 esbuild                                          \
-    --bundle src/main.tsx                        \
+    --bundle src/index.tsx                       \
     --outdir=dist                                \
     --loader:.png=file                           \
     --loader:.svg=file                           \
@@ -12,6 +12,6 @@ esbuild                                          \
     "--define:process.platform='linux'"          \
     --pure:console.log
 cd dist
-main_hash="main.$(md5sum main.js | head -c 10).js"
-mv main.js "$main_hash"
-sed 's,.*main.js.*,<script src="'"$main_hash"'"></script>,' < ../public/index.html > index.html
+index_hash="main.$(md5sum index.js | head -c 10).js"
+mv index.js "$index_hash"
+sed 's,.*index.js.*,<script src="'"$index_hash"'"></script>,' < ../public/index.html > index.html

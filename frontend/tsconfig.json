@@ -24,7 +24,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "@app/*": ["./*"]
+      "@app/*": ["src/*"]
     }
   },
   "include": ["src", "test"],

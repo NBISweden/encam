@@ -366,7 +366,7 @@ function wrap3<
 
 import * as backend from './backend'
 
-export function Demo() {
+export function DomplotsDemo() {
   const db = backend.useRequest<DB>('database')
   const CD4s = db && db.filter(row => row.cell == 'CD4')
   const MELs = db && db.filter(row => row.tumor == 'MEL')
@@ -398,3 +398,16 @@ export function Demo() {
         plot(MELs, 'forest', {axis_right: true, orientation: 'portrait'})
       )
 }
+
+import stories from '@app/ui_utils/stories'
+import * as splash_data from './data/splash'
+import {MockBackend} from './backend'
+
+stories(import.meta, <DomplotsDemo />, {
+  name: 'DomplotsDemo/mock',
+  component: (
+    <MockBackend request={splash_data.request}>
+      <DomplotsDemo />
+    </MockBackend>
+  ),
+})

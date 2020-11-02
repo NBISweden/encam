@@ -1,11 +1,10 @@
 FROM node:lts
 
-RUN mkdir -p /app
-COPY ./ /app/
 WORKDIR /app
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
-
 VOLUME /app/node_modules
+COPY . .
 
 ARG VERSION
 RUN echo $VERSION && yarn build

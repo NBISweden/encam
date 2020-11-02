@@ -193,3 +193,18 @@ export function BoxplotWithControls({
     </div>
   )
 }
+
+import {stories} from './ui_utils/stories'
+import {rows} from './data/boxplot'
+
+stories(
+  import.meta,
+  {
+    component: <BoxplotWithControls data={rows} facet="cell" />,
+    tag: 'cell',
+  },
+  {
+    component: <BoxplotWithControls data={rows} facet="tumor" />,
+    tag: 'tumor',
+  }
+)

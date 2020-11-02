@@ -1,7 +1,14 @@
 **/node_modules
+**/.parcel-cache
 **/.cache
 **/dist
+**/build
 **/coverage
 **/htmlcov
 **/__pycache__
-**/build
+**/venv
+**/env
+**/*doctest*
+*.log
+Dockerfile
+.dockerignore
