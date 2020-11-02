@@ -38,11 +38,13 @@ import {ThemeProvider, createMuiTheme} from '@material-ui/core/styles'
 
 import {Bodies} from './Bodies'
 import {Center} from './Center'
+import {Test} from './Test'
 
 const main = `
   # Encyclopedia of Cancer (Immune) Microenvironment
   Web portal of cell-resolution data of the tumor microenvironment in human cancer.
 `
+
 
 const classes = {
   View: css({
@@ -200,7 +202,9 @@ export function Main(props = {version: <span />}) {
                   <li>References</li>
                 </ul>
               </nav>
-              <ReactMarkdown source={main} />
+              {
+              // <ReactMarkdown source={main} />
+              }
             </header>
             <Splash />
           </>
@@ -254,6 +258,21 @@ export function Views() {
           }
         />
       ),
+    },
+    {
+      label: 'MD',
+      path: '/MD',
+      component:
+        <div style={{margin: 10, border: '1px #ccc solid'}}>
+        {
+          // <ProseMirrorMD />
+        }
+        </div>
+    },
+    {
+      label: 'Test',
+      path: '/Test',
+      component: <Test />,
     },
     {
       label: 'Center',
