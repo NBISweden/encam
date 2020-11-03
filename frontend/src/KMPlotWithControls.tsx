@@ -352,31 +352,20 @@ import {MockBackend} from './backend'
 import * as km_data from './data/kmplot'
 import stories from '@app/ui_utils/stories'
 
-stories(
-  import.meta,
-  {
-    name: 'KMPlotWithControls',
-    component: (
-      <MockBackend request={km_data.request}>
-        <KMPlotWithControls filter={km_data.filter} />,
-      </MockBackend>
-    ),
-    snapshot: false,
-  },
-  {
-    component: (
-      <KMPlotWithControlsView
-        plot_data={km_data.make_points(2)}
-        live_rows={km_data.make_points(2).filter((_, i) => i % 7 == 0)}
-        cu_data={cucount(km_data.expression, [26])}
-        statistics={km_data.survival}
-        cutoffs={[26]}
-        set_cutoffs={() => 0}
-        location_node={'location: stroma'}
-        num_groups_node={'groups: 2'}
-        loading={false}
-      />
-    ),
-    snapshot: false,
-  }
-)
+stories(import.meta, add => {
+  add(<KMPlotWithControls filter={km_data.filter} />).wrap(backend.mock(km_data.request))
+
+  add(
+    <KMPlotWithControlsView
+      plot_data={km_data.make_points(2)}
+      live_rows={km_data.make_points(2).filter((_, i) => i % 7 == 0)}
+      cu_data={cucount(km_data.expression, [26])}
+      statistics={km_data.survival}
+      cutoffs={[26]}
+      set_cutoffs={() => 0}
+      location_node={'location: stroma'}
+      num_groups_node={'groups: 2'}
+      loading={false}
+    />
+  )
+})

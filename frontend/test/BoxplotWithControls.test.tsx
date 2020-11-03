@@ -7,6 +7,8 @@ import * as boxplot_data from '../src/data/boxplot'
 import {act, render, fireEvent, screen, waitFor} from '@testing-library/react'
 import * as q from '@testing-library/react'
 
+const q = (undefined as any) as typeof import('@testing-library/react')
+
 const {click, doubleClick} = fireEvent
 const {getByLabelText} = screen
 

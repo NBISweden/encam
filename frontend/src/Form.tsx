@@ -643,9 +643,10 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
 import {stories} from './ui_utils/stories'
 import {form_test_conf} from './data/form'
 
-stories(
-  import.meta,
-  <Form conf={form_test_conf} />,
-  <TwoForms conf={form_test_conf} />,
-  <KMForm conf={form_test_conf} />
-)
+stories(import.meta, add => {
+  add(
+    <Form conf={form_test_conf} />,
+    <TwoForms conf={form_test_conf} />,
+    <KMForm conf={form_test_conf} />
+  ).snap()
+})

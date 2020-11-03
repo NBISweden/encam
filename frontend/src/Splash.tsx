@@ -525,20 +525,10 @@ export const Splash = React.memo(function Splash() {
 
 import stories from '@app/ui_utils/stories'
 import * as splash_data from './data/splash'
-import {MockBackend} from './backend'
 
-stories(
-  import.meta,
-  {
-    component: <Splash />,
-    snapshot: false,
-  },
-  {
-    name: 'Splash/mock',
-    component: (
-      <MockBackend request={splash_data.request}>
-        <Splash />
-      </MockBackend>
-    ),
-  }
-)
+stories(import.meta, add => {
+  add(<Splash />),
+    add({mock: <Splash />})
+      .wrap(backend.mock(splash_data.request))
+      .snap()
+})

@@ -342,14 +342,15 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
 import stories from '@app/ui_utils/stories'
 import * as boxplot_data from '../data/boxplot'
 
-stories(
-  import.meta,
-  <Boxplot
-    data={boxplot_data.rows}
-    options={{
-      facet: 'cell',
-      inner: ['tumor', 'group', 'location'],
-      color: ['tumor', 'group'],
-    }}
-  />
-)
+stories(import.meta, add => {
+  add(
+    <Boxplot
+      data={boxplot_data.rows}
+      options={{
+        facet: 'cell',
+        inner: ['tumor', 'group', 'location'],
+        color: ['tumor', 'group'],
+      }}
+    />
+  ).snap()
+})

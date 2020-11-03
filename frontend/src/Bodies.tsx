@@ -140,7 +140,4 @@ export function Bodies() {
 
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, {
-  snapshot: false,
-  component: <Bodies />,
-})
+stories(import.meta, add => add(<Bodies />))

@@ -210,7 +210,4 @@ export function Main({version = <span />}) {
 }
 
 import stories from '@app/ui_utils/stories'
-stories(import.meta, {
-  component: <Main />,
-  tag: 'as-story',
-})
+stories(import.meta, add => add({as_story: <Main />}))

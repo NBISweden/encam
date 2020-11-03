@@ -226,23 +226,25 @@ export function Center({withTumor}: CenterProps) {
 
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, <Center />, {
-  component: (
-    <Center
-      withTumor={(t, s) => (
-        <div
-          key={t}
-          style={{
-            gridArea: t,
-            justifySelf: s == 'left' ? 'end' : 'start',
-            alignSelf: 'center',
-            borderBottom: '2px steelblue solid',
-            margin: '40px 8px 0',
-          }}>
-          {t}
-        </div>
-      )}
-    />
-  ),
-  tag: 'withTumor',
+stories(import.meta, add => {
+  add(<Center />).snap()
+  add({
+    withTumor: (
+      <Center
+        withTumor={(t, s) => (
+          <div
+            key={t}
+            style={{
+              gridArea: t,
+              justifySelf: s == 'left' ? 'end' : 'start',
+              alignSelf: 'center',
+              borderBottom: '2px steelblue solid',
+              margin: '40px 8px 0',
+            }}>
+            {t}
+          </div>
+        )}
+      />
+    ),
+  }).snap()
 })

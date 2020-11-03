@@ -40,7 +40,7 @@ import renderer from 'react-test-renderer'
 import {act, render, fireEvent} from '@testing-library/react'
 
 getStories().stories.map(story => {
-  story.snapshot === false ||
+  story.snap === false ||
     describe(story.name || '', () => {
       test(story.name + ' renderer', async () => {
         const node = (

@@ -3,56 +3,80 @@ import React from 'react'
 export interface Story {
   component: React.ReactElement
   // controls?: Record<string, Control>
-  wrap?: (component: React.ReactElement) => React.ReactElement
-  tag?: string
-  name?: string
-  key?: string
-  module_id?: string
-  component_name?: string
-  snapshot?: boolean
+  name: string
+  module_id: string
+  snap: boolean
+  skip: boolean
+  only: boolean
+  seq_num: number
+  key: string
 }
 
-function add_metadata(story: Story | React.ReactElement, module_id: string, seq_id: number): Story {
-  if (!('component' in story)) {
-    story = {component: story}
+export type TestApi = typeof import('@testing-library/react')
+
+export interface AddFunction {
+  (
+    tagged_components: Record<string, React.ReactElement> | React.ReactElement,
+    ...components: React.ReactElement[]
+  ): AddedStories
+}
+
+export interface AddedStories {
+  wrap(wrap_fun: (elem: React.ReactElement) => React.ReactElement): AddedStories
+
+  name(component_name: string): AddedStories
+  tag(tag_name: string): AddedStories
+
+  test(test_name: string, script: (q: TestApi) => Promise<void>): AddedStories
+  snap(): AddedStories
+  only(): AddedStories
+  skip(): AddedStories
+
+  add: AddFunction
+}
+
+interface Counter {
+  next(): number
+}
+
+const Counter = (): Counter => {
+  let c = 0
+  return {
+    next: () => c++,
   }
-  const {tag, component} = story
+}
+
+function name_from_component(component: React.ReactElement): string | undefined {
   const {type} = component
-  let component_name: string | undefined
   if (type instanceof Function) {
-    component_name = type.name
+    return type.name
   } else if ((type as any)?.type instanceof Function) {
-    component_name = (type as any).type.name
+    return (type as any).type.name
   } else if (typeof type === 'string') {
-    component_name = type
+    return type
   } else {
     console.warn('Exotic component type:', type)
-  }
-  let path = []
-  if (component_name) {
-    path.push(component_name)
-  }
-  if (tag) {
-    path.push(tag)
-  }
-  if (!path.length) {
-    path.push(module_id + '[' + seq_id + ']')
-  }
-  const name = story.name ?? path.join('/')
-  return {
-    ...story,
-    component: story.wrap ? story.wrap(component) : component,
-    key: module_id + '[' + seq_id + ']',
-    module_id,
-    component_name,
-    tag: tag ?? seq_id + '',
-    name,
+    return undefined
   }
 }
 
-let i = 0
+function makeStory(component: React.ReactElement, module_id: string, seq_num: number): Story {
+  const key = module_id + '[' + seq_num + ']'
+  return {
+    component,
+    seq_num,
+    module_id,
+    name: name_from_component(component) || key,
+    snap: false,
+    skip: false,
+    only: false,
+    key,
+  }
+}
 
-function module_id_from_import_meta(import_meta: any) {
+const unknowns = Counter()
+
+function module_id_from_import_meta(import_meta: any): string {
   const id = import_meta?.hot?.id
   if (typeof id === 'string') {
     const path = id.split('/').filter(s => s.length && s[0] != '_')
@@ -64,16 +88,59 @@ function module_id_from_import_meta(import_meta: any) {
     if (process.env.NODE_ENV === 'development') {
       console.error('Not hot import.meta', import_meta)
     }
-    return i++ + '?'
+    return `unknown_module_${unknowns.next()}`
   }
 }
 
 export type Modules = Record<string, Story[]>
 
-export type NestedArrays<A> = (A | NestedArrays<A>)[]
+function AddFunction(module_id: string, counter: Counter, stories: Story[]): AddedStories {
+  function go(f: (st: Story) => void) {
+    stories.forEach(f)
+    return self
+  }
+  const self: AddedStories = {
+    wrap: wrap => go(st => (st.component = wrap(st.component))),
+    name: name => go(st => (st.name = name)),
+    tag: tag => go(st => (st.name += '/' + tag)),
+    test() {
+      throw new Error('test not implemented')
+    },
+    snap: () => go(st => (st.snap = true)),
+    only: () => go(st => (st.only = true)),
+    skip: () => go(st => (st.skip = true)),
+    add: (c, ...components) => {
+      if (!React.isValidElement(c)) {
+        Object.entries(c).forEach(([tag, component]) => {
+          const tagged_stories: Story[] = []
+          AddFunction(module_id, counter, tagged_stories).add(component).tag(tag)
+          stories.push(...tagged_stories)
+        })
+        if (components.length >= 1) {
+          const [hd, ...tl] = components
+          self.add(hd, ...tl)
+        }
+      } else {
+        ;[c, ...components].forEach(component => {
+          const story = makeStory(component, module_id, counter.next())
+          stories.push(story)
+        })
+      }
+      return self
+    },
+  }
+  return self
+}
 
-function flatten<A>(xss: NestedArrays<A>): A[] {
-  return xss.flatMap(xs => (Array.isArray(xs) ? flatten(xs) : [xs]))
+function AddFactory(module_id: string): [AddFunction, () => Story[]] {
+  const all_stories: Story[][] = []
+  const counter = Counter()
+  const add: AddFunction = (c, ...cs) => {
+    const stories: Story[] = []
+    all_stories.push(stories)
+    return AddFunction(module_id, counter, stories).add(c, ...cs)
+  }
+  return [add, () => all_stories.flat()]
 }
 
 export function StoryFactory(init_modules = {} as Modules) {
@@ -81,14 +148,12 @@ export function StoryFactory(init_modules = {} as Modules) {
 
   const nudges = new Map<any, () => void>()
 
-  function stories(import_meta: any, ...stories: NestedArrays<Story | React.ReactElement>) {
+  function stories(import_meta: any, add_cb: (add: AddFunction) => void) {
     const module_id = module_id_from_import_meta(import_meta)
-    modules[module_id] = flatten(stories).map((story, i) => add_metadata(story, module_id, i))
+    const [add, get_stories] = AddFactory(module_id)
+    add_cb(add)
+    modules[module_id] = get_stories()
     nudges.forEach(k => k())
-  }
-
-  stories.scoped = (mod: Partial<Story>, ...stories: NestedArrays<Partial<Story>>): Story[] => {
-    return flatten(stories).map(st => ({component: <span>Component missing</span>, ...mod, ...st}))
   }
 
   function getStories() {

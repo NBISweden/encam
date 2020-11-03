@@ -71,15 +71,8 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
 
 import stories from '@app/ui_utils/stories'
 
-stories(
-  import.meta,
-  stories.scoped(
-    {snapshot: false},
-    {component: <FormAndBoxPlot />},
-    {
-      component: <FormAndBoxPlot form={form.TwoForms} />,
-      tag: 'Grouped',
-    },
-    {component: <FormAndKMPlot />}
-  )
-)
+stories(import.meta, add => {
+  add(<FormAndBoxPlot />)
+  add({Grouped: <FormAndBoxPlot form={form.TwoForms} />})
+  add(<FormAndKMPlot />)
+})

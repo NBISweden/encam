@@ -402,14 +402,10 @@ export function DomplotsDemo() {
 import stories from '@app/ui_utils/stories'
 import * as splash_data from './data/splash'
 
-stories(
-  import.meta,
-  stories.scoped(
-    {component: <DomplotsDemo />},
-    {snapshot: false},
-    {
-      tag: 'mock',
-      wrap: backend.mock(splash_data.request),
-    }
-  )
-)
+stories(import.meta, add => {
+  add(<DomplotsDemo />)
+  add(<DomplotsDemo />)
+    .wrap(backend.mock(splash_data.request))
+    .tag('mock')
+    .snap()
+})

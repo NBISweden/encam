@@ -63,9 +63,8 @@ export function FormAndPlotView({
 
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, {
-  name: 'FormAndPlotView',
-  component: (
+stories(import.meta, add => {
+  add(
     <div>
       <FormAndPlotView />
       <FormAndPlotView form={<h2>Form</h2>} />
@@ -79,5 +78,7 @@ stories(import.meta, {
         plot={<LoadingPlot plot={<h2>Example plot view</h2>} loading={true} />}
       />
     </div>
-  ),
+  )
+    .name('FormAndPlotView')
+    .snap()
 })
