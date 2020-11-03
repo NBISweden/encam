@@ -401,13 +401,15 @@ export function DomplotsDemo() {
 
 import stories from '@app/ui_utils/stories'
 import * as splash_data from './data/splash'
-import {MockBackend} from './backend'
 
-stories(import.meta, <DomplotsDemo />, {
-  name: 'DomplotsDemo/mock',
-  component: (
-    <MockBackend request={splash_data.request}>
-      <DomplotsDemo />
-    </MockBackend>
-  ),
-})
+stories(
+  import.meta,
+  stories.scoped(
+    {component: <DomplotsDemo />},
+    {snapshot: false},
+    {
+      tag: 'mock',
+      wrap: backend.mock(splash_data.request),
+    }
+  )
+)

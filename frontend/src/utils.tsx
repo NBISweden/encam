@@ -122,14 +122,53 @@ export function roundDown(x: number, p = 1): number {
       // => {x:[{y:[4,3]},2,1]}
 
 */
-export function traverse(d: any, f: (x: any) => any): any {
+export function traverse(
+  d: any,
+  f: (x: any, k?: number | string) => any,
+  k?: number | string
+): any {
   if (Array.isArray(d)) {
-    return f(d.map(x => traverse(x, f)))
+    return f(
+      d.map((x, i) => traverse(x, f, i)),
+      k
+    )
   } else if (d && typeof d === 'object') {
-    return f(mapObject(d, x => traverse(x, f)))
+    return f(
+      mapObject(d, (x, k) => traverse(x, f, (k as any) as string)),
+      k
+    )
   } else {
-    return f(d)
+    return f(d, k)
   }
+}
+
+/** Mutate objects in a structure */
+export function mutate(d: any, f: (x: any, k: string) => any): any {
+  const visited = new WeakSet()
+  function go(d: any) {
+    if (visited.has(d)) {
+      return
+    }
+    if (Array.isArray(d)) {
+      visited.add(d)
+      for (let e of d) {
+        go(e)
+      }
+    } else if (d && typeof d === 'object') {
+      visited.add(d)
+      for (let k of Object.keys(d)) {
+        go(d[k])
+        try {
+          d[k] = f(d[k], k)
+        } catch (e) {
+          console.log(d, k)
+          throw e
+        }
+      }
+    }
+  }
+  go(d)
+  return d
 }
 
 /**

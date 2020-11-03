@@ -24,25 +24,25 @@ export function Dyn({children}: {children: React.ReactNode}) {
     <div
       style={{
         position: 'fixed',
-        right: 0,
+        left: 0,
         bottom: 0,
         width: 280,
         background: '#fff8',
-        padding: '0 15px',
+        padding: '20px 40px',
         border: '1px #333a solid',
         borderRadius: 5,
         backdropFilter: 'blur(2px)',
         boxShadow: '2px 4px 4px -4px #333',
         margin: 5,
         zIndex: 998,
-        transform: `translate(${visible ? 0 : 'calc(100% - 10px)'}, 0)`,
+        transform: `translate(${visible ? 0 : 'calc(30px - 100%)'}, 0)`,
         transition: 'transform 300ms ease',
       }}
       onDoubleClick={() => set_visible(b => !b)}>
       {Object.entries(dyn_vals)
         .sort(utils.by(([k]) => k))
         .map(([k, {val, lo, hi}]) => (
-          <div style={{height: 58}}>
+          <div key={k} style={{height: 58}}>
             <label style={{position: 'relative', top: 12, zIndex: 1000, color: '#444'}}>
               {k + ':'}
             </label>

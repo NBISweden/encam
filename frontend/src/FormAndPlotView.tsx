@@ -22,7 +22,7 @@ const classes = {
       position: 'absolute',
       right: 0,
       top: 0,
-      background: '#fffe',
+      background: '#fffd',
       boxShadow: '0 0 8px 8px #fffe',
     },
   }),

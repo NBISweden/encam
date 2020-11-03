@@ -73,10 +73,13 @@ import stories from '@app/ui_utils/stories'
 
 stories(
   import.meta,
-  <FormAndBoxPlot />,
-  {
-    component: <FormAndBoxPlot form={form.TwoForms} />,
-    tag: 'Grouped',
-  },
-  <FormAndKMPlot />
+  stories.scoped(
+    {snapshot: false},
+    {component: <FormAndBoxPlot />},
+    {
+      component: <FormAndBoxPlot form={form.TwoForms} />,
+      tag: 'Grouped',
+    },
+    {component: <FormAndKMPlot />}
+  )
 )

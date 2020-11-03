@@ -6,4 +6,7 @@ module.exports = {
   forceCoverageMatch: ['**/*doctest*'],
   testEnvironment: 'jest-environment-jsdom',
   snapshotSerializers: ['jest-emotion'],
+  moduleNameMapper: {
+    '@app/(.*)': ['<rootDir>/src/$1'],
+  },
 }

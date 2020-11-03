@@ -18,6 +18,7 @@ async function request_by_fetch(endpoint: string, body?: any) {
         },
       }
     : undefined
+  console.log(endpoint, body)
   const resp = await fetch(window.location.origin + '/api/' + endpoint, init)
   const res = await resp.json()
   if (mem[endpoint] === null) {
@@ -36,11 +37,17 @@ export function useRequest<A = any>(endpoint: string, argument?: any) {
   const [resp, set_resp] = React.useState(undefined as undefined | A)
   const request = useRequestFn()
   React.useLayoutEffect(() => {
-    request(endpoint, argument).then(set_resp)
+    request(endpoint, argument)
+      .then(set_resp)
+      .catch(e => console.error(e))
   }, [])
   return resp
 }
 
 export function MockBackend(props: {request: typeof request_by_fetch; children: React.ReactNode}) {
   return <Backend.Provider value={props.request}>{props.children}</Backend.Provider>
+}
+
+export function mock(request: typeof request_by_fetch) {
+  return (children: React.ReactNode) => <MockBackend request={request}>{children}</MockBackend>
 }

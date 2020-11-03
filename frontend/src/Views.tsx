@@ -7,6 +7,7 @@ import {Switch} from 'react-router-dom'
 import {GlobalStyle} from './GlobalStyle'
 import {version} from './version'
 
+// $ rg -l stories | sed "s,src/\(.*\).tsx,import './\1'," | sort
 import './Bodies'
 import './BoxplotWithControls'
 import './Center'
@@ -18,6 +19,7 @@ import './KMPlotWithControls'
 import './Splash'
 import './Vega/Boxplot'
 import './Vega/KMPlot'
+
 import {Main, WithMainTheme} from './Main'
 
 import {StoryBrowser, useStories} from './ui_utils/stories'

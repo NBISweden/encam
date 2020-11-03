@@ -3,12 +3,13 @@ import React from 'react'
 export interface Story {
   component: React.ReactElement
   // controls?: Record<string, Control>
-  wrap?: (component: React.ReactElement) => React.ReactNode
+  wrap?: (component: React.ReactElement) => React.ReactElement
   tag?: string
   name?: string
   key?: string
   module_id?: string
   component_name?: string
+  snapshot?: boolean
 }
 
 function add_metadata(story: Story | React.ReactElement, module_id: string, seq_id: number): Story {
@@ -22,6 +23,8 @@ function add_metadata(story: Story | React.ReactElement, module_id: string, seq_
     component_name = type.name
   } else if ((type as any)?.type instanceof Function) {
     component_name = (type as any).type.name
+  } else if (typeof type === 'string') {
+    component_name = type
   } else {
     console.warn('Exotic component type:', type)
   }
@@ -38,6 +41,7 @@ function add_metadata(story: Story | React.ReactElement, module_id: string, seq_
   const name = story.name ?? path.join('/')
   return {
     ...story,
+    component: story.wrap ? story.wrap(component) : component,
     key: module_id + '[' + seq_id + ']',
     module_id,
     component_name,
@@ -57,22 +61,39 @@ function module_id_from_import_meta(import_meta: any) {
   } else if (typeof import_meta === 'string') {
     return import_meta
   } else {
-    console.error('Not hot import.meta', import_meta)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Not hot import.meta', import_meta)
+    }
     return i++ + '?'
   }
 }
 
 export type Modules = Record<string, Story[]>
 
+export type NestedArrays<A> = (A | NestedArrays<A>)[]
+
+function flatten<A>(xss: NestedArrays<A>): A[] {
+  return xss.flatMap(xs => (Array.isArray(xs) ? flatten(xs) : [xs]))
+}
+
 export function StoryFactory(init_modules = {} as Modules) {
   const modules = init_modules
 
   const nudges = new Map<any, () => void>()
 
-  function stories(import_meta: any, ...stories: Story[]) {
+  function stories(import_meta: any, ...stories: NestedArrays<Story | React.ReactElement>) {
     const module_id = module_id_from_import_meta(import_meta)
-    modules[module_id] = stories.map((story, i) => add_metadata(story, module_id, i))
+    modules[module_id] = flatten(stories).map((story, i) => add_metadata(story, module_id, i))
     nudges.forEach(k => k())
+  }
+
+  stories.scoped = (mod: Partial<Story>, ...stories: NestedArrays<Partial<Story>>): Story[] => {
+    return flatten(stories).map(st => ({component: <span>Component missing</span>, ...mod, ...st}))
+  }
+
+  function getStories() {
+    const stories = Object.values(modules).flat()
+    return {stories, modules}
   }
 
   function useStories() {
@@ -82,8 +103,7 @@ export function StoryFactory(init_modules = {} as Modules) {
       nudges.set(ref, () => set_nudge(i => ++i))
       return () => void nudges.delete(ref)
     }, [])
-    const stories = Object.values(modules).flat()
-    return {stories, modules}
+    return getStories()
   }
 
   function StoryBrowser() {
@@ -112,7 +132,7 @@ export function StoryFactory(init_modules = {} as Modules) {
     )
   }
 
-  return {stories, useStories, StoryBrowser}
+  return {stories, useStories, StoryBrowser, getStories}
 }
 
 function __stories__() {
@@ -127,10 +147,11 @@ const Stories = StoryFactory(__stories__())
 export const stories = Stories.stories
 export default stories
 
+export const getStories = Stories.getStories
 export const useStories = Stories.useStories
 export const StoryBrowser = () => Stories.StoryBrowser()
 
-console.log('module reload: stories')
+// console.log('module reload: stories')
 
 /** Graveyard
 

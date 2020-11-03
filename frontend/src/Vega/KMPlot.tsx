@@ -202,4 +202,5 @@ import * as km_data from './../data/kmplot'
 
 stories(import.meta, {
   component: <KMPlot data={km_data.make_points(4)} live_rows={km_data.survival.live_points} />,
+  snapshot: false,
 })
