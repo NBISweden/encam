@@ -71,7 +71,7 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
 
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, add => {
+stories(add => {
   add(<FormAndBoxPlot />)
   add({Grouped: <FormAndBoxPlot form={form.TwoForms} />})
   add(<FormAndKMPlot />)

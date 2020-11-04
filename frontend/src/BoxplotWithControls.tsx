@@ -197,7 +197,7 @@ export function BoxplotWithControls({
 import {stories} from './ui_utils/stories'
 import {rows} from './data/boxplot'
 
-stories(import.meta, add => {
+stories(add => {
   add({
     cell: <BoxplotWithControls data={rows} facet="cell" />,
     tumor: <BoxplotWithControls data={rows} facet="tumor" />,

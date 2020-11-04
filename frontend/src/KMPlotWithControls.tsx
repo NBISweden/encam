@@ -352,7 +352,7 @@ import {MockBackend} from './backend'
 import * as km_data from './data/kmplot'
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, add => {
+stories(add => {
   add(<KMPlotWithControls filter={km_data.filter} />).wrap(backend.mock(km_data.request))
 
   add(

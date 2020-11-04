@@ -526,7 +526,7 @@ export const Splash = React.memo(function Splash() {
 import stories from '@app/ui_utils/stories'
 import * as splash_data from './data/splash'
 
-stories(import.meta, add => {
+stories(add => {
   add(<Splash />),
     add({mock: <Splash />})
       .wrap(backend.mock(splash_data.request))

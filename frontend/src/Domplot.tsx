@@ -402,7 +402,7 @@ export function DomplotsDemo() {
 import stories from '@app/ui_utils/stories'
 import * as splash_data from './data/splash'
 
-stories(import.meta, add => {
+stories(add => {
   add(<DomplotsDemo />)
   add(<DomplotsDemo />)
     .wrap(backend.mock(splash_data.request))

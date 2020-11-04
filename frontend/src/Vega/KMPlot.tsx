@@ -200,6 +200,6 @@ function kmplot(
 import {stories} from '../ui_utils/stories'
 import * as km_data from './../data/kmplot'
 
-stories(import.meta, add => {
+stories(add => {
   add(<KMPlot data={km_data.make_points(4)} live_rows={km_data.survival.live_points} />)
 })

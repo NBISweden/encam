@@ -63,7 +63,7 @@ export function FormAndPlotView({
 
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, add => {
+stories(add => {
   add(
     <div>
       <FormAndPlotView />

@@ -226,7 +226,7 @@ export function Center({withTumor}: CenterProps) {
 
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, add => {
+stories(add => {
   add(<Center />).snap()
   add({
     withTumor: (

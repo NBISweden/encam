@@ -140,4 +140,4 @@ export function Bodies() {
 
 import stories from '@app/ui_utils/stories'
 
-stories(import.meta, add => add(<Bodies />))
+stories(add => add(<Bodies />))
