@@ -17,9 +17,18 @@ export interface Story extends BabelSource {
   only: boolean
   seq_num: number
   key: string
+  tests: Test[]
 }
 
 export type TestApi = typeof import('@testing-library/react')
+
+export interface Test {
+  test_name: string
+  script(expect: jest.Expect, q: TestApi): Promise<void>
+}
+
+// export type Expect = jest.Expect
+// jest.Expect
 
 export interface AddFunction {
   (
@@ -34,7 +43,7 @@ export interface AddedStories {
   name(component_name: string): AddedStories
   tag(tag_name: string): AddedStories
 
-  test(test_name: string, script: (q: TestApi) => Promise<void>): AddedStories
+  test(test_name: string, script: (expect: jest.Expect, q: TestApi) => Promise<void>): AddedStories
   snap(): AddedStories
   only(): AddedStories
   skip(): AddedStories
@@ -86,6 +95,7 @@ function makeStory(component: React.ReactElement, seq_num: number): Story {
     skip: false,
     only: false,
     key,
+    tests: [],
     ...source,
   }
 }
@@ -101,9 +111,7 @@ function AddFunction(counter: Counter, stories: Story[]): AddedStories {
     wrap: wrap => go(st => (st.component = wrap(st.component))),
     name: name => go(st => (st.name = name)),
     tag: tag => go(st => (st.name += '/' + tag)),
-    test() {
-      throw new Error('test not implemented')
-    },
+    test: (test_name, script) => go(st => st.tests.push({test_name, script})),
     snap: () => go(st => (st.snap = true)),
     only: () => go(st => (st.only = true)),
     skip: () => go(st => (st.skip = true)),

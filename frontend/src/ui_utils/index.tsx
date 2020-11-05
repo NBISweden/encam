@@ -312,3 +312,58 @@ export function useAsync(p: () => Promise<any>, deps?: React.DependencyList) {
 }
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
+
+export interface Channel<M> {
+  send(m: M): void
+  on(k: (m: M) => void, deps?: React.DependencyList): void
+}
+
+export function useChannel<M>(): Channel<M> {
+  const listeners = React.useRef([] as ((m: M) => void)[])
+  return {
+    send(m) {
+      listeners.current.forEach(k => k(m))
+    },
+    on(k, deps = []) {
+      const k_cb = React.useCallback(k, deps)
+      React.useEffect(() => {
+        listeners.current.push(k_cb)
+        return () => {
+          listeners.current = listeners.current.filter(h => h != k_cb)
+        }
+      }, [k])
+    },
+  }
+}
+
+export function createGlobalState<S = any>(initialState: S) {
+  // Public domain code from
+  // https://github.com/streamich/react-use/blob/master/src/createGlobalState.ts
+  const store: {state: S; setState: (state: S) => void; setters: any[]} = {
+    state: initialState,
+    setState(state: S) {
+      store.state = state
+      store.setters.forEach(setter => setter(store.state))
+    },
+    setters: [],
+  }
+
+  return (): [S, (state: S) => void] => {
+    const [globalState, stateSetter] = React.useState<S>(store.state)
+
+    React.useEffect(
+      () => () => {
+        store.setters = store.setters.filter(setter => setter !== stateSetter)
+      },
+      []
+    )
+
+    React.useLayoutEffect(() => {
+      if (!store.setters.includes(stateSetter)) {
+        store.setters.push(stateSetter)
+      }
+    })
+
+    return [globalState, store.setState]
+  }
+}

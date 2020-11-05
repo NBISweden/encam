@@ -38,6 +38,8 @@ import * as c from './Center'
 
 import {Dyn, useDyn} from './ui_utils/Dyn'
 
+import {Info} from './Info'
+
 const cell_pngs: Record<string, string> = {
   B_cells,
   CD4,
@@ -440,6 +442,12 @@ function Left({state, dispatch, range}: SplashProps) {
               <div className="has-img">{img}</div>
               <div className="has-span">
                 <span>{utils.pretty(cell)}</span>
+                <div style={{marginRight: 0, marginLeft: 0}}>
+                  <Info>
+                    <h3>{utils.pretty(cell)} cells</h3>
+                    <p>Very interesting cell! Important for the body's normal function.</p>
+                  </Info>
+                </div>
               </div>
             </label>
           )
@@ -495,7 +503,7 @@ function Right({state, db}: SplashProps) {
   return <div className={classes.Right}>{ui.dummy_keys(out)}</div>
 }
 
-export const Splash = React.memo(function Splash() {
+function useSplashProps(): SplashProps {
   const db0 = backend.useRequest('database') as undefined | DB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
 
@@ -509,8 +517,11 @@ export const Splash = React.memo(function Splash() {
 
   const [state, dispatch] = React.useReducer(reduce, state0)
 
-  const splash_props: SplashProps = {state, dispatch, range, codes, db}
+  return {state, dispatch, range, codes, db}
+}
 
+export const Splash = React.memo(function Splash() {
+  const splash_props = useSplashProps()
   return (
     <Dyn>
       <div className={classes.Splash}>
@@ -526,9 +537,16 @@ export const Splash = React.memo(function Splash() {
 import stories from '@app/ui_utils/stories'
 import * as splash_data from './data/splash'
 
+function LeftOnly() {
+  return <Left {...useSplashProps()} />
+}
+
 stories(add => {
-  add(<Splash />),
-    add({mock: <Splash />})
-      .wrap(backend.mock(splash_data.request))
-      .snap()
+  add(<Splash />)
+  add({mock: <Splash />})
+    .wrap(backend.mock(splash_data.request))
+    .snap()
+  add(<LeftOnly />)
+    .wrap(backend.mock(splash_data.request))
+    .snap()
 })

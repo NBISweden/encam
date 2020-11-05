@@ -24,6 +24,11 @@ export function FormAndKMPlot() {
   )
 }
 
+import {render, fireEvent, screen, within, waitFor} from '@testing-library/react'
+
+const {click} = fireEvent
+const {getByLabelText} = screen
+
 export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   const Form = props.form || form.Form
   const conf = backend.useRequest('configuration')
@@ -61,11 +66,24 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   }, [])
   const loading = loading_outer || (filter && plot_data && loading_inner)
   ui.useWhyChanged(FormAndBoxPlot, {conf, filter, plot_data, loading, plot})
+  const ref = React.useRef(null)
   return (
-    <FormAndPlotView
-      form={conf && <Form key="form" conf={conf} onSubmit={onSubmit} />}
-      plot={<LoadingPlot plot={plot} loading={loading} />}
-    />
+    <>
+      {false && (
+        <button
+          onClick={() => {
+            click(within(ref.current as any).getByText(/plot/i))
+          }}>
+          boo
+        </button>
+      )}
+      <div ref={ref}>
+        <FormAndPlotView
+          form={conf && <Form key="form" conf={conf} onSubmit={onSubmit} />}
+          plot={<LoadingPlot plot={plot} loading={loading} />}
+        />
+      </div>
+    </>
   )
 }
 
@@ -73,6 +91,43 @@ import stories from '@app/ui_utils/stories'
 
 stories(add => {
   add(<FormAndBoxPlot />)
+
+  let calls = 0
+
+  add(<FormAndBoxPlot />)
+    .wrap(
+      backend.mock(async (endpoint: string, body: any) => {
+        console.log('calling woop woop', endpoint, body)
+        calls++
+        const {form_test_conf} = await import('../src/data/form')
+        const {grouped_rows} = await import('../src/data/boxplot')
+        if (endpoint == 'configuration') {
+          expect(body).toBeUndefined()
+          return form_test_conf
+        } else if (endpoint == 'tukey') {
+          expect(body).toBeDefined()
+          return grouped_rows
+        }
+        throw new Error(`Unsupported endpoint ${endpoint}`)
+      })
+    )
+    .test('pressing plot calls backend and makes a plot', async (expect, q) => {
+      const {fireEvent, screen, waitFor} = q
+      const {click} = fireEvent
+      const {getByLabelText} = screen
+
+      await waitFor(() => screen.getByText(/plot/i))
+
+      const init_calls = calls
+
+      click(screen.getByText(/plot/i))
+
+      await waitFor(() => getByLabelText('Vega visualization'))
+
+      expect(calls).toBe(init_calls + 1)
+    })
+
   add({Grouped: <FormAndBoxPlot form={form.TwoForms} />})
+
   add(<FormAndKMPlot />)
 })

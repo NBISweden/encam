@@ -133,70 +133,86 @@ export function WithMainTheme(props: {children: React.ReactNode}) {
   return <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
 }
 
-export function Main({version = <span />}) {
-  const Modules = [
-    {
-      name: 'Box plots',
-      component: <FormAndBoxPlot key="Form" />,
-    },
-    {
-      name: 'Grouped box plots',
-      component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms} />,
-    },
-    {
-      name: 'Kaplan-Meier plots',
-      component: <FormAndKMPlot />,
-    },
-    {
-      name: 'Clustering',
-      component: <h3 style={{margin: '20 20'}}>Module still under construction!</h3>,
-    },
-  ]
-  // const mini = true
-  const mini = false
-  const [Module, set_Module] = React.useState(
-    mini ? Modules[0] : (undefined as undefined | typeof Modules[0])
+const modules = [
+  {
+    name: 'Box plots',
+    component: <FormAndBoxPlot key="Form" />,
+  },
+  {
+    name: 'Grouped box plots',
+    component: <FormAndBoxPlot key="TwoForms" form={form.TwoForms} />,
+  },
+  {
+    name: 'Kaplan-Meier plots',
+    component: <FormAndKMPlot />,
+  },
+  {
+    name: 'Clustering',
+    component: <h3 style={{margin: '20 20'}}>Module still under construction!</h3>,
+  },
+]
+
+type Module = typeof modules[0]
+
+type Action<A> = (next_value: A) => void
+
+export function Modules(props: {resetChan?: ui.Channel<void>}) {
+  const [Module, set_Module] = React.useState(undefined as undefined | Module)
+  props.resetChan?.on(() => set_Module(undefined))
+  return (
+    <>
+      <div className={classes.Modules}>
+        {modules.map(M => (
+          <div
+            onClick={() => {
+              set_Module(M)
+              window.setTimeout(() => document.querySelector('#Module')?.scrollIntoView(), 100)
+            }}
+            key={M.name}
+            className={Module && M.name == Module.name ? 'selected' : undefined}>
+            <div>
+              <h3>{M.name}</h3>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div
+        style={{overflowX: 'auto', ...ui.flex_row, marginLeft: 0, width: '100%', minHeight: 20}}
+        id="Module">
+        {Module && Module.component}
+      </div>
+    </>
   )
+}
+
+export function Header(props: {onClick?: Action<any>}) {
+  return (
+    <header>
+      <nav>
+        <ul>
+          <li>About</li>
+          <li>Links</li>
+          <li>References</li>
+        </ul>
+      </nav>
+      <div {...props} style={{cursor: 'pointer'}}>
+        <ReactMarkdown source={main} />
+      </div>
+    </header>
+  )
+}
+
+export function Main({version = <span />}) {
+  const resetChan = ui.useChannel<void>()
+
   return (
     <WithMainTheme>
       <CssBaseline />
       <MainGlobalStyle />
       <div className={classes.Main}>
-        {mini || (
-          <>
-            <header onClick={() => set_Module(undefined)}>
-              <nav>
-                <ul>
-                  <li>About</li>
-                  <li>Links</li>
-                  <li>References</li>
-                </ul>
-              </nav>
-              <ReactMarkdown source={main} />
-            </header>
-            <Splash />
-          </>
-        )}
-        <div className={classes.Modules}>
-          {Modules.map(M => (
-            <div
-              onClick={() => {
-                set_Module(M)
-                window.setTimeout(() => document.querySelector('#Module')?.scrollIntoView(), 100)
-              }}
-              key={M.name}
-              className={Module && M.name == Module.name ? 'selected' : undefined}>
-              <div>
-                <h3>{M.name}</h3>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div
-          style={{overflowX: 'auto', ...ui.flex_row, marginLeft: 0, width: '100%', minHeight: 20}}
-          id="Module">
-          {Module && Module.component}
-        </div>
+        <Header onClick={() => resetChan.send()} />
+        <Splash />
+        <Modules resetChan={resetChan} />
         <div style={{flexGrow: 1}} />
         <footer>
           Contact details:{' '}
@@ -210,4 +226,8 @@ export function Main({version = <span />}) {
 }
 
 import stories from '@app/ui_utils/stories'
-stories(add => add({as_story: <Main />}))
+stories(add => {
+  add({as_story: <Main />})
+  add(<Header />).wrap(c => <div className={classes.Main}>{c}</div>)
+  add(<Modules />).wrap(c => <div className={classes.Main}>{c}</div>)
+})

@@ -89,17 +89,18 @@ export function useRoutedTabs(
   }
 }
 
+function Inner(props: {children: (params: Record<string, string>) => React.ReactNode}) {
+  const params = Router.useParams()
+  return <>{props.children(params)}</>
+}
+
 export function Routed(props: {
   path: string
   children: (params: Record<string, string>) => React.ReactNode
 }) {
-  function Inner() {
-    const params = Router.useParams()
-    return <>{props.children(params)}</>
-  }
   return (
     <Route path={props.path}>
-      <Inner />
+      <Inner>{props.children}</Inner>
     </Route>
   )
 }

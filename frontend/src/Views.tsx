@@ -40,7 +40,7 @@ const classes = {
 
 export function Views() {
   const {stories} = useStories()
-  const {Tabs, TabbedRoutes, set_tab, tab} = ui.useRoutedTabs([
+  const res = ui.useRoutedTabs([
     {
       label: 'Main',
       path: '/',
@@ -68,6 +68,9 @@ export function Views() {
       path: '/Stories',
       component: <StoryBrowser />,
     },
+  ])
+  const {Tabs, TabbedRoutes, set_tab, tab} = React.useMemo(() => res, [
+    stories.map(st => st.key).join('_'),
   ])
   ui.useKeydown(
     e => {

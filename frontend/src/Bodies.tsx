@@ -82,9 +82,12 @@ function measure(svg: SVGSVGElement, div: HTMLDivElement) {
   }
   const M = [] as any[]
   for (let e of Array.from(svg.querySelectorAll('path[id]'))) {
+    if (!e) {
+      continue
+    }
     console.log(e.id)
     const d = bbox(e)
-    const [_, x1, y1] = (e.getAttribute('d').match(/^m([\d.]*) ([\d.]*)/) as any) as number[]
+    const [_, x1, y1] = (e.getAttribute('d')!.match(/^m([\d.]*) ([\d.]*)/) as any) as number[]
     const x2 = [d.left, d.right].sort(utils.by(p => Math.abs(p - x1)))[1]
     const y2 = [d.top, d.bottom].sort(utils.by(p => Math.abs(p - y1)))[1]
     const r = D.bodies

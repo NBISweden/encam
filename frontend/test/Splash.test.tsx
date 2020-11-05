@@ -17,7 +17,7 @@ const MockSplash = () => (
 )
 
 describe('Splash', () => {
-  test('draws plots and one tumor type at a time can be selected', async () => {
+  test.skip('draws plots and one tumor type at a time can be selected', async () => {
     render(<MockSplash />)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))
@@ -45,7 +45,7 @@ describe('Splash', () => {
     expect(screen.queryAllByText('NKT')).toHaveLength(3)
   })
 
-  test('draws plots and up to two cell types can be selected', async () => {
+  test.skip('draws plots and up to two cell types can be selected', async () => {
     render(<MockSplash />)
 
     await waitFor(() => screen.queryAllByText(/BRCA/))

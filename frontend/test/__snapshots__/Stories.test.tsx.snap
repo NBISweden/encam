@@ -1,5 +1,473 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`8xInfo 8xInfo render 1`] = `
+.emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emotion-0:focus {
+  outline: none;
+}
+
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: pointer;
+}
+
+<div>
+  <div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="emotion-1"
+    >
+      <button
+        aria-label="info"
+        class="emotion-0"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`8xInfo 8xInfo renderer 1`] = `
+.emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emotion-0:focus {
+  outline: none;
+}
+
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: pointer;
+}
+
+<div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
+    className="emotion-1"
+  >
+    <button
+      aria-label="info"
+      className="emotion-0"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+    >
+      <svg
+        aria-hidden={true}
+        className="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+`;
+
 exports[`Boxplot Boxplot render 1`] = `
 <div>
   <div
@@ -23842,6 +24310,183 @@ exports[`FormAndPlotView FormAndPlotView renderer 1`] = `
 </div>
 `;
 
+exports[`Info Info render 1`] = `
+.emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emotion-0:focus {
+  outline: none;
+}
+
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: pointer;
+}
+
+<div>
+  <div
+    class="emotion-1"
+  >
+    <button
+      aria-label="info"
+      class="emotion-0"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+        />
+      </svg>
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Info Info renderer 1`] = `
+.emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emotion-0:focus {
+  outline: none;
+}
+
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: pointer;
+}
+
+<div
+  className="emotion-1"
+>
+  <button
+    aria-label="info"
+    className="emotion-0"
+    onClick={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+  >
+    <svg
+      aria-hidden={true}
+      className="MuiSvgIcon-root"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+      />
+    </svg>
+  </button>
+</div>
+`;
+
 exports[`KMForm KMForm render 1`] = `
 .emotion-0 label {
   text-align: center;
@@ -25362,41 +26007,72 @@ exports[`KMForm KMForm renderer 1`] = `
 </div>
 `;
 
-exports[`Splash/mock Splash/mock render 1`] = `
-.emotion-21 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+exports[`LeftOnly LeftOnly render 1`] = `
+.emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
 }
 
-.emotion-21 > * {
-  -webkit-flex-shrink: 0;
-  -ms-flex-negative: 0;
-  flex-shrink: 0;
-  -webkit-box-flex: 0;
-  -webkit-flex-grow: 0;
-  -ms-flex-positive: 0;
-  flex-grow: 0;
+.emotion-0:focus {
+  outline: none;
 }
 
-.emotion-21 label {
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
   cursor: pointer;
 }
 
-.emotion-21 h2 {
-  margin: 10 auto;
-  font-size: 1.2em;
-}
-
-.emotion-4 {
+.emotion-12 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -25407,7 +26083,7 @@ exports[`Splash/mock Splash/mock render 1`] = `
   width: 150px;
 }
 
-.emotion-0 {
+.emotion-2 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -25424,12 +26100,12 @@ exports[`Splash/mock Splash/mock render 1`] = `
   height: 55px;
 }
 
-.emotion-0.Checked {
+.emotion-2.Checked {
   background: var(--cell-color);
   color: white;
 }
 
-.emotion-0 > * {
+.emotion-2 > * {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -25439,37 +26115,756 @@ exports[`Splash/mock Splash/mock render 1`] = `
   flex-direction: row;
 }
 
-.emotion-0 > * > * {
+.emotion-2 > * > * {
   margin: auto;
 }
 
-.emotion-0 > .has-img {
+.emotion-2 > .has-img {
   width: 66px;
   height: 100%;
 }
 
-.emotion-0 > .has-img > img {
+.emotion-2 > .has-img > img {
   max-height: 100%;
 }
 
-.emotion-0 > .has-span {
+.emotion-2 > .has-span {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.emotion-0 > .has-span > span {
+.emotion-2 > .has-span > span {
   font-size: 0.9em;
 }
 
-.emotion-19 {
+<div>
+  <div
+    class="emotion-12"
+  >
+    <h2>
+      Cell type
+    </h2>
+    <label
+      class="emotion-2 Checked"
+      for="CD4"
+      id="CD4"
+      style="--cell-color: rgb(237,175,127);"
+    >
+      <div
+        class="has-img"
+      >
+        <img
+          src="CD4.png"
+        />
+      </div>
+      <div
+        class="has-span"
+      >
+        <span>
+          CD4
+        </span>
+        <div
+          style="margin-right: 0px; margin-left: 0px;"
+        >
+          <div
+            class="emotion-1"
+          >
+            <button
+              aria-label="info"
+              class="emotion-0"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </label>
+    <label
+      class="emotion-2"
+      for="CD4_Treg"
+      id="CD4_Treg"
+      style="--cell-color: rgb(212,185,118);"
+    >
+      <div
+        class="has-img"
+      >
+        <img
+          src="CD4_Treg.png"
+        />
+      </div>
+      <div
+        class="has-span"
+      >
+        <span>
+          CD4 Treg
+        </span>
+        <div
+          style="margin-right: 0px; margin-left: 0px;"
+        >
+          <div
+            class="emotion-1"
+          >
+            <button
+              aria-label="info"
+              class="emotion-0"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </label>
+    <label
+      class="emotion-2"
+      for="NK"
+      id="NK"
+      style="--cell-color: rgb(246,185,5);"
+    >
+      <div
+        class="has-img"
+      >
+        <img
+          src="NK.png"
+        />
+      </div>
+      <div
+        class="has-span"
+      >
+        <span>
+          NK
+        </span>
+        <div
+          style="margin-right: 0px; margin-left: 0px;"
+        >
+          <div
+            class="emotion-1"
+          >
+            <button
+              aria-label="info"
+              class="emotion-0"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </label>
+    <label
+      class="emotion-2"
+      for="NKT"
+      id="NKT"
+      style="--cell-color: rgb(140,67,10);"
+    >
+      <div
+        class="has-img"
+      >
+        <img
+          src="NKT.png"
+        />
+      </div>
+      <div
+        class="has-span"
+      >
+        <span>
+          NKT
+        </span>
+        <div
+          style="margin-right: 0px; margin-left: 0px;"
+        >
+          <div
+            class="emotion-1"
+          >
+            <button
+              aria-label="info"
+              class="emotion-0"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </label>
+  </div>
+</div>
+`;
+
+exports[`LeftOnly LeftOnly renderer 1`] = `
+.emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emotion-0:focus {
+  outline: none;
+}
+
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.emotion-12 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 150px;
+}
+
+.emotion-2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  border: 2px var(--cell-color) solid;
+  border-radius: 4px;
+  background: white;
+  color: black;
+  margin: 2 0;
+  padding: 3 0;
+  height: 55px;
+}
+
+.emotion-2.Checked {
+  background: var(--cell-color);
+  color: white;
+}
+
+.emotion-2 > * {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+
+.emotion-2 > * > * {
+  margin: auto;
+}
+
+.emotion-2 > .has-img {
+  width: 66px;
+  height: 100%;
+}
+
+.emotion-2 > .has-img > img {
+  max-height: 100%;
+}
+
+.emotion-2 > .has-span {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.emotion-2 > .has-span > span {
+  font-size: 0.9em;
+}
+
+<div
+  className="emotion-12"
+>
+  <h2>
+    Cell type
+  </h2>
+  <label
+    className="emotion-2 Checked"
+    htmlFor="CD4"
+    id="CD4"
+    onClick={[Function]}
+    style={
+      Object {
+        "--cell-color": "rgb(237,175,127)",
+      }
+    }
+  >
+    <div
+      className="has-img"
+    >
+      <img
+        src="CD4.png"
+      />
+    </div>
+    <div
+      className="has-span"
+    >
+      <span>
+        CD4
+      </span>
+      <div
+        style={
+          Object {
+            "marginLeft": 0,
+            "marginRight": 0,
+          }
+        }
+      >
+        <div
+          className="emotion-1"
+        >
+          <button
+            aria-label="info"
+            className="emotion-0"
+            onClick={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+          >
+            <svg
+              aria-hidden={true}
+              className="MuiSvgIcon-root"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </label>
+  <label
+    className="emotion-2"
+    htmlFor="CD4_Treg"
+    id="CD4_Treg"
+    onClick={[Function]}
+    style={
+      Object {
+        "--cell-color": "rgb(212,185,118)",
+      }
+    }
+  >
+    <div
+      className="has-img"
+    >
+      <img
+        src="CD4_Treg.png"
+      />
+    </div>
+    <div
+      className="has-span"
+    >
+      <span>
+        CD4 Treg
+      </span>
+      <div
+        style={
+          Object {
+            "marginLeft": 0,
+            "marginRight": 0,
+          }
+        }
+      >
+        <div
+          className="emotion-1"
+        >
+          <button
+            aria-label="info"
+            className="emotion-0"
+            onClick={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+          >
+            <svg
+              aria-hidden={true}
+              className="MuiSvgIcon-root"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </label>
+  <label
+    className="emotion-2"
+    htmlFor="NK"
+    id="NK"
+    onClick={[Function]}
+    style={
+      Object {
+        "--cell-color": "rgb(246,185,5)",
+      }
+    }
+  >
+    <div
+      className="has-img"
+    >
+      <img
+        src="NK.png"
+      />
+    </div>
+    <div
+      className="has-span"
+    >
+      <span>
+        NK
+      </span>
+      <div
+        style={
+          Object {
+            "marginLeft": 0,
+            "marginRight": 0,
+          }
+        }
+      >
+        <div
+          className="emotion-1"
+        >
+          <button
+            aria-label="info"
+            className="emotion-0"
+            onClick={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+          >
+            <svg
+              aria-hidden={true}
+              className="MuiSvgIcon-root"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </label>
+  <label
+    className="emotion-2"
+    htmlFor="NKT"
+    id="NKT"
+    onClick={[Function]}
+    style={
+      Object {
+        "--cell-color": "rgb(140,67,10)",
+      }
+    }
+  >
+    <div
+      className="has-img"
+    >
+      <img
+        src="NKT.png"
+      />
+    </div>
+    <div
+      className="has-span"
+    >
+      <span>
+        NKT
+      </span>
+      <div
+        style={
+          Object {
+            "marginLeft": 0,
+            "marginRight": 0,
+          }
+        }
+      >
+        <div
+          className="emotion-1"
+        >
+          <button
+            aria-label="info"
+            className="emotion-0"
+            onClick={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+          >
+            <svg
+              aria-hidden={true}
+              className="MuiSvgIcon-root"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </label>
+</div>
+`;
+
+exports[`Splash/mock Splash/mock render 1`] = `
+.emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emotion-0:focus {
+  outline: none;
+}
+
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.emotion-29 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.emotion-29 > * {
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  -webkit-box-flex: 0;
+  -webkit-flex-grow: 0;
+  -ms-flex-positive: 0;
+  flex-grow: 0;
+}
+
+.emotion-29 label {
+  cursor: pointer;
+}
+
+.emotion-29 h2 {
+  margin: 10 auto;
+  font-size: 1.2em;
+}
+
+.emotion-12 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 150px;
+}
+
+.emotion-2 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  border: 2px var(--cell-color) solid;
+  border-radius: 4px;
+  background: white;
+  color: black;
+  margin: 2 0;
+  padding: 3 0;
+  height: 55px;
+}
+
+.emotion-2.Checked {
+  background: var(--cell-color);
+  color: white;
+}
+
+.emotion-2 > * {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+
+.emotion-2 > * > * {
+  margin: auto;
+}
+
+.emotion-2 > .has-img {
+  width: 66px;
+  height: 100%;
+}
+
+.emotion-2 > .has-img > img {
+  max-height: 100%;
+}
+
+.emotion-2 > .has-span {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.emotion-2 > .has-span > span {
+  font-size: 0.9em;
+}
+
+.emotion-27 {
   width: 750px;
   margin-top: 40px;
   min-height: 680px;
   position: relative;
 }
 
-.emotion-20 {
+.emotion-28 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -25487,14 +26882,14 @@ exports[`Splash/mock Splash/mock render 1`] = `
   width: 175px;
 }
 
-.emotion-20 > div {
+.emotion-28 > div {
   margin-bottom: 15px;
   -webkit-flex-shrink: 0;
   -ms-flex-negative: 0;
   flex-shrink: 0;
 }
 
-.emotion-18 {
+.emotion-26 {
   margin: 0 auto;
   display: grid;
   grid-template-areas: "MEL   skin     bodies breast   BRCA  " "LUAD  lungs    bodies pancreas PPADpb" "LUSC  lungs    bodies pancreas PPADi " "ESCA  stomach  bodies gut      COAD  " "STAD  stomach  bodies gut      READ  " "KRCC  kidney   bodies ovary    OVSA  " "BLCA  bladder  bodies ovary    OVNSA " "PRAD  prostate bodies uterus   UCEC  ";
@@ -25506,90 +26901,90 @@ exports[`Splash/mock Splash/mock render 1`] = `
   align-items: center;
 }
 
-.emotion-5 {
+.emotion-13 {
   grid-area: bodies;
   margin: 0 10px 275px;
   justify-self: center;
 }
 
-.emotion-6 {
+.emotion-14 {
   grid-area: skin;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-7 {
+.emotion-15 {
   grid-area: lungs;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-8 {
+.emotion-16 {
   grid-area: stomach;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-9 {
+.emotion-17 {
   grid-area: kidney;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-10 {
+.emotion-18 {
   grid-area: bladder;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-11 {
+.emotion-19 {
   grid-area: prostate;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-12 {
+.emotion-20 {
   grid-area: breast;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-13 {
+.emotion-21 {
   grid-area: pancreas;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-14 {
+.emotion-22 {
   grid-area: gut;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-15 {
+.emotion-23 {
   grid-area: ovary;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-16 {
+.emotion-24 {
   grid-area: uterus;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-17 {
+.emotion-25 {
   height: 100%;
   width: 100%;
   grid-area: 1 / 1 / -1 / -1;
@@ -25597,7 +26992,7 @@ exports[`Splash/mock Splash/mock render 1`] = `
 
 <div>
   <div
-    style="position: fixed; left: 0px; bottom: 0px; width: 280px; background: rgba(255, 255, 255, 0.533); padding: 20px 40px; border: 1px solid #333a; border-radius: 5px; box-shadow: 2px 4px 4px -4px #333; margin: 5px; z-index: 998; transform: translate(0, 0); transition: transform 300ms ease;"
+    style="position: fixed; right: 0px; top: 0px; width: 280px; background: rgba(255, 255, 255, 0.533); padding: 20px 40px; border: 1px solid #333a; border-radius: 5px; box-shadow: 2px 4px 4px -4px #333; margin: 5px; z-index: 998; transform: translate(0, 0); transition: transform 300ms ease; cursor: pointer;"
   >
     <div
       style="height: 58px;"
@@ -26001,16 +27396,16 @@ exports[`Splash/mock Splash/mock render 1`] = `
     </div>
   </div>
   <div
-    class="emotion-21"
+    class="emotion-29"
   >
     <div
-      class="emotion-4"
+      class="emotion-12"
     >
       <h2>
         Cell type
       </h2>
       <label
-        class="emotion-0 Checked"
+        class="emotion-2 Checked"
         for="CD4"
         id="CD4"
         style="--cell-color: rgb(237,175,127);"
@@ -26028,10 +27423,33 @@ exports[`Splash/mock Splash/mock render 1`] = `
           <span>
             CD4
           </span>
+          <div
+            style="margin-right: 0px; margin-left: 0px;"
+          >
+            <div
+              class="emotion-1"
+            >
+              <button
+                aria-label="info"
+                class="emotion-0"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
       <label
-        class="emotion-0"
+        class="emotion-2"
         for="CD4_Treg"
         id="CD4_Treg"
         style="--cell-color: rgb(212,185,118);"
@@ -26049,10 +27467,33 @@ exports[`Splash/mock Splash/mock render 1`] = `
           <span>
             CD4 Treg
           </span>
+          <div
+            style="margin-right: 0px; margin-left: 0px;"
+          >
+            <div
+              class="emotion-1"
+            >
+              <button
+                aria-label="info"
+                class="emotion-0"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
       <label
-        class="emotion-0"
+        class="emotion-2"
         for="NK"
         id="NK"
         style="--cell-color: rgb(246,185,5);"
@@ -26070,10 +27511,33 @@ exports[`Splash/mock Splash/mock render 1`] = `
           <span>
             NK
           </span>
+          <div
+            style="margin-right: 0px; margin-left: 0px;"
+          >
+            <div
+              class="emotion-1"
+            >
+              <button
+                aria-label="info"
+                class="emotion-0"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
       <label
-        class="emotion-0"
+        class="emotion-2"
         for="NKT"
         id="NKT"
         style="--cell-color: rgb(140,67,10);"
@@ -26091,96 +27555,119 @@ exports[`Splash/mock Splash/mock render 1`] = `
           <span>
             NKT
           </span>
+          <div
+            style="margin-right: 0px; margin-left: 0px;"
+          >
+            <div
+              class="emotion-1"
+            >
+              <button
+                aria-label="info"
+                class="emotion-0"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
     </div>
     <div
-      class="emotion-19"
+      class="emotion-27"
       style="display: flex;"
     >
       <div
-        class="emotion-18"
+        class="emotion-26"
         id="center"
       >
         <img
-          class="emotion-5"
+          class="emotion-13"
           height="258"
           id="bodies"
           src="bodies.svg"
           width="175"
         />
         <img
-          class="emotion-6"
+          class="emotion-14"
           height="42"
           id="skin"
           src="skin.svg"
           width="83"
         />
         <img
-          class="emotion-7"
+          class="emotion-15"
           height="67"
           id="lungs"
           src="lungs.svg"
           width="69"
         />
         <img
-          class="emotion-8"
+          class="emotion-16"
           height="49"
           id="stomach"
           src="stomach.svg"
           width="52"
         />
         <img
-          class="emotion-9"
+          class="emotion-17"
           height="58"
           id="kidney"
           src="kidney.svg"
           width="67"
         />
         <img
-          class="emotion-10"
+          class="emotion-18"
           height="48"
           id="bladder"
           src="bladder.svg"
           width="51"
         />
         <img
-          class="emotion-11"
+          class="emotion-19"
           height="55"
           id="prostate"
           src="prostate.svg"
           width="46"
         />
         <img
-          class="emotion-12"
+          class="emotion-20"
           height="48"
           id="breast"
           src="breast.svg"
           width="40"
         />
         <img
-          class="emotion-13"
+          class="emotion-21"
           height="41"
           id="pancreas"
           src="pancreas.svg"
           width="85"
         />
         <img
-          class="emotion-14"
+          class="emotion-22"
           height="88"
           id="gut"
           src="gut.svg"
           width="75"
         />
         <img
-          class="emotion-15"
+          class="emotion-23"
           height="40"
           id="ovary"
           src="ovary.svg"
           width="78"
         />
         <img
-          class="emotion-16"
+          class="emotion-24"
           height="48"
           id="uterus"
           src="uterus.svg"
@@ -27515,7 +29002,7 @@ exports[`Splash/mock Splash/mock render 1`] = `
           </div>
         </div>
         <svg
-          class="emotion-17"
+          class="emotion-25"
         >
           <path
             d="M0 0 Q0 0 0 0 T0 0"
@@ -27584,7 +29071,7 @@ exports[`Splash/mock Splash/mock render 1`] = `
       />
     </div>
     <div
-      class="emotion-20"
+      class="emotion-28"
     >
       <h2>
         CD4
@@ -28237,19 +29724,20 @@ exports[`Splash/mock Splash/mock render 1`] = `
 exports[`Splash/mock Splash/mock renderer 1`] = `
 Array [
   <div
-    onDoubleClick={[Function]}
+    onClick={[Function]}
     style={
       Object {
         "backdropFilter": "blur(2px)",
         "background": "#fff8",
         "border": "1px #333a solid",
         "borderRadius": 5,
-        "bottom": 0,
         "boxShadow": "2px 4px 4px -4px #333",
-        "left": 0,
+        "cursor": "pointer",
         "margin": 5,
         "padding": "20px 40px",
         "position": "fixed",
+        "right": 0,
+        "top": 0,
         "transform": "translate(0, 0)",
         "transition": "transform 300ms ease",
         "width": 280,
@@ -28278,6 +29766,7 @@ Array [
       </label>
       <span
         className="MuiSlider-root MuiSlider-colorPrimary"
+        onClick={[Function]}
         onMouseDown={[Function]}
         style={
           Object {
@@ -28358,6 +29847,7 @@ Array [
       </label>
       <span
         className="MuiSlider-root MuiSlider-colorPrimary"
+        onClick={[Function]}
         onMouseDown={[Function]}
         style={
           Object {
@@ -28438,6 +29928,7 @@ Array [
       </label>
       <span
         className="MuiSlider-root MuiSlider-colorPrimary"
+        onClick={[Function]}
         onMouseDown={[Function]}
         style={
           Object {
@@ -28518,6 +30009,7 @@ Array [
       </label>
       <span
         className="MuiSlider-root MuiSlider-colorPrimary"
+        onClick={[Function]}
         onMouseDown={[Function]}
         style={
           Object {
@@ -28598,6 +30090,7 @@ Array [
       </label>
       <span
         className="MuiSlider-root MuiSlider-colorPrimary"
+        onClick={[Function]}
         onMouseDown={[Function]}
         style={
           Object {
@@ -28678,6 +30171,7 @@ Array [
       </label>
       <span
         className="MuiSlider-root MuiSlider-colorPrimary"
+        onClick={[Function]}
         onMouseDown={[Function]}
         style={
           Object {
@@ -28758,6 +30252,7 @@ Array [
       </label>
       <span
         className="MuiSlider-root MuiSlider-colorPrimary"
+        onClick={[Function]}
         onMouseDown={[Function]}
         style={
           Object {
@@ -28818,7 +30313,71 @@ Array [
       </span>
     </div>
   </div>,
-  .emotion-21 {
+  .emotion-0 {
+  border: none;
+  margin: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.emotion-0:focus {
+  outline: none;
+}
+
+.emotion-1 {
+  position: relative;
+}
+
+.emotion-1 > .info-area {
+  color: #000;
+  position: absolute;
+  left: calc(100% + 5px);
+  top: calc(50% - 20px);
+  z-index: 3;
+  background: #fff;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  border-radius: 4px;
+  padding: 8px;
+  min-height: 42px;
+  min-width: 66px;
+  width: 400px;
+  border: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .info-area::before {
+  position: absolute;
+  left: -7px;
+  top: 13px;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  z-index: -1;
+  content: '';
+  border-left: 1px black solid;
+  border-bottom: 1px black solid;
+  box-shadow: 2px 4px 4px -4px #333;
+}
+
+.emotion-1 > .click-away {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.emotion-29 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -28832,7 +30391,7 @@ Array [
   user-select: none;
 }
 
-.emotion-21 > * {
+.emotion-29 > * {
   -webkit-flex-shrink: 0;
   -ms-flex-negative: 0;
   flex-shrink: 0;
@@ -28842,16 +30401,16 @@ Array [
   flex-grow: 0;
 }
 
-.emotion-21 label {
+.emotion-29 label {
   cursor: pointer;
 }
 
-.emotion-21 h2 {
+.emotion-29 h2 {
   margin: 10 auto;
   font-size: 1.2em;
 }
 
-.emotion-4 {
+.emotion-12 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -28862,7 +30421,7 @@ Array [
   width: 150px;
 }
 
-.emotion-0 {
+.emotion-2 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -28879,12 +30438,12 @@ Array [
   height: 55px;
 }
 
-.emotion-0.Checked {
+.emotion-2.Checked {
   background: var(--cell-color);
   color: white;
 }
 
-.emotion-0 > * {
+.emotion-2 > * {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -28894,37 +30453,37 @@ Array [
   flex-direction: row;
 }
 
-.emotion-0 > * > * {
+.emotion-2 > * > * {
   margin: auto;
 }
 
-.emotion-0 > .has-img {
+.emotion-2 > .has-img {
   width: 66px;
   height: 100%;
 }
 
-.emotion-0 > .has-img > img {
+.emotion-2 > .has-img > img {
   max-height: 100%;
 }
 
-.emotion-0 > .has-span {
+.emotion-2 > .has-span {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.emotion-0 > .has-span > span {
+.emotion-2 > .has-span > span {
   font-size: 0.9em;
 }
 
-.emotion-19 {
+.emotion-27 {
   width: 750px;
   margin-top: 40px;
   min-height: 680px;
   position: relative;
 }
 
-.emotion-20 {
+.emotion-28 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -28942,14 +30501,14 @@ Array [
   width: 175px;
 }
 
-.emotion-20 > div {
+.emotion-28 > div {
   margin-bottom: 15px;
   -webkit-flex-shrink: 0;
   -ms-flex-negative: 0;
   flex-shrink: 0;
 }
 
-.emotion-18 {
+.emotion-26 {
   margin: 0 auto;
   display: grid;
   grid-template-areas: "MEL   skin     bodies breast   BRCA  " "LUAD  lungs    bodies pancreas PPADpb" "LUSC  lungs    bodies pancreas PPADi " "ESCA  stomach  bodies gut      COAD  " "STAD  stomach  bodies gut      READ  " "KRCC  kidney   bodies ovary    OVSA  " "BLCA  bladder  bodies ovary    OVNSA " "PRAD  prostate bodies uterus   UCEC  ";
@@ -28961,106 +30520,106 @@ Array [
   align-items: center;
 }
 
-.emotion-5 {
+.emotion-13 {
   grid-area: bodies;
   margin: 0 10px 275px;
   justify-self: center;
 }
 
-.emotion-6 {
+.emotion-14 {
   grid-area: skin;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-7 {
+.emotion-15 {
   grid-area: lungs;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-8 {
+.emotion-16 {
   grid-area: stomach;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-9 {
+.emotion-17 {
   grid-area: kidney;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-10 {
+.emotion-18 {
   grid-area: bladder;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-11 {
+.emotion-19 {
   grid-area: prostate;
   z-index: 1;
   margin-top: 10px;
   justify-self: start;
 }
 
-.emotion-12 {
+.emotion-20 {
   grid-area: breast;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-13 {
+.emotion-21 {
   grid-area: pancreas;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-14 {
+.emotion-22 {
   grid-area: gut;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-15 {
+.emotion-23 {
   grid-area: ovary;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-16 {
+.emotion-24 {
   grid-area: uterus;
   z-index: 1;
   margin-top: 10px;
   justify-self: end;
 }
 
-.emotion-17 {
+.emotion-25 {
   height: 100%;
   width: 100%;
   grid-area: 1 / 1 / -1 / -1;
 }
 
 <div
-    className="emotion-21"
+    className="emotion-29"
   >
     <div
-      className="emotion-4"
+      className="emotion-12"
     >
       <h2>
         Cell type
       </h2>
       <label
-        className="emotion-0 Checked"
+        className="emotion-2 Checked"
         htmlFor="CD4"
         id="CD4"
         onClick={[Function]}
@@ -29083,10 +30642,41 @@ Array [
           <span>
             CD4
           </span>
+          <div
+            style={
+              Object {
+                "marginLeft": 0,
+                "marginRight": 0,
+              }
+            }
+          >
+            <div
+              className="emotion-1"
+            >
+              <button
+                aria-label="info"
+                className="emotion-0"
+                onClick={[Function]}
+                onMouseEnter={[Function]}
+                onMouseLeave={[Function]}
+              >
+                <svg
+                  aria-hidden={true}
+                  className="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
       <label
-        className="emotion-0"
+        className="emotion-2"
         htmlFor="CD4_Treg"
         id="CD4_Treg"
         onClick={[Function]}
@@ -29109,10 +30699,41 @@ Array [
           <span>
             CD4 Treg
           </span>
+          <div
+            style={
+              Object {
+                "marginLeft": 0,
+                "marginRight": 0,
+              }
+            }
+          >
+            <div
+              className="emotion-1"
+            >
+              <button
+                aria-label="info"
+                className="emotion-0"
+                onClick={[Function]}
+                onMouseEnter={[Function]}
+                onMouseLeave={[Function]}
+              >
+                <svg
+                  aria-hidden={true}
+                  className="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
       <label
-        className="emotion-0"
+        className="emotion-2"
         htmlFor="NK"
         id="NK"
         onClick={[Function]}
@@ -29135,10 +30756,41 @@ Array [
           <span>
             NK
           </span>
+          <div
+            style={
+              Object {
+                "marginLeft": 0,
+                "marginRight": 0,
+              }
+            }
+          >
+            <div
+              className="emotion-1"
+            >
+              <button
+                aria-label="info"
+                className="emotion-0"
+                onClick={[Function]}
+                onMouseEnter={[Function]}
+                onMouseLeave={[Function]}
+              >
+                <svg
+                  aria-hidden={true}
+                  className="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
       <label
-        className="emotion-0"
+        className="emotion-2"
         htmlFor="NKT"
         id="NKT"
         onClick={[Function]}
@@ -29161,11 +30813,42 @@ Array [
           <span>
             NKT
           </span>
+          <div
+            style={
+              Object {
+                "marginLeft": 0,
+                "marginRight": 0,
+              }
+            }
+          >
+            <div
+              className="emotion-1"
+            >
+              <button
+                aria-label="info"
+                className="emotion-0"
+                onClick={[Function]}
+                onMouseEnter={[Function]}
+                onMouseLeave={[Function]}
+              >
+                <svg
+                  aria-hidden={true}
+                  className="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </label>
     </div>
     <div
-      className="emotion-19"
+      className="emotion-27"
       style={
         Object {
           "display": "flex",
@@ -29173,88 +30856,88 @@ Array [
       }
     >
       <div
-        className="emotion-18"
+        className="emotion-26"
         id="center"
       >
         <img
-          className="emotion-5"
+          className="emotion-13"
           height={258}
           id="bodies"
           src="bodies.svg"
           width={175}
         />
         <img
-          className="emotion-6"
+          className="emotion-14"
           height={42}
           id="skin"
           src="skin.svg"
           width={83}
         />
         <img
-          className="emotion-7"
+          className="emotion-15"
           height={67}
           id="lungs"
           src="lungs.svg"
           width={69}
         />
         <img
-          className="emotion-8"
+          className="emotion-16"
           height={49}
           id="stomach"
           src="stomach.svg"
           width={52}
         />
         <img
-          className="emotion-9"
+          className="emotion-17"
           height={58}
           id="kidney"
           src="kidney.svg"
           width={67}
         />
         <img
-          className="emotion-10"
+          className="emotion-18"
           height={48}
           id="bladder"
           src="bladder.svg"
           width={51}
         />
         <img
-          className="emotion-11"
+          className="emotion-19"
           height={55}
           id="prostate"
           src="prostate.svg"
           width={46}
         />
         <img
-          className="emotion-12"
+          className="emotion-20"
           height={48}
           id="breast"
           src="breast.svg"
           width={40}
         />
         <img
-          className="emotion-13"
+          className="emotion-21"
           height={41}
           id="pancreas"
           src="pancreas.svg"
           width={85}
         />
         <img
-          className="emotion-14"
+          className="emotion-22"
           height={88}
           id="gut"
           src="gut.svg"
           width={75}
         />
         <img
-          className="emotion-15"
+          className="emotion-23"
           height={40}
           id="ovary"
           src="ovary.svg"
           width={78}
         />
         <img
-          className="emotion-16"
+          className="emotion-24"
           height={48}
           id="uterus"
           src="uterus.svg"
@@ -32749,7 +34432,7 @@ Array [
           </div>
         </div>
         <svg
-          className="emotion-17"
+          className="emotion-25"
         />
       </div>
       <div
@@ -32768,7 +34451,7 @@ Array [
       </div>
     </div>
     <div
-      className="emotion-20"
+      className="emotion-28"
     >
       <h2>
         CD4

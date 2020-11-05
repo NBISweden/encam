@@ -24,8 +24,8 @@ export function Dyn({children}: {children: React.ReactNode}) {
     <div
       style={{
         position: 'fixed',
-        left: 0,
-        bottom: 0,
+        right: 0,
+        top: 0,
         width: 280,
         background: '#fff8',
         padding: '20px 40px',
@@ -35,10 +35,11 @@ export function Dyn({children}: {children: React.ReactNode}) {
         boxShadow: '2px 4px 4px -4px #333',
         margin: 5,
         zIndex: 998,
-        transform: `translate(${visible ? 0 : 'calc(30px - 100%)'}, 0)`,
+        transform: `translate(${visible ? 0 : 'calc(100% - 30px)'}, 0)`,
         transition: 'transform 300ms ease',
+        cursor: 'pointer',
       }}
-      onDoubleClick={() => set_visible(b => !b)}>
+      onClick={() => set_visible(b => !b)}>
       {Object.entries(dyn_vals)
         .sort(utils.by(([k]) => k))
         .map(([k, {val, lo, hi}]) => (
@@ -52,9 +53,10 @@ export function Dyn({children}: {children: React.ReactNode}) {
               max={hi}
               step={(hi - lo) / 100}
               value={val}
-              onChange={(_, val) => {
+              onChange={(e, val) => {
                 !Array.isArray(val) && set_dyn_vals({[k]: {val, lo, hi}})
               }}
+              onClick={e => e.stopPropagation()}
               valueLabelDisplay="on"
               valueLabelFormat={(s: number) =>
                 ('' + utils.roundDown(s, 3)).replace(/\..*/, s => s.slice(0, 3))

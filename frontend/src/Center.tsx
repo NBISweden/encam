@@ -78,14 +78,14 @@ const template = `
 const Svg = ({id, ...props}: {id: string} & React.HTMLProps<HTMLImageElement>) => (
   <img
     id={id}
-    {...utils.mapObject(sizes[id], (s: number) =>
+    {...(utils.mapObject(sizes[id], (s: number) =>
       Math.round(
         s *
           (id === 'bodies'
             ? useDyn()('bodies size', 1, 0.5, 1.75)
             : useDyn()('organ size', 0.85, 0.4, 1.5))
       )
-    )}
+    ) as any)}
     {...props}
     src={svgs[id]}
   />

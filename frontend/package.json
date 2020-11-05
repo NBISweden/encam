@@ -39,8 +39,8 @@
     "build": "./build.sh",
     "pretty": "yarn run prettier --list-different --write src test *json *js",
     "typecheck": "yarn run tsc",
-    "doctests:gen": "find src test -name '*ts*' | xargs doctest-ts --jest",
-    "doctests:watch": "find src test -name '*ts*' | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose --testEnvironment node'",
+    "doctests:gen": "find src test -name '*ts?' | xargs doctest-ts --jest",
+    "doctests:watch": "find src test -name '*ts?' | entr -c sh -c 'yarn run doctests:gen && yarn run jest src --verbose --testEnvironment node'",
     "test": "yarn run doctests:gen && jest"
   },
   "dependencies": {
