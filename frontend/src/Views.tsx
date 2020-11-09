@@ -23,6 +23,7 @@ import './Vega/KMPlot'
 import {Main, WithMainTheme} from './Main'
 
 import {StoryBrowser, useStories} from './ui_utils/stories'
+import {WithEditor} from './Editor'
 
 console.log('Views reload')
 
@@ -31,6 +32,7 @@ const classes = {
     margin: 10,
     padding: 10,
     background: '#fff',
+    display: 'flex',
     '& h1, & h2, & h3': {
       fontFamily: '"Merriweather Sans", sans',
       fontWeight: 300,
@@ -69,9 +71,8 @@ export function Views() {
       component: <StoryBrowser />,
     },
   ])
-  const {Tabs, TabbedRoutes, set_tab, tab} = React.useMemo(() => res, [
-    stories.map(st => st.key).join('_'),
-  ])
+  const {TabbedRoutes, set_tab} = React.useMemo(() => res, [stories.map(st => st.key).join('_')])
+  const {tab, Tabs} = res
   ui.useKeydown(
     e => {
       if (e.key == '[') {
@@ -89,26 +90,28 @@ export function Views() {
   }, [tab.label])
   return (
     <WithMainTheme>
-      {tab.label === 'Main' ? (
-        <>
-          <Switch>{TabbedRoutes}</Switch>
-        </>
-      ) : (
-        <>
-          <CssBaseline />
-          <GlobalStyle />
-          <div style={{...ui.flex_row, minHeight: '100%'}}>
-            <div style={{...ui.flex_column, flexShrink: 0, borderRight: '1px #ddd solid'}}>
-              <Tabs variant="scrollable" orientation="vertical" />
-              <div style={{flexGrow: 1, borderBottom: '1px #ddd solid'}} />
-              <div style={{margin: 15, alignSelf: 'center'}}>version: {version}</div>
+      <WithEditor>
+        {tab.label === 'Main' ? (
+          <>
+            <Switch>{TabbedRoutes}</Switch>
+          </>
+        ) : (
+          <>
+            <CssBaseline />
+            <GlobalStyle />
+            <div style={{...ui.flex_row, minHeight: '100%'}}>
+              <div style={{...ui.flex_column, flexShrink: 0, borderRight: '1px #ddd solid'}}>
+                <Tabs variant="scrollable" orientation="vertical" />
+                <div style={{flexGrow: 1, borderBottom: '1px #ddd solid'}} />
+                <div style={{margin: 15, alignSelf: 'center'}}>version: {version}</div>
+              </div>
+              <div className={classes.View}>
+                <Switch>{TabbedRoutes}</Switch>
+              </div>
             </div>
-            <div className={classes.View}>
-              <Switch>{TabbedRoutes}</Switch>
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </WithEditor>
     </WithMainTheme>
   )
 }

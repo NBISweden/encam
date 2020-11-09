@@ -13,13 +13,11 @@ import {Splash} from './Splash'
 import * as form from './Form'
 import {FormAndBoxPlot, FormAndKMPlot} from './FormAndPlot'
 
-const main = `
-  # Encyclopedia of Cancer (Immune) Microenvironment
-  Web portal of cell-resolution data of the tumor microenvironment in human cancer.
-`
+import {Section, useNav} from './Content'
 
 const classes = {
   Main: css({
+    // flexGrow: 1,
     '& h1, & h2, & h3': {
       fontFamily: '"Merriweather Sans", sans',
       fontWeight: 300,
@@ -38,10 +36,21 @@ const classes = {
       paddingLeft: 20,
       paddingTop: 20,
       paddingBottom: 65,
+      '& > :not(nav)': {
+        maxWidth: 900,
+        paddingLeft: 10,
+        userSelect: 'text',
+      },
     },
     '& > footer': {
       padding: 20,
+      userSelect: 'text',
       // marginTop: 40,
+      '& p': {
+        display: 'inline',
+        padding: 0,
+        margin: 0,
+      },
       '& a': {
         padding: 0,
         color: '#f8f8f8',
@@ -52,6 +61,9 @@ const classes = {
         },
       },
     },
+    '& > section': {
+      margin: '0px 10px',
+    },
     '& > header, & > footer': {
       '& h1': {fontSize: 32},
       '& h2': {fontSize: 22},
@@ -59,11 +71,7 @@ const classes = {
       width: 1100,
       color: '#f8f8f8',
       background: cell_color('iDC'),
-      '& > :not(nav)': {
-        maxWidth: 900,
-        paddingLeft: 10,
-        userSelect: 'text',
-      },
+
       '& > nav': {
         marginLeft: 'auto',
         marginRight: 0,
@@ -185,18 +193,24 @@ export function Modules(props: {resetChan?: ui.Channel<void>}) {
   )
 }
 
-export function Header(props: {onClick?: Action<any>}) {
+export function Header(props: {onClickHeader?: Action<any>; onNav?: Action<string>}) {
+  const nav = useNav()
   return (
     <header>
       <nav>
         <ul>
-          <li>About</li>
-          <li>Links</li>
-          <li>References</li>
+          {nav.map(link => (
+            <li
+              key={link}
+              onClick={() => props.onNav && props.onNav(link)}
+              style={{cursor: 'pointer'}}>
+              {link}
+            </li>
+          ))}
         </ul>
       </nav>
-      <div {...props} style={{cursor: 'pointer'}}>
-        <ReactMarkdown source={main} />
+      <div onClick={props.onClickHeader} style={{cursor: 'pointer'}}>
+        <Section id="header" />
       </div>
     </header>
   )
@@ -204,20 +218,32 @@ export function Header(props: {onClick?: Action<any>}) {
 
 export function Main({version = <span />}) {
   const resetChan = ui.useChannel<void>()
-
+  const [section, set_section] = React.useState(undefined as undefined | string)
   return (
     <WithMainTheme>
       <CssBaseline />
       <MainGlobalStyle />
       <div className={classes.Main}>
-        <Header onClick={() => resetChan.send()} />
-        <Splash />
-        <Modules resetChan={resetChan} />
+        <Header
+          onClickHeader={() => {
+            resetChan.send()
+            set_section(undefined)
+          }}
+          onNav={set_section}
+        />
+        {section ? (
+          <section>
+            <Section id={section} />
+          </section>
+        ) : (
+          <>
+            <Splash />
+            <Modules resetChan={resetChan} />
+          </>
+        )}
         <div style={{flexGrow: 1}} />
         <footer>
-          Contact details:{' '}
-          <a href="https://katalog.uu.se/profile/?id=N16-2052">Artur Mezheyeuski</a>,{' '}
-          <a href="https://katalog.uu.se/empinfo/?id=N5-811">Patrick Micke</a>
+          <Section id="footer" />
           {version}
         </footer>
       </div>

@@ -399,6 +399,9 @@ export function simple_object_diff<A extends Record<string, any>, B extends Reco
 /** JSON string representation of a value */
 export const str = (a: any) => JSON.stringify(a)
 
+/** Pretty-printed JSON string representation of a value */
+export const pp = (a: any) => JSON.stringify(a, undefined, 2)
+
 /** Equality by comparing JSON string representation
 
   equal([], []) // => true

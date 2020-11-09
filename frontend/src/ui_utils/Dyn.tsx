@@ -82,9 +82,11 @@ export function Dyn({children}: {children: React.ReactNode}) {
     }
   }
 
+  const silence = true
+
   return (
     <DynCtx.Provider value={dyn}>
-      {components}
+      {silence || components}
       {children}
     </DynCtx.Provider>
   )

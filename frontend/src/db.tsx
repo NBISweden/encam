@@ -17,7 +17,7 @@ export type DB = Row[]
 
 export type DBRange = utils.RowRange<Row>
 
-// Artur's preferred cell order
+/** Artur's preferred cell order */
 export const cellOrder = [
   'CD4',
   'CD4_Treg',
@@ -35,3 +35,6 @@ export const cellOrder = [
   'pDC',
   'Granulocyte',
 ]
+
+/** Cells with underscores in names */
+export const cells = cellOrder.filter(cell => !cell.match(/ /))

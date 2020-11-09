@@ -10,6 +10,9 @@ const styles = css`
     width: fit-content;
     user-select: none;
   }
+  table {
+    color: unset;
+  }
   .MuiTab-root {
     text-transform: unset;
   }

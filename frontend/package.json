@@ -50,6 +50,8 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@types/react-router-dom": "^5.1.6",
     "emotion": "^10.0.27",
+    "fp-ts": "^2.8.5",
+    "io-ts": "^2.2.12",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-is": ">=16.13.1",
