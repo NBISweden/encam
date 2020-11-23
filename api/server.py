@@ -167,3 +167,15 @@ def expression():
         response = database_lib.expression(body).to_list()
         return jsonify(response)
         
+@app.route('/content.json', methods=['POST', 'GET'])
+def content():
+    if request.method == 'GET':
+        with open('contents.json') as json_file:
+            response = json.load(json_file)
+        return jsonify(response)
+    elif request.method == 'POST':
+        body = request.json
+        with open('contents.json', 'w') as json_file:
+            json.dump(body, json_file, indent=2)
+        return jsonify({"success": True})
+        
