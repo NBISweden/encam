@@ -1,12 +1,32 @@
-from flask import Flask, request, jsonify, render_template, url_for, make_response
+from flask import Flask, request, jsonify, render_template, url_for, make_response, redirect
 from lifelines import CoxPHFitter
 import pandas as pd
 import json
+from flask_dance.contrib.google import make_google_blueprint, google
+import os
+import configparser
 
 from database import db
 import database as database_lib
 
+config = configparser.ConfigParser()
+config.read('../config/config.ini')
+
 app = Flask(__name__, static_folder='/static/')
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #FIXME: Needs to be disabled?
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+app.secret_key = config['AUTH']['FlaskSecretKey']
+
+app.config["GOOGLE_OAUTH_CLIENT_ID"]  = config['AUTH']['GoogleClientID']
+app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['AUTH']['GoogleClientSecret']
+
+google_bp = make_google_blueprint(scope=["profile", "email"], redirect_url="/login")
+app.register_blueprint(google_bp, url_prefix="/login")
+
+whitelist_file = config['AUTH']['Whitelist']
+with open(whitelist_file, 'r') as file:
+    whitelist = [line.strip() for line in file]
 
 @app.route('/')
 def main():
@@ -155,7 +175,6 @@ def size():
     else:
         return jsonify({"error": "Body must be JSON"})
 
-
 @app.route('/expression', methods=['OPTIONS', 'POST'])
 def expression():
     if request.method == 'OPTIONS':
@@ -174,8 +193,50 @@ def content():
             response = json.load(json_file)
         return jsonify(response)
     elif request.method == 'POST':
-        body = request.json
-        with open('contents.json', 'w') as json_file:
-            json.dump(body, json_file, indent=2)
-        return jsonify({"success": True})
+        if not is_whitelisted():
+            return redirect(url_for("login"))
+        else:
+            body = request.json
+            with open('contents.json', 'w') as json_file:
+                json.dump(body, json_file, indent=2)
+            return jsonify({"success": True})
         
+@app.route('/content.staged.json', methods=['POST', 'GET'])
+def content_staged():
+    if request.method == 'GET':
+        with open('contents.staged.json') as json_file:
+            response = json.load(json_file)
+        return jsonify(response)
+    elif request.method == 'POST':
+        if not is_whitelisted():
+            return jsonify({"success": False})
+        else:
+            body = request.json
+            with open('contents.staged.json', 'w') as json_file:
+                json.dump(body, json_file, indent=2)
+            return jsonify({"success": True})
+
+def is_whitelisted():
+    '''
+    Checks if the user is authenticated and whitelisted
+    '''
+    resp = google.get("/oauth2/v1/userinfo")
+    if not resp.ok:
+        return False
+    elif resp.json()["email"] in whitelist:
+        return True
+
+@app.route("/login")
+def login():
+    '''
+    Performs login with google and returns true
+    if the email is whitelisted
+    '''
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    resp = google.get("/oauth2/v1/userinfo")
+    assert resp.ok, resp.text
+    if resp.json()["email"] in whitelist:
+        return jsonify({"success": True})
+    else:
+        return jsonify({"success": False, "reason": "whitelist"})
