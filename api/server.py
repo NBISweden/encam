@@ -10,7 +10,7 @@ from database import db
 import database as database_lib
 
 config = configparser.ConfigParser()
-config.read('../config/config.ini')
+config.read('/config/config.ini')
 
 app = Flask(__name__, static_folder='/static/')
 
