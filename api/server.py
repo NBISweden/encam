@@ -3,6 +3,7 @@ from lifelines import CoxPHFitter
 import pandas as pd
 import json
 from flask_dance.contrib.google import make_google_blueprint, google
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 import os
 import configparser
 
@@ -21,32 +22,25 @@ app.secret_key = config['AUTH']['FlaskSecretKey']
 app.config["GOOGLE_OAUTH_CLIENT_ID"]  = config['AUTH']['GoogleClientID']
 app.config["GOOGLE_OAUTH_CLIENT_SECRET"] = config['AUTH']['GoogleClientSecret']
 
-google_bp = make_google_blueprint(scope=["profile", "email"], redirect_url="/login")
+google_bp = make_google_blueprint(scope=["profile", "email"], redirect_url="/api/login")
 app.register_blueprint(google_bp, url_prefix="/login")
 
 whitelist_file = config['AUTH']['Whitelist']
 with open(whitelist_file, 'r') as file:
     whitelist = [line.strip() for line in file]
 
-@app.route('/')
-def main():
+@app.route('/api/')
+def root():
     """
-    Serves the single-page webapp.
+    Static page is served by nginx so here you get 204 No Content
     """
-    return app.send_static_file('index.html')
+    return '', 204
 
-@app.after_request
-def after_request(response):
-    """
-    Callback that triggers after each request. Currently no-op.
-    """
-    return response
-
-@app.route('/ping')
+@app.route('/api/ping')
 def ping():
     return make_response("pong", "text/plain")
 
-@app.route('/filter', methods=['OPTIONS', 'POST'])
+@app.route('/api/filter', methods=['OPTIONS', 'POST'])
 def filter():
     if request.method == 'OPTIONS':
         # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
@@ -64,7 +58,7 @@ def filter():
     else:
         return jsonify({"error": "Body must be JSON"})
 
-@app.route('/tukey', methods=['OPTIONS', 'POST'])
+@app.route('/api/tukey', methods=['OPTIONS', 'POST'])
 def tukey():
     if request.method == 'OPTIONS':
         # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
@@ -82,7 +76,7 @@ def tukey():
         return jsonify({"error": "Body must be JSON"})
 
 
-@app.route('/configuration')
+@app.route('/api/configuration')
 def configuration():
     def tidy_values(values):
         values = sorted(values, key=lambda x: (isinstance(x, float), x))
@@ -139,17 +133,17 @@ def configuration():
     }
     return jsonify(config)
 
-@app.route('/codes')
+@app.route('/api/codes')
 def codes():
     response = jsonify(db.codes_dict)
     return response
 
-@app.route('/database')
+@app.route('/api/database')
 def database():
     response = jsonify(db.db.to_dict(orient='records'))
     return response
 
-@app.route('/survival', methods=['OPTIONS', 'POST'])
+@app.route('/api/survival', methods=['OPTIONS', 'POST'])
 def survival():
     if request.method == 'OPTIONS':
         # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
@@ -162,7 +156,7 @@ def survival():
     else:
         return jsonify({"error": "Body must be JSON"})
 
-@app.route('/size', methods=['OPTIONS', 'POST'])
+@app.route('/api/size', methods=['OPTIONS', 'POST'])
 def size():
     if request.method == 'OPTIONS':
         # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
@@ -175,7 +169,7 @@ def size():
     else:
         return jsonify({"error": "Body must be JSON"})
 
-@app.route('/expression', methods=['OPTIONS', 'POST'])
+@app.route('/api/expression', methods=['OPTIONS', 'POST'])
 def expression():
     if request.method == 'OPTIONS':
         # CORS fetch with POST+Headers starts with a pre-flight OPTIONS:
@@ -185,8 +179,8 @@ def expression():
         body = request.json
         response = database_lib.expression(body).to_list()
         return jsonify(response)
-        
-@app.route('/content.json', methods=['POST', 'GET'])
+
+@app.route('/api/content.json', methods=['POST', 'GET'])
 def content():
     if request.method == 'GET':
         with open('contents.json') as json_file:
@@ -200,8 +194,8 @@ def content():
             with open('contents.json', 'w') as json_file:
                 json.dump(body, json_file, indent=2)
             return jsonify({"success": True})
-        
-@app.route('/content.staged.json', methods=['POST', 'GET'])
+
+@app.route('/api/content.staged.json', methods=['POST', 'GET'])
 def content_staged():
     if request.method == 'GET':
         with open('contents.staged.json') as json_file:
@@ -226,17 +220,29 @@ def is_whitelisted():
     elif resp.json()["email"] in whitelist:
         return True
 
-@app.route("/login")
+@app.route("/api/login")
 def login():
     '''
-    Performs login with google and returns true
-    if the email is whitelisted
+    User tries to login via google and is redirected back to / if successful.
     '''
     if not google.authorized:
         return redirect(url_for("google.login"))
-    resp = google.get("/oauth2/v1/userinfo")
+    try:
+        resp = google.get("/oauth2/v1/userinfo")
+    except (InvalidGrantError, TokenExpiredError) as e:
+        # https://github.com/singingwolfboy/flask-dance/issues/35
+        return redirect(url_for("google.login"))
     assert resp.ok, resp.text
-    if resp.json()["email"] in whitelist:
-        return jsonify({"success": True})
+    print('User', resp.json(), 'logged in, redirecting back to /')
+    return redirect('/')
+
+@app.route("/api/login_status")
+def login_status():
+    '''
+    Get the logged in status.
+    '''
+    resp = google.get("/oauth2/v1/userinfo")
+    if resp.ok:
+        return jsonify({**resp.json(), "logged_in": True, "whitelisted": is_whitelisted()})
     else:
-        return jsonify({"success": False, "reason": "whitelist"})
+        return jsonify({"logged_in": False, "whitelisted": False})

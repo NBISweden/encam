@@ -19,8 +19,13 @@
         }
 
         location /api/ {
-                # There were issues using the wsgi transport for uwsgi,
-                # use its built in http server.
-                proxy_pass http://127.0.0.1:9090/;
+            # There were issues using the wsgi transport for uwsgi,
+            # use its built in http server.
+            proxy_pass http://127.0.0.1:9090/api/;
+        }
+
+        location /login/ {
+            # For oauth login via flask and flask-dance
+            proxy_pass http://127.0.0.1:9090/login/;
         }
     }
