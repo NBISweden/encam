@@ -180,35 +180,35 @@ def expression():
         response = database_lib.expression(body).to_list()
         return jsonify(response)
 
-@app.route('/api/content.json', methods=['POST', 'GET'])
-def content():
-    if request.method == 'GET':
-        with open('contents.json') as json_file:
-            response = json.load(json_file)
-        return jsonify(response)
-    elif request.method == 'POST':
-        if not is_whitelisted():
-            return redirect(url_for("login"))
-        else:
-            body = request.json
-            with open('contents.json', 'w') as json_file:
-                json.dump(body, json_file, indent=2)
-            return jsonify({"success": True})
+content_files = [
+    'content.json',
+    'content.staged.json',
+]
 
-@app.route('/api/content.staged.json', methods=['POST', 'GET'])
-def content_staged():
-    if request.method == 'GET':
-        with open('contents.staged.json') as json_file:
-            response = json.load(json_file)
-        return jsonify(response)
-    elif request.method == 'POST':
-        if not is_whitelisted():
-            return jsonify({"success": False})
-        else:
-            body = request.json
-            with open('contents.staged.json', 'w') as json_file:
-                json.dump(body, json_file, indent=2)
-            return jsonify({"success": True})
+import tempfile
+import shutil
+
+def add_content_route(content_file):
+    endpoint = '/api/' + content_file
+    @app.route(endpoint, methods=['POST', 'GET'], endpoint=endpoint)
+    def content():
+        if request.method == 'GET':
+            with open(content_file) as json_file:
+                response = json.load(json_file)
+            return jsonify(response)
+        elif request.method == 'POST':
+            if not is_whitelisted():
+                return redirect(url_for("login"))
+            else:
+                body = request.json
+                with tempfile.NamedTemporaryFile(mode='w') as fp:
+                    json.dump(body, fp, indent=2)
+                    fp.flush()
+                    shutil.copy2(fp.name, content_file)
+                return jsonify({"success": True})
+
+for content_file in content_files:
+    add_content_route(content_file)
 
 def is_whitelisted():
     '''
