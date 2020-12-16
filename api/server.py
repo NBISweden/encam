@@ -13,7 +13,7 @@ import database as database_lib
 config = configparser.ConfigParser()
 config.read('/config/config.ini')
 
-app = Flask(__name__, static_folder='/static/')
+app = Flask(__name__)
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #FIXME: Needs to be disabled?
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
