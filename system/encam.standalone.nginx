@@ -1,4 +1,3 @@
-
     server {
         listen 8443 ssl http2;
         listen 8080;
@@ -12,7 +11,9 @@
         }
 
         location / {
-            try_files $uri $uri/ @wsgi =404;
+            # Forward to index.html if the file does not exist to allow javascript to route
+            # https://stackoverflow.com/questions/43951720/react-router-and-nginx
+            try_files $uri $uri/ @wsgi /index.html;
         }
 
         location /api/ {

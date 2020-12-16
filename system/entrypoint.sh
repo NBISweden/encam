@@ -21,6 +21,12 @@ fi
 
 chown www-data.www-data /code/*.pem
 
-mv /etc/nginx/encam.standalone /etc/nginx/encam
+if getent hosts encam-frontend-devel >/dev/null; then
+    echo 'Using development nginx conf'
+    cp /etc/nginx/encam.devel /etc/nginx/encam
+else
+    echo 'Using standalone nginx conf'
+    cp /etc/nginx/encam.standalone /etc/nginx/encam
+fi
 
 supervisord -c /etc/supervisord.conf
