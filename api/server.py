@@ -198,7 +198,7 @@ def add_content_route(content_file):
             return jsonify(response)
         elif request.method == 'POST':
             if not is_whitelisted():
-                return redirect(url_for("login"))
+                return jsonify({"success": False, "reason": "Not on whitelist."})
             else:
                 body = request.json
                 with tempfile.NamedTemporaryFile(mode='w') as fp:
