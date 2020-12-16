@@ -7,6 +7,10 @@
         ssl_certificate_key /code/key.pem;
         root /app/dist/;
 
+        location ^~ /.well-known/ {
+                 # Stop processing here to serve content from .well-known
+        }
+
         location / {
             try_files $uri $uri/ @wsgi =404;
         }
