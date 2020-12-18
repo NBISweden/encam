@@ -210,16 +210,6 @@ def add_content_route(content_file):
 for content_file in content_files:
     add_content_route(content_file)
 
-def is_whitelisted():
-    '''
-    Checks if the user is authenticated and whitelisted
-    '''
-    resp = google.get("/oauth2/v1/userinfo")
-    if not resp.ok:
-        return False
-    elif resp.json()["email"] in whitelist:
-        return True
-
 @app.route("/api/login")
 def login():
     '''
