@@ -226,7 +226,7 @@ def login():
     User tries to login via google and is redirected back to / if successful.
     '''
     if session.get('email') in whitelist:
-        return jsonify({"success": True})
+        return redirect('/')
     elif not google.authorized:
         return redirect(url_for("google.login"))
     try:
