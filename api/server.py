@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, url_for, make_response, redirect
+from flask import Flask, request, jsonify, render_template, url_for, make_response, redirect, session
 from lifelines import CoxPHFitter
 import pandas as pd
 import json
@@ -197,7 +197,7 @@ def add_content_route(content_file):
                 response = json.load(json_file)
             return jsonify(response)
         elif request.method == 'POST':
-            if not is_whitelisted():
+            if session.get('email') not in whitelist:
                 return jsonify({"success": False, "reason": "Not on whitelist."})
             else:
                 body = request.json
@@ -225,7 +225,9 @@ def login():
     '''
     User tries to login via google and is redirected back to / if successful.
     '''
-    if not google.authorized:
+    if session.get('email') in whitelist:
+        return jsonify({"success": True})
+    elif not google.authorized:
         return redirect(url_for("google.login"))
     try:
         resp = google.get("/oauth2/v1/userinfo")
@@ -234,6 +236,11 @@ def login():
         return redirect(url_for("google.login"))
     assert resp.ok, resp.text
     print('User', resp.json(), 'logged in, redirecting back to /')
+    if resp.json()['email'] in whitelist:
+        session['email'] = resp.json()['email']
+        session['name'] = resp.json()['name']
+        session['picture'] = resp.json()['picture']
+        session.permanent = True
     return redirect('/')
 
 @app.route("/api/login_status")
@@ -241,8 +248,7 @@ def login_status():
     '''
     Get the logged in status.
     '''
-    resp = google.get("/oauth2/v1/userinfo")
-    if resp.ok:
-        return jsonify({**resp.json(), "logged_in": True, "whitelisted": is_whitelisted()})
+    if session.get('email') in whitelist:
+        return jsonify({"logged_in": True, "whitelisted": True})
     else:
         return jsonify({"logged_in": False, "whitelisted": False})
