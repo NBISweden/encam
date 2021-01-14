@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import {Views} from './Views'
+import {App} from './App'
 import {BrowserRouter} from 'react-router-dom'
 
 if (typeof process === 'undefined') {
@@ -12,7 +12,7 @@ if (typeof process === 'undefined') {
 
 const root = (
   <BrowserRouter>
-    <Views />
+    <App />
   </BrowserRouter>
 )
 

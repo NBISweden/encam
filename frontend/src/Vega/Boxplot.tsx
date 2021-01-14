@@ -1,6 +1,6 @@
 import * as ui from '../ui_utils'
 import * as utils from '../utils'
-import * as VL from 'vega-lite'
+import type * as VL from 'vega-lite'
 
 import * as React from 'react'
 

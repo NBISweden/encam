@@ -18,7 +18,6 @@ async function request_by_fetch(endpoint: string, body?: any) {
         },
       }
     : undefined
-  console.log(endpoint, body)
   const resp = await fetch(window.location.origin + '/api/' + endpoint, init)
   const res = await resp.json()
   if (mem[endpoint] === null) {
@@ -48,6 +47,16 @@ export function MockBackend(props: {request: typeof request_by_fetch; children: 
   return <Backend.Provider value={props.request}>{props.children}</Backend.Provider>
 }
 
-export function mock(request: typeof request_by_fetch) {
-  return (children: React.ReactNode) => <MockBackend request={request}>{children}</MockBackend>
+export function mock(
+  request: typeof request_by_fetch | Promise<{default: typeof request_by_fetch}>
+) {
+  const req: typeof request_by_fetch = async (...args) => {
+    if (request instanceof Promise) {
+      const m = await request
+      return m.default(...args)
+    } else {
+      return request(...args)
+    }
+  }
+  return (children: React.ReactNode) => <MockBackend request={req}>{children}</MockBackend>
 }

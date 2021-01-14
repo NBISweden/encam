@@ -17,15 +17,15 @@ export interface Story extends BabelSource {
   only: boolean
   seq_num: number
   key: string
-  tests: Test[]
+  // tests: Test[]
 }
 
-export type TestApi = typeof import('@testing-library/react')
+// export type TestApi = typeof import('@testing-library/react')
 
-export interface Test {
-  test_name: string
-  script(expect: jest.Expect, q: TestApi): Promise<void>
-}
+// export interface Test {
+//   test_name: string
+//   script(expect: jest.Expect, q: TestApi): Promise<void>
+// }
 
 // export type Expect = jest.Expect
 // jest.Expect
@@ -43,7 +43,7 @@ export interface AddedStories {
   name(component_name: string): AddedStories
   tag(tag_name: string): AddedStories
 
-  test(test_name: string, script: (expect: jest.Expect, q: TestApi) => Promise<void>): AddedStories
+  // test(test_name: string, script: (expect: jest.Expect, q: TestApi) => Promise<void>): AddedStories
   snap(): AddedStories
   only(): AddedStories
   skip(): AddedStories
@@ -95,7 +95,7 @@ function makeStory(component: React.ReactElement, seq_num: number): Story {
     skip: false,
     only: false,
     key,
-    tests: [],
+    // tests: [],
     ...source,
   }
 }
@@ -111,7 +111,7 @@ function AddFunction(counter: Counter, stories: Story[]): AddedStories {
     wrap: wrap => go(st => (st.component = wrap(st.component))),
     name: name => go(st => (st.name = name)),
     tag: tag => go(st => (st.name += '/' + tag)),
-    test: (test_name, script) => go(st => st.tests.push({test_name, script})),
+    // test: (test_name, script) => go(st => st.tests.push({test_name, script})),
     snap: () => go(st => (st.snap = true)),
     only: () => go(st => (st.only = true)),
     skip: () => go(st => (st.skip = true)),
@@ -155,10 +155,13 @@ export function StoryFactory(init_modules = {} as Modules) {
   const nudges = new Map<any, () => void>()
 
   function stories(scoped_add: (add: AddFunction) => void) {
+    // if (process.env.NODE_ENV !== 'development') {
+    // return
+    // }
     const [add, get_stories] = AddFactory()
     scoped_add(add)
     const by_filename = Object.entries(utils.groupBy('fileName', get_stories()))
-    if (by_filename.length > 1) {
+    if (by_filename.length > 1 && by_filename.some(([file_name]) => !file_name.match(/^unknown/))) {
       console.warn(
         'Components defined in different files:',
         by_filename.map(kv => kv[0])
@@ -229,18 +232,3 @@ export default stories
 export const getStories = Stories.getStories
 export const useStories = Stories.useStories
 export const StoryBrowser = () => Stories.StoryBrowser()
-
-// console.log('module reload: stories')
-
-/** Graveyard
-
-type Control =
-  | { kind: 'oneof', values: any[] }
-  | { kind: 'range', min: number, max: number }
-
-const controls = {
-  oneof: (...values: any[]): Control => ({ kind: 'oneof', values }),
-  range: (min: number, max: number): Control => ({ kind: 'range', min, max }),
-}
-
-*/

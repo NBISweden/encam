@@ -13,6 +13,7 @@ const classes = {
     alignItems: 'flex-start',
     '& > :not(:first-child)': {
       flexGrow: 1,
+      flexShrink: 1,
       marginLeft: 0,
     },
   }),
@@ -41,7 +42,13 @@ export function Loading({reloading = false}) {
 export function LoadingPlot({plot = undefined as React.ReactNode, loading = false}) {
   return (
     (plot || loading) && (
-      <ui.Paper key="plot" style={{width: 'fit-content'}}>
+      <ui.Paper
+        key="plot"
+        style={
+          {
+            // width: 'fit-content'
+          }
+        }>
         {loading && <Loading reloading={!!plot} />}
         {plot}
       </ui.Paper>

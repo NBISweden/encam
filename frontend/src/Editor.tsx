@@ -33,17 +33,9 @@ const classes = {
       `
     ),
   }),
-  WithEditor: css({
-    ...ui.flex_row,
-    '& > div': {
-      minWidth: 600,
-    },
-  }),
   Editor: css({
-    padding: 10,
+    padding: '15px 0px',
     background: '#fff',
-    borderLeft: '2px #888 solid',
-    marginLeft: 8,
     // ...ui.flex_column,
     '& > *': {
       marginBottom: 15,
@@ -51,19 +43,9 @@ const classes = {
     },
     '& textarea': {
       width: '100%',
+      resize: 'vertical',
     },
   }),
-}
-
-export function WithEditor(props: {children: React.ReactNode}) {
-  return (
-    <C.WithEditableContent>
-      <div className={classes.WithEditor}>
-        <Editor />
-        <div>{props.children}</div>
-      </div>
-    </C.WithEditableContent>
-  )
 }
 
 export function EditNav() {
@@ -81,13 +63,47 @@ export function EditNav() {
             setter(x => ({...x, nav}))
           }}
         />
-        <span style={{opacity: 0.8, alignSelf: 'flex-end'}}>(use comma to separate)</span>
+        <span style={{opacity: 0.8, fontSize: '0.9em'}}>(use comma to separate)</span>
       </div>
       {nav.map(id => (
         <EditSection key={id} id={id} />
       ))}
     </>
   )
+}
+
+export function EditSections({keys}) {
+  const [filter, set_filter] = React.useState('')
+  let re = /.*/
+  let msg
+  try {
+    re = new RegExp(filter)
+  } catch (e) {
+    console.log(e)
+    msg = e.toString()
+  }
+  return [
+    <div key="filter">
+      Filter:{' '}
+      <input type="text" value={filter} onInput={e => e.target && set_filter(e.target.value)} />
+      <span style={{color: 'red'}}>{msg}</span>
+    </div>,
+    keys.map(
+      id =>
+        id.match(re) && (
+          <EditSection
+            key={id}
+            id={id}
+            onClickHeader={() =>
+              set_filter(current => {
+                const next = '^' + id + '$'
+                return current !== next ? next : ''
+              })
+            }
+          />
+        )
+    ),
+  ]
 }
 
 export function Editor() {
@@ -107,23 +123,11 @@ export function Editor() {
     },
     {
       label: 'Cell descriptions',
-      elem: (
-        <>
-          {C.cell_keys.map(id => (
-            <EditSection key={id} id={id} />
-          ))}
-        </>
-      ),
+      elem: <EditSections keys={C.cell_keys} />,
     },
     {
       label: 'Tumor descriptions',
-      elem: (
-        <>
-          {C.tumor_keys.map(id => (
-            <EditSection key={id} id={id} />
-          ))}
-        </>
-      ),
+      elem: <EditSections keys={C.tumor_keys} />,
     },
     {
       label: 'Low-level edit',
@@ -137,13 +141,13 @@ export function Editor() {
         {sections.map((s, i) => (
           <button
             className={section.label === s.label ? 'checked' : undefined}
-            style={i === sections.length - 1 ? {marginLeft: 'auto'} : {}}
+            style={i === sections.length - 1 ? {marginLeft: 'auto', marginRight: 0} : {}}
             onClick={() => set_section(s)}>
             {s.label}
           </button>
         ))}
       </div>
-      {section.elem}
+      <div style={{margin: 5}}>{section.elem}</div>
     </div>
   )
 }
@@ -156,15 +160,16 @@ export function RawEdit() {
   return (
     <>
       <textarea
-        defaultValue={utils.pp(C.useRawContent())}
-        style={{minHeight: '60%'}}
+        defaultValue={utils.pp(C.useRawContent().content)}
+        style={{height: '30vh'}}
         onChange={e => {
           try {
             const v = JSON.parse(e.target.value)
             const d = C.ContentType.decode(v)
+            console.log(v, d)
             if (d._tag == 'Right') {
               set_msg('')
-              setter(v)
+              setter(() => v)
             } else {
               set_msg(PathReporter.report(d).join('\n'))
             }
@@ -178,16 +183,21 @@ export function RawEdit() {
   )
 }
 
-export function EditSection({id}: {id: string}) {
+export function EditSection({id, onClickHeader}: {id: string; onClickHeader: Function}) {
   const setter = C.useRawContentSetter()
   return (
     <div>
-      <p style={{marginBottom: 0}}>
-        <b>{id}</b>
-      </p>
+      <h3 style={{marginBottom: 0, cursor: onClickHeader && 'pointer'}} onClick={onClickHeader}>
+        {id}
+      </h3>
       <textarea
         rows={10}
-        defaultValue={(C.useRawContent().sections[id] || []).join('\n')}
+        defaultValue={(C.useRawContent().content.sections[id] || []).join('\n')}
+        style={{
+          fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+          fontSize: '0.875rem',
+          lineHeight: 1.43,
+        }}
         onChange={e => {
           const v = e.target.value
           setter(x => ({

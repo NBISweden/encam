@@ -540,7 +540,6 @@ export const Splash = React.memo(function Splash() {
 })
 
 import stories from '@app/ui_utils/stories'
-import * as splash_data from './data/splash'
 
 function LeftOnly() {
   return <Left {...useSplashProps()} />
@@ -549,9 +548,9 @@ function LeftOnly() {
 stories(add => {
   add(<Splash />)
   add({mock: <Splash />})
-    .wrap(backend.mock(splash_data.request))
+    .wrap(backend.mock(import('./data/splash')))
     .snap()
   add(<LeftOnly />)
-    .wrap(backend.mock(splash_data.request))
+    .wrap(backend.mock(import('./data/splash')))
     .snap()
 })

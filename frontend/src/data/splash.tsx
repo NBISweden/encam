@@ -1431,3 +1431,4 @@ const database = [
 const endpoints = {codes, database}
 
 export const request = async (path: string) => endpoints[(path as any) as keyof typeof endpoints]
+export default request

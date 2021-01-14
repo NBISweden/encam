@@ -11,11 +11,21 @@ import {cell_color} from './cell_colors'
 
 import {Splash} from './Splash'
 import * as form from './Form'
+
 import {FormAndBoxPlot, FormAndKMPlot} from './FormAndPlot'
 
 import {Section, useNav} from './Content'
 
 const classes = {
+  Root: css(
+    `
+    background: #eee;
+    background: linear-gradient(0deg, #ddd 0%, #fafafa 100%);
+    background-repeat: no-repeat;
+    margin: 0px auto;
+  }`,
+    ui.flex_row
+  ),
   Main: css({
     // flexGrow: 1,
     '& h1, & h2, & h3': {
@@ -195,6 +205,7 @@ export function Modules(props: {resetChan?: ui.Channel<void>}) {
 
 export function Header(props: {onClickHeader?: Action<any>; onNav?: Action<string>}) {
   const nav = useNav()
+  console.log(nav)
   return (
     <header>
       <nav>
@@ -216,12 +227,11 @@ export function Header(props: {onClickHeader?: Action<any>; onNav?: Action<strin
   )
 }
 
-export function Main({version = <span />}) {
+export function Main({version = <React.Fragment />}) {
   const resetChan = ui.useChannel<void>()
   const [section, set_section] = React.useState(undefined as undefined | string)
   return (
-    <WithMainTheme>
-      <CssBaseline />
+    <div className={classes.Root}>
       <MainGlobalStyle />
       <div className={classes.Main}>
         <Header
@@ -244,10 +254,10 @@ export function Main({version = <span />}) {
         <div style={{flexGrow: 1}} />
         <footer>
           <Section id="footer" />
-          {version}
+          <div style={{float: 'right'}}>{version}</div>
         </footer>
       </div>
-    </WithMainTheme>
+    </div>
   )
 }
 

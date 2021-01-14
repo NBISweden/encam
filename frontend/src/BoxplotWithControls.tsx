@@ -32,6 +32,9 @@ const classes = {
     '& .MuiFormGroup-root': {
       ...ui.flex_row,
     },
+    '& .Embed': {
+      overflowX: 'scroll',
+    },
   }),
   VisibleSidebar: css({
     ...ui.flex_column,

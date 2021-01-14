@@ -2,6 +2,7 @@ import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 
 import * as utils from './utils'
+import * as backend from './backend'
 
 const lines = (xs: TemplateStringsArray) =>
   xs[0]
@@ -103,19 +104,36 @@ export const ContentType: t.Type<Content> = t.type({
 
 console.log(JSON.stringify(test_content, undefined, 2))
 
-const ContentCtx = React.createContext(test_content)
+export interface ContentAndStatus {
+  content: Content
+  loading: boolean
+}
+
+const dummy: ContentAndStatus = {content: test_content, loading: false}
+const empty: ContentAndStatus = {content: {sections: {}, nav: []}, loading: true}
+
+const ContentCtx = React.createContext(dummy)
 const SetContentCtx = React.createContext((_: (c: Content) => Content) =>
   console.error('No setter for context in place')
 )
 
 export function WithEditableContent(props: {children: React.ReactNode}) {
-  const [content, set_content] = React.useState(test_content)
-  console.log(utils.pp(content))
+  const [content, set_content] = React.useState(dummy)
   return (
     <ContentCtx.Provider value={content}>
-      <SetContentCtx.Provider value={set_content}>{props.children}</SetContentCtx.Provider>
+      <SetContentCtx.Provider
+        value={s => set_content(c => ({loading: false, content: s(c.content)}))}>
+        {props.children}
+      </SetContentCtx.Provider>
     </ContentCtx.Provider>
   )
+}
+
+export function WithBackendContent(props: {children: React.ReactNode; url: string}) {
+  console.log('hmm')
+  const content = backend.useRequest(props.url)
+  const value = content ? {loading: false, content} : empty
+  return <ContentCtx.Provider value={value}>{props.children}</ContentCtx.Provider>
 }
 
 export function useRawContent() {
@@ -127,17 +145,26 @@ export function useRawContentSetter() {
 }
 
 export function useNav() {
-  return React.useContext(ContentCtx).nav
+  return React.useContext(ContentCtx).content?.nav || []
 }
 
 export function Section(props: {id: string}) {
-  const {sections} = React.useContext(ContentCtx)
-  const md = sections[props.id]
+  const {loading, content} = React.useContext(ContentCtx)
+  const md = content?.sections[props.id]
   return md ? (
     <ReactMarkdown source={md.join('\n')} />
+  ) : loading ? (
+    <span style={{fontSize: '0.8em'}}>Loading {utils.pretty(props.id)} section...</span>
   ) : (
-    <span style={{fontSize: '0.8em'}}>
-      Missing section: <code>{props.id}</code>!
-    </span>
+    <div
+      style={{
+        padding: 10,
+        margin: 10,
+        border: '2px red solid',
+        background: '#fff',
+        color: 'red',
+      }}>
+      Missing <code>{props.id}</code> section!
+    </div>
   )
 }

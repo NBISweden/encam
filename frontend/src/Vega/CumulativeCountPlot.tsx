@@ -1,4 +1,4 @@
-import * as VL from 'vega-lite'
+import type * as VL from 'vega-lite'
 
 import * as React from 'react'
 import * as utils from '../utils'
