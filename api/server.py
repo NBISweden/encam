@@ -180,6 +180,9 @@ def expression():
         response = database_lib.expression(body).to_list()
         return jsonify(response)
 
+def whitelisted():
+    return session.get('email') in whitelist
+
 content_files = [
     'content.json',
     'content.staged.json',
@@ -197,7 +200,7 @@ def add_content_route(content_file):
                 response = json.load(json_file)
             return jsonify(response)
         elif request.method == 'POST':
-            if session.get('email') not in whitelist:
+            if whitelisted():
                 return jsonify({"success": False, "reason": "Not on whitelist."})
             else:
                 body = request.json
@@ -215,8 +218,8 @@ def login():
     '''
     User tries to login via google and is redirected back to / if successful.
     '''
-    if session.get('email') in whitelist:
-        return redirect('/')
+    if whitelisted():
+        return redirect('/admin')
     elif not google.authorized:
         return redirect(url_for("google.login"))
     try:
@@ -226,19 +229,21 @@ def login():
         return redirect(url_for("google.login"))
     assert resp.ok, resp.text
     print('User', resp.json(), 'logged in, redirecting back to /')
-    if resp.json()['email'] in whitelist:
-        session['email'] = resp.json()['email']
-        session['name'] = resp.json()['name']
-        session['picture'] = resp.json()['picture']
-        session.permanent = True
-    return redirect('/')
+    session['email'] = resp.json()['email']
+    session['name'] = resp.json()['name']
+    session['picture'] = resp.json()['picture']
+    session.permanent = True
+    return redirect('/admin')
 
 @app.route("/api/login_status")
 def login_status():
     '''
     Get the logged in status.
     '''
-    if session.get('email') in whitelist:
-        return jsonify({"logged_in": True, "whitelisted": True})
-    else:
-        return jsonify({"logged_in": False, "whitelisted": False})
+    return jsonify({
+        "logged_in": 'email' in session,
+        "whitelisted": whitelisted(),
+        "email": session.get('email'),
+        "name": session.get('name'),
+        "picture": session.get('picture')
+    })
