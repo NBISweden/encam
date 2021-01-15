@@ -9,6 +9,7 @@ import * as C from './Content'
 const classes = {
   Tabs: css({
     ...ui.flex_row,
+    alignItems: 'baseline',
     flexWrap: 'wrap',
     '& > button': css(
       `
@@ -24,6 +25,9 @@ const classes = {
         z-index: 2;
 
         margin-right: 5;
+        &:last-child {
+          margin-right: 0;
+        }
         margin-bottom: 5;
 
         &.checked {
@@ -50,7 +54,7 @@ const classes = {
 
 export function EditNav() {
   const nav = C.useNav()
-  const setter = C.useRawContentSetter()
+  const {set_content} = C.useRawContentSetter()
   return (
     <>
       <div style={{...ui.flex_column}}>
@@ -60,7 +64,7 @@ export function EditNav() {
           defaultValue={nav.join(', ')}
           onChange={e => {
             const nav = e.target.value.split(/,/g).map(v => v.trim())
-            setter(x => ({...x, nav}))
+            set_content(c => ({...c, nav}))
           }}
         />
         <span style={{opacity: 0.8, fontSize: '0.9em'}}>(use comma to separate)</span>
@@ -72,7 +76,7 @@ export function EditNav() {
   )
 }
 
-export function EditSections({keys}) {
+export function EditSections({keys}: {keys: string[]}): React.ReactElement {
   const [filter, set_filter] = React.useState('')
   let re = /.*/
   let msg
@@ -82,13 +86,13 @@ export function EditSections({keys}) {
     console.log(e)
     msg = e.toString()
   }
-  return [
+  return <>
     <div key="filter">
       Filter:{' '}
       <input type="text" value={filter} onChange={e => e.target && set_filter(e.target.value)} />
       <span style={{color: 'red'}}>{msg}</span>
-    </div>,
-    keys.map(
+    </div>
+    {keys.map(
       id =>
         id.match(re) && (
           <EditSection
@@ -102,8 +106,13 @@ export function EditSections({keys}) {
             }
           />
         )
-    ),
-  ]
+    )}
+  </>
+}
+
+export function Msg() {
+const {msg} = C.useRawContentSetter()
+  return <span>{msg}</span>
 }
 
 export function Editor() {
@@ -130,8 +139,11 @@ export function Editor() {
       elem: <EditSections keys={C.tumor_keys} />,
     },
     {
+      msg: <Msg />
+    },
+    {
       label: 'Low-level edit',
-      elem: <RawEdit />,
+      elem: <RawEdit />
     },
   ]
   const [section, set_section] = React.useState(sections[0])
@@ -139,12 +151,16 @@ export function Editor() {
     <div className={classes.Editor}>
       <div className={classes.Tabs}>
         {sections.map((s, i) => (
-          <button
-            className={section.label === s.label ? 'checked' : undefined}
-            style={i === sections.length - 1 ? {marginLeft: 'auto', marginRight: 0} : {}}
-            onClick={() => set_section(s)}>
-            {s.label}
-          </button>
+          s.msg ?
+            <div style={{marginLeft: 'auto', marginRight: 5}}>
+              {s.msg}
+            </div>
+            :
+            <button
+              className={section.label === s.label ? 'checked' : undefined}
+              onClick={() => set_section(s)}>
+              {s.label}
+            </button>
         ))}
       </div>
       <div style={{margin: 5}}>{section.elem}</div>
@@ -155,7 +171,7 @@ export function Editor() {
 import {PathReporter} from 'io-ts/PathReporter'
 
 export function RawEdit() {
-  const setter = C.useRawContentSetter()
+  const {set_content} = C.useRawContentSetter()
   const [msg, set_msg] = React.useState('')
   return (
     <>
@@ -169,7 +185,7 @@ export function RawEdit() {
             console.log(v, d)
             if (d._tag == 'Right') {
               set_msg('')
-              setter(() => v)
+              set_content(() => v)
             } else {
               set_msg(PathReporter.report(d).join('\n'))
             }
@@ -183,11 +199,11 @@ export function RawEdit() {
   )
 }
 
-export function EditSection({id, onClickHeader}: {id: string; onClickHeader: Function}) {
-  const setter = C.useRawContentSetter()
+export function EditSection({id, onClickHeader}: {id: string; onClickHeader?: Function}) {
+  const {set_content} = C.useRawContentSetter()
   return (
     <div>
-      <h3 style={{marginBottom: 0, cursor: onClickHeader && 'pointer'}} onClick={onClickHeader}>
+      <h3 style={{marginBottom: 0, cursor: onClickHeader && 'pointer'}} onClick={() => onClickHeader && onClickHeader()}>
         {id}
       </h3>
       <textarea
@@ -201,10 +217,10 @@ export function EditSection({id, onClickHeader}: {id: string; onClickHeader: Fun
         }}
         onChange={e => {
           const v = e.target.value
-          setter(x => ({
-            ...x,
+          set_content(c => ({
+            ...c,
             sections: {
-              ...x.sections,
+              ...c.sections,
               [id]: v.split(/\n/g),
             },
           }))

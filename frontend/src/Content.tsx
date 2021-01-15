@@ -109,29 +109,84 @@ export interface ContentAndStatus {
   loading: boolean
 }
 
-const dummy: ContentAndStatus = {content: test_content, loading: false}
-const empty: ContentAndStatus = {content: {sections: {}, nav: []}, loading: true}
+const empty: Content = {sections: {}, nav: []}
+const quite_empty: Content = {sections: {header: [], footer: []}, nav: []}
 
-const ContentCtx = React.createContext(dummy)
-const SetContentCtx = React.createContext((_: (c: Content) => Content) =>
-  console.error('No setter for context in place')
-)
+const ContentCtx = React.createContext({content: test_content, loading: false})
+const SetContentCtx = React.createContext({
+  set_content: (_: (c: Content) => Content) => console.error('No setter for content in place'),
+  msg: '',
+})
 
-export function WithEditableContent(props: {children: React.ReactNode}) {
-  const [content, set_content] = React.useState(dummy)
+export function WithEditableContent(props: {children: React.ReactNode, url?: string}) {
+  const [content, set_content_raw] = React.useState(quite_empty)
+  const content_ref = React.useRef(content)
+  content_ref.current = content
+  const [loading, set_loading] = React.useState(false)
+  const url = props.url
+  const [msg, set_msg] = React.useState(url ? '' : 'no backend')
+  const value = {content, loading}
+  const req = backend.useRequestFn()
+  React.useEffect(() => {
+    if (url) {
+      set_loading(true)
+      set_msg('loading...')
+      req(url).then(c => {
+        set_loading(false)
+        set_msg('ready!')
+        set_content_raw(c)
+      }).catch(e => {
+        set_loading(false)
+        set_msg(e.toString())
+        console.error(e)
+      })
+    }
+  }, [url])
+  const timeout_ref = React.useRef(undefined)
+  const set_content = React.useCallback(k => {
+    console.log('loading', loading)
+    if (loading == false) {
+      let c
+      set_content_raw(content => { return c = k(content) })
+      console.log('hmm', c)
+      window.clearTimeout(timeout_ref.current)
+      set_msg('...')
+      timeout_ref.current = window.setTimeout(() => {
+        set_msg('saving...')
+        req(url, c).then(res => {
+          if (res.success) {
+            const saved = JSON.stringify(c)
+            const now = JSON.stringify(content_ref.current)
+            console.log(saved, now, saved == now)
+            if (saved == now) {
+              set_msg('saved')
+            } else {
+              set_msg('....')
+            }
+          } else  {
+            set_msg(res.reason)
+          }
+        }).catch(e => {
+          set_msg(e.toString())
+          console.error(e)
+        })
+      }, 500)
+    }
+  }, [loading, url])
+  const proto_setter = {set_content, msg}
+  const setter = React.useMemo(() => proto_setter, Object.values(proto_setter))
   return (
-    <ContentCtx.Provider value={content}>
-      <SetContentCtx.Provider
-        value={s => set_content(c => ({loading: false, content: s(c.content)}))}>
+    <SetContentCtx.Provider value={setter}>
+      <ContentCtx.Provider value={value}>
         {props.children}
-      </SetContentCtx.Provider>
-    </ContentCtx.Provider>
+      </ContentCtx.Provider>
+    </SetContentCtx.Provider>
   )
 }
 
 export function WithBackendContent(props: {children: React.ReactNode; url: string}) {
   const content = backend.useRequest(props.url)
-  const value = content ? {loading: false, content} : empty
+  const value = content ? {loading: false, content} : {loading: true, content: empty}
   return <ContentCtx.Provider value={value}>{props.children}</ContentCtx.Provider>
 }
 

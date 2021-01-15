@@ -32,7 +32,7 @@ export function App() {
           </Suspense>
         </Route>
         <Route path="/staging">
-          <WithBackendContent url="content.staging.json">
+          <WithBackendContent url="content.staged.json">
             <Main version={<span style={{float: 'right'}}>version: staging</span>} />
           </WithBackendContent>
         </Route>

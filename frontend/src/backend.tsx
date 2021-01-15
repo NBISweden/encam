@@ -19,16 +19,22 @@ async function request_by_fetch(endpoint: string, body?: any) {
       }
     : undefined
   const resp = await fetch(window.location.origin + '/api/' + endpoint, init)
-  const res = await resp.json()
-  if (mem[endpoint] === null) {
-    mem[endpoint] = res
+  if (resp.ok) {
+    const res = await resp.json()
+    if (mem[endpoint] === null) {
+      mem[endpoint] = res
+    }
+    return res
+  } else {
+    throw new Error(resp.url + ' ' + resp.status + ' ' + resp.statusText)
   }
-  return res
 }
 
 const Backend = React.createContext(request_by_fetch)
 
-export function useRequestFn(): typeof request_by_fetch {
+export type RequestFn = typeof request_by_fetch
+
+export function useRequestFn(): RequestFn {
   return React.useContext(Backend)
 }
 

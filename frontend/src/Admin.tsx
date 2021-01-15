@@ -21,7 +21,7 @@ function Button({buttonText, onButtonClick}: Button) {
       style={{
         padding: '4px 14px',
         margin: 4,
-        minWidth: 180,
+        minWidth: 200,
         display: 'inline-block',
         border: '2px #999 solid',
         background: '#eee',
@@ -96,7 +96,22 @@ function LoginHeader(props: {buttons: React.ReactElement}) {
   )
 }
 
+async function move_staging_to_live(req: backend.RequestFn) {
+  try {
+    const staging = await req("content.staged.json")
+    const res = await req("content.json", staging)
+    if (res.success) {
+      alert('Success!')
+    } else {
+      alert(res.reason)
+    }
+  } catch (e) {
+    alert(e.toString())
+  }
+}
+
 export default function Admin() {
+  const req = backend.useRequestFn()
   const st = backend.useRequest('login_status')
   const [staging, set_staging] = React.useState(true)
   const [key, set_refresh_key] = React.useState(0)
@@ -105,16 +120,20 @@ export default function Admin() {
     <>
       <DoubleButton
         buttonText="Move staging to live"
-        onButtonClick={() => set_refresh_key(key + 1)}
+        onButtonClick={() => {
+          move_staging_to_live(req).then(() => {
+            set_refresh_key(key + 1)
+          })
+        }}
       />
       <Button
-        buttonText={staging ? 'Staging version' : 'Live version'}
+        buttonText={staging ? 'Showing staged version' : 'Showing live version'}
         onButtonClick={() => set_staging(b => !b)}
       />
     </>
   )
   return (
-    <C.WithEditableContent>
+    <C.WithEditableContent url="content.staged.json">
       <G.ScrollBodyGlobalStyle />
       <div style={{...ui.flex_column, width: '100%', background: '#fff', zIndex: 20}}>
         <LoginHeader buttons={buttons} />
