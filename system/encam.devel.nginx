@@ -19,6 +19,11 @@
         ssl_certificate_key /code/key.pem;
         root /app/dist/;
 
+
+        location ^~ /.well-known/ {
+                 # Stop processing here to serve content from .well-known
+        }
+
         location /api/ {
                 # There were issues using the wsgi transport for uwsgi,
                 # use its built in http server.
