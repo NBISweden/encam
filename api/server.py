@@ -200,7 +200,7 @@ def add_content_route(content_file):
                 response = json.load(json_file)
             return jsonify(response)
         elif request.method == 'POST':
-            if whitelisted():
+            if not whitelisted():
                 return jsonify({"success": False, "reason": "Not on whitelist."})
             else:
                 body = request.json
