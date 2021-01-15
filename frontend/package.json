@@ -52,7 +52,7 @@
     "react-is": ">= 16.8.0",
     "react-markdown": "^4.3.1",
     "react-router-dom": "^5.2.0",
-    "vega": "^5.10.0",
+    "vega": "^5.17.3",
     "vega-lite": "^4.7.0",
     "vega-tooltip": "^0.22.1"
   },
