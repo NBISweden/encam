@@ -193,10 +193,11 @@ import shutil
 
 def add_content_route(content_file):
     endpoint = '/api/' + content_file
+    filepath = '/config/content/' + content_file
     @app.route(endpoint, methods=['POST', 'GET'], endpoint=endpoint)
     def content():
         if request.method == 'GET':
-            with open(content_file) as json_file:
+            with open(filepath) as json_file:
                 response = json.load(json_file)
             return jsonify(response)
         elif request.method == 'POST':
@@ -207,7 +208,8 @@ def add_content_route(content_file):
                 with tempfile.NamedTemporaryFile(mode='w') as fp:
                     json.dump(body, fp, indent=2)
                     fp.flush()
-                    shutil.copy2(fp.name, content_file)
+                    shutil.copy2(fp.name, filepath)
+                    os.chmod(filepath, 0o666)
                 return jsonify({"success": True})
 
 for content_file in content_files:
