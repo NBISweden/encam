@@ -205,11 +205,12 @@ def add_content_route(content_file):
                 return jsonify({"success": False, "reason": "Not on whitelist."})
             else:
                 body = request.json
-                with tempfile.NamedTemporaryFile(mode='w') as fp:
+                with open(filepath, 'w') as fp:
                     json.dump(body, fp, indent=2)
-                    fp.flush()
-                    shutil.copy2(fp.name, filepath)
+                try:
                     os.chmod(filepath, 0o666)
+                except PermissionError as e:
+                    print('Failed to chmod 666', filepath, ':', str(e))
                 return jsonify({"success": True})
 
 for content_file in content_files:
