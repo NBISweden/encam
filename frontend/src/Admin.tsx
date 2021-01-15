@@ -9,7 +9,13 @@ import * as backend from './backend'
 import {Main, WithMainTheme} from './Main'
 import * as C from './Content'
 
-function Button({buttonText, onButtonClick}) {
+import * as G from './GlobalStyle'
+
+interface Button {
+  buttonText: string
+  onButtonClick: Function
+}
+function Button({buttonText, onButtonClick}: Button) {
   return (
     <span
       style={{
@@ -21,13 +27,13 @@ function Button({buttonText, onButtonClick}) {
         background: '#eee',
         cursor: 'pointer',
       }}
-      onClick={onButtonClick}>
+      onClick={() => onButtonClick()}>
       {buttonText}
     </span>
   )
 }
 
-function DoubleButton({buttonText, onButtonClick}) {
+function DoubleButton({buttonText, onButtonClick}: Button) {
   const [confirming, set_confirming] = React.useState(false)
   const text = confirming ? 'Click again to confirm!' : buttonText
   React.useEffect(() => {
@@ -51,15 +57,24 @@ function DoubleButton({buttonText, onButtonClick}) {
   )
 }
 
-function LoginHeader(props) {
+function LoginHeader(props: {buttons: React.ReactElement}) {
   const st = backend.useRequest('login_status')
-  const flex = '1 1 0px'
   return (
-    <div style={{width: 1100, margin: '0 auto', padding: 0, ...ui.flex_row, alignItems: 'center'}}>
+    <div
+      style={{
+        width: 1100,
+        minHeight: 56,
+        margin: '0 auto',
+        padding: 0,
+        ...ui.flex_row,
+        alignItems: 'center',
+      }}>
       <div style={{flex: '0 0 auto'}}>Administrator view</div>
-      <div style={{flex: 1, textAlign: 'center'}}>{props.buttons}</div>
+      <div style={{flex: '1 0 auto', textAlign: 'center'}}>{props.buttons}</div>
       <div style={{flex: '0 0 auto', fontWeight: 500, color: '#c00'}}>
-        {!st || st.whitelisted || <span style={{margin: 'auto'}}>not whitelisted!</span>}
+        {!st || st.whitelisted || (
+          <span style={{margin: 'auto', paddingRight: 20}}>not whitelisted!</span>
+        )}
       </div>
       <div style={{flex: '0 0 auto'}}>
         {st?.logged_in ? (
@@ -83,7 +98,6 @@ function LoginHeader(props) {
 
 export default function Admin() {
   const st = backend.useRequest('login_status')
-  const [editor, set_editor] = React.useState(undefined as undefined | 'left' | 'right' | 'down')
   const [staging, set_staging] = React.useState(true)
   const [key, set_refresh_key] = React.useState(0)
   const whitelisted = st?.whitelisted
@@ -101,9 +115,10 @@ export default function Admin() {
   )
   return (
     <C.WithEditableContent>
+      <G.ScrollBodyGlobalStyle />
       <div style={{...ui.flex_column, width: '100%', background: '#fff', zIndex: 20}}>
         <LoginHeader buttons={buttons} />
-        <div style={{...ui.flex_row, '--color': 'rgb(100,148,202)'}}>
+        <div style={{...ui.flex_row, ['--color' as any]: 'rgb(100,148,202)'}}>
           <div style={{flex: '1 0 auto'}} />
           <div
             style={{

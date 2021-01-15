@@ -85,7 +85,7 @@ export function EditSections({keys}) {
   return [
     <div key="filter">
       Filter:{' '}
-      <input type="text" value={filter} onInput={e => e.target && set_filter(e.target.value)} />
+      <input type="text" value={filter} onChange={e => e.target && set_filter(e.target.value)} />
       <span style={{color: 'red'}}>{msg}</span>
     </div>,
     keys.map(
@@ -161,7 +161,7 @@ export function RawEdit() {
     <>
       <textarea
         defaultValue={utils.pp(C.useRawContent().content)}
-        style={{height: '30vh'}}
+        style={{height: '40vh'}}
         onChange={e => {
           try {
             const v = JSON.parse(e.target.value)
@@ -194,6 +194,7 @@ export function EditSection({id, onClickHeader}: {id: string; onClickHeader: Fun
         rows={10}
         defaultValue={(C.useRawContent().content.sections[id] || []).join('\n')}
         style={{
+          padding: 4,
           fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
           fontSize: '0.875rem',
           lineHeight: 1.43,

@@ -130,7 +130,6 @@ export function WithEditableContent(props: {children: React.ReactNode}) {
 }
 
 export function WithBackendContent(props: {children: React.ReactNode; url: string}) {
-  console.log('hmm')
   const content = backend.useRequest(props.url)
   const value = content ? {loading: false, content} : empty
   return <ContentCtx.Provider value={value}>{props.children}</ContentCtx.Provider>

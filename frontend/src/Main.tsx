@@ -1,6 +1,4 @@
 import * as React from 'react'
-import {CssBaseline} from '@material-ui/core'
-import ReactMarkdown from 'react-markdown'
 import * as ui from './ui_utils'
 import {css} from 'emotion'
 import {ThemeProvider, createMuiTheme} from '@material-ui/core/styles'
@@ -19,12 +17,15 @@ import {Section, useNav} from './Content'
 const classes = {
   Root: css(
     `
-    background: #eee;
-    background: linear-gradient(0deg, #ddd 0%, #fafafa 100%);
-    background-repeat: no-repeat;
-    margin: 0px auto;
-  }`,
-    ui.flex_row
+      background: #eee;
+      background: linear-gradient(0deg, #ddd 0%, #fafafa 100%);
+      background-repeat: no-repeat;
+      margin: 0px auto;
+      width: 100%;
+      &, & > * {
+      min-height: 100%;
+      }
+    `
   ),
   Main: css({
     // flexGrow: 1,

@@ -34,3 +34,13 @@ const main = css`
 `
 
 export const MainGlobalStyle = () => <Global styles={main} />
+
+export const ScrollBodyGlobalStyle = () => (
+  <Global
+    styles={css`
+      body {
+        overflow-y: scroll;
+      }
+    `}
+  />
+)
