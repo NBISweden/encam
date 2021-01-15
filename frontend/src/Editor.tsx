@@ -152,11 +152,12 @@ export function Editor() {
       <div className={classes.Tabs}>
         {sections.map((s, i) => (
           s.msg ?
-            <div style={{marginLeft: 'auto', marginRight: 5}}>
+            <div key={i} style={{marginLeft: 'auto', marginRight: 5}}>
               {s.msg}
             </div>
             :
             <button
+              key={i}
               className={section.label === s.label ? 'checked' : undefined}
               onClick={() => set_section(s)}>
               {s.label}

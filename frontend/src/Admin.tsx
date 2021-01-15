@@ -149,10 +149,10 @@ export default function Admin() {
             }}
             key={key}>
             {staging ? (
-              <Main />
+              <Main version="staged version (editing)" />
             ) : (
               <C.WithBackendContent url="content.json">
-                <Main />
+                <Main version="live version" />
               </C.WithBackendContent>
             )}
           </div>

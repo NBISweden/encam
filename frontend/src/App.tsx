@@ -38,16 +38,7 @@ export function App() {
         </Route>
         <Route path="/">
           <WithBackendContent url="content.json">
-            <Main
-              version={
-                <>
-                  <Link style={{paddingRight: '1em'}} to="/admin">
-                    admin
-                  </Link>
-                  <Link to="/dev">dev</Link>
-                </>
-              }
-            />
+            <Main version={version} />
           </WithBackendContent>
         </Route>
       </Switch>
