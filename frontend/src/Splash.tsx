@@ -216,101 +216,6 @@ function Checkboxes(
 
 function Center({state, dispatch, codes, db}: SplashProps) {
   const [hover, set_hover] = React.useState('')
-  const tumor_labels = Checkboxes(
-    both,
-    state.tumor,
-    (value, checked) => dispatch({type: 'set', kind: 'tumor', value, checked: !checked}),
-    () => '#444'
-  ).map((x, i) => {
-    const tumor = x.text
-    const T = 8
-    const left_side = i < T
-    const plot_height = 66
-    const plot_sep = 77
-    const margin = 90
-    const top_off = 60
-    const style: React.CSSProperties = {position: 'absolute'}
-    if (left_side) {
-      style.left = margin
-      style.top = top_off + i * plot_sep
-    } else {
-      style.right = margin
-      style.top = top_off + (i - T) * plot_sep
-    }
-    const plot_style: React.CSSProperties = {position: 'absolute', bottom: -1}
-    plot_style[left_side ? 'right' : 'left'] = '100%'
-    if (!left_side) {
-      plot_style
-    }
-    const anchor_style: React.CSSProperties = {position: 'absolute', bottom: 0, width: 0, height: 0}
-    anchor_style[left_side ? 'right' : 'left'] = 0
-    return div(
-      {key: i},
-      {style},
-      {style: {width: 50}},
-      css`
-        border-bottom: 1px #666 solid;
-        display: flex;
-      `,
-      left_side ||
-        css`
-          padding-right: 7px;
-          justify-content: flex-end;
-        `,
-      // css`& > label { padding: 0 8; }`,
-      div(
-        css`
-          position: absolute;
-          top: 100%;
-          margin-left: 6px;
-        `,
-        x.label
-      ),
-      div(
-        css`
-          margin-bottom: 2px;
-          margin-left: 8px;
-        `,
-        x.checkbox
-      ),
-      css`
-        cursor: pointer;
-      `,
-      {
-        onClick: x.onClick,
-        onMouseOver: () => set_hover(utils.pretty(codes[x.text])),
-        onMouseOut: () => hover === utils.pretty(codes[x.text]) && set_hover(''),
-      },
-      div(
-        css`
-          position: relative;
-        `,
-        div(css`
-              border-bottom: 1px #666 solid
-              position: absolute
-              width: 100%
-              bottom: 0
-              left: 0
-              z-index: 3
-            `),
-        {style: plot_style},
-        !db || !utils.selected(state.cell).length ? null : (
-          <Domplot
-            rows={db.filter(row => state.cell[row.cell] && row.tumor == tumor)}
-            kind="bar"
-            options={{
-              axis_right: !left_side,
-              height: plot_height,
-              hulled: false,
-              x_axis: (i + 1) % T == 0,
-              max: Math.max(...db.filter(row => state.cell[row.cell]).map(row => row.expression)),
-            }}
-          />
-        )
-      )
-    )
-  })
-
   const dyn = useDyn()
 
   return (
@@ -382,7 +287,7 @@ function Center({state, dispatch, codes, db}: SplashProps) {
                 <div>
                   {!db || !utils.selected(state.cell).length ? null : (
                     <Domplot
-                      rows={db.filter(row => state.cell[row.cell] && row.tumor == tumor)}
+                      rows={db.filter(row => state.cell[row.cell] && row.tumor == tumor).map(rename_row)}
                       kind="bar"
                       options={{
                         axis_right: side != 'left',
@@ -420,6 +325,14 @@ function Center({state, dispatch, codes, db}: SplashProps) {
 }
 
 const clsx = (...xs: any[]) => xs.filter(x => typeof x === 'string').join(' ')
+
+const renames: Record<string, string> = {
+  'Myeloid cell': 'Myel...',
+  'Myeloid_cell': 'Myel...',
+  Granulocyte: 'Gran...',
+}
+
+const rename_row = (row: SplashRow): SplashRow => (console.log(row.cell, renames[row.cell]), {...row, cell: renames[row.cell] || row.cell})
 
 function Left({state, dispatch, range}: SplashProps) {
   return (
@@ -466,13 +379,6 @@ function Left({state, dispatch, range}: SplashProps) {
 
 function Right({state, db}: SplashProps) {
   const out: React.ReactNode[] = []
-
-  const renames: Record<string, string> = {
-    'Myeloid cell': 'Myeloid',
-    Granulocyte: 'Gran...',
-  }
-
-  const rename_row = (row: SplashRow): SplashRow => ({...row, cell: renames[row.cell] || row.cell})
 
   if (db) {
     const {tumor, cell} = state

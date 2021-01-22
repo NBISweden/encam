@@ -1,7 +1,7 @@
 /**
 
   These plots are used on the splash page and use only DOM components.
-  Vega plots cannot be used here because they are too slow.
+  Vega plots cannot be used here because they are too slow. (sigh)
   DOM was preferred over canvas to get zoomable vector graphics.
 
 */
@@ -158,6 +158,7 @@ export function Domplot({
   const facet_range = Object.entries(utils.groupBy(opts.facet_x, rows))
   const range = utils.row_range(rows)
   facet_range.forEach(([facet_x, subrows], facet_index) => {
+    // console.log(opts.facet_x, facet_x)
     const marks: React.ReactElement[] = []
     const grouped = utils.groupBy(opts.x, subrows)
     const rng = range[opts.x] as string[]
@@ -263,7 +264,8 @@ export function Domplot({
       }
       return marks
     })
-    facet_index == 0 ||
+    if (facet_index > 0) {
+      // separator
       bars.push(
         <div
           key={bars.length}
@@ -273,6 +275,7 @@ export function Domplot({
           }}
         />
       )
+    }
     bars.push(
       <div
         key={bars.length}
