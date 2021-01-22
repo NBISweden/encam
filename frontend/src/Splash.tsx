@@ -222,7 +222,7 @@ function Center({state, dispatch, codes, db}: SplashProps) {
     (value, checked) => dispatch({type: 'set', kind: 'tumor', value, checked: !checked}),
     () => '#444'
   ).map((x, i) => {
-    const tumor = x.text // range.tumor[i]
+    const tumor = x.text
     const T = 8
     const left_side = i < T
     const plot_height = 66
@@ -451,7 +451,10 @@ function Left({state, dispatch, range}: SplashProps) {
               <div className="has-span">
                 <span>{utils.pretty(cell)}</span>
                 <div style={{marginRight: 0, marginLeft: 0}}>
-                  <SectionInfo id={cell} />
+                  <SectionInfo id={
+                    // "Myeloid cell" is sent from backend without underscore
+                    cell.replace(/ /g, '_')
+                  } />
                 </div>
               </div>
             </label>
