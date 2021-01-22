@@ -1,10 +1,17 @@
+/**
+
+  These plots are used on the splash page and use only DOM components.
+  Vega plots cannot be used here because they are too slow.
+  DOM was preferred over canvas to get zoomable vector graphics.
+
+*/
 import * as React from 'react'
 
 import {div, css} from './ui_utils'
 
 import * as utils from './utils'
 
-import {DB, Row} from './db'
+import {SplashDB, SplashRow} from './splash_db'
 
 import {cell_color} from './cell_colors'
 
@@ -109,9 +116,9 @@ const default_options = {
 
   hulled: true,
 
-  x: 'location' as keyof Row,
-  facet_x: 'cell' as keyof Row,
-  color: 'cell' as keyof Row,
+  x: 'location' as keyof SplashRow,
+  facet_x: 'cell' as keyof SplashRow,
+  color: 'cell' as keyof SplashRow,
   striped: 'STROMA',
 }
 
@@ -120,7 +127,7 @@ export function Domplot({
   kind,
   options,
 }: {
-  rows: Row[]
+  rows: SplashRow[]
   kind: 'bar' | 'forest'
   options?: Partial<typeof default_options>
 }) {
@@ -367,7 +374,7 @@ function wrap3<
 import * as backend from './backend'
 
 export function DomplotsDemo() {
-  const db = backend.useRequest<DB>('database')
+  const db = backend.useRequest<SplashDB>('database')
   const CD4s = db && db.filter(row => row.cell == 'CD4')
   const MELs = db && db.filter(row => row.tumor == 'MEL')
   const plot = wrap3(Domplot, 'rows', 'kind', 'options')

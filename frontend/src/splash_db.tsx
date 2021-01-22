@@ -1,8 +1,11 @@
+/**
+
+  This file types the data the shown in the splash screen.
+
+*/
 import * as utils from './utils'
 
-export type CT = 'cell' | 'tumor'
-
-export interface Row {
+export interface SplashRow {
   tumor: string
   cell: string
   location: string
@@ -13,9 +16,9 @@ export interface Row {
   p: number
 }
 
-export type DB = Row[]
+export type SplashDB = SplashRow[]
 
-export type DBRange = utils.RowRange<Row>
+export type SplashDBRange = utils.RowRange<SplashRow>
 
 /** Artur's preferred cell order */
 export const cellOrder = [

@@ -1,3 +1,13 @@
+/**
+
+  The Dyn machinery adds controls to dynamically alter
+  numerical values on the page. This was used adjust the
+  location of pieces on the center piece.
+
+  When reflecting upon this now I'm wondering if the values
+  could be provided using css variables.
+
+*/
 import * as React from 'react'
 import * as ui from '../ui_utils'
 import * as utils from '../utils'

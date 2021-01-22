@@ -1,3 +1,11 @@
+/**
+
+  A small replacement for "storybook".
+
+  These stories are defined using the stories function and are visible under
+  the /dev route of the page which shows the Dev component.
+
+*/
 import React from 'react'
 
 import * as utils from '@app/utils'

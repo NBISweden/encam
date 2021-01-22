@@ -1,3 +1,18 @@
+/**
+
+  Utilities to make up for the shortcomings in the JS stdlib.
+
+  One could use lodash or ramda but it's usually quicker to just
+  write the function yourself rather than wading through their
+  documentation. :face_with_rolling_eyes: :shrugs:
+
+*/
+
+/**
+
+  Ad-hoc renames from the backend results.
+
+*/
 const renames: Record<string, string> = {
   MSI_ARTUR: 'MSI status',
 }
@@ -33,7 +48,7 @@ export function pretty(s: string | number): string {
   }
 }
 
-import {cellOrder} from './db'
+import {cellOrder} from './splash_db'
 
 export function sort_tumors(tumors: string[]): string[] {
   return tumors.slice().sort()
@@ -420,7 +435,7 @@ export function equal(x: any, y: any): boolean {
   return str(x) === str(y)
 }
 
-/**
+/** Are these arrays equal, considering them to be multisets?
 
   multiset_equal([1,8], [8,1])   // => true
   multiset_equal([1,8], [8,1,1]) // => false
@@ -431,7 +446,7 @@ export function multiset_equal(xs: any[], ys: any[]): boolean {
   return equal(xs.slice().sort(), ys.slice().sort())
 }
 
-/**
+/** Splice, but on a
 
   const xs = [1,2,3,4,5]
   splice(xs, 1, 3, 8, 9) // => [1,8,9,5]
@@ -486,7 +501,7 @@ export function snap(xs: number[], dests: number[]) {
   return ret()
 }
 
-/**
+/** Deep copy via JSON.stringify.
 
   const a = {x: 1}
   copy(a) // => a

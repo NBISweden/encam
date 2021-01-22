@@ -90,7 +90,7 @@ export interface Precalc {
   max: number
 }
 
-import {cellOrder} from './../db'
+import {cellOrder} from './../splash_db'
 
 function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>(
   data0: Row[],

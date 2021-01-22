@@ -1,3 +1,12 @@
+/**
+
+  We were provided the image with organs and bodies with arrows
+  between the organs and the body. The code in this file was
+  used to measure where on the body and on the organ each
+  arrow was attached. These coordinates were later used to
+  enable moving around each part separately.
+
+*/
 import * as React from 'react'
 
 import * as utils from './utils'

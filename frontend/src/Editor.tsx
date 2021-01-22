@@ -1,3 +1,8 @@
+/**
+
+  Edit the contents using textareas. Used in the Admin interface.
+
+*/
 import * as React from 'react'
 import {css} from 'emotion'
 

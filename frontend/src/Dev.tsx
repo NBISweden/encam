@@ -1,3 +1,8 @@
+/**
+
+  This shows the stories defined in other files.
+
+*/
 import * as React from 'react'
 import {css} from 'emotion'
 import * as ui from './ui_utils'

@@ -3,9 +3,9 @@ import * as React from 'react'
 import {by} from './utils'
 import * as utils from './utils'
 
-import {cellOrder} from './db'
+import {cellOrder} from './splash_db'
 
-import type {DB, Row} from './db'
+import type {SplashDB, SplashRow} from './splash_db'
 
 import {css, div} from './ui_utils'
 
@@ -96,8 +96,8 @@ function reduce(state: State, action: Action): State {
 interface SplashProps {
   state: State
   dispatch: (action: Action) => void
-  db?: DB
-  range?: utils.RowRange<Row>
+  db?: SplashDB
+  range?: utils.RowRange<SplashRow>
   codes: Record<string, string>
 }
 
@@ -472,7 +472,7 @@ function Right({state, db}: SplashProps) {
     Granulocyte: 'Gran...',
   }
 
-  const rename_row = (row: Row): Row => ({...row, cell: renames[row.cell] || row.cell})
+  const rename_row = (row: SplashRow): SplashRow => ({...row, cell: renames[row.cell] || row.cell})
 
   if (db) {
     const {tumor, cell} = state
@@ -512,7 +512,7 @@ function Right({state, db}: SplashProps) {
 }
 
 function useSplashProps(): SplashProps {
-  const db0 = backend.useRequest('database') as undefined | DB
+  const db0 = backend.useRequest('database') as undefined | SplashDB
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
 
   const range = React.useMemo(() => (db ? utils.row_range(db) : undefined), [db])

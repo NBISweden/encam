@@ -1,3 +1,15 @@
+/**
+
+  The Center component draws the bodies and the organs
+  in the center of the "splash" part of the page.
+  By using controls provided by Dyn it is possible to
+  move around the pieces to make it look good.
+
+  It would indeed be possible to create one final SVG
+  of the final coordinates to optimize loading time of
+  the page. This is left for future work.
+
+*/
 // @jsx jsx
 // @jsxFrag React.Fragment
 import {jsx, css} from '@emotion/core'

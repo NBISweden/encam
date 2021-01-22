@@ -1,3 +1,8 @@
+/**
+
+  Utils to make it nicer to work with React, user interactivity or the DOM.
+
+*/
 export * from './useRoutedTabs'
 export * from './div'
 import {dummy_keys} from './div'

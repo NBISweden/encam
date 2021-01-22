@@ -1,3 +1,15 @@
+/**
+
+  This embeds a Vega (Lite) graph using React.
+  The parameters are the vega-lite description and the data.
+
+  Due to bugs/limitations in vega we have to fix up some
+  issues with the generated svg, see the *_fixup functions.
+
+  Vega is slow so there is some memoization in place to make
+  it snappier after the first runs.
+
+*/
 import * as React from 'react'
 import * as VL from 'vega-lite'
 import * as V from 'vega'
@@ -26,7 +38,8 @@ const tooltip_styles = css`
 const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
 
 function stroma_background_fixup(svg: SVGElement) {
-  svg.querySelectorAll('.role-legend [style*="#stripe"]').forEach(stripe => {
+  //
+  svg.querySelectorAll('.role-legend [fill*="#stripe"]').forEach(stripe => {
     let node = stripe.parentElement
     while (node) {
       if (node.classList.contains('role-legend')) {
@@ -92,6 +105,8 @@ function facet_line_fixup(svg: SVGElement) {
 export default function Embed({
   spec,
   data,
+
+  // data2 used for KMPlot's Confidence Interval bands
   data2,
 }: {
   spec: VL.TopLevelSpec

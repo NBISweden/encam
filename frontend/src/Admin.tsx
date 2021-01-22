@@ -1,3 +1,12 @@
+/**
+
+  The admin interface.
+
+  The user can log in and edit the staging content.
+
+  The staging content can then be moved to the live content.
+
+*/
 import * as React from 'react'
 import {css} from 'emotion'
 import * as ui from './ui_utils'
@@ -6,7 +15,7 @@ import {Editor} from './Editor'
 
 import * as backend from './backend'
 
-import {Main, WithMainTheme} from './Main'
+import {Main} from './Main'
 import * as C from './Content'
 
 import * as G from './GlobalStyle'

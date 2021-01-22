@@ -1,9 +1,17 @@
+/**
+
+  The Info component which shows a small circled i which when
+  hovered over or clicked on displays extra content in a
+  popup.
+
+  The SectionInfo component makes an Info directly connected to
+  a Section of the current contents.
+
+*/
 import * as React from 'react'
 import {css} from 'emotion'
 
 import * as ui from './ui_utils'
-import * as utils from './utils'
-import {cell_color} from './cell_colors'
 
 import InfoIcon from '@material-ui/icons/InfoOutlined'
 import {Section} from './Content'

@@ -1,3 +1,13 @@
+/**
+
+  The content on the page.
+
+  This is can come from
+    - the backend on endpoints /api/contents.json and /api/contents.staged.json
+    - live editing in the admin page
+    - dummy content generated in this file
+
+*/
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -17,7 +27,7 @@ export interface Content {
   nav: string[]
 }
 
-import {cells} from './db'
+import {cells} from './splash_db'
 export const cell_keys = cells
 
 const cell_sections = Object.fromEntries(
@@ -97,6 +107,7 @@ const test_content: Content = {
 
 import * as t from 'io-ts'
 
+// this is used to validate the shape of raw content in the editor
 export const ContentType: t.Type<Content> = t.type({
   sections: t.record(t.string, t.array(t.string)),
   nav: t.array(t.string),
