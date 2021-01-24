@@ -423,6 +423,39 @@ export function DomplotsDemo() {
       )
 }
 
+export function Legend() {
+  return (
+    <>
+      <DomplotCSS />
+      <div>
+        <div
+          className="striped"
+          style={{
+            width: '8px',
+            height: '8px',
+            marginRight: '4px',
+            backgroundColor: '#ccc',
+            display: 'inline-block',
+          }}
+        />
+        <span>STROMA</span>
+      </div>
+      <div>
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            marginRight: '4px',
+            backgroundColor: '#ccc',
+            display: 'inline-block',
+          }}
+        />
+        <span>TUMOR</span>
+      </div>
+    </>
+  )
+}
+
 import stories from '@app/ui_utils/stories'
 import * as splash_data from './data/splash'
 

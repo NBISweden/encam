@@ -15,6 +15,8 @@
 import {jsx, css} from '@emotion/core'
 import * as React from 'react'
 
+import {Legend} from './Domplot'
+
 import * as ui from './utils'
 import * as utils from './utils'
 
@@ -244,31 +246,7 @@ export function Center({withTumor}: CenterProps) {
           `}>
           Plot legend:
         </strong>
-        <div>
-          <div
-            className="striped"
-            css={css`
-              width: 8px;
-              height: 8px;
-              margin-right: 4px;
-              background-color: #ccc;
-              display: inline-block;
-            `}
-          />
-          <span>STROMA</span>
-        </div>
-        <div>
-          <div
-            css={css`
-              width: 8px;
-              height: 8px;
-              margin-right: 4px;
-              background-color: #ccc;
-              display: inline-block;
-            `}
-          />
-          <span>TUMOR</span>
-        </div>
+        <Legend />
       </div>
     </div>
   )
