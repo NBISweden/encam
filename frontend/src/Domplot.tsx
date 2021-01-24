@@ -264,18 +264,16 @@ export function Domplot({
       }
       return marks
     })
-    if (facet_index > 0) {
+    facet_index > 0 &&
       // separator
       bars.push(
         <div
           key={bars.length}
           style={{
             [o.width]: opts.gap_width,
-            // backgroundColor: '#f3f3f3'
           }}
         />
       )
-    }
     bars.push(
       <div
         key={bars.length}
@@ -319,6 +317,21 @@ export function Domplot({
     axis_label[opts.axis_right ? 'left' : 'right'] = 0
   }
 
+  const y_axis_line = (
+    <div
+      key={bars.length}
+      style={{
+        [o.width]: 1,
+        background: '#888',
+      }}
+    />
+  )
+  if (opts.axis_right) {
+    bars.push(y_axis_line)
+  } else {
+    bars.unshift(y_axis_line)
+  }
+
   const tick_step = utils.roundDown(max / (opts.num_ticks - 1))
   const ticks = utils
     .enumTo(opts.num_ticks)
@@ -330,7 +343,8 @@ export function Domplot({
           [opts.axis_right ? o.left : o.right]: p(1),
           [o.bottom]: p(x / max),
           position: 'absolute',
-          border: '0.5px #888 solid',
+          background: '#888',
+          [o.height]: 1,
           [o.width]: 4,
         }}>
         <div style={axis_label}>{x}</div>
