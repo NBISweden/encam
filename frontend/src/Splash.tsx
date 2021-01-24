@@ -284,7 +284,10 @@ function Center({state, dispatch, codes, db}: SplashProps) {
                   <SectionInfo id={tumor} dir={opp_side} />
                   <span style={{marginLeft: 2, marginRight: 2}}>{tumor}</span>
                 </div>
-                <div>
+                <div style={{
+                    borderBottom: '2px #aaa solid',
+                }}>
+
                   {!db || !utils.selected(state.cell).length ? null : (
                     <Domplot
                       rows={db
@@ -332,6 +335,8 @@ const renames: Record<string, string> = {
   'Myeloid cell': 'Myel...',
   Myeloid_cell: 'Myel...',
   Granulocyte: 'Gran...',
+  CD4_Treg: 'CD4 T...',
+  CD8_Treg: 'CD8 T...',
 }
 
 const rename_row = (row: SplashRow): SplashRow => (
