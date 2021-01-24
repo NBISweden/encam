@@ -435,7 +435,12 @@ function Right({state, db}: SplashProps) {
     const {tumor, cell} = state
     const tumors = utils.selected(tumor)
     const cells = utils.selected(cell)
-    const opts = {orientation: 'portrait' as 'portrait', axis_right: true, height: 130}
+    const opts = {
+      orientation: 'portrait' as 'portrait',
+      axis_right: true,
+      height: 130,
+      border_left: true,
+    }
     for (const t of tumors) {
       out.push(<h2>{utils.pretty(t)} cell density</h2>)
       out.push(

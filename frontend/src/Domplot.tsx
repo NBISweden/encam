@@ -116,6 +116,8 @@ const default_options = {
 
   hulled: true,
 
+  border_left: false,
+
   x: 'location' as keyof SplashRow,
   facet_x: 'cell' as keyof SplashRow,
   color: 'cell' as keyof SplashRow,
@@ -374,6 +376,19 @@ export function Domplot({
         />
       )}
       {bars}
+      {opts.border_left && (
+        <div
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            left: 0,
+            top: 0,
+            borderLeft: '1px #888 solid',
+            zIndex: 2,
+          }}
+        />
+      )}
     </div>
   )
 }
