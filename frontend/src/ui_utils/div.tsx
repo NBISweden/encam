@@ -1,3 +1,14 @@
+/**
+
+  I started the project without React and just using my own dom-diffing library.
+  It exported a function `div` which created a div. I ported it to React and
+  wired in emotion into it (it used to be styled-components but it was easier
+  to combine it with emotion) and it stuck in the code-base since it's occasionally
+  convenient to use.
+
+  This code is not strictly necessary and all uses of div could be replaced with jsx.
+
+*/
 import * as React from 'react'
 
 import {ClassNames, Interpolation} from '@emotion/core'

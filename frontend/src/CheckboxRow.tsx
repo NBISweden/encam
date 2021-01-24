@@ -1,3 +1,9 @@
+/**
+
+  Checkboxes which look like pills and can be toggled by hovering while
+  having mouse clicked down!!
+
+*/
 import {css, cx} from 'emotion'
 
 import * as React from 'react'

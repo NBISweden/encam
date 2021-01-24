@@ -1,3 +1,11 @@
+/**
+
+  The Forms which specify what data should be shown in the plots.
+
+  The different fields and their possible values come from the backend
+  so that the underlying database and its options can be changed on the fly.
+
+*/
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 

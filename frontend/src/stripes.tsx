@@ -1,3 +1,10 @@
+/**
+
+  SVG stripes used for stroma throughout the page.
+
+  I remember that getting this to work with Vega was quite annoying.
+
+*/
 const stripe_size = 4
 const stripe_width = 1.2
 

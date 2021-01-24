@@ -1,6 +1,6 @@
 /**
 
-  This shows the stories defined in other files.
+  This shows the stories defined in other files. It is accessible under the /dev route.
 
 */
 import * as React from 'react'
