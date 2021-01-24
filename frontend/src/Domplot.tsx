@@ -429,6 +429,18 @@ export function Legend() {
       <DomplotCSS />
       <div>
         <div
+          style={{
+            width: '8px',
+            height: '8px',
+            marginRight: '4px',
+            backgroundColor: '#ccc',
+            display: 'inline-block',
+          }}
+        />
+        <span>TUMOR</span>
+      </div>
+      <div>
+        <div
           className="striped"
           style={{
             width: '8px',
@@ -439,18 +451,6 @@ export function Legend() {
           }}
         />
         <span>STROMA</span>
-      </div>
-      <div>
-        <div
-          style={{
-            width: '8px',
-            height: '8px',
-            marginRight: '4px',
-            backgroundColor: '#ccc',
-            display: 'inline-block',
-          }}
-        />
-        <span>TUMOR</span>
       </div>
     </>
   )

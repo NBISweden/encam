@@ -287,7 +287,13 @@ function Center({state, dispatch, codes, db}: SplashProps) {
                     flexDirection,
                   }}>
                   <SectionInfo id={tumor} dir={opp_side} />
-                  <span style={{marginLeft: 2, marginRight: 2}}>{tumor}</span>
+                  <span
+                    style={{marginLeft: 2, marginRight: 2, cursor: 'pointer'}}
+                    onClick={() =>
+                      dispatch({type: 'set', kind: 'tumor', value: tumor, checked: true})
+                    }>
+                    {tumor}
+                  </span>
                 </div>
                 <div
                   style={{
@@ -334,11 +340,9 @@ function Center({state, dispatch, codes, db}: SplashProps) {
 const clsx = (...xs: any[]) => xs.filter(x => typeof x === 'string').join(' ')
 
 const renames: Record<string, string> = {
-  'Myeloid cell': 'Myel...',
-  Myeloid_cell: 'Myel...',
+  'Myeloid cell': 'Myeloid',
+  Myeloid_cell: 'Myeloid',
   Granulocyte: 'Gran...',
-  CD4_Treg: 'CD4 T...',
-  CD8_Treg: 'CD8 T...',
 }
 
 const rename_row = (row: SplashRow): SplashRow => (
@@ -414,14 +418,26 @@ function Right({state, db}: SplashProps) {
       HR (95% CI)
     </div>
   )
+  const bar_x = (
+    <div
+      style={{
+        alignSelf: 'center',
+        fontSize: 10,
+
+        marginTop: -12,
+        marginBottom: -10,
+      }}>
+      cells (1/mm²)
+    </div>
+  )
 
   if (db) {
     const {tumor, cell} = state
     const tumors = utils.selected(tumor)
     const cells = utils.selected(cell)
-    const opts = {orientation: 'portrait' as 'portrait', axis_right: true}
+    const opts = {orientation: 'portrait' as 'portrait', axis_right: true, height: 130}
     for (const t of tumors) {
-      out.push(<h2>{utils.pretty(t)}</h2>)
+      out.push(<h2>{utils.pretty(t)} cell density</h2>)
       out.push(
         <Domplot
           rows={db.filter(row => row.tumor == t).map(rename_row)}
@@ -429,6 +445,9 @@ function Right({state, db}: SplashProps) {
           options={opts}
         />
       )
+      out.push(bar_x)
+      out.push(legend)
+      out.push(<h2>{utils.pretty(t)} survival</h2>)
       out.push(
         <Domplot
           rows={db.filter(row => row.tumor == t).map(rename_row)}
