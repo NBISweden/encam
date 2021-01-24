@@ -224,7 +224,7 @@ function Center({state, dispatch, codes, db}: SplashProps) {
         withTumor={(tumor: string, side: 'left' | 'right') => {
           const flexDirection = side === 'left' ? 'row-reverse' : 'row'
           const opp_side = side === 'left' ? 'right' : 'left'
-          const plot_height = Math.round(dyn('plot height', 66, 20, 120))
+          const plot_height = Math.round(dyn('plot height', 60, 20, 120))
           return (
             <div
               key={tumor}

@@ -95,7 +95,7 @@ const Svg = ({id, ...props}: {id: string} & React.HTMLProps<HTMLImageElement>) =
         s *
           (id === 'bodies'
             ? useDyn()('bodies size', 1, 0.5, 1.75)
-            : useDyn()('organ size', 0.85, 0.4, 1.5))
+            : useDyn()('organ size', 0.8, 0.4, 1.5))
       )
     ) as any)}
     {...props}
