@@ -83,8 +83,8 @@ const template = `
   "ESCA  stomach  bodies gut      COAD  "
   "STAD  stomach  bodies gut      READ  "
   "KRCC  kidney   bodies ovary    OVSA  "
-  "BLCA  bladder  bodies ovary    OVNSA "
-  "PRAD  prostate bodies uterus   UCEC  "
+  "BLCA  bladder  empty  ovary    OVNSA "
+  "PRAD  prostate legend uterus   UCEC  "
 `
 
 const Svg = ({id, ...props}: {id: string} & React.HTMLProps<HTMLImageElement>) => (
@@ -172,7 +172,7 @@ export function Center({withTumor}: CenterProps) {
         id="bodies"
         css={css`
           grid-area: bodies;
-          margin: 0 10px ${dyn('bodies offset', 275, 0, 500)}px;
+          margin: 0 10px ${dyn('bodies offset', 65, 0, 200)}px;
           justify-self: center;
         `}
       />
@@ -232,6 +232,44 @@ export function Center({withTumor}: CenterProps) {
           }
         })}
       </svg>
+      <div
+        css={css`
+          grid-area: legend;
+          justify-self: center;
+          font-size: 10px;
+        `}>
+        <strong
+          css={css`
+            font-weight: 500;
+          `}>
+          Plot legend:
+        </strong>
+        <div>
+          <div
+            className="striped"
+            css={css`
+              width: 8px;
+              height: 8px;
+              margin-right: 4px;
+              background-color: #ccc;
+              display: inline-block;
+            `}
+          />
+          <span>STROMA</span>
+        </div>
+        <div>
+          <div
+            css={css`
+              width: 8px;
+              height: 8px;
+              margin-right: 4px;
+              background-color: #ccc;
+              display: inline-block;
+            `}
+          />
+          <span>TUMOR</span>
+        </div>
+      </div>
     </div>
   )
 }

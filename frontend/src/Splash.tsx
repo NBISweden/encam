@@ -284,10 +284,10 @@ function Center({state, dispatch, codes, db}: SplashProps) {
                   <SectionInfo id={tumor} dir={opp_side} />
                   <span style={{marginLeft: 2, marginRight: 2}}>{tumor}</span>
                 </div>
-                <div style={{
+                <div
+                  style={{
                     borderBottom: '2px #aaa solid',
-                }}>
-
+                  }}>
                   {!db || !utils.selected(state.cell).length ? null : (
                     <Domplot
                       rows={db
