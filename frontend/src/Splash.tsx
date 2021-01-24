@@ -17,7 +17,7 @@ import type {SplashDB, SplashRow} from './splash_db'
 
 import {css, div} from './ui_utils'
 
-import {Domplot, DomplotCSS} from './Domplot'
+import {Domplot, DomplotCSS, Legend} from './Domplot'
 
 import {css as emotion_css} from 'emotion'
 
@@ -313,9 +313,6 @@ function Center({state, dispatch, codes, db}: SplashProps) {
           )
         }}
       />
-      {
-        //  tumor_labels
-      }
       <div
         style={{
           position: 'absolute',
@@ -392,6 +389,18 @@ function Left({state, dispatch, range}: SplashProps) {
 
 function Right({state, db}: SplashProps) {
   const out: React.ReactNode[] = []
+  const legend = (
+    <div
+      style={{
+        fontSize: '9px',
+        alignSelf: 'flex-end',
+        marginTop: -10,
+        marginBottom: -10,
+        marginRight: -10,
+      }}>
+      <Legend />
+    </div>
+  )
 
   if (db) {
     const {tumor, cell} = state
@@ -414,6 +423,7 @@ function Right({state, db}: SplashProps) {
           options={opts}
         />
       )
+      out.push(legend)
     }
     for (const c of cells) {
       out.push(<h2>{utils.pretty(c)}</h2>)
@@ -424,6 +434,7 @@ function Right({state, db}: SplashProps) {
           options={{facet_x: 'tumor', ...opts}}
         />
       )
+      out.push(legend)
     }
   }
 
