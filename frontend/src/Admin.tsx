@@ -107,8 +107,8 @@ function LoginHeader(props: {buttons: React.ReactElement}) {
 
 async function move_staging_to_live(req: backend.RequestFn) {
   try {
-    const staging = await req("content.staged.json")
-    const res = await req("content.json", staging)
+    const staging = await req('content.staged.json')
+    const res = await req('content.json', staging)
     if (res.success) {
       alert('Success!')
     } else {

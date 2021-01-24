@@ -10,7 +10,7 @@ const colors = {
   NKT: 'rgb(140,67,10)',
   M2: 'rgb(100,132,58)',
   'Myeloid cell': 'rgb(119,148,4)',
-  'Myeloid_cell': 'rgb(119,148,4)',
+  Myeloid_cell: 'rgb(119,148,4)',
   Myeloid: 'rgb(119,148,4)',
   'Myel...': 'rgb(119,148,4)',
   iDC: 'rgb(70,105,164)',

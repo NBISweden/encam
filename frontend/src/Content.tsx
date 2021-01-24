@@ -129,7 +129,7 @@ const SetContentCtx = React.createContext({
   msg: '',
 })
 
-export function WithEditableContent(props: {children: React.ReactNode, url?: string}) {
+export function WithEditableContent(props: {children: React.ReactNode; url?: string}) {
   const [content, set_content_raw] = React.useState(quite_empty)
   const content_ref = React.useRef(content)
   content_ref.current = content
@@ -142,55 +142,62 @@ export function WithEditableContent(props: {children: React.ReactNode, url?: str
     if (url) {
       set_loading(true)
       set_msg('loading...')
-      req(url).then(c => {
-        set_loading(false)
-        set_msg('ready!')
-        set_content_raw(c)
-      }).catch(e => {
-        set_loading(false)
-        set_msg(e.toString())
-        console.error(e)
-      })
-    }
-  }, [url])
-  const timeout_ref = React.useRef(undefined)
-  const set_content = React.useCallback(k => {
-    console.log('loading', loading)
-    if (loading == false) {
-      let c
-      set_content_raw(content => { return c = k(content) })
-      console.log('hmm', c)
-      window.clearTimeout(timeout_ref.current)
-      set_msg('...')
-      timeout_ref.current = window.setTimeout(() => {
-        set_msg('saving...')
-        req(url, c).then(res => {
-          if (res.success) {
-            const saved = JSON.stringify(c)
-            const now = JSON.stringify(content_ref.current)
-            console.log(saved, now, saved == now)
-            if (saved == now) {
-              set_msg('saved')
-            } else {
-              set_msg('....')
-            }
-          } else  {
-            set_msg(res.reason)
-          }
-        }).catch(e => {
+      req(url)
+        .then(c => {
+          set_loading(false)
+          set_msg('ready!')
+          set_content_raw(c)
+        })
+        .catch(e => {
+          set_loading(false)
           set_msg(e.toString())
           console.error(e)
         })
-      }, 500)
     }
-  }, [loading, url])
+  }, [url])
+  const timeout_ref = React.useRef(undefined)
+  const set_content = React.useCallback(
+    k => {
+      console.log('loading', loading)
+      if (loading == false) {
+        let c
+        set_content_raw(content => {
+          return (c = k(content))
+        })
+        console.log('hmm', c)
+        window.clearTimeout(timeout_ref.current)
+        set_msg('...')
+        timeout_ref.current = window.setTimeout(() => {
+          set_msg('saving...')
+          req(url, c)
+            .then(res => {
+              if (res.success) {
+                const saved = JSON.stringify(c)
+                const now = JSON.stringify(content_ref.current)
+                console.log(saved, now, saved == now)
+                if (saved == now) {
+                  set_msg('saved')
+                } else {
+                  set_msg('....')
+                }
+              } else {
+                set_msg(res.reason)
+              }
+            })
+            .catch(e => {
+              set_msg(e.toString())
+              console.error(e)
+            })
+        }, 500)
+      }
+    },
+    [loading, url]
+  )
   const proto_setter = {set_content, msg}
   const setter = React.useMemo(() => proto_setter, Object.values(proto_setter))
   return (
     <SetContentCtx.Provider value={setter}>
-      <ContentCtx.Provider value={value}>
-        {props.children}
-      </ContentCtx.Provider>
+      <ContentCtx.Provider value={value}>{props.children}</ContentCtx.Provider>
     </SetContentCtx.Provider>
   )
 }

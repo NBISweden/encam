@@ -287,7 +287,9 @@ function Center({state, dispatch, codes, db}: SplashProps) {
                 <div>
                   {!db || !utils.selected(state.cell).length ? null : (
                     <Domplot
-                      rows={db.filter(row => state.cell[row.cell] && row.tumor == tumor).map(rename_row)}
+                      rows={db
+                        .filter(row => state.cell[row.cell] && row.tumor == tumor)
+                        .map(rename_row)}
                       kind="bar"
                       options={{
                         axis_right: side != 'left',
@@ -328,11 +330,13 @@ const clsx = (...xs: any[]) => xs.filter(x => typeof x === 'string').join(' ')
 
 const renames: Record<string, string> = {
   'Myeloid cell': 'Myel...',
-  'Myeloid_cell': 'Myel...',
+  Myeloid_cell: 'Myel...',
   Granulocyte: 'Gran...',
 }
 
-const rename_row = (row: SplashRow): SplashRow => (console.log(row.cell, renames[row.cell]), {...row, cell: renames[row.cell] || row.cell})
+const rename_row = (row: SplashRow): SplashRow => (
+  console.log(row.cell, renames[row.cell]), {...row, cell: renames[row.cell] || row.cell}
+)
 
 function Left({state, dispatch, range}: SplashProps) {
   return (
@@ -364,10 +368,12 @@ function Left({state, dispatch, range}: SplashProps) {
               <div className="has-span">
                 <span>{utils.pretty(cell)}</span>
                 <div style={{marginRight: 0, marginLeft: 0}}>
-                  <SectionInfo id={
-                    // "Myeloid cell" is sent from backend without underscore
-                    cell.replace(/ /g, '_')
-                  } />
+                  <SectionInfo
+                    id={
+                      // "Myeloid cell" is sent from backend without underscore
+                      cell.replace(/ /g, '_')
+                    }
+                  />
                 </div>
               </div>
             </label>
