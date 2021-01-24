@@ -127,7 +127,9 @@ const classes = {
   }),
   Left: emotion_css({
     ...ui.flex_column,
-    width: 150,
+    width: 155,
+    paddingLeft: 5,
+    textAlign: 'center',
   }),
   LeftLabel: emotion_css({
     ...ui.flex_row,
@@ -175,12 +177,13 @@ const classes = {
     ...ui.flex_column,
     borderLeft: '1px #ddd solid',
     paddingTop: 0,
-    paddingLeft: 15,
-    paddingRight: 15,
+    paddingLeft: 5,
+    paddingRight: 5,
     overflowY: 'auto',
     overflowX: 'hidden',
     height: 900,
-    width: 175,
+    width: 200,
+    flex: '1 1 auto',
     '& > div': {
       marginBottom: 15,
       flexShrink: 0,
@@ -392,13 +395,23 @@ function Right({state, db}: SplashProps) {
   const legend = (
     <div
       style={{
-        fontSize: '9px',
+        fontSize: 9,
         alignSelf: 'flex-end',
-        marginTop: -10,
-        marginBottom: -10,
-        marginRight: -10,
+        marginTop: -4,
+        marginRight: 5,
       }}>
       <Legend />
+    </div>
+  )
+  const forest_x = (
+    <div
+      style={{
+        alignSelf: 'center',
+        fontSize: 10,
+        marginTop: -12,
+        marginBottom: -10,
+      }}>
+      HR (95% CI)
     </div>
   )
 
@@ -423,10 +436,11 @@ function Right({state, db}: SplashProps) {
           options={opts}
         />
       )
+      out.push(forest_x)
       out.push(legend)
     }
     for (const c of cells) {
-      out.push(<h2>{utils.pretty(c)}</h2>)
+      out.push(<h2>{utils.pretty(c)} survival</h2>)
       out.push(
         <Domplot
           rows={db.filter(row => row.cell == c)}
@@ -434,6 +448,7 @@ function Right({state, db}: SplashProps) {
           options={{facet_x: 'tumor', ...opts}}
         />
       )
+      out.push(forest_x)
       out.push(legend)
     }
   }
