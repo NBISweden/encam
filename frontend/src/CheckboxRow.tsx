@@ -11,6 +11,7 @@ import * as React from 'react'
 import * as utils from './utils'
 
 import {Store} from './ui_utils'
+import * as ui from './ui_utils'
 
 import * as cell_colors from './cell_colors'
 
@@ -58,62 +59,88 @@ export function CheckboxRow({
   labelBy?: (s: string) => string
 }) {
   const state = store.get()
-  const [handled_at_mousedown, set_handled_at_mousedown] = React.useState(false)
-  return (
-    <>
-      {values.map(value => {
-        const checked = (state[column] || values).includes(value)
-        const h = (e: React.MouseEvent | React.ChangeEvent) => {
-          if (
-            e.nativeEvent.type != 'click' &&
-            'buttons' in e.nativeEvent &&
-            !e.nativeEvent.buttons
-          ) {
-            return
-          }
-          if (e.nativeEvent.type == 'mousedown') {
-            if (!handled_at_mousedown) {
-              set_handled_at_mousedown(true)
-            }
-          }
-          if (e.nativeEvent.type == 'click') {
-            if (handled_at_mousedown) {
-              set_handled_at_mousedown(false)
+  const {value, node} = useCheckboxRow({options: values, init_value: state[column], labelBy})
+  React.useLayoutEffect(() => {
+    // can only copy to the store, not from the store
+    if (!utils.equal(value, state[column])) {
+      store.update({[column]: value})
+    }
+  }, [value, state[column]])
+  return node
+}
+
+export function useCheckboxRow({
+  options,
+  init_value,
+  labelBy,
+}: {
+  options: string[]
+  init_value?: string[]
+  labelBy?: (s: string) => string
+}) {
+  const [value, set] = React.useState(init_value ?? options)
+  const last_event_type_ref = React.useRef('')
+  const node = React.useMemo(
+    () => (
+      <>
+        {options.map(option => {
+          const checked = value.includes(option)
+          const h = (e: React.MouseEvent | React.ChangeEvent) => {
+            const last_event_type = last_event_type_ref.current
+            last_event_type_ref.current = e.type
+            if (e.type === 'change' && last_event_type === 'mouseup') {
+              // ignore because double events sent from mouse click: mouseup followed by change
               return
             }
+            if (e.type == 'mouseup') {
+              // mouseup never makes any changes
+              return
+            }
+            if (e.type == 'mouseenter') {
+              // if we enter we want to toggle
+              if ((e.nativeEvent as MouseEvent).buttons == 0) {
+                // but only if buttons are pressed
+                return
+              }
+            }
+            const prev = value
+            const selected = prev
+              .slice()
+              .filter(x => x != option || !checked)
+              .concat(!checked ? [option] : [])
+            const next = selected.length ? selected : prev
+            set(next)
           }
-          const prev: string[] = state[column] || values
-          const checked = !prev.find(n => n == value)
-          const selected = prev
-            .slice()
-            .filter(x => x != value || checked)
-            .concat(checked ? [value] : [])
-          const new_value = selected.length ? selected : prev
-          store.update({[column]: new_value})
-        }
-        return (
-          <div key={value} className={cx(classes.CheckboxRow, {checked})}>
-            <label
-              onMouseEnter={h}
-              onMouseDown={h}
-              onDoubleClick={() => {
-                if (utils.equal(store.get()[column], [value])) {
-                  store.update({[column]: values})
-                } else {
-                  store.update({[column]: [value]})
-                }
-              }}>
-              <input
-                type="checkbox"
-                style={{position: 'absolute', left: '-9999px'}}
-                checked={checked}
-                onChange={h}
-              />
-              {labelBy ? labelBy(value) : value}
-            </label>
-          </div>
-        )
-      })}
-    </>
+          return (
+            <div key={option} className={cx(classes.CheckboxRow, {checked})}>
+              <label
+                onMouseEnter={h}
+                onMouseDown={h}
+                onMouseUp={h}
+                onDoubleClick={() => {
+                  // double click toggles between
+                  if (utils.equal(value, [option])) {
+                    // all selected
+                    set(options)
+                  } else {
+                    // only me selected
+                    set([option])
+                  }
+                }}>
+                <input
+                  type="checkbox"
+                  style={{position: 'absolute', left: '-9999px'}}
+                  checked={checked}
+                  onChange={h}
+                />
+                {labelBy ? labelBy(option) : option}
+              </label>
+            </div>
+          )
+        })}
+      </>
+    ),
+    [value, labelBy, options]
   )
+  return {value, set, node}
 }

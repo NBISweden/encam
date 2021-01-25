@@ -17,6 +17,21 @@ const renames: Record<string, string> = {
   MSI_ARTUR: 'MSI status',
 }
 
+/** Adds a plural 's' if needed.
+
+  pluralise(true, 'word') // => 'words'
+  pluralise(false, 'word') // => 'word'
+
+  Note: Not very ambitious!
+
+  pluralise(true, 'foot') // => 'foots'
+  pluralise(true, 'bus') // => 'buss'
+
+*/
+export function pluralise(is_plural: boolean, word: string) {
+  return word + (is_plural ? 's' : '')
+}
+
 /**
 
   pretty('CD4_Treg') // => 'CD4 Treg'
@@ -389,6 +404,19 @@ export function mapObject<K extends string, A, B>(
   f: (a: A, k: K, i: number) => B
 ): Record<K, B> {
   return Object.fromEntries(Object.entries(m).map(([k, a], i) => [k, f(a as A, k as K, i)])) as any
+}
+
+export function createObject<A, B>(
+  xs: A[],
+  k: (a: A) => string,
+  v: (a: A, k: string) => B
+): Record<string, B> {
+  const out = {} as any
+  for (const x of xs) {
+    const key = k(x)
+    out[key] = v(x, key)
+  }
+  return out
 }
 
 /**

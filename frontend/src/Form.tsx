@@ -22,7 +22,7 @@ import {Autocomplete} from '@material-ui/lab'
 
 import BarChart from '@material-ui/icons/BarChart'
 
-import {CheckboxRow} from './CheckboxRow'
+import {useCheckboxRow} from './CheckboxRow'
 
 import {css} from 'emotion'
 
@@ -45,29 +45,32 @@ export interface Conf {
   tumor_codes: Record<string, string>
 }
 
-type State = Record<string, string[]> & {
+type State = {
   tumors: string[]
   cells: string[]
+  specifics: {
+    [column: string]: {
+      [tumor: string]: string[]
+    }
+  }
+  variants: Record<string, string[]>
 }
 
-const specific_key = (s: SpecificOption) => s.column + ',' + s.tumor
-
-function calculate_state0(conf: Conf, key_prefix: string): State {
-  const state0 = {} as State
+function calculate_state0(conf: Conf): State {
+  const state0 = {variants: {}, specifics: {}} as State
   conf.variant_values.forEach(v => {
-    state0[v.column] = v.values
+    state0.variants[v.column] = v.values
   })
   conf.tumor_specific_values.forEach(v => {
-    state0[specific_key(v)] = v.values
+    if (!state0.specifics[v.column]) {
+      state0.specifics[v.column] = {}
+    }
+    state0.specifics[v.column][v.tumor] = v.values
   })
   const default_cell = 'CD4'
   state0.cells = [conf.cells.includes(default_cell) ? default_cell : conf.cells[0]]
   state0.tumors = ['BRCA']
   return state0
-}
-
-function memo(deps: any[], elem: () => React.ReactElement): React.ReactElement {
-  return React.useMemo(elem, deps)
 }
 
 export interface FormProps {
@@ -79,18 +82,19 @@ export interface FormProps {
 }
 
 function prepare_state_for_backend(state0: State, conf: Conf) {
-  const state = {...state0}
+  let {specifics, variants, ...state} = {...state0}
+  const flat_state: Record<string, any> = {...specifics, ...variants, ...state}
   let facet
   if (state0.cells.length == 0) {
-    state.cells = conf.cells
+    flat_state.cells = conf.cells
     facet = 'cell'
   }
   if (state0.tumors.length == 0) {
-    state.tumors = conf.tumors
+    flat_state.tumors = conf.tumors
     facet = 'tumor'
   }
   return {
-    ...utils.expand(state),
+    ...flat_state,
     facet,
   }
 }
@@ -183,7 +187,7 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 
   onState && onState(...get_form_values())
 
-  ui.useWhyChanged(Form, {conf, state})
+  // ui.useWhyChanged(Form, {conf, state})
 
   return (
     <div className={classes.Form}>
@@ -221,7 +225,7 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 
   const [do_stitch, box_stitch] = ui.useCheckbox('stitch', false)
 
-  ui.useWhyChanged(Form, {conf, A_state: A.state, B_state: B.state, do_stitch})
+  // ui.useWhyChanged(Form, {conf, A_state: A.state, B_state: B.state, do_stitch})
 
   function stitch<A>(xs: A[][]): A[] {
     const [y, ...ys] = xs
@@ -253,12 +257,6 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
       </Buttons>
     </div>
   )
-}
-
-interface SpecificsProps {
-  options: SpecificOption[]
-  visible: (option: SpecificOption) => boolean
-  store: Store<Record<string, string[]>>
 }
 
 import {
@@ -314,7 +312,7 @@ export const AccordionSummary = withStyles({
   },
 })(MuiAccordionSummary)
 
-const useSpecificStyles = makeStyles(theme => ({
+const useAccordionStyles = makeStyles(theme => ({
   Table: {
     fontSize: 'inherit',
     borderSpacing: 0,
@@ -343,72 +341,85 @@ const useSpecificStyles = makeStyles(theme => ({
   },
 }))
 
-function Specifics(props: SpecificsProps) {
-  const [expanded, update_expanded] = ui.useStateWithUpdate({} as Record<string, boolean>)
-  const classes = useSpecificStyles()
-  const state = props.store.get()
+interface AccordionProps {
+  options: SpecificOption[]
+  column: string
+  visible: (option: SpecificOption) => boolean
+}
 
-  const options_text = (options: SpecificOption[]) => {
-    const visible_options = options.filter(props.visible)
+function useAccordion(props: AccordionProps) {
+  const classes = useAccordionStyles()
+  const [expanded, set_expanded] = React.useState(false)
+  ui.useAssertConstant(props.options, props.column)
+  const {column} = props
+  const options: typeof props.options = []
 
-    const edited = visible_options.some(
-      option => !utils.multiset_equal(state[specific_key(option)], option.values)
-    )
-    const edited_text = edited ? ', edited' : ''
-
-    const n = visible_options.length
-    if (n === 0) {
-      return '(no options)'
-    } else if (n === 1) {
-      return `(1 option${edited_text})`
-    } else {
-      return `(${n} options${edited_text})`
+  for (const option of props.options) {
+    if (option.column == column) {
+      options.push(option)
     }
   }
 
-  const grouped_options = Object.entries(utils.groupBy('column', props.options))
+  const checkbox_rows: Record<string, ui.State<string[]> & {node: React.ReactNode}> = {}
+  const values = []
 
-  return (
-    <>
-      {grouped_options.map(([column, options]) => (
-        <Accordion
-          key={column}
-          expanded={(expanded[column] && options.some(props.visible)) || false}
-          onChange={(_, e) => update_expanded({[column]: e && options.some(props.visible)})}>
-          <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-            <span>{utils.pretty(column)}</span>
-            <span style={{fontSize: '0.95em', color: '#777'}}>{options_text(options)}</span>
-          </AccordionSummary>
-          <AccordionDetails className={classes.AccordionDetails}>
-            <table className={classes.Table}>
-              <tbody>
-                {options.map(
-                  option =>
-                    props.visible(option) && (
-                      <tr key={option.tumor}>
-                        <td>{option.tumor}</td>
-                        <td style={{...ui.flex_row, flexWrap: 'wrap'}}>
-                          <CheckboxRow
-                            values={option.values}
-                            column={specific_key(option)}
-                            store={props.store}
-                          />
-                        </td>
-                      </tr>
-                    )
-                )}
-              </tbody>
-            </table>
-          </AccordionDetails>
-        </Accordion>
-      ))}
-    </>
-  )
+  for (const option of options) {
+    const cb_row = useCheckboxRow({options: option.values})
+    checkbox_rows[option.tumor] = cb_row
+    values.push(cb_row.value)
+  }
+
+  const node = React.useMemo(() => {
+    const trs = []
+    for (const option of options) {
+      const cb_row = checkbox_rows[option.tumor]
+      trs.push(
+        props.visible(option) && (
+          <tr key={option.tumor}>
+            <td>{option.tumor}</td>
+            <td style={{...ui.flex_row, flexWrap: 'wrap'}}>{cb_row.node}</td>
+          </tr>
+        )
+      )
+    }
+
+    const visible_options = options.filter(props.visible)
+
+    const edited = visible_options.some(
+      option => !utils.multiset_equal(checkbox_rows[option.tumor].value, option.values)
+    )
+    const n = visible_options.length
+    let options_text = n + ' ' + utils.pluralise(n > 1, 'option') + (edited ? ', edited' : '')
+
+    if (n === 0) {
+      options_text = 'no options'
+    }
+
+    options_text = '(' + options_text + ')'
+
+    return (
+      <Accordion
+        key={column}
+        expanded={(expanded && options.some(props.visible)) || false}
+        onChange={(_, e) => set_expanded(e && options.some(props.visible))}>
+        <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+          <span>{utils.pretty(column)}</span>
+          <span style={{fontSize: '0.95em', color: '#777'}}>{options_text}</span>
+        </AccordionSummary>
+        <AccordionDetails className={classes.AccordionDetails}>
+          <table className={classes.Table}>
+            <tbody>{trs}</tbody>
+          </table>
+        </AccordionDetails>
+      </Accordion>
+    )
+  }, [expanded, props.visible, ...values])
+
+  return {...ui.merge(checkbox_rows), node}
 }
 
 interface VariantsProps {
   options: VariantOption[]
-  store: Store<Record<string, string[]>>
 }
 
 const variant_classes = {
@@ -422,117 +433,144 @@ const variant_classes = {
   }),
 }
 
-export function Variants(props: VariantsProps) {
-  const {store} = props
-  return (
+export function useVariants(props: VariantsProps) {
+  const checkbox_rows: Record<string, ui.State<string[]>> = {}
+  const node = (
     <>
-      {props.options.map(({column, values}) => (
-        <div key={column} className={variant_classes.VariantRow}>
-          <div className="variant-label">
-            {column
-              .replace(/(_|yesno)/g, ' ')
-              .replace(/type/g, '')
-              .replace(/^p/, '')
-              .replace(/ +/, ' ')
-              .trim()}
+      {props.options.map(({column, values}) => {
+        const cb_row = useCheckboxRow({options: values})
+        checkbox_rows[column] = cb_row
+
+        return (
+          <div key={column} className={variant_classes.VariantRow}>
+            <div className="variant-label">
+              {column
+                .replace(/(_|yesno)/g, ' ')
+                .replace(/type/g, '')
+                .replace(/^p/, '')
+                .replace(/ +/, ' ')
+                .trim()}
+            </div>
+            {cb_row.node}
           </div>
-          <CheckboxRow {...{values, column, store}} />
-        </div>
-      ))}
+        )
+      })}
     </>
   )
+  return {...ui.merge(checkbox_rows), node}
 }
 
 interface SelectProps {
   options: string[]
   codeFor?: (option: string) => string
-  value: string[]
   label: string
-  defaultValue?: string[]
-  onChange: (ev: React.ChangeEvent<{}>, value: string[]) => void
+  init_value: string[]
   prefix: string
+  max_count?: number
 }
 
-function Select(props: SelectProps & {multi: boolean}) {
+function useSelect(props: SelectProps & {multi: boolean}) {
+  ui.useAssertConstant(
+    props.multi,
+    props.options.toString(),
+    props.label,
+    props.prefix,
+    props.max_count
+  )
   if (props.multi) {
-    return <SelectMany {...props} />
+    return useSelectMany(props)
   } else {
-    return <SelectOne {...props} />
+    return useSelectOne(props)
   }
 }
 
-function SelectMany(props: SelectProps) {
-  return (
-    <Autocomplete
-      multiple
-      options={props.options}
-      disableCloseOnSelect
-      getOptionLabel={(s: string) => utils.pretty(s)}
-      renderOption={(option: string, {selected}) => (
-        <>
-          <div style={{...ui.flex_row}}>
-            <Checkbox
-              size="small"
-              style={{marginRight: 8, padding: 0}}
-              checked={selected}
-              color="primary"
-              id={props.prefix + '-' + option}
-            />
-            <label htmlFor={props.prefix + '-' + option} style={{minWidth: 65, cursor: 'pointer'}}>
-              {utils.pretty(option)}
-            </label>
-            {props.codeFor && (
-              <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
-                ({props.codeFor(option)})
-              </i>
-            )}
-          </div>
-        </>
-      )}
-      fullWidth={true}
-      renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
-      style={{width: '100%'}}
-      onChange={(ev, selected) => props.onChange(ev, selected)}
-      value={props.value}
-    />
+function useSelectMany(props: SelectProps) {
+  const [value, set] = React.useState(props.init_value)
+  const node = React.useMemo(
+    () => (
+      <Autocomplete
+        multiple
+        options={props.options}
+        disableCloseOnSelect
+        getOptionLabel={(s: string) => utils.pretty(s)}
+        renderOption={(option: string, {selected}) => (
+          <>
+            <div style={{...ui.flex_row}}>
+              <Checkbox
+                size="small"
+                style={{marginRight: 8, padding: 0}}
+                checked={selected}
+                color="primary"
+                id={props.prefix + '-' + option}
+              />
+              <label
+                htmlFor={props.prefix + '-' + option}
+                style={{minWidth: 65, cursor: 'pointer'}}>
+                {utils.pretty(option)}
+              </label>
+              {props.codeFor && (
+                <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
+                  ({props.codeFor(option)})
+                </i>
+              )}
+            </div>
+          </>
+        )}
+        fullWidth={true}
+        renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
+        style={{width: '100%'}}
+        onChange={(e, selected) => {
+          e.preventDefault() // keep select open
+          set(utils.last(props.max_count ?? props.options.length, selected))
+        }}
+        value={value}
+      />
+    ),
+    [value]
   )
+  return {set, value, node}
 }
 
-function SelectOne(props: SelectProps) {
-  return (
-    <Autocomplete
-      getOptionLabel={(s: string) => utils.pretty(s)}
-      renderOption={(option: string, {selected}) => (
-        <div style={{display: 'flex', alignItems: 'center'}}>
-          <div style={{...ui.flex_row}}>
-            <Radio
-              size="small"
-              style={{marginRight: 8, padding: 0}}
-              checked={selected}
-              color="primary"
-              id={props.prefix + '-' + option}
-            />
-            <label htmlFor={props.prefix + '-' + option} style={{minWidth: 65, cursor: 'pointer'}}>
-              {utils.pretty(option)}
-            </label>
-            {props.codeFor && (
-              <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
-                ({props.codeFor(option)})
-              </i>
-            )}
+function useSelectOne(props: SelectProps) {
+  const [value, set] = React.useState(props.init_value)
+  const node = React.useMemo(
+    () => (
+      <Autocomplete
+        getOptionLabel={(s: string) => utils.pretty(s)}
+        renderOption={(option: string, {selected}) => (
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            <div style={{...ui.flex_row}}>
+              <Radio
+                size="small"
+                style={{marginRight: 8, padding: 0}}
+                checked={selected}
+                color="primary"
+                id={props.prefix + '-' + option}
+              />
+              <label
+                htmlFor={props.prefix + '-' + option}
+                style={{minWidth: 65, cursor: 'pointer'}}>
+                {utils.pretty(option)}
+              </label>
+              {props.codeFor && (
+                <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
+                  ({props.codeFor(option)})
+                </i>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-      fullWidth={true}
-      renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
-      style={{width: '100%'}}
-      options={props.options}
-      onChange={(ev, maybe_value) =>
-        props.onChange(ev, maybe_value ? [maybe_value] : props.defaultValue ?? [])
-      }
-      value={props.value[0] ?? ''}
-    />
+        )}
+        fullWidth={true}
+        renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
+        style={{width: '100%'}}
+        options={props.options}
+        onChange={(_, maybe_value) => set(maybe_value ? [maybe_value] : props.init_value ?? [])}
+        value={value[0] ?? ''}
+      />
+    ),
+    [value, ...Object.values(props)]
   )
+  return {set, value, node}
 }
 
 function useForm(
@@ -541,75 +579,68 @@ function useForm(
   multi: boolean,
   key_prefix = ''
 ) {
-  const state0 = React.useMemo(() => calculate_state0(conf, key_prefix), [conf, key_prefix])
-
-  const [store, state, update_state] = ui.useStore(state0)
-
-  const {tumors, cells} = state
-
-  React.useLayoutEffect(() => {
-    const state = store.get()
-    if (!select_types.tumors && state.tumors.length) {
-      store.update({tumors: []})
-    }
-    if (!select_types.cells && state.cells.length) {
-      store.update({cells: []})
-    }
-  }, [select_types])
-
-  const numerus = (tumor: string) => tumor + (multi ? 's' : '')
+  ui.useAssertConstant(conf)
+  const state0 = React.useMemo(() => calculate_state0(conf), [conf])
 
   const sorted_tumors = React.useMemo(() => utils.sort_tumors(conf.tumors), [conf])
 
-  const tumor_type = memo([select_types, tumors, cells], () => (
-    <React.Fragment key={key_prefix + ':tumors'}>
-      {select_types.tumors && (
-        <Select
-          prefix={key_prefix + ':tumors'}
-          multi={multi}
-          options={sorted_tumors}
-          codeFor={tumor => conf.tumor_codes[tumor]}
-          label={numerus('Tumor type')}
-          {...store.at('tumors', (selected: string[]) => ({
-            tumors: utils.last(3, selected),
-            cells: select_types.cells ? store.get().cells : [],
-          }))}
-        />
-      )}
-    </React.Fragment>
-  ))
+  const tumors = useSelect({
+    prefix: key_prefix + ':tumors',
+    multi: multi,
+    options: sorted_tumors,
+    codeFor: tumor => conf.tumor_codes[tumor],
+    label: utils.pluralise(multi, 'Tumor type'),
+    init_value: state0.tumors,
+    max_count: 2,
+  })
 
   const sorted_cells = React.useMemo(() => utils.sort_cells(conf.cells), [conf])
 
-  const cell_type = memo([select_types, tumors, cells], () => (
-    <React.Fragment key={key_prefix + ':cells'}>
-      {select_types.cells && (
-        <Select
-          prefix={key_prefix + ':cells'}
-          multi={multi}
-          options={sorted_cells}
-          label={numerus('Cell type')}
-          {...store.at('cells', (selected: string[]) => ({
-            tumors: select_types.tumors ? store.get().tumors : [],
-            cells: utils.last(3, selected),
-          }))}
-        />
-      )}
-    </React.Fragment>
-  ))
+  const cells = useSelect({
+    prefix: key_prefix + ':cells',
+    multi: multi,
+    options: sorted_cells,
+    label: utils.pluralise(multi, 'Cell type'),
+    init_value: state0.cells,
+    max_count: 3,
+  })
 
-  const specifics = (
-    <Specifics
-      key={key_prefix + 'specifics'}
-      options={conf.tumor_specific_values}
-      visible={t => (tumors.length ? tumors.includes(t.tumor) : cells.length > 0)}
-      store={store}
-    />
+  React.useLayoutEffect(() => {
+    if (!select_types.tumors && tumors.value.length) {
+      tumors.set([])
+    }
+    if (!select_types.cells && cells.value.length) {
+      cells.set([])
+    }
+  }, [select_types])
+
+  const specific_columns = React.useMemo(
+    () => utils.uniq(conf.tumor_specific_values.map(opt => opt.column)),
+    [conf]
+  )
+  const specifics = utils.createObject(
+    specific_columns,
+    column => column,
+    column =>
+      useAccordion({
+        column,
+        options: conf.tumor_specific_values,
+        visible: React.useCallback(
+          t => (tumors.value.length ? tumors.value.includes(t.tumor) : cells.value.length > 0),
+          [tumors.value, cells.value]
+        ),
+      })
   )
 
-  const variants = (
-    <Variants key={key_prefix + 'variants'} options={conf.variant_values} store={store} />
-  )
+  const variants = useVariants({
+    options: conf.variant_values,
+  })
+
+  const store = ui.merge({tumors, cells, specifics: ui.merge(specifics), variants})
+
+  const state = store.value
+
+  // console.log(state)
 
   const valid =
     (!select_types.tumors || state.tumors.length > 0) &&
@@ -618,8 +649,13 @@ function useForm(
   return {
     state,
     valid,
-    reset: () => update_state(state0),
-    form: [tumor_type, cell_type, specifics, variants],
+    reset: () => store.set(state0),
+    form: [
+      select_types.tumors && tumors.node,
+      select_types.cells && cells.node,
+      ...Object.values(specifics).map(s => s.node),
+      variants.node,
+    ],
   }
 }
 
@@ -629,16 +665,15 @@ export function KMForm({conf, onSubmit, onState}: FormProps) {
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
   const get_form_values = () => {
-    const expanded = utils.expand(state)
     return {
-      ...expanded,
-      cell: (expanded.cells as any)[0],
+      ...state,
+      cell: (state.cells as any)[0],
     }
   }
 
   onState && onState(get_form_values())
 
-  ui.useWhyChanged(KMForm, {conf, state, onSubmit})
+  // ui.useWhyChanged(KMForm, {conf, state, onSubmit})
 
   return (
     <div className={classes.Form}>

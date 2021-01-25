@@ -11,6 +11,44 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import * as utils from '../utils'
 
+export function useAssertConstant(...initials: any[]) {
+  if (process.env.NODE_ENV === 'development') {
+    for (const initial of initials) {
+      const {current} = React.useRef(initial)
+      if (current !== initial) {
+        throw new Error(`Assertion failed, value not constant: ${initial} !== ${current}`)
+      }
+    }
+  }
+}
+
+export type Setter<A> = (next: A) => void
+
+export interface State<A> {
+  value: A
+  set: Setter<A>
+}
+
+export interface StateWithPartialSetter<A> {
+  value: A
+  set: Setter<Partial<A>>
+}
+
+export function merge<A extends Record<keyof A, any>>(
+  xs: {[K in keyof A]: State<A[K]>}
+): StateWithPartialSetter<A> {
+  return {
+    value: utils.mapObject(xs, x => x.value),
+    set: m =>
+      ReactDOM.unstable_batchedUpdates(() => {
+        for (const [k, v] of Object.entries(m)) {
+          console.log(k, v, xs)
+          xs[k as keyof A].set(v as A[keyof A])
+        }
+      }),
+  }
+}
+
 export type OnChangeSecondArgument<T> = (_: any, t: T) => void
 
 export interface Store<S> {
@@ -129,68 +167,28 @@ export function useNativeSelect(
   ]
 }
 
-export function useCheckboxes(
-  labels: string[],
-  init?: Record<string, boolean>,
-  label_string = (s: string) => s,
-  label_placement = undefined as undefined | 'bottom' | 'top' | 'start' | 'end'
-): UseComponent<Record<string, boolean>> {
-  const init_value = init === undefined ? {} : init
-  const [value, set_value] = React.useState(init_value)
-  React.useLayoutEffect(() => {
-    if (value !== init_value) {
-      set_value(init_value)
-    }
-  }, [utils.str(labels)])
-  return [
-    value,
-    <>
-      {labels.map(label => (
-        <FormControlLabel
-          label={label_string(label)}
-          key={label}
-          checked={value[label] || false}
-          labelPlacement={label_placement}
-          onChange={(e, checked) => {
-            const ev = e.nativeEvent as MouseEvent
-            if (ev.ctrlKey || ev.shiftKey || ev.altKey) {
-              const only_me = utils.selected(value).every((x, i) => i == 0 && x == label)
-              if (only_me) {
-                set_value(Object.fromEntries(labels.map(v => [v, true])))
-              } else {
-                set_value({[label]: true})
-              }
-            } else {
-              set_value(v => ({...v, [label]: checked}))
-            }
-          }}
-          control={<Checkbox size="small" color="primary" />}
-        />
-      ))}
-    </>,
-    set_value,
-  ] as const
-}
-
-export type Setter<A> = (next: A) => void
-
 export function useRadio<K extends string>(label: string, options: K[], init?: K): UseComponent<K> {
   const [value, set_value] = React.useState(init === undefined ? options[0] : init)
+  useAssertConstant(label, options.toString())
   return [
     value,
-    <FormControl component="div" role="group">
-      <FormLabel component="label">{label}</FormLabel>
-      <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
-        {options.map(option => (
-          <FormControlLabel
-            label={option}
-            value={option}
-            key={option}
-            control={<Radio size="small" color="primary" />}
-          />
-        ))}
-      </RadioGroup>
-    </FormControl>,
+    React.useMemo(() => {
+      return (
+        <FormControl component="div" role="group">
+          <FormLabel component="label">{label}</FormLabel>
+          <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
+            {options.map(option => (
+              <FormControlLabel
+                label={option}
+                value={option}
+                key={option}
+                control={<Radio size="small" color="primary" />}
+              />
+            ))}
+          </RadioGroup>
+        </FormControl>
+      )
+    }, [value]),
     set_value,
   ] as const
 }

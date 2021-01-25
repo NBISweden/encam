@@ -341,9 +341,7 @@ const renames: Record<string, string> = {
   Granulocyte: 'Gran...',
 }
 
-const rename_row = (row: SplashRow): SplashRow => (
-  console.log(row.cell, renames[row.cell]), {...row, cell: renames[row.cell] || row.cell}
-)
+const rename_row = (row: SplashRow): SplashRow => ({...row, cell: renames[row.cell] || row.cell})
 
 function Left({state, dispatch, range}: SplashProps) {
   return (
