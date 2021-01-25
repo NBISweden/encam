@@ -60,8 +60,9 @@ docker login docker.pkg.github.com --username danr
     sudo mount /dev/vdb ~/config
     ```
     Detailed instructions about mounting a volume: https://github.com/naturalis/openstack-docs/wiki/Howto:-Creating-and-using-Volumes-on-a-Linux-instance
-    4. Put the old server's directories `config`, `certbot` and `snap` in `$HOME`.
-    5. Make sure permissions on `config/content` are liberal:
+    
+    5. Put the old server's directories `config`, `certbot` and `snap` in `$HOME`.
+    6. Make sure permissions on `config/content` are liberal:
     ```
     chmod 777 config/content
     chmod 666 config/content/*
