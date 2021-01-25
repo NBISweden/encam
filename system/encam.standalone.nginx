@@ -1,4 +1,8 @@
-
+    server {
+        listen 8080;
+        server_name _;
+        return 301 https://$host$request_uri;
+    }
     server {
         listen 8443 ssl http2;
         listen 8080;
@@ -12,12 +16,19 @@
         }
 
         location / {
-            try_files $uri $uri/ @wsgi =404;
+            # Forward to index.html if the file does not exist to allow javascript to route
+            # https://stackoverflow.com/questions/43951720/react-router-and-nginx
+            try_files $uri $uri/ @wsgi /index.html;
         }
 
         location /api/ {
-                # There were issues using the wsgi transport for uwsgi,
-                # use its built in http server.
-                proxy_pass http://127.0.0.1:9090/;
+            # There were issues using the wsgi transport for uwsgi,
+            # use its built in http server.
+            proxy_pass http://127.0.0.1:9090/api/;
+        }
+
+        location /login/ {
+            # For oauth login via flask and flask-dance
+            proxy_pass http://127.0.0.1:9090/login/;
         }
     }

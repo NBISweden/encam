@@ -1,5 +1,4 @@
 from database import filter, filter2, uniq
-import server
 import json
 
 from copy import deepcopy
@@ -374,13 +373,13 @@ def test_results_number():
     ex = deepcopy(example_body)
 
     c = filter2_to_dict(ex)
-    
+
     assert len(c) == 35532
 
     # Filter out cell types
     ex['cells'] = ['CD4_Treg', 'CD4']
     c = filter2_to_dict(ex)
-    
+
     assert len(c) == 5076
 
     # Using second example data

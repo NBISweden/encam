@@ -12,15 +12,28 @@ for p in {cert,key,ca}; do
   fi
 done
 
-if [ -r /config/dhparam.pem ]; then
-    echo "!!! Skipping pre-generated forward secrecy crypto parameters"
+chown www-data:www-data /code/*.pem
+
+if getent hosts encam-frontend-devel >/dev/null; then
+    echo 'Using development nginx conf'
+    cp /etc/nginx/encam.devel /etc/nginx/encam
 else
-    echo "!!! Skipping generating forward secrecy crypto parameters"
-    # openssl dhparam -out /code/dhparam.pem 2048 > /dev/null 2>/dev/null
+    if [ -r /config/dhparam.pem ]; then
+        echo "pre-generated forward secrecy crypto parameters"
+    else
+        echo "generating forward secrecy crypto parameters"
+        openssl dhparam -out /code/dhparam.pem 2048 > /dev/null 2>/dev/null
+    fi
+
+    chown www-data:www-data /code/*.pem
+
+    echo 'Using standalone nginx conf'
+    cp /etc/nginx/encam.standalone /etc/nginx/encam
 fi
 
-chown www-data.www-data /code/*.pem
-
-mv /etc/nginx/encam.standalone /etc/nginx/encam
+# Put content in a writable subdir
+mkdir --parents /config/content
+chmod 777 /config/content
+chmod 666 /config/content/*
 
 supervisord -c /etc/supervisord.conf

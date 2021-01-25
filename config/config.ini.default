@@ -1,0 +1,5 @@
+[AUTH]
+FlaskSecretKey = sampleSecretKey
+GoogleClientID = sampleGoogleClientID
+GoogleClientSecret = sampleClientSecret
+Whitelist = ../config/whitelist.txt
