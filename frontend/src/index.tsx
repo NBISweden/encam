@@ -18,8 +18,4 @@ const root = (
 
 ReactDOM.render(root, document.getElementById('root'))
 
-if (import.meta.hot) {
-  // Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-  // Learn more: https://www.snowpack.dev/#hot-module-replacement
-  import.meta.hot.accept()
-}
+import.meta?.hot?.accept() // React fast refresh, OK to ignore esbuild warning

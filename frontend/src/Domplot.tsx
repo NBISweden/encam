@@ -336,21 +336,20 @@ export function Domplot({
     bars.unshift(y_axis_line)
   }
 
-  const ticks = d3.ticks(0, max, opts.num_ticks - 1)
-    .map(x => (
-      <div
-        key={x}
-        style={{
-          [opts.axis_right ? o.left : o.right]: p(1),
-          [o.bottom]: p(x / max),
-          position: 'absolute',
-          background: '#888',
-          [o.height]: 1,
-          [o.width]: 4,
-        }}>
-        <div style={axis_label}>{x}</div>
-      </div>
-    ))
+  const ticks = d3.ticks(0, max, opts.num_ticks - 1).map(x => (
+    <div
+      key={x}
+      style={{
+        [opts.axis_right ? o.left : o.right]: p(1),
+        [o.bottom]: p(x / max),
+        position: 'absolute',
+        background: '#888',
+        [o.height]: 1,
+        [o.width]: 4,
+      }}>
+      <div style={axis_label}>{x}</div>
+    </div>
+  ))
 
   return (opts.hulled ? hulled : utils.identity)(
     <div
@@ -414,8 +413,8 @@ export function DomplotsDemo() {
     : div(
         <DomplotCSS />,
         css`
-          width: 900;
-          margin: 10 auto;
+          width: 900px;
+          margin: 10px auto;
           background: white;
           & > div {
             display: inline-block;
@@ -444,9 +443,9 @@ export function Legend({backgroundColor = '#ccc'}) {
       <div>
         <div
           style={{
-            width: '8px',
-            height: '8px',
-            marginRight: '4px',
+            width: 8,
+            height: 8,
+            marginRight: 4,
             backgroundColor,
             display: 'inline-block',
           }}
@@ -457,9 +456,9 @@ export function Legend({backgroundColor = '#ccc'}) {
         <div
           className="striped"
           style={{
-            width: '8px',
-            height: '8px',
-            marginRight: '4px',
+            width: 8,
+            height: 8,
+            marginRight: 4,
             backgroundColor,
             display: 'inline-block',
           }}

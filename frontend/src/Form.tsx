@@ -136,7 +136,7 @@ const classes = {
     },
   }),
   SelectRadio: css({
-    margin: '5 0 15',
+    margin: '5px 0px 15px',
     // alignSelf: 'flex-begin',
     '& .MuiFormControl-root': {
       ...ui.flex_row,
@@ -157,7 +157,7 @@ const classes = {
           '& .MuiFormControlLabel-label': {},
           margin: 0,
           '& .MuiButtonBase-root': {
-            padding: '0 9',
+            padding: '0 9px',
           },
         },
       },
@@ -280,10 +280,10 @@ export const Accordion = withStyles(theme => {
       borderStyle: 'solid',
       borderColor,
       borderRadius: 4,
-      marginBottom: '10',
+      marginBottom: 10,
       marginTop: 0,
       '&$expanded': {
-        marginBottom: '20',
+        marginBottom: 20,
         marginTop: 0,
       },
       boxShadow: 'none',
@@ -302,9 +302,9 @@ export const AccordionSummary = withStyles({
   },
   content: {
     justifyContent: 'space-between',
-    margin: '12 0',
+    margin: '12px 0',
     '&$expanded': {
-      margin: '12 0',
+      margin: '12px 0',
     },
   },
   expanded: {},

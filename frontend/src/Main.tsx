@@ -28,17 +28,14 @@ const classes = {
     `
   ),
   Main: css({
-    // flexGrow: 1,
     '& h1, & h2, & h3': {
       fontFamily: '"Merriweather Sans", sans',
       fontWeight: 300,
     },
     background: '#fff',
-    boxShadow: '0 0 14 0 #0002',
+    boxShadow: '0 0 14px 0 #0002',
     margin: '0 auto',
     width: 1100,
-    // width: 'fit-content',
-    // border: '1px black solid',
     ...ui.flex_column,
     '& > *': {
       margin: '0 auto',
@@ -56,7 +53,6 @@ const classes = {
     '& > footer': {
       padding: 20,
       userSelect: 'text',
-      // marginTop: 40,
       '& p': {
         display: 'inline',
         padding: 0,
@@ -91,7 +87,6 @@ const classes = {
         '& > ul': {
           marginLeft: 'auto',
           marginRight: 40,
-          // textTransform: 'uppercase',
           fontSize: '0.96em',
           fontWeight: 100,
           ...ui.flex_row,
@@ -113,7 +108,6 @@ const classes = {
   Modules: css({
     width: 1100,
     color: '#f8f8f8',
-    // marginTop: 40,
     ...ui.flex_row,
     '& > div': {
       flexGrow: 1,
@@ -167,7 +161,7 @@ const modules = [
   },
   {
     name: 'Clustering',
-    component: <h3 style={{margin: '20 20'}}>Module still under construction!</h3>,
+    component: <h3 style={{margin: 20}}>Module under construction!</h3>,
   },
 ]
 
@@ -228,7 +222,7 @@ export function Header(props: {onClickHeader?: Action<any>; onNav?: Action<strin
   )
 }
 
-export function Main({version = <React.Fragment /> as React.ReactNode}) {
+export function Main({version = (<React.Fragment />) as React.ReactNode}) {
   const resetChan = ui.useChannel<void>()
   const [section, set_section] = React.useState(undefined as undefined | string)
   return (

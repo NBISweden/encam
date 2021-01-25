@@ -19,7 +19,9 @@ import {Section} from './Content'
 const info = css`
   position: relative;
 
-  display: inline-block;
+  display: block;
+  height: 20px;
+  width: 20px;
 
   & > button {
     border: none;
@@ -30,6 +32,8 @@ const info = css`
       outline: none;
     }
     cursor: pointer;
+    height: 20px;
+    width: 20px;
   }
 
   & > .info-sign {

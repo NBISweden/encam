@@ -29,11 +29,11 @@ const classes = {
         cursor: pointer;
         z-index: 2;
 
-        margin-right: 5;
+        margin-right: 5px;
         &:last-child {
           margin-right: 0;
         }
-        margin-bottom: 5;
+        margin-bottom: 5px;
 
         &.checked {
           border-color: #999;

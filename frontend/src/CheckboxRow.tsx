@@ -27,12 +27,12 @@ const classes = {
       '&:focus-within': {
         borderColor: '#888',
       },
-      padding: '3 9',
-      margin: '5 2',
+      padding: '3px 9px',
+      margin: '5px 2px',
       minWidth: 50,
       '.small-checkbox-row &': {
-        margin: '2 2',
-        padding: '3 8 1',
+        margin: '2px 2px',
+        padding: '3px 8px 1px',
         fontSize: '0.73rem',
         borderWidth: 1.5,
         minWidth: 'unset',
@@ -105,7 +105,7 @@ export function CheckboxRow({
               }}>
               <input
                 type="checkbox"
-                style={{position: 'absolute', left: -9999}}
+                style={{position: 'absolute', left: '-9999px'}}
                 checked={checked}
                 onChange={h}
               />

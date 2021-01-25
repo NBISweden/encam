@@ -15,11 +15,9 @@ import {cellOrder} from './splash_db'
 
 import type {SplashDB, SplashRow} from './splash_db'
 
-import {css, div} from './ui_utils'
-
 import {Domplot, DomplotCSS, Legend} from './Domplot'
 
-import {css as emotion_css} from 'emotion'
+import {css} from 'emotion'
 
 import {cell_color} from './cell_colors'
 
@@ -106,11 +104,10 @@ interface SplashProps {
   dispatch: (action: Action) => void
   db?: SplashDB
   range?: utils.RowRange<SplashRow>
-  codes: Record<string, string>
 }
 
 const classes = {
-  Splash: emotion_css({
+  Splash: css({
     ...ui.flex_row,
     '& > *': {
       flexShrink: 0,
@@ -121,16 +118,16 @@ const classes = {
       cursor: 'pointer',
     },
     '& h2': {
-      margin: '10 auto',
+      margin: '10px auto',
       fontSize: '1.2em',
     },
   }),
-  Left: emotion_css({
+  Left: css({
     ...ui.flex_column,
     width: 155,
     paddingLeft: 5,
   }),
-  LeftLabel: emotion_css({
+  LeftLabel: css({
     ...ui.flex_row,
 
     border: '2px var(--cell-color) solid',
@@ -149,8 +146,8 @@ const classes = {
       },
     },
 
-    margin: '2 0',
-    padding: '3 0',
+    margin: '2px 0',
+    padding: '3px 0',
     // sizes are adapted to iDC being 45 px (100%)
     height: 55,
     '& > .has-img': {
@@ -168,17 +165,17 @@ const classes = {
       },
     },
   }),
-  Center: emotion_css({
+  Center: css({
     width: 750,
     marginTop: 40,
     minHeight: 680,
   }),
-  CenterWithoutLegend: emotion_css`
+  CenterWithoutLegend: css`
     & .CenterLegend {
       display: none;
     }
   `,
-  Right: emotion_css({
+  Right: css({
     ...ui.flex_column,
     borderLeft: '1px #ddd solid',
     paddingTop: 0,
@@ -228,8 +225,7 @@ function Checkboxes(
   })
 }
 
-function Center({state, dispatch, codes, db}: SplashProps) {
-  const [hover, set_hover] = React.useState('')
+function Center({state, dispatch, db}: SplashProps) {
   const dyn = useDyn()
 
   return (
@@ -293,7 +289,6 @@ function Center({state, dispatch, codes, db}: SplashProps) {
                     borderBottom: '2px #aaa solid',
                     margin: '0px 0px 0',
                     width: 80,
-                    // transform: 'translate(0, 5px)',
                     display: 'flex',
                     flexDirection,
                   }}>
@@ -309,6 +304,7 @@ function Center({state, dispatch, codes, db}: SplashProps) {
                 <div
                   style={{
                     borderBottom: '2px #aaa solid',
+                    height: plot_height + 2 + 'px',
                   }}>
                   {!db || !utils.selected(state.cell).length ? null : (
                     <Domplot
@@ -333,17 +329,6 @@ function Center({state, dispatch, codes, db}: SplashProps) {
           )
         }}
       />
-      <div
-        style={{
-          position: 'absolute',
-          top: 660,
-          left: '49%',
-          width: '100%',
-          textAlign: 'center',
-          transform: 'translate(-50%, 0)',
-        }}>
-        {hover}
-      </div>
     </div>
   )
 }
@@ -506,16 +491,10 @@ function useSplashProps(): SplashProps {
   const db = db0 && db0.sort(by(row => both.indexOf(row.tumor)))
 
   const range = React.useMemo(() => (db ? utils.row_range(db) : undefined), [db])
-  const codes = (backend.useRequest('codes') as Record<string, string>) || {}
-
-  Object.keys(codes).length &&
-    both.forEach(b => {
-      b in codes || console.error(b, 'not in', codes)
-    })
 
   const [state, dispatch] = React.useReducer(reduce, state0)
 
-  return {state, dispatch, range, codes, db}
+  return {state, dispatch, range, db}
 }
 
 export const Splash = React.memo(function Splash() {
