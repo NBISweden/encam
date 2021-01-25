@@ -228,7 +228,7 @@ export function Header(props: {onClickHeader?: Action<any>; onNav?: Action<strin
   )
 }
 
-export function Main({version = <React.Fragment />}) {
+export function Main({version = <React.Fragment /> as React.ReactNode}) {
   const resetChan = ui.useChannel<void>()
   const [section, set_section] = React.useState(undefined as undefined | string)
   return (

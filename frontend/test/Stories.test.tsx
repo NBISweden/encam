@@ -37,33 +37,9 @@ import {getStories} from '@app/ui_utils/stories'
 
 import renderer from 'react-test-renderer'
 
-import * as q from '@testing-library/react'
-import {act, render, fireEvent} from '@testing-library/react'
+import {act, render} from '@testing-library/react'
 
 getStories().stories.map(story => {
-  false &&
-    story.tests.forEach(T => {
-      describe(story.name, () => {
-        test(T.test_name, async () => {
-          const node = (
-            <MockBackend
-              request={async () => {
-                throw new Error('No backend when testing ' + JSON.stringify(story))
-              }}>
-              {story.component}
-            </MockBackend>
-          )
-
-          render(node)
-
-          await act(async () => {})
-
-          await T.script(expect, q)
-
-          // expect(N.container).toMatchSnapshot()
-        })
-      })
-    })
   story.snap === false ||
     describe(story.name, () => {
       test(story.name + ' renderer', async () => {

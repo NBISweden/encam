@@ -155,40 +155,39 @@ export function WithEditableContent(props: {children: React.ReactNode; url?: str
         })
     }
   }, [url])
-  const timeout_ref = React.useRef(undefined)
+  const timeout_ref = React.useRef(undefined as undefined | number)
   const set_content = React.useCallback(
     k => {
-      console.log('loading', loading)
       if (loading == false) {
-        let c
+        let c: Content
         set_content_raw(content => {
           return (c = k(content))
         })
-        console.log('hmm', c)
-        window.clearTimeout(timeout_ref.current)
-        set_msg('...')
-        timeout_ref.current = window.setTimeout(() => {
-          set_msg('saving...')
-          req(url, c)
-            .then(res => {
-              if (res.success) {
-                const saved = JSON.stringify(c)
-                const now = JSON.stringify(content_ref.current)
-                console.log(saved, now, saved == now)
-                if (saved == now) {
-                  set_msg('saved')
+        if (url) {
+          window.clearTimeout(timeout_ref.current)
+          set_msg('...')
+          timeout_ref.current = window.setTimeout(() => {
+            set_msg('saving...')
+            req(url, c)
+              .then(res => {
+                if (res.success) {
+                  const saved = JSON.stringify(c)
+                  const now = JSON.stringify(content_ref.current)
+                  if (saved == now) {
+                    set_msg('saved')
+                  } else {
+                    set_msg('....')
+                  }
                 } else {
-                  set_msg('....')
+                  set_msg(res.reason)
                 }
-              } else {
-                set_msg(res.reason)
-              }
-            })
-            .catch(e => {
-              set_msg(e.toString())
-              console.error(e)
-            })
-        }, 500)
+              })
+              .catch(e => {
+                set_msg(e.toString())
+                console.error(e)
+              })
+          }, 500)
+        }
       }
     },
     [loading, url]
