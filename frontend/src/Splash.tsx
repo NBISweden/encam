@@ -407,7 +407,7 @@ function Left({state, dispatch, range}: SplashProps) {
 
 function Right({state, db}: SplashProps) {
   const out: React.ReactNode[] = []
-  const legend = (
+  const legend = (backgroundColor?: string) => (
     <div
       style={{
         fontSize: 9,
@@ -415,7 +415,7 @@ function Right({state, db}: SplashProps) {
         marginTop: -4,
         marginRight: 5,
       }}>
-      <Legend />
+      <Legend {...{backgroundColor}} />
     </div>
   )
   const forest_x = (
@@ -462,7 +462,7 @@ function Right({state, db}: SplashProps) {
         />
       )
       out.push(bar_x)
-      out.push(legend)
+      out.push(legend())
       out.push(<h2>{utils.pretty(t)} survival</h2>)
       out.push(
         <Domplot
@@ -472,7 +472,7 @@ function Right({state, db}: SplashProps) {
         />
       )
       out.push(forest_x)
-      out.push(legend)
+      out.push(legend())
     }
     for (const c of cells) {
       out.push(<h2>{utils.pretty(c)} survival</h2>)
@@ -484,7 +484,7 @@ function Right({state, db}: SplashProps) {
         />
       )
       out.push(forest_x)
-      out.push(legend)
+      out.push(legend(cell_color(c)))
     }
   }
 

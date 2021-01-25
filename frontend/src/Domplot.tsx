@@ -438,7 +438,7 @@ export function DomplotsDemo() {
       )
 }
 
-export function Legend() {
+export function Legend({backgroundColor = '#ccc'}) {
   return (
     <>
       <DomplotCSS />
@@ -448,7 +448,7 @@ export function Legend() {
             width: '8px',
             height: '8px',
             marginRight: '4px',
-            backgroundColor: '#ccc',
+            backgroundColor,
             display: 'inline-block',
           }}
         />
@@ -461,7 +461,7 @@ export function Legend() {
             width: '8px',
             height: '8px',
             marginRight: '4px',
-            backgroundColor: '#ccc',
+            backgroundColor,
             display: 'inline-block',
           }}
         />
