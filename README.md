@@ -9,10 +9,7 @@ docker-compose up --build
 ```
 
 This starts a flask server serving a static version of the webpage using nginx
-on http://localhost:8080 with the built frontend.
-
-The development server is started at http://localhost:1234 which proxies to the
-flask process via the nginx server.
+on http://localhost:8080 using the development server (proxied via nginx).
 
 ## Building and deploying
 
