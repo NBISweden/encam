@@ -314,7 +314,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
                   // shape: 'M-1 -1 L1 1 M1 -1 L-1 1'
                 },
                 encoding: {
-                  [y]: {field: 'mean'},
+                  [y]: {field: 'mean', scale},
                   stroke: {value: 'black'},
                   fill: {value: 'black'},
                   size: {value: 10},
