@@ -40,6 +40,36 @@ The server needs a token to pull the image. The permissions need to be:
 
 * `read:packages`
 
+Login on the server as well:
+
+```
+docker login docker.pkg.github.com --username danr
+```
+
+## Moving to a new server
+
+1. On the old server: copy the `config`, `certbot` and `snap` directories in `$HOME`.
+2. On the new server:
+    1. Install docker.
+    2. Login with github API keys as above to be able to pull the docker image.
+    3. Create a volume and attach it to the running instance.
+    4. Mount the volume to the config directory of the instance. On SNIC this looks like:
+    ```
+    sudo mkfs.ext4 /dev/vdb
+    mkdir -p ~/config
+    sudo mount /dev/vdb ~/config
+    ```
+    Detailed instructions about mounting a volume: https://github.com/naturalis/openstack-docs/wiki/Howto:-Creating-and-using-Volumes-on-a-Linux-instance
+    4. Put the old server's directories `config`, `certbot` and `snap` in `$HOME`.
+    5. Make sure permissions on `config/content` are liberal:
+    ```
+    chmod 777 config/content
+    chmod 666 config/content/*
+    ```
+3. Locally: update the `deploy.sh` script to point to the new server IP address.
+4. Locally: run the `deploy.sh` script.
+5. Update the DNS on .one to point to the new IP address.
+
 ## Running backend tests
 
 To run the tests for the encam project

@@ -7,7 +7,7 @@ TAG="docker.pkg.github.com/nbisweden/encam/test:$VERSION"
 docker-compose build --compress --build-arg "VERSION=$VERSION"
 docker tag encam_main "$TAG"
 docker push "$TAG"
-ssh ubuntu@130.238.28.162 '
-    docker stop $(docker ps --quiet);
+ssh ubuntu@130.238.29.112 '
+    docker stop $(docker ps --quiet) || echo no container was running;
     docker run --detach -v /home/ubuntu/config:/config -p 80:8080 -p 443:8443 '"$TAG"'
 '
