@@ -129,7 +129,6 @@ const classes = {
     ...ui.flex_column,
     width: 155,
     paddingLeft: 5,
-    textAlign: 'center',
   }),
   LeftLabel: emotion_css({
     ...ui.flex_row,
@@ -164,6 +163,7 @@ const classes = {
     '& > .has-span': {
       flex: 1,
       '& > span': {
+        textAlign: 'center',
         fontSize: '0.9em',
       },
     },
@@ -173,6 +173,11 @@ const classes = {
     marginTop: 40,
     minHeight: 680,
   }),
+  CenterWithoutLegend: emotion_css`
+    & .CenterLegend {
+      display: none;
+    }
+  `,
   Right: emotion_css({
     ...ui.flex_column,
     borderLeft: '1px #ddd solid',
@@ -228,7 +233,13 @@ function Center({state, dispatch, codes, db}: SplashProps) {
   const dyn = useDyn()
 
   return (
-    <div className={classes.Center} style={{display: 'flex'}}>
+    <div
+      className={
+        classes.Center +
+        ' ' +
+        (utils.selected(state.cell).length ? '' : classes.CenterWithoutLegend)
+      }
+      style={{display: 'flex'}}>
       <c.Center
         withTumor={(tumor: string, side: 'left' | 'right') => {
           const flexDirection = side === 'left' ? 'row-reverse' : 'row'

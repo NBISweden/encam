@@ -153,7 +153,7 @@ export function Info(props: {children?: React.ReactNode; dir?: Dir}) {
           className="info-area"
           onMouseEnter={() => set_over_info(true)}
           onMouseLeave={() => set_over_info(false)}
-          onClick={e => {
+          onMouseDown={e => {
             set_clicked(true)
             e.stopPropagation()
           }}>

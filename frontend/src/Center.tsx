@@ -235,6 +235,7 @@ export function Center({withTumor}: CenterProps) {
         })}
       </svg>
       <div
+        className="CenterLegend"
         css={css`
           grid-area: legend;
           justify-self: center;
