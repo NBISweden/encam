@@ -17,6 +17,8 @@ import {cell_color} from './cell_colors'
 
 import {DomplotCSS} from './DomplotCSS'
 
+import * as d3 from 'd3-array'
+
 export {DomplotCSS} from './DomplotCSS'
 
 interface Rect {
@@ -334,10 +336,7 @@ export function Domplot({
     bars.unshift(y_axis_line)
   }
 
-  const tick_step = utils.roundDown(max / (opts.num_ticks - 1))
-  const ticks = utils
-    .enumTo(opts.num_ticks)
-    .map(x => x * tick_step)
+  const ticks = d3.ticks(0, max, opts.num_ticks - 1)
     .map(x => (
       <div
         key={x}
