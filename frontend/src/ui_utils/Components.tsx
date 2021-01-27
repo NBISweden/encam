@@ -40,11 +40,6 @@ export function mapComponentNode<A>(
   }
 }
 
-export interface StateWithPartialSetter<A> {
-  value: A
-  set: Setter<Partial<A>>
-}
-
 export type RecordOf<A> = A extends Record<any, infer R> ? R : never
 
 export function merge<A extends Record<keyof A, any>>(
@@ -76,42 +71,6 @@ import {
   RadioGroup,
   Radio,
 } from '@material-ui/core'
-
-import NativeSelect from '@material-ui/core/NativeSelect'
-import InputLabel from '@material-ui/core/InputLabel'
-
-export function useNativeSelect(
-  labels: string[],
-  init_value?: string,
-  label?: string
-): Component<string> {
-  const [value, set] = React.useState(init_value ?? labels[0])
-  useAssertConstant(labels.toString(), label)
-  return {
-    value,
-    set,
-    node: useMemoComponent([value], () => (
-      <FormControl>
-        <InputLabel shrink htmlFor={label}>
-          {label}
-        </InputLabel>
-        <NativeSelect
-          value={value}
-          onChange={e => set(e.target.value)}
-          inputProps={{
-            name: 'age',
-            id: label,
-          }}>
-          {labels.map(label => (
-            <option key={label} value={label}>
-              {label}
-            </option>
-          ))}
-        </NativeSelect>
-      </FormControl>
-    )),
-  }
-}
 
 export function useRadio<K extends string>(
   label: string,
@@ -157,3 +116,40 @@ export function useCheckbox(label: string, init?: boolean): Component<boolean> {
     )),
   }
 }
+
+import NativeSelect from '@material-ui/core/NativeSelect'
+import InputLabel from '@material-ui/core/InputLabel'
+
+export function useNativeSelect(
+  labels: string[],
+  init_value?: string,
+  label?: string
+): Component<string> {
+  const [value, set] = React.useState(init_value ?? labels[0])
+  useAssertConstant(labels.toString(), label)
+  return {
+    value,
+    set,
+    node: useMemoComponent([value], () => (
+      <FormControl>
+        <InputLabel shrink htmlFor={label}>
+          {label}
+        </InputLabel>
+        <NativeSelect
+          value={value}
+          onChange={e => set(e.target.value)}
+          inputProps={{
+            name: 'age',
+            id: label,
+          }}>
+          {labels.map(label => (
+            <option key={label} value={label}>
+              {label}
+            </option>
+          ))}
+        </NativeSelect>
+      </FormControl>
+    )),
+  }
+}
+
