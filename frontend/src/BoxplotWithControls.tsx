@@ -7,10 +7,9 @@ import * as adhoc from './adhoc'
 
 import * as ui from './ui_utils'
 
-import {FormControl, FormLabel, FormGroup} from '@material-ui/core'
+import {FormLabel} from '@material-ui/core'
 
-import {CheckboxRow} from './CheckboxRow'
-import {useStore} from './ui_utils'
+import {useCheckboxRow} from './CheckboxRow'
 
 import {css} from 'emotion'
 
@@ -68,16 +67,18 @@ const classes = {
 function useOptions(facet: keyof Row) {
   const radicals = ['√', '∛', '∜']
 
-  const [opts, nodes] = ui.record({
+  const opts = {
     split: ui.useCheckbox('split tumor and stroma', false),
     mean: ui.useCheckbox('show mean', false),
     scale: ui.useRadio('scale', ['linear', ...radicals], radicals[0]),
     mode: ui.useRadio('box plot settings', ['default (1.5*IQR)', 'min-max']),
     orientation: ui.useRadio('orientation', ['landscape', 'portrait'], 'portrait'),
-  })
+  }
+
+  const {value, node} = ui.merge(opts)
 
   const opposite = (x: keyof Row) => (x === 'cell' ? 'tumor' : 'cell')
-  const options: Partial<Options> = opts.split
+  const options: Partial<Options> = value.split
     ? {
         inner: ['group', opposite(facet)],
         facet: facet,
@@ -90,20 +91,20 @@ function useOptions(facet: keyof Row) {
         color: ['group', opposite(facet)],
       }
   options.stripes = 'location'
-  options.landscape = opts.orientation == 'landscape'
+  options.landscape = value.orientation == 'landscape'
   options.scale = {
-    type: opts.scale === 'linear' ? 'linear' : 'semilog',
+    type: value.scale === 'linear' ? 'linear' : 'semilog',
   }
-  options.mode = opts.mode === 'min-max' ? 'min-max' : 'default'
-  options.show_mean = opts.mean
-  const r = radicals.indexOf(opts.scale)
+  options.mode = value.mode === 'min-max' ? 'min-max' : 'default'
+  options.show_mean = value.mean
+  const r = radicals.indexOf(value.scale)
   if (r != -1) {
     options.scale = {
       type: 'pow',
       exponent: 1 / (2 + r),
     }
   }
-  return [ui.useIntern(options), nodes] as const
+  return {value: ui.useIntern(options), node}
 }
 
 function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
@@ -115,15 +116,18 @@ function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
     [facet, facet_values_unsorted]
   )
 
-  const [store] = useStore({visible: facet_values})
+  const facet_boxes = useCheckboxRow({
+    options: facet_values,
+    labelBy: adhoc.pretty,
+  })
 
-  const [show, set_show] = React.useState(true)
-
-  const facet_boxes = (
-    <CheckboxRow store={store} values={facet_values} column="visible" labelBy={adhoc.pretty} />
+  const value = utils.createObject(
+    facet_boxes.value,
+    k => k,
+    () => true
   )
 
-  const value = Object.fromEntries(store.get().visible.map(v => [v, true]))
+  const [show, set_show] = React.useState(true)
 
   const [delayed_value, enqueue_delayed_value] = ui.useDelayed(400, value)
 
@@ -137,23 +141,23 @@ function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
     enqueue_delayed_value(value)
   }, [utils.str(value)])
 
-  return [
-    {
-      visible_facets: delayed_value,
-      loading,
-    },
-    <div className={classes.VisibleSidebar}>
-      <FormLabel className="visible-label" onClick={() => set_show(b => !b)}>
-        {show ? (
-          <ExpandMore className="visible-icon" fontSize="small" />
-        ) : (
-          <ChevronRight className="visible-icon" fontSize="small" />
-        )}
-        <span>{`visible ${facet}s`}</span>
-      </FormLabel>
-      <div className="visible-checkboxes small-checkbox-row">{show && facet_boxes}</div>
-    </div>,
-  ] as const
+  return {
+    visible_facets: delayed_value,
+    loading,
+    node: (
+      <div className={classes.VisibleSidebar}>
+        <FormLabel className="visible-label" onClick={() => set_show(b => !b)}>
+          {show ? (
+            <ExpandMore className="visible-icon" fontSize="small" />
+          ) : (
+            <ChevronRight className="visible-icon" fontSize="small" />
+          )}
+          <span>{`visible ${facet}s`}</span>
+        </FormLabel>
+        <div className="visible-checkboxes small-checkbox-row">{show && facet_boxes.node}</div>
+      </div>
+    ),
+  }
 }
 
 export function BoxplotWithControls({
@@ -165,11 +169,11 @@ export function BoxplotWithControls({
   facet: 'cell' | 'tumor'
   set_loading?: ui.Setter<boolean>
 }) {
-  const [options, Options] = useOptions(facet)
+  const options = useOptions(facet)
 
   const facet_values = utils.uniq(data.map(x => x[facet]))
 
-  const [{visible_facets, loading}, VisibleSidebar] = useVisibleSidebar(facet, facet_values)
+  const {visible_facets, loading, ...visible_sidebar} = useVisibleSidebar(facet, facet_values)
 
   React.useLayoutEffect(() => {
     set_loading && set_loading(loading)
@@ -177,12 +181,12 @@ export function BoxplotWithControls({
 
   const plot_data = ui.useIntern(data.filter(x => visible_facets[x[facet]]))
 
-  const plot_options = ui.useIntern({...options, trimmable: {group: true}})
+  const plot_options = ui.useIntern({...options.value, trimmable: {group: true}})
 
   ui.useWhyChanged(BoxplotWithControls, {
     data,
     facet,
-    ...options,
+    ...options.value,
     visible_facets,
     loading,
     plot_data,
@@ -191,9 +195,9 @@ export function BoxplotWithControls({
 
   return (
     <div className={classes.BoxPlotWithControls}>
-      {VisibleSidebar}
+      {visible_sidebar.node}
       <Boxplot data={plot_data} options={plot_options} />
-      {Options}
+      {options.node}
     </div>
   )
 }

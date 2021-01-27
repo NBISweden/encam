@@ -13,7 +13,6 @@ import * as utils from './utils'
 import * as adhoc from './adhoc'
 
 import * as ui from './ui_utils'
-import type {Store} from './ui_utils'
 
 import {makeStyles} from '@material-ui/core/styles'
 import {Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
@@ -169,20 +168,22 @@ const classes = {
 }
 
 function useSelectRadio() {
-  const [select_type, select_radio_inner] = ui.useRadio('Select', ['tumors', 'cells'])
-  const select_radio = <div className={classes.SelectRadio}>{select_radio_inner}</div>
-  const select_types = {[select_type]: true} as Record<typeof select_type, boolean>
-  return [select_types, select_radio] as const
+  const inner_radio = ui.useRadio('Select', ['tumors', 'cells'])
+  const node = <div className={classes.SelectRadio}>{inner_radio.node}</div>
+  const value = {[inner_radio.value]: true} as Record<typeof inner_radio.value, boolean>
+  return {value, node}
 }
 
 export function Form({conf, onSubmit, onState}: FormProps) {
-  const [select_types, select_radio] = useSelectRadio()
+  const select_radio = useSelectRadio()
 
-  const {state, reset, valid, form} = useForm(conf, select_types, true)
+  const select_types = select_radio.value
+
+  const {value, reset, valid, form} = useForm(conf, select_types, true)
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
-  const get_form_values = () => [prepare_state_for_backend(state, conf)]
+  const get_form_values = () => [prepare_state_for_backend(value, conf)]
 
   onState && onState(...get_form_values())
 
@@ -190,7 +191,7 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 
   return (
     <div className={classes.Form}>
-      {select_radio}
+      {select_radio.node}
       {form}
       <Buttons
         onReset={reset}
@@ -201,7 +202,8 @@ export function Form({conf, onSubmit, onState}: FormProps) {
 }
 
 export function TwoForms({conf, onSubmit, onState}: FormProps) {
-  const [select_types, select_radio] = useSelectRadio()
+  const select_radio = useSelectRadio()
+  const select_types = select_radio.value
 
   const names = 'AB'
 
@@ -212,7 +214,7 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 
   const valid = forms.every(form => form.valid)
 
-  const get_form_values = () => forms.map(form => prepare_state_for_backend(form.state, conf))
+  const get_form_values = () => forms.map(form => prepare_state_for_backend(form.value, conf))
 
   const on_submit = () => valid && onSubmit && onSubmit(...get_form_values())
 
@@ -222,7 +224,7 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 
   // React.useEffect(() => on_submit(), [])
 
-  const [do_stitch, box_stitch] = ui.useCheckbox('stitch', false)
+  const stitch_box = ui.useCheckbox('stitch', false)
 
   // ui.useWhyChanged(Form, {conf, A_state: A.state, B_state: B.state, do_stitch})
 
@@ -233,8 +235,8 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
 
   return (
     <div className={classes.Form}>
-      {select_radio}
-      {do_stitch
+      {select_radio.node}
+      {stitch_box.value
         ? stitch(forms.map(form => form.form))
         : forms.map((form, i) => [
             <h2 key={'h2' + names[i]}>Group {names[i]}</h2>,
@@ -251,7 +253,7 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
           ])}
       <Buttons onReset={reset} onSubmit={on_submit}>
         <Grid item style={{display: 'none'}}>
-          {box_stitch}
+          {stitch_box.node}
         </Grid>
       </Buttons>
     </div>
@@ -359,7 +361,7 @@ function useAccordion(props: AccordionProps) {
     }
   }
 
-  const checkbox_rows: Record<string, ui.State<string[]> & {node: React.ReactNode}> = {}
+  const checkbox_rows: Record<string, ui.Component<string[]>> = {}
   const values = []
 
   for (const option of options) {
@@ -368,7 +370,7 @@ function useAccordion(props: AccordionProps) {
     values.push(cb_row.value)
   }
 
-  const node = React.useMemo(() => {
+  const node = ui.useMemoComponent([expanded, props.visible, ...values], () => {
     const trs = []
     for (const option of options) {
       const cb_row = checkbox_rows[option.tumor]
@@ -412,7 +414,7 @@ function useAccordion(props: AccordionProps) {
         </AccordionDetails>
       </Accordion>
     )
-  }, [expanded, props.visible, ...values])
+  })
 
   return {...ui.merge(checkbox_rows), node}
 }
@@ -433,7 +435,7 @@ const variant_classes = {
 }
 
 export function useVariants(props: VariantsProps) {
-  const checkbox_rows: Record<string, ui.State<string[]>> = {}
+  const checkbox_rows: Record<string, ui.Component<string[]>> = {}
   const node = (
     <>
       {props.options.map(({column, values}) => {
@@ -483,93 +485,83 @@ function useSelect(props: SelectProps & {multi: boolean}) {
   }
 }
 
-function useSelectMany(props: SelectProps) {
+function useSelectMany(props: SelectProps): ui.Component<string[]> {
   const [value, set] = React.useState(props.init_value)
-  const node = React.useMemo(
-    () => (
-      <Autocomplete
-        multiple
-        options={props.options}
-        disableCloseOnSelect
-        getOptionLabel={(s: string) => adhoc.pretty(s)}
-        renderOption={(option: string, {selected}) => (
-          <>
-            <div style={{...ui.flex_row}}>
-              <Checkbox
-                size="small"
-                style={{marginRight: 8, padding: 0}}
-                checked={selected}
-                color="primary"
-                id={props.prefix + '-' + option}
-              />
-              <label
-                htmlFor={props.prefix + '-' + option}
-                style={{minWidth: 65, cursor: 'pointer'}}>
-                {adhoc.pretty(option)}
-              </label>
-              {props.codeFor && (
-                <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
-                  ({props.codeFor(option)})
-                </i>
-              )}
-            </div>
-          </>
-        )}
-        fullWidth={true}
-        renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
-        style={{width: '100%'}}
-        onChange={(e, selected) => {
-          e.preventDefault() // keep select open
-          set(utils.last(props.max_count ?? props.options.length, selected))
-        }}
-        value={value}
-      />
-    ),
-    [value]
-  )
+  const node = ui.useMemoComponent([value], () => (
+    <Autocomplete
+      multiple
+      options={props.options}
+      disableCloseOnSelect
+      getOptionLabel={(s: string) => adhoc.pretty(s)}
+      renderOption={(option: string, {selected}) => (
+        <>
+          <div style={{...ui.flex_row}}>
+            <Checkbox
+              size="small"
+              style={{marginRight: 8, padding: 0}}
+              checked={selected}
+              color="primary"
+              id={props.prefix + '-' + option}
+            />
+            <label htmlFor={props.prefix + '-' + option} style={{minWidth: 65, cursor: 'pointer'}}>
+              {adhoc.pretty(option)}
+            </label>
+            {props.codeFor && (
+              <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
+                ({props.codeFor(option)})
+              </i>
+            )}
+          </div>
+        </>
+      )}
+      fullWidth={true}
+      renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
+      style={{width: '100%'}}
+      onChange={(e, selected) => {
+        e.preventDefault() // keep select open
+        set(utils.last(props.max_count ?? props.options.length, selected))
+      }}
+      value={value}
+    />
+  ))
   return {set, value, node}
 }
 
-function useSelectOne(props: SelectProps) {
+function useSelectOne(props: SelectProps): ui.Component<string[]> {
   const [value, set] = React.useState(props.init_value)
-  const node = React.useMemo(
-    () => (
-      <Autocomplete
-        getOptionLabel={(s: string) => adhoc.pretty(s)}
-        renderOption={(option: string, {selected}) => (
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            <div style={{...ui.flex_row}}>
-              <Radio
-                size="small"
-                style={{marginRight: 8, padding: 0}}
-                checked={selected}
-                color="primary"
-                id={props.prefix + '-' + option}
-              />
-              <label
-                htmlFor={props.prefix + '-' + option}
-                style={{minWidth: 65, cursor: 'pointer'}}>
-                {adhoc.pretty(option)}
-              </label>
-              {props.codeFor && (
-                <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
-                  ({props.codeFor(option)})
-                </i>
-              )}
-            </div>
+  const Node = ui.useMemoComponent([value], () => (
+    <Autocomplete
+      getOptionLabel={(s: string) => adhoc.pretty(s)}
+      renderOption={(option: string, {selected}) => (
+        <div style={{display: 'flex', alignItems: 'center'}}>
+          <div style={{...ui.flex_row}}>
+            <Radio
+              size="small"
+              style={{marginRight: 8, padding: 0}}
+              checked={selected}
+              color="primary"
+              id={props.prefix + '-' + option}
+            />
+            <label htmlFor={props.prefix + '-' + option} style={{minWidth: 65, cursor: 'pointer'}}>
+              {adhoc.pretty(option)}
+            </label>
+            {props.codeFor && (
+              <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
+                ({props.codeFor(option)})
+              </i>
+            )}
           </div>
-        )}
-        fullWidth={true}
-        renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
-        style={{width: '100%'}}
-        options={props.options}
-        onChange={(_, maybe_value) => set(maybe_value ? [maybe_value] : props.init_value ?? [])}
-        value={value[0] ?? ''}
-      />
-    ),
-    [value, ...Object.values(props)]
-  )
-  return {set, value, node}
+        </div>
+      )}
+      fullWidth={true}
+      renderInput={params => <TextField {...params} variant="outlined" label={props.label} />}
+      style={{width: '100%'}}
+      options={props.options}
+      onChange={(_, maybe_value) => set(maybe_value ? [maybe_value] : props.init_value ?? [])}
+      value={value[0] ?? ''}
+    />
+  ))
+  return {set, value, node: Node}
 }
 
 function useForm(
@@ -607,9 +599,15 @@ function useForm(
   React.useLayoutEffect(() => {
     if (!select_types.tumors && tumors.value.length) {
       tumors.set([])
+      if (!cells.value.length) {
+        cells.set(state0.cells)
+      }
     }
     if (!select_types.cells && cells.value.length) {
       cells.set([])
+      if (!tumors.value.length) {
+        tumors.set(state0.tumors)
+      }
     }
   }, [select_types])
 
@@ -635,16 +633,14 @@ function useForm(
     options: conf.variant_values,
   })
 
+  const valid =
+    (!select_types.tumors || tumors.value.length > 0) &&
+    (!select_types.cells || cells.value.length > 0)
+
   const store = ui.merge({tumors, cells, specifics: ui.merge(specifics), variants})
 
-  const state = store.value
-
-  const valid =
-    (!select_types.tumors || state.tumors.length > 0) &&
-    (!select_types.cells || state.cells.length > 0)
-
   return {
-    state,
+    ...store,
     valid,
     reset: () => store.set(state0),
     form: ui.add_dummy_keys([
@@ -657,14 +653,16 @@ function useForm(
 }
 
 export function KMForm({conf, onSubmit, onState}: FormProps) {
-  const {state, reset, valid, form} = useForm(conf, {cells: true, tumors: true}, false)
+  const {value, reset, valid, form} = useForm(conf, {cells: true, tumors: true}, false)
 
   // React.useEffect(() => onSubmit(prepare_state_for_backend(state, conf)), [])
 
   const get_form_values = () => {
+    const flat_state = prepare_state_for_backend(value, conf)
     return {
-      ...state,
-      cell: (state.cells as any)[0],
+      ...flat_state,
+      cell: (value.cells as any)[0],
+      tumor: (value.tumors as any)[0],
     }
   }
 

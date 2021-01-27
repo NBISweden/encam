@@ -24,9 +24,32 @@ export function useAssertConstant(...initials: any[]) {
 
 export type Setter<A> = (next: A) => void
 
-export interface State<A> {
+export interface Component<A> {
   value: A
   set: Setter<A>
+  node: React.ReactNode
+}
+
+export function mapComponent<A, B>(
+  a: Component<A>,
+  to_b: (a: A) => B,
+  to_a: (b: B) => A
+): Component<B> {
+  return {
+    value: to_b(a.value),
+    set: b => a.set(to_a(b)),
+    node: a.node,
+  }
+}
+
+export function mapComponentNode<A>(
+  c: Component<A>,
+  f: (n: React.ReactNode) => React.ReactNode
+): Component<A> {
+  return {
+    ...c,
+    node: f(c.node),
+  }
 }
 
 export interface StateWithPartialSetter<A> {
@@ -34,55 +57,27 @@ export interface StateWithPartialSetter<A> {
   set: Setter<Partial<A>>
 }
 
+export type RecordOf<A> = A extends Record<any, infer R> ? R : never
+
 export function merge<A extends Record<keyof A, any>>(
-  xs: {[K in keyof A]: State<A[K]>}
-): StateWithPartialSetter<A> {
+  xs: {[K in keyof A]: Component<A[K]>}
+): Component<A> & {
+  set: Setter<Partial<A>>
+  nodes: Record<keyof A, React.ReactNode>
+  values: RecordOf<A>[]
+} {
   return {
     value: utils.mapObject(xs, x => x.value),
-    set: m =>
+    values: Object.values(xs).map((x: any) => x.value),
+    set: (m: any) =>
       ReactDOM.unstable_batchedUpdates(() => {
         for (const [k, v] of Object.entries(m)) {
           xs[k as keyof A].set(v as A[keyof A])
         }
       }),
+    node: <> {Object.values(xs).map((x: any) => x.node)} </>,
+    nodes: utils.mapObject(xs, x => x.node),
   }
-}
-
-export type OnChangeSecondArgument<T> = (_: any, t: T) => void
-
-export interface Store<S> {
-  get(): S
-  update(s: Partial<S>): void
-  at<K extends keyof S, T>(
-    k: K,
-    f?: (t: T, s: S) => Partial<S>
-  ): {
-    value: S[K]
-    checked: S[K]
-    onChange: OnChangeSecondArgument<T>
-  }
-}
-
-export function useStore<S>(init: S | (() => S)) {
-  const [state, update_state] = useStateWithUpdate(init)
-  const store: Store<S> = {
-    get: () => state,
-    update: update_state,
-    at(k, f) {
-      return {
-        value: state[k],
-        checked: state[k],
-        onChange(_, t) {
-          if (f) {
-            update_state(state => f(t, state))
-          } else {
-            update_state(({[k]: t} as any) as Partial<S>)
-          }
-        },
-      }
-    },
-  }
-  return [store, state, update_state] as const
 }
 
 export function useIntern<A>(a: A): A {
@@ -98,118 +93,90 @@ import {
   Radio,
 } from '@material-ui/core'
 
-type UseComponent<A> = readonly [A, React.ReactElement, (v: A) => void]
-
-export function map<A>(
-  c: UseComponent<A>,
-  k: (e: React.ReactElement) => React.ReactElement
-): UseComponent<A> {
-  const [v, e, s] = c
-  return [v, k(e), s] as const
-}
-
-export function record<A extends Record<keyof A, any>>(
-  x: {[K in keyof A]: UseComponent<A[K]>}
-): UseComponent<A> {
-  const elems = [] as React.ReactElement[]
-  const setters = [] as ((v: A) => void)[]
-  const value = utils.mapObject(x, ([value, elem, set], k) => {
-    elems.push(elem)
-    setters.push(v => set(v[k]))
-    return value
-  })
-  return [value, dummy_keys(elems), (v: A) => setters.forEach(s => s(v))] as const
-}
-
 import NativeSelect from '@material-ui/core/NativeSelect'
 import InputLabel from '@material-ui/core/InputLabel'
-// import FormHelperText from '@material-ui/core/FormHelperText'
 
 export function useNativeSelect(
   labels: string[],
-  init?: string,
+  init_value?: string,
   label?: string
-): UseComponent<string> {
-  const init_value = init === undefined ? labels[0] : init
-  const [value, set_value] = React.useState(init_value)
-  React.useLayoutEffect(() => {
-    if (value !== init_value) {
-      set_value(init_value)
-    }
-  }, [utils.str(labels)])
-  return [
+): Component<string> {
+  const [value, set] = React.useState(init_value ?? labels[0])
+  useAssertConstant(labels.toString(), label)
+  return {
     value,
-    <FormControl>
-      <InputLabel shrink htmlFor={label}>
-        {label}
-      </InputLabel>
-      <NativeSelect
-        value={value}
-        onChange={e => set_value(e.target.value)}
-        inputProps={{
-          name: 'age',
-          id: label,
-        }}>
-        {labels.map(label => (
-          <option key={label} value={label}>
-            {label}
-          </option>
-        ))}
-      </NativeSelect>
-      {
-        // <FormHelperText>
-        //   Label + placeholder
-        // </FormHelperText>
-      }
-    </FormControl>,
-    set_value,
-  ]
+    set,
+    node: useMemoComponent([value], () => (
+      <FormControl>
+        <InputLabel shrink htmlFor={label}>
+          {label}
+        </InputLabel>
+        <NativeSelect
+          value={value}
+          onChange={e => set(e.target.value)}
+          inputProps={{
+            name: 'age',
+            id: label,
+          }}>
+          {labels.map(label => (
+            <option key={label} value={label}>
+              {label}
+            </option>
+          ))}
+        </NativeSelect>
+      </FormControl>
+    )),
+  }
 }
 
-export function useRadio<K extends string>(label: string, options: K[], init?: K): UseComponent<K> {
-  const [value, set_value] = React.useState(init === undefined ? options[0] : init)
+export function useMemoComponent(deps: any[], make: () => React.ReactNode): React.ReactElement {
+  // for some reason useMemo on "bare" components does not work, have to wrap them in a ReactFragment
+  return React.useMemo(() => <> {make()} </>, deps)
+}
+
+export function useRadio<K extends string>(
+  label: string,
+  options: K[],
+  init_value?: K
+): Component<K> {
+  const [value, set] = React.useState(init_value ?? options[0])
   useAssertConstant(label, options.toString())
-  return [
+  return {
     value,
-    React.useMemo(() => {
-      return (
-        <FormControl component="div" role="group">
-          <FormLabel component="label">{label}</FormLabel>
-          <RadioGroup value={value} onChange={(_, value) => set_value(value as K)}>
-            {options.map(option => (
-              <FormControlLabel
-                label={option}
-                value={option}
-                key={option}
-                control={<Radio size="small" color="primary" />}
-              />
-            ))}
-          </RadioGroup>
-        </FormControl>
-      )
-    }, [value]),
-    set_value,
-  ] as const
+    set,
+    node: useMemoComponent([value], () => (
+      <FormControl component="div" role="group">
+        <FormLabel component="label">{label}</FormLabel>
+        <RadioGroup value={value} onChange={(_, value) => set(value as K)}>
+          {options.map(option => (
+            <FormControlLabel
+              label={option}
+              value={option}
+              key={option}
+              control={<Radio size="small" color="primary" />}
+            />
+          ))}
+        </RadioGroup>
+      </FormControl>
+    )),
+  }
 }
 
-export function useCheckbox(label: string, init?: boolean): UseComponent<boolean> {
-  const [value, set_value] = React.useState(init === undefined ? true : init)
-  return [
+export function useCheckbox(label: string, init?: boolean): Component<boolean> {
+  const [value, set] = React.useState(init === undefined ? true : init)
+  return {
     value,
-    React.useMemo(
-      () => (
-        <FormControlLabel
-          label={label}
-          key={label}
-          checked={value}
-          onChange={(_, checked) => set_value(checked)}
-          control={<Checkbox size="small" color="primary" />}
-        />
-      ),
-      [value]
-    ),
-    set_value,
-  ] as const
+    set,
+    node: useMemoComponent([value], () => (
+      <FormControlLabel
+        label={label}
+        key={label}
+        checked={value}
+        onChange={(_, checked) => set(checked)}
+        control={<Checkbox size="small" color="primary" />}
+      />
+    )),
+  }
 }
 
 declare const process: {env: {NODE_ENV: string}}

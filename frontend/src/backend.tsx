@@ -4,10 +4,13 @@ const mem: Record<string, any> = {
   configuration: null,
 }
 
+const c = console
+
 async function request_by_fetch(endpoint: string, body?: any) {
   if (mem[endpoint]) {
     return mem[endpoint]
   }
+  body && c.log(body)
   const init = body
     ? {
         body: JSON.stringify(body),

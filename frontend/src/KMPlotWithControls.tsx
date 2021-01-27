@@ -204,19 +204,29 @@ export function KMPlotWithControls({filter}: {filter: Record<string, any>}) {
     }
   }, [surv])
 
-  const [location, location_node] = ui.useRadio('Location', ['Tumor', 'Stroma'])
-  const [num_groups_str, num_groups_node] = ui.useRadio('Groups', ['2', '3', '4'])
-  const num_groups = Number(num_groups_str)
+  const location = ui.useRadio('Location', ['Tumor', 'Stroma'])
+  const num_groups = ui.mapComponent(
+    ui.useRadio('Groups', ['2', '3', '4' as string]),
+    Number,
+    String
+  )
 
-  React.useLayoutEffect(() => dispatch({type: 'update', values: {location, num_groups, filter}}), [
-    location,
-    num_groups,
+  const both = ui.merge({location, num_groups})
+
+  React.useLayoutEffect(() => dispatch({type: 'update', values: {...both.value, filter}}), [
+    ...both.values,
     filter,
   ])
 
   const set_cutoffs: ui.Setter<number[]> = cutoffs => dispatch({type: 'update', values: {cutoffs}})
 
-  return <KMPlotWithControlsView {...{location_node, num_groups_node, set_cutoffs, ...state}} />
+  return (
+    <KMPlotWithControlsView
+      location_node={location.node}
+      num_groups_node={num_groups.node}
+      {...{set_cutoffs, ...state}}
+    />
+  )
 }
 
 interface ViewProps {
@@ -261,8 +271,8 @@ const schemes = `
 export function KMPlotWithControlsView(props: ViewProps) {
   const {cu_data, plot_data, live_rows, cutoffs, set_cutoffs, loading, statistics} = props
 
-  const [options, opt_nodes] = ui.record({
-    color_scheme: ui.map(ui.useNativeSelect(schemes, 'viridis', 'Color scheme'), e => (
+  const options = ui.merge({
+    color_scheme: ui.mapComponentNode(ui.useNativeSelect(schemes, 'viridis', 'Color scheme'), e => (
       <div style={{marginBottom: 4}}>{e}</div>
     )),
     color_scheme_reverse: ui.useCheckbox('reverse', false),
@@ -280,11 +290,11 @@ export function KMPlotWithControlsView(props: ViewProps) {
           {props.location_node}
           {plot_data && (
             <div style={{...ui.flex_row, justifyContent: 'space-between', alignItems: 'flex-end'}}>
-              {opt_nodes}
+              {options.node}
             </div>
           )}
         </div>
-        {plot_data && <KMPlot data={plot_data} live_rows={live_rows} options={options} />}
+        {plot_data && <KMPlot data={plot_data} live_rows={live_rows} options={options.value} />}
         {statistics && (
           <table
             style={{
@@ -313,7 +323,7 @@ export function KMPlotWithControlsView(props: ViewProps) {
         )}
         {cu_data && cu_data.length > 0 && (
           <div>
-            <CumulativeCountPlot data={cu_data} options={options} />
+            <CumulativeCountPlot data={cu_data} options={options.value} />
             <div style={{marginLeft: 40, width: 400}}>
               <p id="cutoffs-slider" style={{fontWeight: 700}}>
                 cumulative count cutoffs:
@@ -343,7 +353,6 @@ export function KMPlotWithControlsView(props: ViewProps) {
   return <LoadingPlot loading={loading} plot={plot} />
 }
 
-import {MockBackend} from './backend'
 import * as km_data from './data/kmplot'
 import stories from '@app/ui_utils/stories'
 
