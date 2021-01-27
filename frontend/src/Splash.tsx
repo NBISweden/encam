@@ -69,34 +69,43 @@ const both = [...left, ...right]
 const thief: undefined | ((cell: string, img: HTMLImageElement | null) => void) = undefined
 
 interface State {
-  tumor: Record<string, boolean>
-  cell: Record<string, boolean>
+  type: 'cells' | 'tumors'
+  selected: Record<string, boolean>
+}
+
+function review_state(state: State) {
+  const tumors = utils.selected(state.type == 'tumors' ? state.selected : {})
+  const cells = utils.selected(state.type == 'cells' ? state.selected : {})
+  return {tumors, cells}
 }
 
 const state0: State = {
-  tumor: {},
-  cell: {CD4: true},
+  type: 'cells',
+  selected: {CD4: true},
 }
 
-interface Action {
-  type: 'set'
-  kind: 'cell' | 'tumor'
-  value: string
-  checked: boolean
-}
-
-function reduce(state: State, action: Action): State {
-  switch (action.kind) {
-    case 'cell':
-      return {tumor: {}, cell: utils.cap(2, {...state.cell, [action.value]: action.checked})}
-    case 'tumor':
-      return {cell: {}, tumor: utils.cap(1, {...state.tumor, [action.value]: action.checked})}
+function fixup_state(state: State): State {
+  let sel_arr = utils.selected(state.selected)
+  if (state.type === 'cells') {
+    sel_arr = sel_arr.filter(cell => adhoc.cellOrder.includes(cell))
+    sel_arr = utils.last(2, sel_arr)
+  } else {
+    sel_arr = sel_arr.filter(cell => !adhoc.cellOrder.includes(cell))
+    sel_arr = utils.last(1, sel_arr)
+  }
+  return {
+    type: state.type,
+    selected: utils.createObject(
+      sel_arr,
+      k => k,
+      () => true
+    ),
   }
 }
 
 interface SplashProps {
   state: State
-  dispatch: (action: Action) => void
+  set_state(s: State): void
   db?: SplashDB
   range?: utils.RowRange<SplashRow>
 }
@@ -195,8 +204,8 @@ function Checkboxes(
   color: (s: string) => string = () => 'black'
 ) {
   return range.map(x => {
-    const checked = current[x]
-    const onClick = () => toggle(x, checked)
+    const checked = !!current[x]
+    const onClick = () => toggle(x, !checked)
     return {
       checked,
       text: x,
@@ -220,22 +229,19 @@ function Checkboxes(
   })
 }
 
-function Center({state, dispatch, db}: SplashProps) {
+function Center({state, set_state, db}: SplashProps) {
   const dyn = useDyn()
 
   return (
     <div
-      className={
-        classes.Center +
-        ' ' +
-        (utils.selected(state.cell).length ? '' : classes.CenterWithoutLegend)
-      }
+      className={classes.Center + ' ' + (state.type == 'cells' ? '' : classes.CenterWithoutLegend)}
       style={{display: 'flex'}}>
       <c.Center
         withTumor={(tumor: string, side: 'left' | 'right') => {
           const flexDirection = side === 'left' ? 'row-reverse' : 'row'
           const opp_side = side === 'left' ? 'right' : 'left'
           const plot_height = Math.round(dyn('plot height', 60, 20, 120))
+          const {cells} = review_state(state)
           return (
             <div
               key={tumor}
@@ -290,9 +296,7 @@ function Center({state, dispatch, db}: SplashProps) {
                   <SectionInfo id={tumor} dir={opp_side} />
                   <span
                     style={{marginLeft: 2, marginRight: 2, cursor: 'pointer'}}
-                    onClick={() =>
-                      dispatch({type: 'set', kind: 'tumor', value: tumor, checked: true})
-                    }>
+                    onClick={() => set_state({type: 'tumors', selected: {[tumor]: true}})}>
                     {tumor}
                   </span>
                 </div>
@@ -301,10 +305,10 @@ function Center({state, dispatch, db}: SplashProps) {
                     borderBottom: '2px #aaa solid',
                     height: plot_height + 2 + 'px',
                   }}>
-                  {!db || !utils.selected(state.cell).length ? null : (
+                  {!db || cells.length == 0 ? null : (
                     <Domplot
                       rows={db
-                        .filter(row => state.cell[row.cell] && row.tumor == tumor)
+                        .filter(row => state.selected[row.cell] && row.tumor == tumor)
                         .map(rename_row)}
                       kind="bar"
                       options={{
@@ -313,7 +317,7 @@ function Center({state, dispatch, db}: SplashProps) {
                         hulled: false,
                         x_axis: true,
                         max: Math.max(
-                          ...db.filter(row => state.cell[row.cell]).map(row => row.expression)
+                          ...db.filter(row => state.selected[row.cell]).map(row => row.expression)
                         ),
                       }}
                     />
@@ -338,15 +342,16 @@ const renames: Record<string, string> = {
 
 const rename_row = (row: SplashRow): SplashRow => ({...row, cell: renames[row.cell] || row.cell})
 
-function Left({state, dispatch, range}: SplashProps) {
+function Left({state, set_state, range}: SplashProps) {
   return (
     <div className={classes.Left}>
       <h2>Cell type</h2>
       {range &&
         Checkboxes(
           adhoc.cellOrder.filter(cell => range.cell.includes(cell)),
-          state.cell,
-          (value, checked) => dispatch({type: 'set', kind: 'cell', value, checked: !checked}),
+          state.selected,
+          (value, checked) =>
+            set_state({type: 'cells', selected: {...state.selected, [value]: checked}}),
           adhoc.cell_color
         ).map((x, i) => {
           const cell = range.cell[i]
@@ -421,9 +426,7 @@ function Right({state, db}: SplashProps) {
   )
 
   if (db) {
-    const {tumor, cell} = state
-    const tumors = utils.selected(tumor)
-    const cells = utils.selected(cell)
+    const {tumors, cells} = review_state(state)
     const opts = {
       orientation: 'portrait' as 'portrait',
       axis_right: true,
@@ -475,9 +478,6 @@ function Right({state, db}: SplashProps) {
   make it possible to change it without rebuilding the frontend we get
   it from the backend.
 
-  React's useReducer does its sole appearance in the code base.
-  Not a strong game by useReducer, but still: welcome!
-
 */
 function useSplashProps(): SplashProps {
   const db0 = backend.useRequest('database') as undefined | SplashDB
@@ -485,9 +485,9 @@ function useSplashProps(): SplashProps {
 
   const range = React.useMemo(() => (db ? utils.row_range(db) : undefined), [db])
 
-  const [state, dispatch] = React.useReducer(reduce, state0)
+  const [state, set_state_raw] = React.useState(state0)
 
-  return {state, dispatch, range, db}
+  return {state, set_state: s => set_state_raw(fixup_state(s)), range, db}
 }
 
 export const Splash = React.memo(function Splash() {
