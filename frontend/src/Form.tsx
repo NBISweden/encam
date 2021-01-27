@@ -444,14 +444,7 @@ export function useVariants(props: VariantsProps) {
 
         return (
           <div key={column} className={variant_classes.VariantRow}>
-            <div className="variant-label">
-              {column
-                .replace(/(_|yesno)/g, ' ')
-                .replace(/type/g, '')
-                .replace(/^p/, '')
-                .replace(/ +/, ' ')
-                .trim()}
-            </div>
+            <div className="variant-label">{adhoc.pretty(column)}</div>
             {cb_row.node}
           </div>
         )

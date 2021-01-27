@@ -109,20 +109,19 @@ export const color_scheme_fg = [
 
 /**
 
-  Ad-hoc renames from the backend results.
-
-*/
-const renames: Record<string, string> = {
-  MSI_ARTUR: 'MSI status',
-}
-
-/**
-
   pretty('CD4_Treg') // => 'CD4 Treg'
   pretty('myeloid') // => 'Myeloid'
   pretty('iDC') // => 'iDC'
   pretty(3) // => '3'
   pretty('Anatomical_location') // => 'Anatomical location'
+
+  Some column names for the form gets improved:
+
+  pretty('pN_stage') // => 'N stage'
+  pretty('pn_stage') // => 'Pn stage'
+  pretty('PreOp_treatment_yesno') // => 'PreOp treatment'
+  pretty('PostOp_type_treatment') // => 'PostOp treatment'
+  pretty('Morphological_type') // => 'Morphological type'
 
   There are also completely ad-hoc rules:
 
@@ -130,14 +129,24 @@ const renames: Record<string, string> = {
 
 */
 export function pretty(s: string | number): string {
-  if (!s && s !== 0) {
-    return ''
+  if (typeof s === 'number') {
+    return s + ''
+  }
+  const renames: Record<string, string> = {
+    MSI_ARTUR: 'MSI status',
   }
   if (renames[s]) {
     return renames[s]
   }
-  if (typeof s === 'number') {
-    return s + ''
+  s = s
+    .replace(/_/g, ' ')
+    .replace(/\byesno\b/g, ' ')
+    .replace(/\btype treatment\b/g, 'treatment')
+    .replace(/^p(?=[A-Z])/, '')
+    .replace(/ +/g, ' ')
+    .trim()
+  if (!s) {
+    return ''
   }
   const s2 = s.replace('_', ' ')
   if (s2.toLowerCase() == s2) {
