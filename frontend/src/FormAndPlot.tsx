@@ -43,9 +43,9 @@ export function FormAndBoxPlot(props: {form?: typeof form.Form}) {
   const request = backend.useRequestFn()
   const onSubmit = React.useCallback(async (...filters) => {
     set_loading_outer(true)
-    // console.time('request')
+
     const res: any[][] = await request('tukey', filters)
-    // console.timeEnd('request')
+
     const names = ['A', 'B']
     const res_with_named_groups = res.flatMap((r, i) =>
       r.map(row => ({

@@ -8,15 +8,6 @@
 
 */
 
-/**
-
-  Ad-hoc renames from the backend results.
-
-*/
-const renames: Record<string, string> = {
-  MSI_ARTUR: 'MSI status',
-}
-
 /** Adds a plural 's' if needed.
 
   pluralise(true, 'word') // => 'words'
@@ -30,61 +21,6 @@ const renames: Record<string, string> = {
 */
 export function pluralise(is_plural: boolean, word: string) {
   return word + (is_plural ? 's' : '')
-}
-
-/**
-
-  pretty('CD4_Treg') // => 'CD4 Treg'
-  pretty('myeloid') // => 'Myeloid'
-  pretty('iDC') // => 'iDC'
-  pretty(3) // => '3'
-  pretty('Anatomical_location') // => 'Anatomical location'
-
-  There are also completely ad-hoc rules:
-
-  pretty('MSI_ARTUR') // => 'MSI status'
-
-*/
-export function pretty(s: string | number): string {
-  if (!s && s !== 0) {
-    return ''
-  }
-  if (renames[s]) {
-    return renames[s]
-  }
-  if (typeof s === 'number') {
-    return s + ''
-  }
-  const s2 = s.replace('_', ' ')
-  if (s2.toLowerCase() == s2) {
-    return Aa(s2)
-  } else {
-    return s2
-  }
-}
-
-import {cellOrder} from './splash_db'
-
-export function sort_tumors(tumors: string[]): string[] {
-  return tumors.slice().sort()
-}
-
-/** Sort an array of cell names in Artur's favorite order
-
-  sort_cells(['B_cells', 'CD8_Treg', 'Granulocyte', 'Myeloid_cell'])
-   // => ['CD8_Treg', 'B_cells', 'Myeloid_cell', 'Granulocyte']
-
-  Unknown cells are put last:
-
-  sort_cells(['CD8', 'CD404', 'CD4'])
-   // => ['CD4', 'CD8', 'CD404']
-
-*/
-export function sort_cells(cells: string[]): string[] {
-  return [
-    ...cellOrder.filter(cell => cells.includes(cell)),
-    ...cells.filter(cell => !cellOrder.includes(cell)),
-  ]
 }
 
 /**
@@ -170,35 +106,6 @@ export function traverse(
   } else {
     return f(d, k)
   }
-}
-
-/** Mutate objects in a structure */
-export function mutate(d: any, f: (x: any, k: string) => any): any {
-  const visited = new WeakSet()
-  function go(d: any) {
-    if (visited.has(d)) {
-      return
-    }
-    if (Array.isArray(d)) {
-      visited.add(d)
-      for (let e of d) {
-        go(e)
-      }
-    } else if (d && typeof d === 'object') {
-      visited.add(d)
-      for (let k of Object.keys(d)) {
-        go(d[k])
-        try {
-          d[k] = f(d[k], k)
-        } catch (e) {
-          console.log(d, k)
-          throw e
-        }
-      }
-    }
-  }
-  go(d)
-  return d
 }
 
 /**
@@ -298,15 +205,6 @@ export function row_range<A extends Record<string, any>>(xs: A[]): RowRange<A> {
   return mapObject(unzip(xs), uniq)
 }
 
-/**
-
-  Aa('boBBo') // => 'Bobbo'
-
-*/
-export function Aa(s: string): string {
-  return s[0].toUpperCase() + s.slice(1).toLowerCase()
-}
-
 /** Splits up keys on commas to nested dictionaries
 
   expand({'a,b': 1}) // => {a: {b: 1}}
@@ -381,9 +279,7 @@ export function Memoizer<K, V>() {
     const ks = str(k)
     if (!(ks in mems)) {
       mems[ks] = calc()
-      // console.log('memo miss', k)
     } else {
-      // console.log('memo hit', k)
     }
     return mems[ks]
   }

@@ -10,10 +10,9 @@ import * as React from 'react'
 import {div, css} from './ui_utils'
 
 import * as utils from './utils'
+import * as adhoc from './adhoc'
 
-import {SplashDB, SplashRow} from './splash_db'
-
-import {cell_color} from './cell_colors'
+import {SplashDB, SplashRow} from './SplashTypes'
 
 import {DomplotCSS} from './DomplotCSS'
 
@@ -162,7 +161,6 @@ export function Domplot({
   const facet_range = Object.entries(utils.groupBy(opts.facet_x, rows))
   const range = utils.row_range(rows)
   facet_range.forEach(([facet_x, subrows], facet_index) => {
-    // console.log(opts.facet_x, facet_x)
     const marks: React.ReactElement[] = []
     const grouped = utils.groupBy(opts.x, subrows)
     const rng = range[opts.x] as string[]
@@ -180,7 +178,7 @@ export function Domplot({
         striped?: boolean
         arrow?: number
       }
-      const color = cell_color(row[opts.color] + '')
+      const color = adhoc.cell_color(row[opts.color] + '')
       const striped = x == opts.striped
       const full_width = 1 / rng.length
       const mark = (m: Mark) => {
@@ -299,7 +297,7 @@ export function Domplot({
                 : undefined,
               whiteSpace: 'nowrap',
             }}>
-            {utils.pretty(facet_x)}
+            {adhoc.pretty(facet_x)}
           </div>
         )}
       </div>
@@ -477,5 +475,4 @@ stories(add => {
   add(<DomplotsDemo />)
     .wrap(backend.mock(splash_data.request))
     .tag('mock')
-    .snap()
 })

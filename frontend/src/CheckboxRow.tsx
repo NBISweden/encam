@@ -13,7 +13,7 @@ import * as utils from './utils'
 import {Store} from './ui_utils'
 import * as ui from './ui_utils'
 
-import * as cell_colors from './cell_colors'
+import * as adhoc from './adhoc'
 
 const classes = {
   CheckboxRow: css({
@@ -40,9 +40,9 @@ const classes = {
       },
     },
     '&.checked label': {
-      background: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
-      borderColor: `var(--checkbox-bg, ${cell_colors.color_scheme[0]})`,
-      color: `var(--checkbox-fg, ${cell_colors.color_scheme_fg[0]})`,
+      background: `var(--checkbox-bg, ${adhoc.color_scheme[0]})`,
+      borderColor: `var(--checkbox-bg, ${adhoc.color_scheme[0]})`,
+      color: `var(--checkbox-fg, ${adhoc.color_scheme_fg[0]})`,
     },
   }),
 }

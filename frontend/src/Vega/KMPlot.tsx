@@ -1,13 +1,10 @@
 /** KMPlot = Kaplan-Meier plot, a type of survival plot */
-import * as ui from '../ui_utils'
 import * as utils from '../utils'
 import type * as VL from 'vega-lite'
 
 import * as React from 'react'
 
 import {Embed} from './Embed'
-
-import {cell_color} from '../cell_colors'
 
 export interface Options {
   landscape: boolean

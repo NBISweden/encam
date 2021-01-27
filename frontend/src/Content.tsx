@@ -12,6 +12,7 @@ import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 
 import * as utils from './utils'
+import * as adhoc from './adhoc'
 import * as backend from './backend'
 
 const lines = (xs: TemplateStringsArray) =>
@@ -27,15 +28,15 @@ export interface Content {
   nav: string[]
 }
 
-import {cells} from './splash_db'
+import {cells} from './adhoc'
 export const cell_keys = cells
 
 const cell_sections = Object.fromEntries(
   cell_keys.map(cell => [
     cell,
     [
-      `### ${utils.pretty(cell)}`,
-      `Description of ${utils.pretty(cell)} and its function in relation to cancer.`,
+      `### ${adhoc.pretty(cell)}`,
+      `Description of ${adhoc.pretty(cell)} and its function in relation to cancer.`,
     ],
   ])
 )
@@ -112,8 +113,6 @@ export const ContentType: t.Type<Content> = t.type({
   sections: t.record(t.string, t.array(t.string)),
   nav: t.array(t.string),
 })
-
-console.log(JSON.stringify(test_content, undefined, 2))
 
 export interface ContentAndStatus {
   content: Content
@@ -225,7 +224,7 @@ export function Section(props: {id: string}) {
   return md ? (
     <ReactMarkdown source={md.join('\n')} />
   ) : loading ? (
-    <span style={{fontSize: '0.8em'}}>Loading {utils.pretty(props.id)} section...</span>
+    <span style={{fontSize: '0.8em'}}>Loading {adhoc.pretty(props.id)} section...</span>
   ) : (
     <div
       style={{

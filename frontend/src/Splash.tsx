@@ -10,16 +10,13 @@ import * as React from 'react'
 
 import {by} from './utils'
 import * as utils from './utils'
+import * as adhoc from './adhoc'
 
-import {cellOrder} from './splash_db'
-
-import type {SplashDB, SplashRow} from './splash_db'
+import type {SplashDB, SplashRow} from './SplashTypes'
 
 import {Domplot, DomplotCSS, Legend} from './Domplot'
 
 import {css} from 'emotion'
-
-import {cell_color} from './cell_colors'
 
 import * as backend from './backend'
 
@@ -63,8 +60,6 @@ const cell_pngs: Record<string, string> = {
   'Myeloid cell': Myeloid_cell,
   Granulocyte,
 }
-
-import center_img from './img/center-trimmed.svg'
 
 const left = 'MEL LUAD LUSC ESCA STAD KRCC BLCA PRAD'.split(' ')
 const right = 'BRCA PPADpb PPADi COAD READ OVSA OVNSA UCEC'.split(' ')
@@ -206,7 +201,7 @@ function Checkboxes(
       checked,
       text: x,
       onClick,
-      label: <label htmlFor={x}>{utils.pretty(x)}</label>,
+      label: <label htmlFor={x}>{adhoc.pretty(x)}</label>,
       checkbox: (
         <span
           id={x}
@@ -349,10 +344,10 @@ function Left({state, dispatch, range}: SplashProps) {
       <h2>Cell type</h2>
       {range &&
         Checkboxes(
-          cellOrder.filter(cell => range.cell.includes(cell)),
+          adhoc.cellOrder.filter(cell => range.cell.includes(cell)),
           state.cell,
           (value, checked) => dispatch({type: 'set', kind: 'cell', value, checked: !checked}),
-          cell_color
+          adhoc.cell_color
         ).map((x, i) => {
           const cell = range.cell[i]
           const cell_png = cell_pngs[range.cell[i]]
@@ -360,7 +355,7 @@ function Left({state, dispatch, range}: SplashProps) {
             ? {onLoad: e => thief(cell, e.target as any)}
             : {}
           const img = cell_png && <img src={cell_png} {...img_props} />
-          const color = cell_color(x.text)
+          const color = adhoc.cell_color(x.text)
           return (
             <label
               key={i}
@@ -371,7 +366,7 @@ function Left({state, dispatch, range}: SplashProps) {
               className={clsx(classes.LeftLabel, x.checked && 'Checked')}>
               <div className="has-img">{img}</div>
               <div className="has-span">
-                <span>{utils.pretty(cell)}</span>
+                <span>{adhoc.pretty(cell)}</span>
                 <div style={{marginRight: 0, marginLeft: 0}}>
                   <SectionInfo
                     id={
@@ -436,7 +431,7 @@ function Right({state, db}: SplashProps) {
       border_left: true,
     }
     for (const t of tumors) {
-      out.push(<h2>{utils.pretty(t)} cell density</h2>)
+      out.push(<h2>{adhoc.pretty(t)} cell density</h2>)
       out.push(
         <Domplot
           rows={db.filter(row => row.tumor == t).map(rename_row)}
@@ -446,7 +441,7 @@ function Right({state, db}: SplashProps) {
       )
       out.push(bar_x)
       out.push(legend())
-      out.push(<h2>{utils.pretty(t)} survival</h2>)
+      out.push(<h2>{adhoc.pretty(t)} survival</h2>)
       out.push(
         <Domplot
           rows={db.filter(row => row.tumor == t).map(rename_row)}
@@ -458,7 +453,7 @@ function Right({state, db}: SplashProps) {
       out.push(legend())
     }
     for (const c of cells) {
-      out.push(<h2>{utils.pretty(c)} survival</h2>)
+      out.push(<h2>{adhoc.pretty(c)} survival</h2>)
       out.push(
         <Domplot
           rows={db.filter(row => row.cell == c)}
@@ -467,7 +462,7 @@ function Right({state, db}: SplashProps) {
         />
       )
       out.push(forest_x)
-      out.push(legend(cell_color(c)))
+      out.push(legend(adhoc.cell_color(c)))
     }
   }
 
@@ -517,10 +512,7 @@ function LeftOnly() {
 
 stories(add => {
   add(<Splash />)
-  add({mock: <Splash />})
-    .wrap(backend.mock(import('./data/splash')))
-    .snap()
-  add(<LeftOnly />)
-    .wrap(backend.mock(import('./data/splash')))
-    .snap()
+  add({mock: <Splash />}).wrap(backend.mock(import('./data/splash')))
+
+  add(<LeftOnly />).wrap(backend.mock(import('./data/splash')))
 })

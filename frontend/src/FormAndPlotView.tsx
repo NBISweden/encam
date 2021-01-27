@@ -85,7 +85,5 @@ stories(add => {
         plot={<LoadingPlot plot={<h2>Example plot view</h2>} loading={true} />}
       />
     </div>
-  )
-    .name('FormAndPlotView')
-    .snap()
+  ).name('FormAndPlotView')
 })

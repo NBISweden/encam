@@ -66,7 +66,7 @@ export default function Dev() {
     },
     [set_tab]
   )
-  console.log(stories)
+
   React.useEffect(() => {
     if (tab) {
       document.title = `encima: ${tab.label}`

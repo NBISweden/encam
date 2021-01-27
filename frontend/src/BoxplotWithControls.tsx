@@ -3,6 +3,7 @@ import * as React from 'react'
 import {Boxplot, Options as BoxplotOptions, Precalc} from './Vega/Boxplot'
 
 import * as utils from './utils'
+import * as adhoc from './adhoc'
 
 import * as ui from './ui_utils'
 
@@ -109,8 +110,8 @@ function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
   const facet_values = React.useMemo(
     () =>
       facet.match(/cell/)
-        ? utils.sort_cells(facet_values_unsorted)
-        : utils.sort_tumors(facet_values_unsorted),
+        ? adhoc.sort_cells(facet_values_unsorted)
+        : adhoc.sort_tumors(facet_values_unsorted),
     [facet, facet_values_unsorted]
   )
 
@@ -119,7 +120,7 @@ function useVisibleSidebar(facet: string, facet_values_unsorted: string[]) {
   const [show, set_show] = React.useState(true)
 
   const facet_boxes = (
-    <CheckboxRow store={store} values={facet_values} column="visible" labelBy={utils.pretty} />
+    <CheckboxRow store={store} values={facet_values} column="visible" labelBy={adhoc.pretty} />
   )
 
   const value = Object.fromEntries(store.get().visible.map(v => [v, true]))
@@ -204,5 +205,5 @@ stories(add => {
   add({
     cell: <BoxplotWithControls data={rows} facet="cell" />,
     tumor: <BoxplotWithControls data={rows} facet="tumor" />,
-  }).snap()
+  })
 })

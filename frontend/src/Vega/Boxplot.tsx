@@ -1,12 +1,11 @@
 import * as ui from '../ui_utils'
 import * as utils from '../utils'
+import * as adhoc from '../adhoc'
 import type * as VL from 'vega-lite'
 
 import * as React from 'react'
 
 import {Embed} from './Embed'
-
-import {cell_color, color_scheme} from '../cell_colors'
 
 export interface Options<K extends string> {
   inner: K | K[]
@@ -90,8 +89,6 @@ export interface Precalc {
   max: number
 }
 
-import {cellOrder} from './../splash_db'
-
 function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>(
   data0: Row[],
   opts?: Partial<Options<K>>
@@ -112,10 +109,10 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   }
 
   data.map(datum => {
-    datum.cell_color = cell_color(datum.cell)
+    datum.cell_color = adhoc.cell_color(datum.cell)
     datum.location = datum.location.toLowerCase()
     datum.loc_order = datum.location == 'stroma' ? 1 : 0
-    datum.cell_order = cellOrder.indexOf(datum.cell)
+    datum.cell_order = adhoc.cellOrder.indexOf(datum.cell)
   })
 
   const prepare_option = (keys: K | K[], sep = ',') => {
@@ -125,7 +122,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
       }
       const range = utils.uniq(data.map(datum => datum[k]))
       const nontrivial = range.length > 1
-      // console.log(k, 'is', nontrivial ? 'nontrivial' : 'trivial', range)
+
       return nontrivial
     })
     const key = array.join(', ')
@@ -155,7 +152,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
   })
 
   data.forEach(datum => {
-    datum.cell = utils.pretty(datum.cell)
+    datum.cell = adhoc.pretty(datum.cell)
   })
 
   const size = 9
@@ -332,7 +329,7 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
       // axis: { domainWidth: 1 },
       facet: {spacing: 6},
       range: {
-        category: color_scheme,
+        category: adhoc.color_scheme,
       },
     },
   }
@@ -352,5 +349,5 @@ stories(add => {
         color: ['tumor', 'group'],
       }}
     />
-  ).snap()
+  )
 })

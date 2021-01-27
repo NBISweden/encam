@@ -57,7 +57,7 @@ function stroma_background_fixup(svg: SVGElement) {
 
 function facet_line_fixup(svg: SVGElement) {
   // Hack to fix facetted axis lines https://github.com/vega/vega-lite/issues/4703
-  // console.time('facet fixup')
+
   const xs = Array.from(svg.querySelectorAll('.mark-rule.role-axis-grid'))
   if (xs.length < 2) {
     return
@@ -99,7 +99,6 @@ function facet_line_fixup(svg: SVGElement) {
       done[j] = done[k] = true
     }
   }
-  // console.timeEnd('facet fixup')
 }
 
 export default function Embed({
@@ -120,7 +119,6 @@ export default function Embed({
   // ui.useWhyChanged(Embed, {spec, data, el, runtime})
   React.useEffect(() => {
     if (el) {
-      // console.time('plot')
       const view = new V.View(runtime)
       data && view.data('data', data)
       data2 && view.data('data2', data2)
@@ -138,7 +136,6 @@ export default function Embed({
         const defs = document.createElementNS(svg.namespaceURI, 'defs')
         defs.innerHTML = stripes.pattern
         svg.append(defs)
-        // console.timeEnd('plot')
       })
     }
   }, [el, runtime, data])

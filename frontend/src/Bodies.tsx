@@ -103,7 +103,7 @@ function measure(svg: SVGSVGElement, div: HTMLDivElement) {
     const p1 = [x1, y1]
     const p2 = [x2, y2]
     const [[sx, sy], [tx, ty]] = within(r.left, x1, r.right) ? [p1, p2] : [p2, p1]
-    // console.log(e.id, sx, sy, d, r)
+
     circles += `
       <circle cx="${sx}" cy="${sy}" r="1"/>
       <circle cx="${tx}" cy="${ty}" r="2"/>
@@ -125,7 +125,6 @@ function measure(svg: SVGSVGElement, div: HTMLDivElement) {
     utils.traverse(d, x => (typeof x === 'number' ? Math.round(x * 1000) / 1000 : x))
   console.log(JSON.stringify(round(M)))
 
-  // console.log(cmd)
   // download(cmd, 'cmd.sh', 'text/plain')
 }
 

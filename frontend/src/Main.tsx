@@ -1,11 +1,10 @@
 import * as React from 'react'
 import * as ui from './ui_utils'
+import * as adhoc from './adhoc'
 import {css} from 'emotion'
 import {ThemeProvider, createMuiTheme} from '@material-ui/core/styles'
 
 import {MainGlobalStyle} from './GlobalStyle'
-
-import {cell_color} from './cell_colors'
 
 import {Splash} from './Splash'
 import * as form from './Form'
@@ -77,7 +76,7 @@ const classes = {
       '& h3': {fontSize: 18},
       width: 1100,
       color: '#f8f8f8',
-      background: cell_color('iDC'),
+      background: adhoc.cell_color('iDC'),
 
       '& > nav': {
         marginLeft: 'auto',
@@ -118,14 +117,14 @@ const classes = {
         margin: 'auto',
       },
       cursor: 'pointer',
-      background: cell_color('iDC'),
+      background: adhoc.cell_color('iDC'),
       '&:hover': {
-        background: cell_color('mDC'),
+        background: adhoc.cell_color('mDC'),
         color: '#fff',
       },
       '&.selected:not(:hover)': {
         color: '#222',
-        background: cell_color('pDC'),
+        background: adhoc.cell_color('pDC'),
       },
     },
   }),
@@ -134,10 +133,10 @@ const classes = {
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: cell_color('iDC'),
+      main: adhoc.cell_color('iDC'),
     },
     secondary: {
-      main: cell_color('CD8_Treg'),
+      main: adhoc.cell_color('CD8_Treg'),
     },
   },
 })
@@ -200,7 +199,7 @@ export function Modules(props: {resetChan?: ui.Channel<void>}) {
 
 export function Header(props: {onClickHeader?: Action<any>; onNav?: Action<string>}) {
   const nav = useNav()
-  console.log(nav)
+
   return (
     <header>
       <nav>

@@ -42,7 +42,6 @@ export function merge<A extends Record<keyof A, any>>(
     set: m =>
       ReactDOM.unstable_batchedUpdates(() => {
         for (const [k, v] of Object.entries(m)) {
-          console.log(k, v, xs)
           xs[k as keyof A].set(v as A[keyof A])
         }
       }),

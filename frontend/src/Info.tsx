@@ -196,5 +196,4 @@ stories(add => {
   )
     .name('8xInfo')
     .add(<Info>Some fantastic info</Info>)
-    .snap()
 })

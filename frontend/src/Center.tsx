@@ -140,7 +140,7 @@ export function Center({withTumor}: CenterProps) {
         ]
       })
     )
-    // console.log(next)
+
     if (!utils.equal(next, rects)) {
       set_rects(next)
     }
@@ -256,7 +256,7 @@ export function Center({withTumor}: CenterProps) {
 import stories from '@app/ui_utils/stories'
 
 stories(add => {
-  add(<Center />).snap()
+  add(<Center />)
   add({
     withTumor: (
       <Center
@@ -275,5 +275,5 @@ stories(add => {
         )}
       />
     ),
-  }).snap()
+  })
 })

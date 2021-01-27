@@ -10,11 +10,10 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
 import * as utils from './utils'
+import * as adhoc from './adhoc'
 
 import * as ui from './ui_utils'
 import type {Store} from './ui_utils'
-
-import * as cell_colors from './cell_colors'
 
 import {makeStyles} from '@material-ui/core/styles'
 import {Grid, Radio, Checkbox, TextField, Button} from '@material-ui/core'
@@ -243,8 +242,8 @@ export function TwoForms({conf, onSubmit, onState}: FormProps) {
               key={'div' + names[i]}
               style={
                 {
-                  '--checkbox-bg': cell_colors.color_scheme[i],
-                  // '--checkbox-fg': cell_colors.color_scheme_fg[i],
+                  '--checkbox-bg': adhoc.color_scheme[i],
+                  // '--checkbox-fg': adhoc.color_scheme_fg[i],
                 } as any
               }>
               {form.form}
@@ -403,7 +402,7 @@ function useAccordion(props: AccordionProps) {
         expanded={(expanded && options.some(props.visible)) || false}
         onChange={(_, e) => set_expanded(e && options.some(props.visible))}>
         <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-          <span>{utils.pretty(column)}</span>
+          <span>{adhoc.pretty(column)}</span>
           <span style={{fontSize: '0.95em', color: '#777'}}>{options_text}</span>
         </AccordionSummary>
         <AccordionDetails className={classes.AccordionDetails}>
@@ -492,7 +491,7 @@ function useSelectMany(props: SelectProps) {
         multiple
         options={props.options}
         disableCloseOnSelect
-        getOptionLabel={(s: string) => utils.pretty(s)}
+        getOptionLabel={(s: string) => adhoc.pretty(s)}
         renderOption={(option: string, {selected}) => (
           <>
             <div style={{...ui.flex_row}}>
@@ -506,7 +505,7 @@ function useSelectMany(props: SelectProps) {
               <label
                 htmlFor={props.prefix + '-' + option}
                 style={{minWidth: 65, cursor: 'pointer'}}>
-                {utils.pretty(option)}
+                {adhoc.pretty(option)}
               </label>
               {props.codeFor && (
                 <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
@@ -536,7 +535,7 @@ function useSelectOne(props: SelectProps) {
   const node = React.useMemo(
     () => (
       <Autocomplete
-        getOptionLabel={(s: string) => utils.pretty(s)}
+        getOptionLabel={(s: string) => adhoc.pretty(s)}
         renderOption={(option: string, {selected}) => (
           <div style={{display: 'flex', alignItems: 'center'}}>
             <div style={{...ui.flex_row}}>
@@ -550,7 +549,7 @@ function useSelectOne(props: SelectProps) {
               <label
                 htmlFor={props.prefix + '-' + option}
                 style={{minWidth: 65, cursor: 'pointer'}}>
-                {utils.pretty(option)}
+                {adhoc.pretty(option)}
               </label>
               {props.codeFor && (
                 <i style={{paddingLeft: 8, whiteSpace: 'nowrap', fontSize: '0.8em'}}>
@@ -582,7 +581,7 @@ function useForm(
   ui.useAssertConstant(conf)
   const state0 = React.useMemo(() => calculate_state0(conf), [conf])
 
-  const sorted_tumors = React.useMemo(() => utils.sort_tumors(conf.tumors), [conf])
+  const sorted_tumors = React.useMemo(() => adhoc.sort_tumors(conf.tumors), [conf])
 
   const tumors = useSelect({
     prefix: key_prefix + ':tumors',
@@ -591,10 +590,10 @@ function useForm(
     codeFor: tumor => conf.tumor_codes[tumor],
     label: utils.pluralise(multi, 'Tumor type'),
     init_value: state0.tumors,
-    max_count: 2,
+    max_count: 3,
   })
 
-  const sorted_cells = React.useMemo(() => utils.sort_cells(conf.cells), [conf])
+  const sorted_cells = React.useMemo(() => adhoc.sort_cells(conf.cells), [conf])
 
   const cells = useSelect({
     prefix: key_prefix + ':cells',
@@ -640,8 +639,6 @@ function useForm(
 
   const state = store.value
 
-  // console.log(state)
-
   const valid =
     (!select_types.tumors || state.tumors.length > 0) &&
     (!select_types.cells || state.cells.length > 0)
@@ -650,12 +647,12 @@ function useForm(
     state,
     valid,
     reset: () => store.set(state0),
-    form: [
+    form: ui.add_dummy_keys([
       select_types.tumors && tumors.node,
       select_types.cells && cells.node,
       ...Object.values(specifics).map(s => s.node),
       variants.node,
-    ],
+    ]),
   }
 }
 
@@ -691,5 +688,5 @@ stories(add => {
     <Form conf={form_test_conf} />,
     <TwoForms conf={form_test_conf} />,
     <KMForm conf={form_test_conf} />
-  ).snap()
+  )
 })

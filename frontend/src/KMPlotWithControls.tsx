@@ -166,12 +166,7 @@ export function next(start: State, msg: Message): readonly [State, ...Request[]]
   }
 
   const ret = [next, ...reqs] as const
-  // console.group(msg.type)
-  // console.log(start)
-  // console.log(msg)
-  // console.log(next)
-  // console.log(...reqs)
-  // console.groupEnd()
+
   return ret
 }
 
