@@ -126,13 +126,12 @@ describe(form.Form, () => {
     const [ref] = setup()
 
     click(getByLabelText('cells'))
-    click_autocomplete(/Cell types/)
-
-    click(getByLabelText('CD4'))
 
     expect(ref.now!.tumors).toStrictEqual(form_test_conf.tumors)
     expect(ref.now!.cells).toStrictEqual(['CD4'])
     expect(ref.now!.facet).toStrictEqual('tumor')
+
+    click_autocomplete(/Cell types/)
 
     click(getByLabelText('CD4 Treg'))
     expect(ref.diff).toStrictEqual({cells: ['CD4', 'CD4_Treg']})
@@ -198,12 +197,6 @@ describe(form.Form, () => {
     click(getByLabelText('cells'))
     click_autocomplete(/Cell types/)
 
-    expect(screen.queryAllByText(/Appendix/)).toHaveLength(0)
-    expect(screen.queryAllByText(/Ascendens/)).toHaveLength(0)
-
-    expect(screen.queryAllByText(/no options/i)).toHaveLength(2)
-
-    click(getByLabelText('CD4'))
     expect(ref.diff).toHaveProperty('cells', ['CD4'])
 
     expect(screen.queryAllByText(/Appendix/)).toHaveLength(2)
