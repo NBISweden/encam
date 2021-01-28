@@ -20,6 +20,7 @@ export interface Options<K extends string> {
   mode: 'default' | 'min-max' | 'outliers'
   show_mean: boolean
   trimmable: Record<K, boolean>
+  height: number
 }
 
 const default_options: Options<string> = {
@@ -38,6 +39,7 @@ const default_options: Options<string> = {
   mode: 'default',
   show_mean: false,
   trimmable: {},
+  height: 300,
 }
 
 function orient(options: Options<any>) {
@@ -172,6 +174,8 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
     {field: 'min', type: 'quantitative', format: '.1f', title: 'Min'},
   ]
 
+  // console.log(options)
+
   const spec: VL.TopLevelSpec = {
     $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
     data: {name: 'data'},
@@ -183,12 +187,11 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
         header: {
           labelAngle: options.landscape ? -90 : 0,
           labelAlign: options.landscape ? 'right' : 'left',
-          labelOrient: options.landscape ? 'bottom' : undefined,
+
+          // // landscape mode: vega-lite is broken here
+          // labelOrient: options.landscape ? 'bottom' : undefined,
+
           title: null,
-          // labelExpr: `[
-          //   truncate(split(datum.value, ",")[1] || '', 6),
-          //   truncate(split(datum.value, ",")[0], 6),
-          // ]`,
         },
       },
       ...(split
@@ -203,19 +206,14 @@ function precalc_boxplot<K extends string, Row extends Record<K, any> & Precalc>
                     }
                   : {},
               header: {
-                // labelAngle:  options.landscape ? 0 : -45,
-                // labelAlign:  options.landscape ? "left" : "right",
-                // labelOrient: options.landscape ? undefined : "bottom",
                 title: null,
-                // labelAnchor: null,
-                labelExpr: '""',
               },
             },
           }
         : {}),
     },
     spec: {
-      [height]: 300,
+      [height]: options.height,
       [width]: {step: 13},
       encoding: {
         [x]: {
@@ -341,13 +339,32 @@ import * as boxplot_data from '../data/boxplot'
 
 stories(add => {
   add(
-    <Boxplot
-      data={boxplot_data.rows}
-      options={{
-        facet: 'cell',
-        inner: ['tumor', 'group', 'location'],
-        color: ['tumor', 'group'],
-      }}
-    />
-  )
+    <div style={{display: 'flex', flexWrap: 'wrap', marginBottom: 'auto'}}>
+      {[undefined, 'location'].flatMap(split =>
+        [false, true].flatMap(landscape => [
+          <div
+            style={{
+              padding: 2,
+              margin: 2,
+              flexGrow: 1,
+              textAlign: 'center',
+              border: '2px #ccc solid',
+            }}>
+            <Boxplot
+              data={boxplot_data.rows}
+              options={{
+                facet: 'cell',
+                inner: split ? ['tumor', 'group'] : ['tumor', 'group', 'location'],
+                color: ['tumor', 'group'],
+                landscape,
+                split,
+                height: 180,
+              }}
+            />
+            <pre>{utils.str({landscape, split})}</pre>
+          </div>,
+        ])
+      )}
+    </div>
+  ).name('Boxplots')
 })

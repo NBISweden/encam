@@ -38,7 +38,8 @@ const tooltip_styles = css`
 const memo = utils.Memoizer<VL.TopLevelSpec, V.Runtime>()
 
 function stroma_background_fixup(svg: SVGElement) {
-  //
+  // Cannot put both a background and a fill in the legend,
+  // so the SVG is patched with a fill
   svg.querySelectorAll('.role-legend [fill*="#stripe"]').forEach(stripe => {
     let node = stripe.parentElement
     while (node) {
@@ -66,13 +67,21 @@ function facet_line_fixup(svg: SVGElement) {
 
   const pairs = [
     [0, N - 1],
-    [0, N / 2 - 1],
-    [N / 2, N - 1],
     [0, N - 2],
     [1, N - 1],
+    [0, N / 2 - 1],
+    [N / 2, N - 1],
   ]
 
   const done = {} as Record<number, boolean>
+
+  function taint(e: Element | null, attr: string, msg: string) {
+    // we taint the elements that have been modified for easier debugging
+    while (e && !Array.from(e.classList).includes('role-scope')) {
+      e.setAttribute(attr, msg)
+      e = e.parentElement
+    }
+  }
 
   for (let p = 0; p < pairs.length; ++p) {
     const [j, k] = pairs[p]
@@ -91,8 +100,10 @@ function facet_line_fixup(svg: SVGElement) {
       const R_rect = R.getBoundingClientRect()
       if (L_rect.width && L_rect.top == R_rect.top) {
         L.setAttribute('x2', `${R_rect.right - L_rect.left}`)
+        taint(L, 'fixup', `x ${j} ${k}`)
       } else if (L_rect.height && L_rect.left == R_rect.left) {
         L.setAttribute('y1', `${R_rect.bottom - L_rect.top - L_rect.height}`)
+        taint(L, 'fixup', `y ${j} ${k}`)
       } else {
         break
       }
@@ -104,12 +115,12 @@ function facet_line_fixup(svg: SVGElement) {
 export default function Embed({
   spec,
   data,
-
-  // data2 used for KMPlot's Confidence Interval bands
   data2,
 }: {
   spec: VL.TopLevelSpec
   data?: any[]
+
+  /** data2 used for KMPlot's Confidence Interval bands */
   data2?: any[]
 }): React.ReactElement {
   const [el, set_el] = React.useState(null as HTMLElement | null)

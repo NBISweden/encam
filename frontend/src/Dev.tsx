@@ -53,7 +53,7 @@ export default function Dev() {
       component: <StoryBrowser />,
     },
   ])
-  const {TabbedRoutes, set_tab} = React.useMemo(() => res, [stories.map(st => st.key).join('_')])
+  const {TabbedRoutes, set_tab} = res
   const {tab, Tabs} = res
   ui.useKeydown(
     e => {
