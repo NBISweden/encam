@@ -21,8 +21,9 @@ const classes = {
       background-repeat: no-repeat;
       margin: 0px auto;
       width: 100%;
+      display: flex;
       &, & > * {
-      min-height: 100%;
+        min-height: 100%;
       }
     `
   ),
@@ -69,6 +70,12 @@ const classes = {
     },
     '& > section': {
       margin: '0px 10px',
+      '& a': {
+        color: '#000',
+      },
+    },
+    '& > header a': {
+      color: adhoc.cell_color('NK'),
     },
     '& > header, & > footer': {
       '& h1': {fontSize: 32},
@@ -77,7 +84,6 @@ const classes = {
       width: 1100,
       color: '#f8f8f8',
       background: adhoc.cell_color('iDC'),
-
       '& > nav': {
         marginLeft: 'auto',
         marginRight: 0,
