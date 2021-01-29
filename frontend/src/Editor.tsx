@@ -173,6 +173,11 @@ export function Editor() {
         )}
       </div>
       <div style={{margin: 5}}>{section.elem}</div>
+      <div style={{float: 'right'}}>
+        <a href="https://commonmark.org/help/" target="_blank">
+          markdown reference
+        </a>
+      </div>
     </div>
   )
 }
