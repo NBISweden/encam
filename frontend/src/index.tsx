@@ -1,3 +1,9 @@
+import 'core-js/features/array/flat-map'
+import 'core-js/features/array/flat'
+import 'core-js/features/array/from'
+import 'core-js/features/object/entries'
+import 'core-js/features/object/from-entries'
+
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {App} from './App'
