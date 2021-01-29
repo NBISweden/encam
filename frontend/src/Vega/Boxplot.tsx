@@ -340,30 +340,32 @@ import * as boxplot_data from '../data/boxplot'
 stories(add => {
   add(
     <div style={{display: 'flex', flexWrap: 'wrap', marginBottom: 'auto'}}>
-      {[undefined, 'location'].flatMap(split =>
-        [false, true].flatMap(landscape => [
-          <div
-            style={{
-              padding: 2,
-              margin: 2,
-              flexGrow: 1,
-              textAlign: 'center',
-              border: '2px #ccc solid',
-            }}>
-            <Boxplot
-              data={boxplot_data.rows}
-              options={{
-                facet: 'cell',
-                inner: split ? ['tumor', 'group'] : ['tumor', 'group', 'location'],
-                color: ['tumor', 'group'],
-                landscape,
-                split,
-                height: 180,
-              }}
-            />
-            <pre>{utils.str({landscape, split})}</pre>
-          </div>,
-        ])
+      {ui.dummy_keys(
+        [undefined, 'location'].flatMap(split =>
+          [false, true].flatMap(landscape => [
+            <div
+              style={{
+                padding: 2,
+                margin: 2,
+                flexGrow: 1,
+                textAlign: 'center',
+                border: '2px #ccc solid',
+              }}>
+              <Boxplot
+                data={boxplot_data.rows}
+                options={{
+                  facet: 'cell',
+                  inner: split ? ['tumor', 'group'] : ['tumor', 'group', 'location'],
+                  color: ['tumor', 'group'],
+                  landscape,
+                  split,
+                  height: 180,
+                }}
+              />
+              <pre>{utils.str({landscape, split})}</pre>
+            </div>,
+          ])
+        )
       )}
     </div>
   ).name('Boxplots')
