@@ -11,6 +11,14 @@
   <body>
     <div id="root"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script nomodule>
+        document.body.innerHTML += [
+            'You need a browser with modern JavaScript support to run this app.',
+            'Try downloading the latest version of',
+            '<a href="https://getfirefox.com" target="_blank">Firefox</a> or',
+            '<a href="https://google.com/chrome" target="_blank">Chrome</a>.',
+        ].join(' ')
+    </script>
     <script type="module" src="/_dist_/index.js"></script>
   </body>
 </html>
