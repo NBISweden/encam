@@ -7,6 +7,7 @@ const styles = css`
     user-select: inherit;
   }
   html {
+    min-height: 100%;
     width: fit-content;
     user-select: none;
   }
