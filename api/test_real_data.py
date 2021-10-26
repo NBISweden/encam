@@ -5,6 +5,7 @@ from copy import deepcopy
 
 example_body = {
   "clinical_stage": [
+    "missing",
     "0",
     "I",
     "II",
@@ -21,7 +22,9 @@ example_body = {
   "pN_stage": [
     "N0",
     "N1",
-    "N2"
+    "N2",
+    "N3",
+    "N4"
   ],
   "pM_stage": [
     "M0",
@@ -30,29 +33,38 @@ example_body = {
   "Diff_grade": [
     "high",
     "low",
+    "intermediate",
     "missing"
   ],
   "Neuralinv": [
     "no",
     "yes",
-    "missing"
+    "missing",
+    "0"
   ],
   "Vascinv": [
     "no",
     "yes",
-    "missing"
+    "missing",
+    "0"
   ],
   "PreOp_treatment_yesno": [
+    "yes",
     "no",
-    "yes"
+    "missing",
+    "not_relevant"
   ],
   "PostOp_type_treatment": [
-    "Chemotherapy only",
-    "no"
+    "yes",
+    "no",
+    "missing",
+    "not_relevant",
   ],
   "Anatomical_location": {
     "COAD": [
       "Appendix",
+      "Left colon",
+      "Right colon",
       "Ascendens",
       "Caecum",
       "Descendens",
@@ -70,11 +82,13 @@ example_body = {
   "Morphological_type": {
     "COAD": [
       "mucinon-mucinousus",
+      "mucinous",
       "non-mucinous",
       "missing"
     ],
     "READ": [
       "mucinon-mucinousus",
+      "mucinous",
       "non-mucinous",
       "missing"
     ]
@@ -113,6 +127,7 @@ example_body = {
 
 example_body2 = {
   "clinical_stage": [
+    "missing",
     "IV"
   ],
   "pT_stage": [
@@ -133,22 +148,33 @@ example_body2 = {
   ],
   "Neuralinv": [
     "no",
-    "missing"
+    "yes",
+    "missing",
+    "0"
   ],
   "Vascinv": [
     "no",
     "yes",
+    "missing",
+    "0"
   ],
   "PreOp_treatment_yesno": [
+    "yes",
     "no",
+    "missing",
+    "not_relevant"
   ],
   "PostOp_type_treatment": [
-    "Chemotherapy only",
-    "no"
+    "yes",
+    "no",
+    "missing",
+    "not_relevant",
   ],
   "Anatomical_location": {
     "COAD": [
       "Appendix",
+      "Left colon",
+      "Right colon",
       "Ascendens",
       "Caecum",
       "Descendens",
@@ -166,11 +192,13 @@ example_body2 = {
   "Morphological_type": {
     "COAD": [
       "mucinon-mucinousus",
+      "mucinous",
       "non-mucinous",
       "missing"
     ],
     "READ": [
       "mucinon-mucinousus",
+      "mucinous",
       "non-mucinous",
       "missing"
     ]
@@ -374,19 +402,19 @@ def test_results_number():
 
     c = filter2_to_dict(ex)
 
-    assert len(c) == 35532
+    assert len(c) == 9940
 
     # Filter out cell types
     ex['cells'] = ['CD4_Treg', 'CD4']
     c = filter2_to_dict(ex)
 
-    assert len(c) == 5076
+    assert len(c) == 1420
 
-    # Using second example data
+    #Using second example data
     ex = deepcopy(example_body2)
     c = filter2_to_dict(ex)
 
-    assert len(c) == 128
+    assert len(c) == 12
 
 test_results_number()
 
