@@ -95,7 +95,7 @@ describe(form.Form, () => {
     expect(ref.diff).toStrictEqual({})
 
     click(screen.getAllByLabelText('missing')[1])
-    expect(ref.diff).toStrictEqual({Neuralinv: ['No', 'Yes']})
+    expect(ref.diff).toStrictEqual({Neuralinv: ['no', 'yes']})
 
     click(screen.getAllByLabelText('missing')[0])
     // expect(ref.diff).toStrictEqual({Diff_grade: ['high', 'low', 'missing']})
