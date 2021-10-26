@@ -9,3 +9,6 @@
 */build
 docs
 config/content/*
+*ipynb
+api/Merged_cohort_ENC.csv
+api/Merged_cohort_ENC_corrected.csv
