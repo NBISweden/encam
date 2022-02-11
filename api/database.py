@@ -1,7 +1,9 @@
 from lifelines import CoxPHFitter, KaplanMeierFitter
+from lifelines.exceptions import ConvergenceError
 from lifelines.statistics import multivariate_logrank_test
 import pandas as pd
-import json
+import numpy as np
+import os
 from itertools import accumulate
 
 def uniq(xs):
@@ -16,15 +18,29 @@ def coxph_per_type(dd, cell_types):
     dd = dd.copy()
 
     for i in cell_types:
-        dd[i] = ntiles(dd[i])
+        if len(uniq(dd[i])) < 2:
+            print("Removing %s column from %i due to single rank", (dd[i], i))
+            del dd[i]
+        else:
+            dd[i] = ntiles(dd[i])
 
     univariate_results = []
     for c in cell_types:
-        dd_c = dd[[c, 'T', 'E']]
-        dd_c = dd_c[~pd.isnull(dd_c).any(axis=1)]
-        cph = CoxPHFitter()
-        cph.fit(dd_c, 'T', event_col='E') # fits are ~15-60 ms each
-        univariate_results.append(cph.summary)
+        if c in dd:
+            dd_c = dd[[c, 'T', 'E']]
+            dd_c = dd_c[~pd.isnull(dd_c).any(axis=1)]
+            cph = CoxPHFitter()
+            try:
+              cph.fit(dd_c, 'T', event_col='E') # fits are ~15-60 ms each
+              summary = cph.summary
+              summary.replace([np.inf, -np.inf], np.nan, inplace=True)
+              if not summary.isnull().values.any():
+                  univariate_results.append(summary)
+              else:
+                  print("No summary for %s" % c)
+            except ConvergenceError as err:
+                print(err)
+                continue
 
     cox = pd.concat(univariate_results)
     rename = {
@@ -40,14 +56,15 @@ def coxph_per_type(dd, cell_types):
 def data_per_type(dd, cell_types):
     expression = pd.DataFrame({'expression': dd[cell_types].mean()})
     cox = coxph_per_type(dd, cell_types)
-    return pd.concat((expression, cox), axis=1)
+    return pd.concat((expression, cox), axis=1).dropna()
 
-ntiles = lambda xs,groups=2: pd.cut(pd.Series(xs).rank(), groups, right=False, labels=False) + 1
+ntiles = lambda xs,groups=2: pd.cut(pd.Series(xs).rank(na_option='keep'), groups, right=False, labels=False) + 1
 
 def init():
     print("Initialization started", flush=True)
 
-    data = pd.read_csv("./SIM.csv")
+    dataset = os.getenv('DATASET', './SIM.csv')
+    data = pd.read_csv(dataset)
 
     # Whitespace stripping because of some trailing Morphological_type spaces
     strip = lambda x: x.strip() if isinstance(x, str) else x
@@ -56,19 +73,38 @@ def init():
     # data = data.sample
     # data = data[lambda row: (row.Tumor_type_code == 'BRCA') | (row.Tumor_type_code == 'COAD')]
 
+    # Remove those rows that do not have this data
     data['T'] = data['Time_Diagnosis_Last_followup']
+    data['T'].astype(str)
+
+    # Rename columns to used names
+    if dataset != './SIM.csv':
+        data['MSI_ARTUR'] = data['MSI']
+        data['clinical_stage'] = data['clinicl_stge']
+        data['Anatomical_location'] = data['Atomical_location']
+        data['T'] = data['Time_Diagnosis_Last_followup']
+
+    # Assumption> fill missing if undefined
+    remove_nas = lambda x: "missing" if pd.isna(x) else x
+    for attr in ["PreOp_treatment_yesno", "PostOp_type_treatment"]:
+        data[attr] = data[attr].map(remove_nas)
+
+    # Fill consistent spelling for yes/no cells
+    to_lower = lambda x: x.lower() if isinstance(x, str) and x.lower() in ["yes", "no"] else x
+    for attr in ["PreOp_treatment_yesno", "PostOp_type_treatment", "Neuralinv", "Vascinv"]:
+        data[attr] = data[attr].map(to_lower)
+
+    data['Anatomical_location'].astype(str)
+
     data['E'] = data['Event_last_followup'] == 'Dead'
+    data['E'].astype(bool)
 
     tumor_types = uniq(data.Tumor_type_code)
     cell_types = uniq(c for c in data.columns if 'TUMOR' in c or 'STROMA' in c)
 
     dfs = []
     for t in tumor_types:
-        df = data_per_type(
-          data[
-            (data.Tumor_type_code == t) &
-            (data['PreOp_treatment_yesno'] == 'No')],
-          cell_types)
+        df = data_per_type(data[(data.Tumor_type_code == t)], cell_types)
         # df = df.astype('float16')
         df = df.applymap(lambda x: float(f'{x:.3e}'))
         cell_full = df.index
@@ -128,6 +164,7 @@ def inf_to_nan(x):
 
 def Tukey_array(a):
     a = np.array(a)
+    a = a[a != "missing"]
     q1 = np.quantile(a, q=0.25)
     q3 = np.quantile(a, q=0.75)
     iqr15 = 1.5 * np.subtract(q3, q1)
@@ -250,6 +287,7 @@ def binning(data_filtered, cell, group_sizes):
 def filter_survival(filter_id):
 
     data_filtered = filtering(filter_id)
+    data_filtered = data_filtered[data_filtered[filter_id['cell_full']] != "missing"]
 
     # Get the groups for ntiles and run the Kaplan Meier fitter for each of them
     # If the group_sizes are provided, use the binning function, otherwise the general ntiles
@@ -329,7 +367,8 @@ def calculate_size(filter_id):
 
 def expression(filter_id):
     response = filtering(filter_id)
-    response = response.sort_values(by=filter_id['cell_full'])
+    filtered = response[response[filter_id['cell_full']] != "missing"]
+    response = filtered.sort_values(by=filter_id['cell_full'])
     return response[filter_id['cell_full']]
 
 

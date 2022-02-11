@@ -41,9 +41,9 @@ export const filter = {
   pN_stage: ['N0', 'N1', 'N2'],
   pM_stage: ['M0', 'M1'],
   Diff_grade: ['high', 'low', 'missing'],
-  Neuralinv: ['No', 'Yes', 'missing'],
-  Vascinv: ['No', 'Yes', 'missing'],
-  PreOp_treatment_yesno: ['No', 'Yes'],
+  Neuralinv: ['no', 'yes', 'missing'],
+  Vascinv: ['no', 'yes', 'missing'],
+  PreOp_treatment_yesno: ['no', 'yes'],
   PostOp_type_treatment: ['Chemotherapy only', 'no'],
   Anatomical_location: {
     COAD: [

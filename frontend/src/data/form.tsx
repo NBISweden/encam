@@ -37,7 +37,7 @@ export const form_test_conf: Conf = {
     },
     {
       column: 'Neuralinv',
-      values: ['No', 'Yes', 'missing'],
+      values: ['no', 'yes', 'missing'],
     },
   ],
 }
