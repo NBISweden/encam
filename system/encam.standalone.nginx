@@ -1,7 +1,14 @@
     server {
         listen 8080;
         server_name _;
+        location /.well-known/ {
+                 # Stop processing here to serve content from .well-known
+                root         /config/updates;
+                try_files $uri =404;
+        }
+        location / {
         return 301 https://$host$request_uri;
+        }
     }
     server {
         listen 8443 ssl http2;
@@ -10,10 +17,6 @@
         ssl_certificate /code/cert.pem;
         ssl_certificate_key /code/key.pem;
         root /app/dist/;
-
-        location ^~ /.well-known/ {
-                 # Stop processing here to serve content from .well-known
-        }
 
         location / {
             # Forward to index.html if the file does not exist to allow javascript to route
